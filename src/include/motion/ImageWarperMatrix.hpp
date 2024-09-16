@@ -36,8 +36,8 @@ private:
 	// Implementation of the parent virtual methods.
 	void initWarpModeSpecificParameters() override;
 	void Reset() override;
-	void warp(GCImage* image, int motionFrameId) const override;
-	void inverseWarp(GCImage* image, int motionFrameId) const override;
+	void warp(Image* image, int motionFrameId) const override;
+	void inverseWarp(Image* image, int motionFrameId) const override;
 	void setFrameWarpParameters(int motionFrameId,
 	                            const std::vector<double>& warpParam) override;
 	double getVoxelPhysPos(int voxelId, int voxelDim) const;

@@ -20,7 +20,7 @@ void py_setup_imagewarpertemplate(py::module& m)
 	          const std::vector<int>& imDim, const std::vector<float>& imSize)>(
 	          &ImageWarperTemplate::setImageHyperParam));
 	c.def("setImageHyperParam", static_cast<void (ImageWarperTemplate::*)(
-	                                const GCImageParams& img_params)>(
+	                                const ImageParams& img_params)>(
 	                                &ImageWarperTemplate::setImageHyperParam));
 	c.def("setMotionHyperParam", &ImageWarperTemplate::setMotionHyperParam);
 	c.def("setFramesParamFromFile",
@@ -84,7 +84,7 @@ void ImageWarperTemplate::setImageHyperParam(const std::vector<int>& imDim,
 	m_imHyperInit = true;
 }
 
-void ImageWarperTemplate::setImageHyperParam(const GCImageParams& img_params)
+void ImageWarperTemplate::setImageHyperParam(const ImageParams& img_params)
 {
 	const std::vector<int> imDim({img_params.nx, img_params.ny, img_params.nz});
 	const std::vector<float> imSize({static_cast<float>(img_params.length_x),
@@ -268,13 +268,13 @@ void ImageWarperTemplate::Reset()
 	m_frameWarpParamDefined.clear();
 }
 
-void ImageWarperTemplate::setRefImage(GCImage* image)
+void ImageWarperTemplate::setRefImage(Image* image)
 {
 	m_refImage = image;
 }
 
 
-void ImageWarperTemplate::warpRefImage(GCImage* image, int frameId) const
+void ImageWarperTemplate::warpRefImage(Image* image, int frameId) const
 {
 	if (frameId != m_referenceFrameId)
 	{
@@ -293,7 +293,7 @@ void ImageWarperTemplate::warpRefImage(GCImage* image, int frameId) const
 void GCOperatorWarpRefImage::applyA(const GCVariable* warp, GCVariable* out)
 {
 	const ImageWarperTemplate* warper = dynamic_cast<const ImageWarperTemplate*>(warp);
-	GCImage* img = dynamic_cast<GCImage*>(out);
+	Image* img = dynamic_cast<Image*>(out);
 	ASSERT(img != nullptr);
 	ASSERT(warper != nullptr);
 	warper->warpRefImage(img, m_frameId);
@@ -301,13 +301,13 @@ void GCOperatorWarpRefImage::applyA(const GCVariable* warp, GCVariable* out)
 void GCOperatorWarpRefImage::applyAH(const GCVariable* warp, GCVariable* out)
 {
 	const ImageWarperTemplate* warper = dynamic_cast<const ImageWarperTemplate*>(warp);
-	GCImage* img = dynamic_cast<GCImage*>(out);
+	Image* img = dynamic_cast<Image*>(out);
 	ASSERT(img != nullptr);
 	ASSERT(warper != nullptr);
 	warper->warpImageToRefFrame(img, m_frameId);
 }
 
-void ImageWarperTemplate::warpImageToRefFrame(GCImage* image, int frameId) const
+void ImageWarperTemplate::warpImageToRefFrame(Image* image, int frameId) const
 {
 	// If the motion frame specified is the reference one, the image is not
 	// deformed
@@ -324,17 +324,17 @@ void ImageWarperTemplate::warpImageToRefFrame(GCImage* image, int frameId) const
 }
 
 
-void ImageWarperTemplate::computeGlobalWarpToRefFrame(GCImage* image,
+void ImageWarperTemplate::computeGlobalWarpToRefFrame(Image* image,
                                                       bool writeFileSteps)
 {
 	// Warping methods of this class modify the given image so we need a copy to
 	// warp it multiple time.
 	auto tmpCopyOfGivenImage =
-	    std::make_unique<GCImageOwned>(image->getParams());
+	    std::make_unique<ImageOwned>(image->getParams());
 	tmpCopyOfGivenImage->allocate();
 	// Temporary container for the results to which each warp results will be
 	// added.
-	auto tmpGlobalWarpResult = std::make_unique<GCImageOwned>(GCImageParams(
+	auto tmpGlobalWarpResult = std::make_unique<ImageOwned>(ImageParams(
 	    m_imNbVoxel[0], m_imNbVoxel[1], m_imNbVoxel[2], (double)m_imSize[0],
 	    (double)m_imSize[1], (double)m_imSize[2]));
 	tmpGlobalWarpResult->allocate();

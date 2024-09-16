@@ -5,7 +5,7 @@
 
 #include "operators/GCOperatorProjectorDD.hpp"
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/projection/IProjectionData.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -22,7 +22,7 @@ void py_setup_gcoperatorprojectordd(py::module& m)
 	c.def(py::init<const GCOperatorProjectorParams&>(), py::arg("projParams"));
 	c.def(
 	    "forward_projection",
-	    [](const GCOperatorProjectorDD& self, const GCImage* in_image,
+	    [](const GCOperatorProjectorDD& self, const Image* in_image,
 	       const GCStraightLineParam& lor, const GCVector& n1,
 	       const GCVector& n2, const GCTimeOfFlightHelper* tofHelper,
 	       float tofValue) -> double
@@ -34,7 +34,7 @@ void py_setup_gcoperatorprojectordd(py::module& m)
 	    py::arg("tofHelper") = nullptr, py::arg("tofValue") = 0.0f);
 	c.def(
 	    "back_projection",
-	    [](const GCOperatorProjectorDD& self, GCImage* in_image,
+	    [](const GCOperatorProjectorDD& self, Image* in_image,
 	       const GCStraightLineParam& lor, const GCVector& n1,
 	       const GCVector& n2, double proj_value,
 	       const GCTimeOfFlightHelper* tofHelper, float tofValue)
@@ -57,7 +57,7 @@ GCOperatorProjectorDD::GCOperatorProjectorDD(
 {
 }
 
-double GCOperatorProjectorDD::forwardProjection(const GCImage* img,
+double GCOperatorProjectorDD::forwardProjection(const Image* img,
                                                 const IProjectionData* dat,
                                                 bin_t bin)
 {
@@ -70,7 +70,7 @@ double GCOperatorProjectorDD::forwardProjection(const GCImage* img,
 	                         mp_projPsfManager.get());
 }
 
-void GCOperatorProjectorDD::backProjection(GCImage* img,
+void GCOperatorProjectorDD::backProjection(Image* img,
                                            const IProjectionData* dat,
                                            bin_t bin, double projValue)
 {
@@ -82,26 +82,26 @@ void GCOperatorProjectorDD::backProjection(GCImage* img,
 }
 
 double GCOperatorProjectorDD::forwardProjection(
-    const GCImage* in_image, const GCStraightLineParam& lor, const GCVector& n1,
+    const Image* in_image, const GCStraightLineParam& lor, const GCVector& n1,
     const GCVector& n2, const GCTimeOfFlightHelper* tofHelper, float tofValue,
     const GCProjectionPsfManager* psfManager) const
 {
 	double v = 0;
 	if (tofHelper != nullptr)
 	{
-		dd_project_ref<true, true>(const_cast<GCImage*>(in_image), lor, n1, n2,
+		dd_project_ref<true, true>(const_cast<Image*>(in_image), lor, n1, n2,
 		                           v, tofHelper, tofValue, psfManager);
 	}
 	else
 	{
-		dd_project_ref<true, false>(const_cast<GCImage*>(in_image), lor, n1, n2,
+		dd_project_ref<true, false>(const_cast<Image*>(in_image), lor, n1, n2,
 		                            v, nullptr, tofValue, psfManager);
 	}
 	return v;
 }
 
 void GCOperatorProjectorDD::backProjection(
-    GCImage* in_image, const GCStraightLineParam& lor, const GCVector& n1,
+    Image* in_image, const GCStraightLineParam& lor, const GCVector& n1,
     const GCVector& n2, double proj_value,
     const GCTimeOfFlightHelper* tofHelper, float tofValue,
     const GCProjectionPsfManager* psfManager) const
@@ -145,7 +145,7 @@ float GCOperatorProjectorDD::get_overlap(
 
 template <bool IS_FWD, bool FLAG_TOF>
 void GCOperatorProjectorDD::dd_project_ref(
-    GCImage* in_image, const GCStraightLineParam& lor, const GCVector& n1,
+    Image* in_image, const GCStraightLineParam& lor, const GCVector& n1,
     const GCVector& n2, double& proj_value,
     const GCTimeOfFlightHelper* tofHelper, float tofValue,
     const GCProjectionPsfManager* psfManager) const
@@ -154,7 +154,7 @@ void GCOperatorProjectorDD::dd_project_ref(
 	{
 		proj_value = 0.0;
 	}
-	const GCImageParams& params = in_image->getParams();
+	const ImageParams& params = in_image->getParams();
 	const GCVector offsetVec = {params.off_x, params.off_y, params.off_z};
 	GCStraightLineParam lorWithoffset = lor;
 	lorWithoffset.point1 = lorWithoffset.point1 - offsetVec;
@@ -436,18 +436,18 @@ void GCOperatorProjectorDD::dd_project_ref(
 }
 
 template void GCOperatorProjectorDD::dd_project_ref<true, false>(
-    GCImage*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;
 template void GCOperatorProjectorDD::dd_project_ref<false, false>(
-    GCImage*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;
 template void GCOperatorProjectorDD::dd_project_ref<true, true>(
-    GCImage*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;
 template void GCOperatorProjectorDD::dd_project_ref<false, true>(
-    GCImage*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;

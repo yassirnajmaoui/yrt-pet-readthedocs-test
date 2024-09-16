@@ -11,7 +11,7 @@
 #include "utils/GCTypes.hpp"
 
 class GCBinIterator;
-class GCImage;
+class Image;
 class GCScanner;
 class IProjectionData;
 class IHistogram;
@@ -57,14 +57,14 @@ public:
 	const GCScanner* getScanner() const;
 	const GCBinIterator* getBinIter() const;
 
-	virtual void setAttImage(const GCImage* p_attImage);  // alias
-	virtual void setAttImageForBackprojection(const GCImage* p_attImage);
-	void setAttenuationImage(const GCImage* p_attImage);
+	virtual void setAttImage(const Image* p_attImage);  // alias
+	virtual void setAttImageForBackprojection(const Image* p_attImage);
+	void setAttenuationImage(const Image* p_attImage);
 	virtual void setAddHisto(const IHistogram* p_addHisto);
 	void setBinIter(const GCBinIterator* p_binIter);
 
-	const GCImage* getAttImage() const;
-	const GCImage* getAttImageForBackprojection() const;
+	const Image* getAttImage() const;
+	const Image* getAttImageForBackprojection() const;
 	const IHistogram* getAddHisto() const;
 
 protected:
@@ -75,9 +75,9 @@ protected:
 	const GCScanner* scanner;
 
 	// Attenuation image for forward projection (when there is motion)
-	const GCImage* attImage;
+	const Image* attImage;
 	// For generating a sensitivity image with attenuation correction
-	const GCImage* attImageForBackprojection;
+	const Image* attImageForBackprojection;
 	// Additive histogram
 	const IHistogram* addHisto;
 };
@@ -95,9 +95,9 @@ public:
 	GCOperatorProjector(const GCOperatorProjectorParams& p_projParams);
 
 	// Virtual functions
-	virtual double forwardProjection(const GCImage* in_image,
+	virtual double forwardProjection(const Image* in_image,
 	                                 const IProjectionData* dat, bin_t bin) = 0;
-	virtual void backProjection(GCImage* in_image, const IProjectionData* dat,
+	virtual void backProjection(Image* in_image, const IProjectionData* dat,
 	                            bin_t bin, double projValue) = 0;
 
 	void applyA(const GCVariable* in, GCVariable* out) override;

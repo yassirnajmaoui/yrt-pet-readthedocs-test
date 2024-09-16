@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "datastruct/image/GCImageBase.hpp"
-#include "datastruct/image/GCImageDevice.cuh"
+#include "datastruct/image/ImageBase.hpp"
+#include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/GCProjectionDataDevice.cuh"
 #include "operators/GCOperator.hpp"
 #include "operators/GCOperatorProjector.hpp"
@@ -20,7 +20,7 @@ namespace Util
 {
 	// Takes a reference of an image, and automatically determines
 	// the 3D grid/block parameters.
-	GCGPULaunchParams3D initiateDeviceParameters(const GCImageParams& params);
+	GCGPULaunchParams3D initiateDeviceParameters(const ImageParams& params);
 	// Takes a size of the data to be processed, and automatically determines
 	// the grid/block parameters
 	GCGPULaunchParams initiateDeviceParameters(size_t batchSize);
@@ -32,7 +32,7 @@ class GCOperatorDevice : public GCOperator
 
 public:
 	static GCCUScannerParams getCUScannerParams(const GCScanner& scanner);
-	static GCCUImageParams getCUImageParams(const GCImageParams& imgParams);
+	static GCCUImageParams getCUImageParams(const ImageParams& imgParams);
 
 protected:
 	GCOperatorDevice() = default;
@@ -52,8 +52,8 @@ public:
 
 	bool requiresIntermediaryProjData() const;
 
-	void setAttImage(const GCImage* attImage) override;
-	void setAttImageForBackprojection(const GCImage* attImage) override;
+	void setAttImage(const Image* attImage) override;
+	void setAttImageForBackprojection(const Image* attImage) override;
 	void setAddHisto(const IHistogram *p_addHisto) override;
 	void setupTOFHelper(float tofWidth_ps, int tofNumStd = -1);
 
@@ -69,8 +69,8 @@ protected:
 	void setBatchSize(size_t newBatchSize);
 
 	GCProjectionDataDeviceOwned& getIntermediaryProjData();
-	const GCImageDevice& getAttImageDevice() const;
-	const GCImageDevice& getAttImageForBackprojectionDevice() const;
+	const ImageDevice& getAttImageDevice() const;
+	const ImageDevice& getAttImageForBackprojectionDevice() const;
 	void prepareIntermediaryBuffer(const GCProjectionDataDevice* orig);
 	void prepareIntermediaryBufferIfNeeded(const GCProjectionDataDevice* orig);
 
@@ -86,9 +86,9 @@ private:
 	std::unique_ptr<GCDeviceObject<GCTimeOfFlightHelper>> mp_tofHelper;
 
 	// For attenuation correction
-	std::unique_ptr<GCImageDeviceOwned> mp_attImageDevice;
+	std::unique_ptr<ImageDeviceOwned> mp_attImageDevice;
 	// For attenuation correction
-	std::unique_ptr<GCImageDeviceOwned> mp_attImageForBackprojectionDevice;
+	std::unique_ptr<ImageDeviceOwned> mp_attImageForBackprojectionDevice;
 	// For Attenuation correction or Additive correction
 	std::unique_ptr<GCProjectionDataDeviceOwned> mp_intermediaryProjData;
 };

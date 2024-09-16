@@ -5,7 +5,7 @@
 
 #include "operators/GCOperatorProjector.hpp"
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/projection/GCBinIterator.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "geometry/GCConstants.hpp"
@@ -68,11 +68,11 @@ void py_setup_gcoperatorprojector(py::module& m)
 	      &GCOperatorProjector::getProjectionPsfManager);
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const GCImage* img, IProjectionData* proj)
+	    [](GCOperatorProjector& self, const Image* img, IProjectionData* proj)
 	    { self.applyA(img, proj); }, py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const IProjectionData* proj, GCImage* img)
+	    [](GCOperatorProjector& self, const IProjectionData* proj, Image* img)
 	    { self.applyAH(proj, img); }, py::arg("proj"), py::arg("img"));
 
 	py::enum_<GCOperatorProjector::ProjectorType>(c, "ProjectorType")
@@ -120,18 +120,18 @@ void GCOperatorProjectorBase::setBinIter(const GCBinIterator* p_binIter)
 	binIter = p_binIter;
 }
 
-void GCOperatorProjectorBase::setAttenuationImage(const GCImage* p_attImage)
+void GCOperatorProjectorBase::setAttenuationImage(const Image* p_attImage)
 {
 	setAttImage(p_attImage);
 }
 
 void GCOperatorProjectorBase::setAttImageForBackprojection(
-    const GCImage* p_attImage)
+    const Image* p_attImage)
 {
 	attImageForBackprojection = p_attImage;
 }
 
-void GCOperatorProjectorBase::setAttImage(const GCImage* p_attImage)
+void GCOperatorProjectorBase::setAttImage(const Image* p_attImage)
 {
 	ASSERT_MSG(p_attImage != nullptr,
 	           "The attenuation image given in "
@@ -149,12 +149,12 @@ const GCScanner* GCOperatorProjectorBase::getScanner() const
 	return scanner;
 }
 
-const GCImage* GCOperatorProjectorBase::getAttImage() const
+const Image* GCOperatorProjectorBase::getAttImage() const
 {
 	return attImage;
 }
 
-const GCImage* GCOperatorProjectorBase::getAttImageForBackprojection() const
+const Image* GCOperatorProjectorBase::getAttImageForBackprojection() const
 {
 	return attImageForBackprojection;
 }
@@ -186,7 +186,7 @@ GCOperatorProjector::GCOperatorProjector(
 void GCOperatorProjector::applyA(const GCVariable* in, GCVariable* out)
 {
 	auto* dat = dynamic_cast<IProjectionData*>(out);
-	auto* img = dynamic_cast<const GCImage*>(in);
+	auto* img = dynamic_cast<const Image*>(in);
 
 	ASSERT_MSG(dat != nullptr, "Input variable has to be Projection data");
 	ASSERT_MSG(img != nullptr, "Output variable has to be an image");
@@ -220,7 +220,7 @@ void GCOperatorProjector::applyA(const GCVariable* in, GCVariable* out)
 void GCOperatorProjector::applyAH(const GCVariable* in, GCVariable* out)
 {
 	auto* dat = dynamic_cast<const IProjectionData*>(in);
-	auto* img = dynamic_cast<GCImage*>(out);
+	auto* img = dynamic_cast<Image*>(out);
 	ASSERT(dat != nullptr && img != nullptr);
 
 #pragma omp parallel for

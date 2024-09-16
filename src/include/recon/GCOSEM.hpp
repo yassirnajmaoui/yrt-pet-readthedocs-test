@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "operators/GCOperatorProjector.hpp"
 #include "operators/GCOperatorPsf.hpp"
 
@@ -31,13 +31,13 @@ public:
 	// Sensitivity image generation
 	void generateSensitivityImages(const std::string& out_fname);
 	void generateSensitivityImages(
-	    std::vector<std::unique_ptr<GCImage>>& sensImages,
+	    std::vector<std::unique_ptr<Image>>& sensImages,
 	    const std::string& out_fname);
 	bool validateSensImagesAmount(int size) const;
 
 	// In case the sensitivity images were already generated
 	void registerSensitivityImages(
-	    const std::vector<std::unique_ptr<GCImage>>& sensImages);
+	    const std::vector<std::unique_ptr<Image>>& sensImages);
 #if BUILD_PYBIND11
 	void registerSensitivityImages(pybind11::list& imageList);
 #endif
@@ -70,15 +70,15 @@ public:
 	float hardThreshold;
 	int numRays;  // For Siddon only
 	GCOperatorProjector::ProjectorType projectorType;
-	GCImageParams imageParams;
+	ImageParams imageParams;
 	const GCScanner* scanner;
-	const GCImage* maskImage;
-	const GCImage* attenuationImage;
-	const GCImage* attenuationImageForBackprojection;
+	const Image* maskImage;
+	const Image* attenuationImage;
+	const Image* attenuationImageForBackprojection;
 	const IHistogram* addHis;
 	ImageWarperTemplate* warper; // For MLEM with Warper only
 	// TODO: Maybe make it so a buffer is automatically created in Initialize
-	GCImage* outImage;  // Buffer to for recon fill (Note: This is a host image)
+	Image* outImage;  // Buffer to for recon fill (Note: This is a host image)
 
 protected:
 	// ---------- Internal Getters ----------
@@ -88,10 +88,10 @@ protected:
 	auto& getProjector() { return mp_projector; }
 	const auto& getProjector() const { return mp_projector; }
 
-	const GCImageParams& getImageParams() const { return imageParams; }
+	const ImageParams& getImageParams() const { return imageParams; }
 
-	const GCImage* getSensitivityImage(int subsetId) const;
-	GCImage* getSensitivityImage(int subsetId);
+	const Image* getSensitivityImage(int subsetId) const;
+	Image* getSensitivityImage(int subsetId);
 
 	// ---------- Protected members ----------
 	bool flagImagePSF;
@@ -111,7 +111,7 @@ protected:
 	// Sens Image generator driver
 	virtual void SetupOperatorsForSensImgGen() = 0;
 	virtual void allocateForSensImgGen() = 0;
-	virtual std::unique_ptr<GCImage> GetLatestSensitivityImage(bool isLastSubset) = 0;
+	virtual std::unique_ptr<Image> GetLatestSensitivityImage(bool isLastSubset) = 0;
 	virtual void EndSensImgGen() = 0;
 
 	// Reconstruction driver
@@ -121,10 +121,10 @@ protected:
 	virtual void CompleteMLEMIteration() = 0;
 
 	// Abstract Getters
-	virtual GCImageBase* GetSensImageBuffer() = 0;
+	virtual ImageBase* GetSensImageBuffer() = 0;
 	virtual IProjectionData* GetSensDataInputBuffer() = 0;
-	virtual GCImageBase* GetMLEMImageBuffer() = 0;
-	virtual GCImageBase* GetMLEMImageTmpBuffer() = 0;
+	virtual ImageBase* GetMLEMImageBuffer() = 0;
+	virtual ImageBase* GetMLEMImageTmpBuffer() = 0;
 	virtual IProjectionData* GetMLEMDataBuffer() = 0;
 	virtual IProjectionData* GetMLEMDataTmpBuffer() = 0;
 	virtual int GetNumBatches(int subsetId, bool forRecon) const;
@@ -139,7 +139,7 @@ private:
 	void GenerateSensitivityImageForSubset(int subsetId);
 	void GenerateSensitivityImagesCore(
 	    bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
-	    std::vector<std::unique_ptr<GCImage>>& sensImages);
+	    std::vector<std::unique_ptr<Image>>& sensImages);
 	void InitializeForRecon();
 
 	std::vector<std::unique_ptr<GCBinIterator>> m_binIterators;
@@ -147,5 +147,5 @@ private:
 	IProjectionData* sensDataInput;
 	IProjectionData* dataInput;
 
-	std::vector<GCImage*> sensitivityImages;
+	std::vector<Image*> sensitivityImages;
 };

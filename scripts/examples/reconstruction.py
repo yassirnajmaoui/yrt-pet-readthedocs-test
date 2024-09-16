@@ -5,7 +5,7 @@ import pyyrtpet as gc
 
 scanner = gc.GCScannerOwned("<path to the scanner's json file>")
 
-imgParams = gc.GCImageParams("<path to the image parameters file>")
+imgParams = gc.ImageParams("<path to the image parameters file>")
 
 dataset = gc.GCHistogram3DOwned(scanner, "<path to the histogram file>")
 # or, alternatively, read a ListMode file
@@ -26,23 +26,23 @@ osem.addTOF(<TOF width in picoseconds>, <Number of STD deviations>) # To enable 
 osem.addProjPSF("<path to the PSF's CSV file>") # To add Projection-space PSF
 osem.addImagePSF(...) # To add Image-space PSF. Takes, as input, a GCOperatorPsf object
 osem.setListModeEnabled(<True/False>) # To enable if the dataset to use for reconstruction will be in ListMode format. This is important as it changes the way sensitivity images are generated.
-osem.attenuationImage = ... # To add an attenuation image (GCImage object)
+osem.attenuationImage = ... # To add an attenuation image (Image object)
 osem.addHis = ... # To add an additive histogram (GCHistogram format) for example for Scatter and Randoms correction.
 osem.imageParams = imgParams # Set the parameters of the output image
 
 # --- Generate the sensitivity images
 
-# Here, "sens_imgs" will be a list of GCImage objects and
+# Here, "sens_imgs" will be a list of Image objects and
 # they will be automatically registered for the reconstruction
-sens_imgs = osem.generateSensitivityImages() # Returns a list of GCImage objects
+sens_imgs = osem.generateSensitivityImages() # Returns a list of Image objects
 # Note that the returned object should *not* be discarded. Otherwise it would cause Segmentation faults during the reconstruction because Python's garbage collector will invalidate the references
 # or, alternatively. If you've already generated the sensitivity images:
-osem.registerSensitivityImages(...) # Takes, as input, a python list of GCImage objects.
+osem.registerSensitivityImages(...) # Takes, as input, a python list of Image objects.
 
 # --- Reconstruction
 
 # Prepare the output image to be filled
-outImg = gc.GCImageOwned(imgParams)
+outImg = gc.ImageOwned(imgParams)
 outImg.Allocate()
 osem.outImage = outImg
 

@@ -37,7 +37,7 @@ void GCLORsDevice::loadEventLORs(const GCBinIterator& binIter,
                                  const GCGPUBatchSetup& batchSetup,
                                  size_t subsetId, size_t batchId,
                                  const IProjectionData& reference,
-                                 const GCImageParams& imgParams,
+                                 const ImageParams& imgParams,
                                  const cudaStream_t* stream)
 {
 	m_areLORsGathered = false;

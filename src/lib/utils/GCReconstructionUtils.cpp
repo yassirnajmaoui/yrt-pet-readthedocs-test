@@ -47,10 +47,10 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("scanner"), py::arg("d1"), py::arg("d2"), py::arg("vmax"));
 
 	m.def("forwProject",
-	      static_cast<void (*)(const GCScanner* scanner, const GCImage* img,
+	      static_cast<void (*)(const GCScanner* scanner, const Image* img,
 	                           IProjectionData* projData,
 	                           GCOperatorProjector::ProjectorType projectorType,
-	                           const GCImage* attImage,
+	                           const Image* attImage,
 	                           const IHistogram* additiveHistogram)>(
 	          &Util::forwProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
@@ -59,10 +59,10 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("forwProject",
 	      static_cast<void (*)(
-	          const GCScanner* scanner, const GCImage* img,
+	          const GCScanner* scanner, const Image* img,
 	          IProjectionData* projData, const GCBinIterator& binIterator,
 	          GCOperatorProjector::ProjectorType projectorType,
-	          const GCImage* attImage, const IHistogram* additiveHistogram)>(
+	          const Image* attImage, const IHistogram* additiveHistogram)>(
 	          &Util::forwProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("binIterator"),
@@ -70,10 +70,10 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("attImage") = nullptr,
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("forwProject",
-	      static_cast<void (*)(const GCImage* img, IProjectionData* projData,
+	      static_cast<void (*)(const Image* img, IProjectionData* projData,
 	                           const GCOperatorProjectorParams& projParams,
 	                           GCOperatorProjector::ProjectorType projectorType,
-	                           const GCImage* attImage,
+	                           const Image* attImage,
 	                           const IHistogram* additiveHistogram)>(
 	          &Util::forwProject),
 	      py::arg("img"), py::arg("projData"), py::arg("projParams"),
@@ -82,10 +82,10 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("additiveHistogram") = nullptr);
 
 	m.def("backProject",
-	      static_cast<void (*)(const GCScanner* scanner, GCImage* img,
+	      static_cast<void (*)(const GCScanner* scanner, Image* img,
 	                           const IProjectionData* projData,
 	                           GCOperatorProjector::ProjectorType projectorType,
-	                           const GCImage* attImage,
+	                           const Image* attImage,
 	                           const IHistogram* additiveHistogram)>(
 	          &Util::backProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
@@ -94,10 +94,10 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("backProject",
 	      static_cast<void (*)(
-	          const GCScanner* scanner, GCImage* img,
+	          const GCScanner* scanner, Image* img,
 	          const IProjectionData* projData, const GCBinIterator& binIterator,
 	          GCOperatorProjector::ProjectorType projectorType,
-	          const GCImage* attImage, const IHistogram* additiveHistogram)>(
+	          const Image* attImage, const IHistogram* additiveHistogram)>(
 	          &Util::backProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("binIterator"),
@@ -105,10 +105,10 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("attImage") = nullptr,
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("backProject",
-	      static_cast<void (*)(GCImage* img, const IProjectionData* projData,
+	      static_cast<void (*)(Image* img, const IProjectionData* projData,
 	                           const GCOperatorProjectorParams& projParams,
 	                           GCOperatorProjector::ProjectorType projectorType,
-	                           const GCImage* attImage,
+	                           const Image* attImage,
 	                           const IHistogram* additiveHistogram)>(
 	          &Util::backProject),
 	      py::arg("img"), py::arg("projData"), py::arg("projParams"),
@@ -383,10 +383,10 @@ namespace Util
 
 	// Forward and backward projections
 	template <bool IS_FWD>
-	static void project(GCImage* img, IProjectionData* projData,
+	static void project(Image* img, IProjectionData* projData,
 	                    const GCOperatorProjectorParams& projParams,
 	                    GCOperatorProjector::ProjectorType projectorType,
-	                    const GCImage* attImage,
+	                    const Image* attImage,
 	                    const IHistogram* additiveHistogram)
 	{
 		std::unique_ptr<GCOperatorProjectorBase> oper;
@@ -444,10 +444,10 @@ namespace Util
 		}
 	}
 
-	void forwProject(const GCScanner* scanner, const GCImage* img,
+	void forwProject(const GCScanner* scanner, const Image* img,
 	                 IProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType,
-	                 const GCImage* attImage,
+	                 const Image* attImage,
 	                 const IHistogram* additiveHistogram)
 	{
 		const auto binIter = projData->getBinIter(1, 0);
@@ -456,11 +456,11 @@ namespace Util
 		            additiveHistogram);
 	}
 
-	void forwProject(const GCScanner* scanner, const GCImage* img,
+	void forwProject(const GCScanner* scanner, const Image* img,
 	                 IProjectionData* projData,
 	                 const GCBinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType,
-	                 const GCImage* attImage,
+	                 const Image* attImage,
 	                 const IHistogram* additiveHistogram)
 	{
 		const GCOperatorProjectorParams projParams(&binIterator, scanner);
@@ -468,20 +468,20 @@ namespace Util
 		            additiveHistogram);
 	}
 
-	void forwProject(const GCImage* img, IProjectionData* projData,
+	void forwProject(const Image* img, IProjectionData* projData,
 	                 const GCOperatorProjectorParams& projParams,
 	                 GCOperatorProjector::ProjectorType projectorType,
-	                 const GCImage* attImage,
+	                 const Image* attImage,
 	                 const IHistogram* additiveHistogram)
 	{
-		project<true>(const_cast<GCImage*>(img), projData, projParams,
+		project<true>(const_cast<Image*>(img), projData, projParams,
 		              projectorType, attImage, additiveHistogram);
 	}
 
-	void backProject(const GCScanner* scanner, GCImage* img,
+	void backProject(const GCScanner* scanner, Image* img,
 	                 const IProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType,
-	                 const GCImage* attImage,
+	                 const Image* attImage,
 	                 const IHistogram* additiveHistogram)
 	{
 		const auto binIter = projData->getBinIter(1, 0);
@@ -490,11 +490,11 @@ namespace Util
 		            additiveHistogram);
 	}
 
-	void backProject(const GCScanner* scanner, GCImage* img,
+	void backProject(const GCScanner* scanner, Image* img,
 	                 const IProjectionData* projData,
 	                 const GCBinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType,
-	                 const GCImage* attImage,
+	                 const Image* attImage,
 	                 const IHistogram* additiveHistogram)
 	{
 		const GCOperatorProjectorParams projParams(&binIterator, scanner);
@@ -502,10 +502,10 @@ namespace Util
 		            additiveHistogram);
 	}
 
-	void backProject(GCImage* img, const IProjectionData* projData,
+	void backProject(Image* img, const IProjectionData* projData,
 	                 const GCOperatorProjectorParams& projParams,
 	                 GCOperatorProjector::ProjectorType projectorType,
-	                 const GCImage* attImage,
+	                 const Image* attImage,
 	                 const IHistogram* additiveHistogram)
 	{
 		project<false>(img, const_cast<IProjectionData*>(projData), projParams,

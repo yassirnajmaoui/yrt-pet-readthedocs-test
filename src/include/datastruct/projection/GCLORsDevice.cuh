@@ -13,7 +13,7 @@
 
 class IProjectionData;
 class GCScanner;
-class GCImageParams;
+class ImageParams;
 
 class GCLORsDevice
 {
@@ -25,7 +25,7 @@ public:
 	void loadEventLORs(const GCBinIterator& binIter,
 	                   const GCGPUBatchSetup& batchSetup, size_t subsetId,
 	                   size_t batchId, const IProjectionData& reference,
-	                   const GCImageParams& imgParams,
+	                   const ImageParams& imgParams,
 	                   const cudaStream_t* stream = nullptr);
 
 	std::shared_ptr<GCScannerDevice> getScannerDevice() const;

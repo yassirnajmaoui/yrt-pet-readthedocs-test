@@ -3,18 +3,18 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "motion/ImageWarperMatrix.hpp"
 
 #include "catch.hpp"
 #include <cmath>
 #include <vector>
 
-float l1DistBetweenTwoImage(GCImage* im1, GCImage* im2)
+float l1DistBetweenTwoImage(Image* im1, Image* im2)
 {
 	float l1Dist = 0.0;
-	const GCImageParams& im1_params = im1->getParams();
-	const GCImageParams& im2_params = im2->getParams();
+	const ImageParams& im1_params = im1->getParams();
+	const ImageParams& im2_params = im2->getParams();
 	if ((im1_params.nx != im2_params.nx) || (im1_params.ny != im2_params.ny) ||
 	    (im1_params.nz != im2_params.nz))
 	{
@@ -43,9 +43,9 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 	std::vector<int> imDim{10, 10, 10};
 	std::vector<float> imSize{10, 10, 10};
 
-	GCImageParams img_params(imDim[0], imDim[1], imDim[2], imSize[0], imSize[1],
+	ImageParams img_params(imDim[0], imDim[1], imDim[2], imSize[0], imSize[1],
 	                         imSize[2], 0.0, 0.0, 0.0);
-	auto refImage = std::make_unique<GCImageOwned>(img_params);
+	auto refImage = std::make_unique<ImageOwned>(img_params);
 	refImage->allocate();
 	refImage->setValue(0.0);
 	Array3DAlias<double> x_ref = refImage->getArray();
@@ -90,7 +90,7 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 	warper.setRefImage(refImage.get());
 
 	// Where the results is saved.
-	auto warpedImage = std::make_unique<GCImageOwned>(img_params);
+	auto warpedImage = std::make_unique<ImageOwned>(img_params);
 	warpedImage->allocate();
 	warpedImage->setValue(0.0);
 
@@ -108,7 +108,7 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 	{
 		warper.warpRefImage(warpedImage.get(), 0);
 
-		auto compImage = std::make_unique<GCImageOwned>(img_params);
+		auto compImage = std::make_unique<ImageOwned>(img_params);
 		compImage->allocate();
 		compImage->setValue(0.0);
 		auto compImage_arr = compImage->getArray();
@@ -127,7 +127,7 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 	{
 		warper.warpRefImage(warpedImage.get(), 2);
 
-		auto compImage = std::make_unique<GCImageOwned>(img_params);
+		auto compImage = std::make_unique<ImageOwned>(img_params);
 		compImage->allocate();
 		compImage->setValue(0.0);
 		auto compImage_arr = compImage->getArray();
@@ -143,7 +143,7 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 	{
 		warper.warpRefImage(warpedImage.get(), 3);
 
-		auto compImage = std::make_unique<GCImageOwned>(img_params);
+		auto compImage = std::make_unique<ImageOwned>(img_params);
 		compImage->allocate();
 		compImage->setValue(0.0);
 		auto compImage_arr = compImage->getArray();
@@ -159,7 +159,7 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 	}
 
 	// Where the results is saved.
-	auto invWarpedImage = std::make_unique<GCImageOwned>(img_params);
+	auto invWarpedImage = std::make_unique<ImageOwned>(img_params);
 	invWarpedImage->allocate();
 	auto invWarpedImage_arr = invWarpedImage->getArray();
 
@@ -180,7 +180,7 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 		invWarpedImage_arr[2][4][2] = 1.0;
 		warper.warpImageToRefFrame(invWarpedImage.get(), 0);
 
-		auto compImage = std::make_unique<GCImageOwned>(img_params);
+		auto compImage = std::make_unique<ImageOwned>(img_params);
 		compImage->allocate();
 		compImage->setValue(0.0);
 		auto compImage_arr = compImage->getArray();
@@ -202,7 +202,7 @@ TEST_CASE("Warper-basic_iso_unWeighted", "[warper]")
 		invWarpedImage_arr[2][2][5] = 1.0;
 		warper.warpImageToRefFrame(invWarpedImage.get(), 2);
 
-		auto compImage = std::make_unique<GCImageOwned>(img_params);
+		auto compImage = std::make_unique<ImageOwned>(img_params);
 		compImage->allocate();
 		auto compImage_arr = compImage->getArray();
 		compImage_arr[2][4][2] = 1.0;

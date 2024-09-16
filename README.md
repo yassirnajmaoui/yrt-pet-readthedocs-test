@@ -162,7 +162,7 @@ number of detectors. Note that all the values are in mm.
     ...
 The file extension used is `.lut`.
 
-### Image (`GCImage`)
+### Image (`Image`)
 
 Images are stored in YRT-PET raw data format (i.e. with the header described
 [earlier](#yrt-pet_raw_data_format)).  Images are currently stored as

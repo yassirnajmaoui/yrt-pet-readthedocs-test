@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/image/GCImageSpaceKernels.cuh"
+#include "datastruct/image/ImageSpaceKernels.cuh"
 
 __global__ void updateEM_kernel(const float* d_imgIn, float* d_imgOut,
                          const float* d_sensImg, const int nx, const int ny,

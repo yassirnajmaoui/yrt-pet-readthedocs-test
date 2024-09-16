@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "operators/GCOperator.hpp"
 
 #include <string>
@@ -33,7 +33,7 @@
  *		- Set verbosity options.
  * *************************************************************************************/
 
-class GCImageParams;
+class ImageParams;
 
 class ImageWarperTemplate : public GCVariable
 {
@@ -48,7 +48,7 @@ public:
 	 */
 	void setImageHyperParam(const std::vector<int>& imDim,
 	                        const std::vector<float>& imSize);
-	void setImageHyperParam(const GCImageParams& img_params);
+	void setImageHyperParam(const ImageParams& img_params);
 	/*
 	 * Def.: Instantiate the object with the basic information of the motion.
 	 * @numberOfFrame: Number of frame.
@@ -69,7 +69,7 @@ public:
 	 * Def.: Set the pointer to the image at the reference frame.
 	 * @image: The pointer to the image.
 	 */
-	void setRefImage(GCImage* image);
+	void setRefImage(Image* image);
 	/*
 	 * Def.: Warp the reference image to the specified frame Id. If the
 	 *specified
@@ -79,7 +79,7 @@ public:
 	 *		reference image.
 	 * @frameId: Id of the frame to which the reference image is deformed to.
 	 */
-	void warpRefImage(GCImage* image, int frameId) const;
+	void warpRefImage(Image* image, int frameId) const;
 	/*
 	 * Def.: Warp the provided image using the transform that link the specified
 	 *       state to the reference state.
@@ -88,7 +88,7 @@ public:
 	 * @frameId: Id of the motion frame to which the specified image is warped
 	 *from.
 	 */
-	void warpImageToRefFrame(GCImage* image, int frameId) const;
+	void warpImageToRefFrame(Image* image, int frameId) const;
 
 	/*
 	 * Def.: Warp the provided image using the transformation of each frame
@@ -98,7 +98,7 @@ public:
 	 *		toward the reference frame. It is assumed that image is already
 	 *		initialized in the same image space as the reference image.
 	 */
-	void computeGlobalWarpToRefFrame(GCImage* image, bool writeFileSteps);
+	void computeGlobalWarpToRefFrame(Image* image, bool writeFileSteps);
 
 	/*
 	 * Def.: Exclude the specified frame Id from the list of those used.
@@ -185,7 +185,7 @@ protected:
 	// The starting time of the frames time bin.
 	std::vector<float> m_frameTimeBinStart;
 	// Pointer to the reference frame image.
-	GCImage* m_refImage;
+	Image* m_refImage;
 	// Name of the warp tool current used.
 	std::string m_warpMode;
 	// Verbosity level of this class.
@@ -260,8 +260,8 @@ protected:
 	virtual void initWarpModeSpecificParameters() = 0;
 	virtual void setFrameWarpParameters(int frameId,
 	                                    const std::vector<double>& param) = 0;
-	virtual void warp(GCImage* image, int frameId) const = 0;
-	virtual void inverseWarp(GCImage* image, int frameId) const = 0;
+	virtual void warp(Image* image, int frameId) const = 0;
+	virtual void inverseWarp(Image* image, int frameId) const = 0;
 };
 
 class GCOperatorWarpRefImage : public GCOperator

@@ -5,8 +5,8 @@
 
 #include "operators/GCOperatorProjectorDD_gpu.cuh"
 
-#include "datastruct/image/GCImage.hpp"
-#include "datastruct/image/GCImageDevice.cuh"
+#include "datastruct/image/Image.hpp"
+#include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/GCProjectionDataDevice.cuh"
 #include "operators/GCOperatorProjectorDD_kernels.cuh"
 #include "utils/GCAssert.hpp"
@@ -23,42 +23,42 @@ void py_setup_gcoperatorprojectordd_gpu(py::module& m)
 	c.def(py::init<const GCOperatorProjectorParams&>(), py::arg("projParams"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const GCImageDevice* img,
+	    [](GCOperatorProjector& self, const ImageDevice* img,
 	       IProjectionData* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const GCImage* img, IProjectionData* proj)
+	    [](GCOperatorProjector& self, const Image* img, IProjectionData* proj)
 	    { self.applyA(img, proj); }, py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const GCImageDevice* img,
+	    [](GCOperatorProjector& self, const ImageDevice* img,
 	       GCProjectionDataDevice* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const GCImage* img,
+	    [](GCOperatorProjector& self, const Image* img,
 	       GCProjectionDataDevice* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const IProjectionData* proj, GCImage* img)
+	    [](GCOperatorProjector& self, const IProjectionData* proj, Image* img)
 	    { self.applyAH(proj, img); }, py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
 	    [](GCOperatorProjector& self, const IProjectionData* proj,
-	       GCImageDevice* img) { self.applyAH(proj, img); },
+	       ImageDevice* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
 	    [](GCOperatorProjector& self, const GCProjectionDataDevice* proj,
-	       GCImage* img) { self.applyAH(proj, img); },
+	       Image* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
 	    [](GCOperatorProjector& self, const GCProjectionDataDevice* proj,
-	       GCImageDevice* img) { self.applyAH(proj, img); },
+	       ImageDevice* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 }
 #endif
@@ -73,20 +73,20 @@ GCOperatorProjectorDD_gpu::GCOperatorProjectorDD_gpu(
 
 void GCOperatorProjectorDD_gpu::applyA(const GCVariable* in, GCVariable* out)
 {
-	auto* img_in_const = dynamic_cast<const GCImageDevice*>(in);
+	auto* img_in_const = dynamic_cast<const ImageDevice*>(in);
 	auto* dat_out = dynamic_cast<GCProjectionDataDevice*>(out);
 
 	// In case the user provided a host-side image
-	std::unique_ptr<GCImageDeviceOwned> deviceImg_out = nullptr;
-	GCImageDevice* img_in = nullptr;
+	std::unique_ptr<ImageDeviceOwned> deviceImg_out = nullptr;
+	ImageDevice* img_in = nullptr;
 	if (img_in_const == nullptr)
 	{
-		const auto* hostImg_in = dynamic_cast<const GCImage*>(in);
+		const auto* hostImg_in = dynamic_cast<const Image*>(in);
 		ASSERT_MSG(
 		    hostImg_in != nullptr,
-		    "The image provided is not a GCImageDevice nor a GCImage (host)");
+		    "The image provided is not a ImageDevice nor a Image (host)");
 
-		deviceImg_out = std::make_unique<GCImageDeviceOwned>(
+		deviceImg_out = std::make_unique<ImageDeviceOwned>(
 		    hostImg_in->getParams(), getAuxStream());
 		deviceImg_out->allocate(true);
 		deviceImg_out->transferToDeviceMemory(hostImg_in, true);
@@ -96,8 +96,8 @@ void GCOperatorProjectorDD_gpu::applyA(const GCVariable* in, GCVariable* out)
 	}
 	else
 	{
-		img_in = const_cast<GCImageDevice*>(img_in_const);
-		ASSERT_MSG(img_in != nullptr, "GCImageDevice is null. Cast failed");
+		img_in = const_cast<ImageDevice*>(img_in_const);
+		ASSERT_MSG(img_in != nullptr, "ImageDevice is null. Cast failed");
 	}
 
 	// In case the user provided a Host-side IProjectionData
@@ -134,7 +134,7 @@ void GCOperatorProjectorDD_gpu::applyA(const GCVariable* in, GCVariable* out)
 	{
 		// Iterate over all the batches of the current subset
 		const size_t numBatches = dat_out->getBatchSetup(0).getNumBatches();
-		const GCImageParams& imgParams = img_in->getParams();
+		const ImageParams& imgParams = img_in->getParams();
 		for (size_t batchId = 0; batchId < numBatches; batchId++)
 		{
 			std::cout << "Loading batch " << batchId + 1 << "/" << numBatches
@@ -158,21 +158,21 @@ void GCOperatorProjectorDD_gpu::applyA(const GCVariable* in, GCVariable* out)
 void GCOperatorProjectorDD_gpu::applyAH(const GCVariable* in, GCVariable* out)
 {
 	auto* dat_in_const = dynamic_cast<const GCProjectionDataDevice*>(in);
-	auto* img_out = dynamic_cast<GCImageDevice*>(out);
+	auto* img_out = dynamic_cast<ImageDevice*>(out);
 
 	bool isImageDeviceOwned = false;
 
 	// In case the user provided a host-side image
-	std::unique_ptr<GCImageDeviceOwned> deviceImg_out = nullptr;
-	GCImage* hostImg_out = nullptr;
+	std::unique_ptr<ImageDeviceOwned> deviceImg_out = nullptr;
+	Image* hostImg_out = nullptr;
 	if (img_out == nullptr)
 	{
-		hostImg_out = dynamic_cast<GCImage*>(out);
+		hostImg_out = dynamic_cast<Image*>(out);
 		ASSERT_MSG(
 		    hostImg_out != nullptr,
-		    "The image provided is not a GCImageDevice nor a GCImage (host)");
+		    "The image provided is not a ImageDevice nor a Image (host)");
 
-		deviceImg_out = std::make_unique<GCImageDeviceOwned>(
+		deviceImg_out = std::make_unique<ImageDeviceOwned>(
 		    hostImg_out->getParams(), getAuxStream());
 		deviceImg_out->allocate(false);
 		deviceImg_out->transferToDeviceMemory(hostImg_out, false);
@@ -230,7 +230,7 @@ void GCOperatorProjectorDD_gpu::applyAH(const GCVariable* in, GCVariable* out)
 	{
 		// Iterate over all the batches of the current subset
 		const size_t numBatches = dat_in->getBatchSetup(0).getNumBatches();
-		const GCImageParams& imgParams = img_out->getParams();
+		const ImageParams& imgParams = img_out->getParams();
 		for (size_t batchId = 0; batchId < numBatches; batchId++)
 		{
 			std::cout << "Loading batch " << batchId + 1 << "..." << std::endl;
@@ -268,15 +268,15 @@ void GCOperatorProjectorDD_gpu::applyAttenuationOnLoadedBatchIfNeeded(
     const GCProjectionDataDevice* imgProjData,
     GCProjectionDataDevice* destProjData, bool duringForward)
 {
-	GCImageDevice* attImageToUse;
+	ImageDevice* attImageToUse;
 	if (attImage != nullptr && duringForward)
 	{
-		attImageToUse = const_cast<GCImageDevice*>(&getAttImageDevice());
+		attImageToUse = const_cast<ImageDevice*>(&getAttImageDevice());
 	}
 	else if (attImageForBackprojection != nullptr && !duringForward)
 	{
 		attImageToUse =
-		    const_cast<GCImageDevice*>(&getAttImageForBackprojectionDevice());
+		    const_cast<ImageDevice*>(&getAttImageForBackprojectionDevice());
 	}
 	else
 	{
@@ -318,7 +318,7 @@ void GCOperatorProjectorDD_gpu::applyAdditiveOnLoadedBatchIfNeeded(
 
 template <bool IsForward>
 void GCOperatorProjectorDD_gpu::applyOnLoadedBatch(GCProjectionDataDevice* dat,
-                                                   GCImageDevice* img)
+                                                   ImageDevice* img)
 {
 	setBatchSize(dat->getCurrentBatchSize());
 	const auto cuScannerParams = getCUScannerParams(*getScanner());

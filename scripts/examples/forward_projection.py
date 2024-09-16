@@ -10,8 +10,8 @@ outHis = gc.GCHistogram3DOwned(scanner)
 outHis.Allocate()
 
 # Read an image to Forward-project
-imgParams = gc.GCImageParams("<path to the image parameters file>")
-inputImage = gc.GCImageOwned(imgParams, "<path to input image>")
+imgParams = gc.ImageParams("<path to the image parameters file>")
+inputImage = gc.ImageOwned(imgParams, "<path to input image>")
 
 projectorType = gc.GCOperatorProjector.ProjectorType.DD_GPU
 # Available projectors: SIDDON, DD, DD_GPU

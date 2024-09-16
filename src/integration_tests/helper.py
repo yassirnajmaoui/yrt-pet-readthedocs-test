@@ -25,7 +25,7 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
                          hard_threshold=1.0, num_threads=-1,
                          tof_width_ps=None, tof_n_std=None,
                          proj_psf_fname=None, num_rays=1):
-    out_img = gc.GCImageOwned(img_params)
+    out_img = gc.ImageOwned(img_params)
     out_img.allocate()
     out_img.setValue(0.0)
 
@@ -57,13 +57,13 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
         osem.reconstructWithWarperMotion()
     out_img.writeToFile(out_img_file)
 
-    ref_img = gc.GCImageOwned(img_params, ref_img_file)
+    ref_img = gc.ImageOwned(img_params, ref_img_file)
     rmse = get_rmse(np.array(out_img, copy=False),
                     np.array(ref_img, copy=False))
     assert rmse < 10**-4
 
 
-def _test_subsets(scanner: gc.GCScanner, img_params: gc.GCImageParams,
+def _test_subsets(scanner: gc.GCScanner, img_params: gc.ImageParams,
                   projData: gc.IProjectionData, **args):
     k = gc.GCProjectionOper(scanner, img_params, projData, **args)
 
@@ -91,7 +91,7 @@ def _test_subsets(scanner: gc.GCScanner, img_params: gc.GCImageParams,
     np.testing.assert_allclose(Ax, Ax_sub)
 
 
-def _test_adjoint(scanner: gc.GCScanner, img_params: gc.GCImageParams,
+def _test_adjoint(scanner: gc.GCScanner, img_params: gc.ImageParams,
                   projData: gc.IProjectionData, **args):
     k = gc.GCProjectionOper(scanner, img_params, projData, **args)
 

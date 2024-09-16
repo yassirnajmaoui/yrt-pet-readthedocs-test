@@ -10,7 +10,7 @@
 
 
 class GCProjectionDataDevice;
-class GCImageDevice;
+class ImageDevice;
 
 class GCOperatorProjectorDD_gpu : public GCOperatorProjectorDevice
 {
@@ -38,7 +38,7 @@ private:
 	                             float unitFactor);
 
 	template <bool IsForward>
-	void applyOnLoadedBatch(GCProjectionDataDevice* dat, GCImageDevice* img);
+	void applyOnLoadedBatch(GCProjectionDataDevice* dat, ImageDevice* img);
 
 	template <bool IsForward, bool HasTOF>
 	static void launchKernel(float* pd_projValues, float* pd_image,

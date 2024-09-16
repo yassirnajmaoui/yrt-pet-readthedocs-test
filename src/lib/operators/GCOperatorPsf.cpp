@@ -16,22 +16,22 @@ namespace py = pybind11;
 void py_setup_gcoperatorpsf(py::module& m)
 {
 	auto c = py::class_<GCOperatorPsf, GCOperator>(m, "GCOperatorPsf");
-	c.def(py::init<const GCImageParams&>());
-	c.def(py::init<const GCImageParams&, const std::string&>());
+	c.def(py::init<const ImageParams&>());
+	c.def(py::init<const ImageParams&, const std::string&>());
 	c.def("readFromFile", &GCOperatorPsf::readFromFile);
 	c.def("convolve", &GCOperatorPsf::convolve);
 	c.def(
-	    "applyA", [](GCOperatorPsf& self, const GCImage* img_in, GCImage* img_out)
+	    "applyA", [](GCOperatorPsf& self, const Image* img_in, Image* img_out)
 	    { self.applyA(img_in, img_out); }, py::arg("img_in"),
 	    py::arg("img_out"));
 	c.def(
-	    "applyAH", [](GCOperatorPsf& self, const GCImage* img_in, GCImage* img_out)
+	    "applyAH", [](GCOperatorPsf& self, const Image* img_in, Image* img_out)
 	    { self.applyAH(img_in, img_out); }, py::arg("img_in"),
 	    py::arg("img_out"));
 }
 #endif
 
-GCOperatorPsf::GCOperatorPsf(const GCImageParams& img_params)
+GCOperatorPsf::GCOperatorPsf(const ImageParams& img_params)
     : GCOperator(), m_params(img_params)
 {
 	m_nx = m_params.nx;
@@ -42,7 +42,7 @@ GCOperatorPsf::GCOperatorPsf(const GCImageParams& img_params)
 	m_buffer_tmp.resize(sizeBuffer);
 }
 
-GCOperatorPsf::GCOperatorPsf(const GCImageParams& img_params,
+GCOperatorPsf::GCOperatorPsf(const ImageParams& img_params,
                              const std::string& image_space_psf_filename)
     : GCOperatorPsf(img_params)
 {
@@ -94,22 +94,22 @@ GCOperatorPsf::~GCOperatorPsf() {}
 
 void GCOperatorPsf::applyA(const GCVariable* in, GCVariable* out)
 {
-	const GCImage* img_in = dynamic_cast<const GCImage*>(in);
-	GCImage* img_out = dynamic_cast<GCImage*>(out);
+	const Image* img_in = dynamic_cast<const Image*>(in);
+	Image* img_out = dynamic_cast<Image*>(out);
 	ASSERT(img_in != nullptr && img_out != nullptr);
 	convolve(img_in, img_out, m_KernelX, m_KernelY, m_KernelZ);
 }
 
 void GCOperatorPsf::applyAH(const GCVariable* in, GCVariable* out)
 {
-	const GCImage* img_in = dynamic_cast<const GCImage*>(in);
-	GCImage* img_out = dynamic_cast<GCImage*>(out);
+	const Image* img_in = dynamic_cast<const Image*>(in);
+	Image* img_out = dynamic_cast<Image*>(out);
 
 	convolve(img_in, img_out, m_KernelX_flipped, m_KernelY_flipped,
 	         m_KernelZ_flipped);
 }
 
-void GCOperatorPsf::convolve(const GCImage* in, GCImage* out,
+void GCOperatorPsf::convolve(const Image* in, Image* out,
                              const std::vector<float>& KernelX,
                              const std::vector<float>& KernelY,
                              const std::vector<float>& KernelZ) const

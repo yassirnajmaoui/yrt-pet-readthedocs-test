@@ -139,15 +139,15 @@ int main(int argc, char** argv)
 		GCGlobals::set_num_threads(numThreads);
 		auto scanner = std::make_unique<GCScannerOwned>(scanner_fname);
 
-		GCImageParams imageParams(imgParams_fname);
+		ImageParams imageParams(imgParams_fname);
 
 		Scatter::CrystalMaterial crystalMaterial =
 		    Scatter::getCrystalMaterialFromName(crystalMaterial_name);
 
 		// Attenuation image
-		GCImageParams attImageParams(attImgParams_fname);
+		ImageParams attImageParams(attImgParams_fname);
 		auto attImg =
-		    std::make_unique<GCImageOwned>(attImageParams, attImg_fname);
+		    std::make_unique<ImageOwned>(attImageParams, attImg_fname);
 
 		std::cout << "Reading histograms..." << std::endl;
 		auto promptsHis = std::make_unique<GCHistogram3DOwned>(
@@ -192,7 +192,7 @@ int main(int argc, char** argv)
 			    "intermediary_firstAdditiveCorrection.his");
 		}
 
-		std::unique_ptr<GCImageOwned> sourceImg = nullptr;
+		std::unique_ptr<ImageOwned> sourceImg = nullptr;
 		if (sourceImage_fname.empty())
 		{
 			// Generate histogram to use for the sensitivity image generation
@@ -226,8 +226,8 @@ int main(int argc, char** argv)
 				sensDataHis->writeToFile("intermediary_sensData.his");
 			}
 
-			std::vector<std::unique_ptr<GCImage>> sensImages;
-			sourceImg = std::make_unique<GCImageOwned>(imageParams);
+			std::vector<std::unique_ptr<Image>> sensImages;
+			sourceImg = std::make_unique<ImageOwned>(imageParams);
 			sourceImg->allocate();
 
 			// Generate source Image
@@ -263,7 +263,7 @@ int main(int argc, char** argv)
 				    << std::endl;
 			}
 			sourceImg =
-			    std::make_unique<GCImageOwned>(imageParams, sourceImage_fname);
+			    std::make_unique<ImageOwned>(imageParams, sourceImage_fname);
 		}
 
 		Scatter::GCScatterEstimator sss(

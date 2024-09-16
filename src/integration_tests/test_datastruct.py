@@ -41,8 +41,8 @@ def test_scanner_lookup_table():
 def test_image_transform():
     # Simple translation
     x = np.random.random([12, 13, 14])
-    img_params = gc.GCImageParams(14, 13, 12, 28.0, 26.0, 24.0)
-    img = gc.GCImageAlias(img_params)
+    img_params = gc.ImageParams(14, 13, 12, 28.0, 26.0, 24.0)
+    img = gc.ImageAlias(img_params)
     img.Bind(x)
     v_rot = gc.GCVector(0.0, 0.0, 0.0)
     v_tr = gc.GCVector(2.0, 0.0, 0.0)
@@ -51,8 +51,8 @@ def test_image_transform():
     np.testing.assert_allclose(x[..., :-1], x_t[..., 1:])
     # Simple rotation
     x = np.random.random([14, 12, 12])
-    img_params = gc.GCImageParams(12, 12, 14, 26.0, 26.0, 28.0)
-    img = gc.GCImageAlias(img_params)
+    img_params = gc.ImageParams(12, 12, 14, 26.0, 26.0, 28.0)
+    img = gc.ImageAlias(img_params)
     img.Bind(x)
     v_rot = gc.GCVector(0.0, 0.0, np.pi / 2)
     v_tr = gc.GCVector(0.0, 0.0, 0.0)

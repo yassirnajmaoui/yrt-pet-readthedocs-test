@@ -18,9 +18,9 @@ void py_setup_gcstraightlineparam(py::module&);
 void py_setup_gctubeofresponse(py::module& m);
 void py_setup_gctimeofflight(py::module& m);
 
-void py_setup_gcimagebase(py::module&);
-void py_setup_gcimageparams(py::module&);
-void py_setup_gcimage(py::module&);
+void py_setup_imagebase(py::module&);
+void py_setup_imageparams(py::module&);
+void py_setup_image(py::module&);
 void py_setup_iprojectiondata(py::module& m);
 void py_setup_gcbiniterator(py::module& m);
 void py_setup_ihistogram(py::module& m);
@@ -78,9 +78,9 @@ PYBIND11_MODULE(pyyrtpet, m)
 	py_setup_gctubeofresponse(m);
 	py_setup_gctimeofflight(m);
 
-	py_setup_gcimagebase(m);
-	py_setup_gcimageparams(m);
-	py_setup_gcimage(m);
+	py_setup_imagebase(m);
+	py_setup_imageparams(m);
+	py_setup_image(m);
 	py_setup_gcbiniterator(m);
 	py_setup_iprojectiondata(m);
 	py_setup_ihistogram(m);

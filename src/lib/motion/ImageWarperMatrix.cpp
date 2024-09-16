@@ -77,7 +77,7 @@ void ImageWarperMatrix::setFrameWarpParameters(int frameId,
  * @_image : Pointer to where we want to save the warped image.
  * @_frameId : Id of the frame to which we want to deform toward.
  * *************************************************************************************/
-void ImageWarperMatrix::warp(GCImage* _image, int _frameId) const
+void ImageWarperMatrix::warp(Image* _image, int _frameId) const
 {
 	std::vector<double> voxPos;
 	voxPos.resize(3);
@@ -112,10 +112,10 @@ void ImageWarperMatrix::warp(GCImage* _image, int _frameId) const
  * be saved.
  * @_frameId : Id of the frame to which we want to deform from.
  * *************************************************************************************/
-void ImageWarperMatrix::inverseWarp(GCImage* _image, int _frameId) const
+void ImageWarperMatrix::inverseWarp(Image* _image, int _frameId) const
 {
-	const GCImageParams& img_params = _image->getParams();
-	auto tmpCopy = std::make_unique<GCImageOwned>(img_params);
+	const ImageParams& img_params = _image->getParams();
+	auto tmpCopy = std::make_unique<ImageOwned>(img_params);
 	tmpCopy->allocate();
 	tmpCopy->copyFromImage(_image);
 	_image->setValue(0.0);

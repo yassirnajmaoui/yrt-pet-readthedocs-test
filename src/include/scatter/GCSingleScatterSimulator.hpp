@@ -11,7 +11,7 @@
 
 class GCHistogram3D;
 class GCScanner;
-class GCImage;
+class Image;
 
 namespace Scatter
 {
@@ -19,7 +19,7 @@ namespace Scatter
 	{
 	public:
 		GCSingleScatterSimulator(const GCScanner& pr_scanner,
-		                         const GCImage& pr_mu, const GCImage& pr_lambda,
+		                         const Image& pr_mu, const Image& pr_lambda,
 		                         CrystalMaterial p_crystalMaterial, int seedi);
 
 		void runSSS(size_t numberZ, size_t numberPhi, size_t numberR,
@@ -48,8 +48,8 @@ namespace Scatter
 		float m_energyLLD, m_sigmaEnergy;
 		float m_scannerRadius, m_crystalDepth, m_axialFOV, m_collimatorRadius;
 		const GCScanner& mr_scanner;
-		const GCImage& mr_mu;      // Attenuation image
-		const GCImage& mr_lambda;  // Image from 2 MLEM iterations
+		const Image& mr_mu;      // Attenuation image
+		const Image& mr_lambda;  // Image from 2 MLEM iterations
 		CrystalMaterial m_crystalMaterial;
 		GCCylinder m_cyl1, m_cyl2;
 		GCPlane m_endPlate1, m_endPlate2;

@@ -6,7 +6,7 @@
 #include "recon/GCOSEM.hpp"
 
 #include "datastruct/GCIO.hpp"
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/projection/GCUniformHistogram.hpp"
 #include "datastruct/projection/IListMode.hpp"
@@ -45,7 +45,7 @@ void py_setup_gcosem(pybind11::module& m)
 			    return pySensImagesList;
 		    }
 
-		    std::vector<std::unique_ptr<GCImage>> sensImages;
+		    std::vector<std::unique_ptr<Image>> sensImages;
 		    self.generateSensitivityImages(sensImages, out_fname);
 		    for (size_t i = 0; i < sensImages.size(); i++)
 		    {
@@ -123,12 +123,12 @@ GCOSEM::GCOSEM(const GCScanner* p_scanner)
 
 void GCOSEM::generateSensitivityImages(const std::string& out_fname)
 {
-	std::vector<std::unique_ptr<GCImage>> dummy;
+	std::vector<std::unique_ptr<Image>> dummy;
 	GenerateSensitivityImagesCore(true, out_fname, false, dummy);
 }
 
 void GCOSEM::generateSensitivityImages(
-    std::vector<std::unique_ptr<GCImage>>& sensImages,
+    std::vector<std::unique_ptr<Image>>& sensImages,
     const std::string& out_fname)
 {
 	if (out_fname.empty())
@@ -167,7 +167,7 @@ void GCOSEM::GenerateSensitivityImageForSubset(int subsetId)
 
 void GCOSEM::GenerateSensitivityImagesCore(
     bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
-    std::vector<std::unique_ptr<GCImage>>& sensImages)
+    std::vector<std::unique_ptr<Image>>& sensImages)
 {
 	ASSERT_MSG(imageParams.isValid(), "Image parameters not valid/set");
 
@@ -250,7 +250,7 @@ bool GCOSEM::validateSensImagesAmount(int size) const
 }
 
 void GCOSEM::registerSensitivityImages(
-    const std::vector<std::unique_ptr<GCImage>>& sensImages)
+    const std::vector<std::unique_ptr<Image>>& sensImages)
 {
 	if (!validateSensImagesAmount(static_cast<int>(sensImages.size())))
 	{
@@ -280,7 +280,7 @@ void GCOSEM::registerSensitivityImages(py::list& imageList)
 	sensitivityImages.clear();
 	for (int i = 0; i < imageListSize; i++)
 	{
-		sensitivityImages.push_back(imageList[i].cast<GCImage*>());
+		sensitivityImages.push_back(imageList[i].cast<Image*>());
 	}
 }
 #endif
@@ -365,12 +365,12 @@ bool GCOSEM::isListModeEnabled() const
 	return usingListModeInput;
 }
 
-const GCImage* GCOSEM::getSensitivityImage(int subsetId) const
+const Image* GCOSEM::getSensitivityImage(int subsetId) const
 {
 	return sensitivityImages.at(subsetId);
 }
 
-GCImage* GCOSEM::getSensitivityImage(int subsetId)
+Image* GCOSEM::getSensitivityImage(int subsetId)
 {
 	return sensitivityImages.at(subsetId);
 }
@@ -431,7 +431,7 @@ void GCOSEM::reconstruct()
 					          << numBatches << "..." << std::endl;
 				}
 				GetMLEMDataTmpBuffer()->clearProjections(0.0);
-				GCImageBase* mlem_image_rp;
+				ImageBase* mlem_image_rp;
 				if (flagImagePSF)
 				{
 					// PSF
@@ -498,12 +498,12 @@ void GCOSEM::reconstructWithWarperMotion()
 	ASSERT_MSG(imageParams.isValid(), "Image parameters not valid/set");
 
 	allocateForRecon();
-	auto mlem_image_update_factor = std::make_unique<GCImageOwned>(imageParams);
+	auto mlem_image_update_factor = std::make_unique<ImageOwned>(imageParams);
 	mlem_image_update_factor->allocate();
-	auto mlem_image_curr_frame = std::make_unique<GCImageOwned>(imageParams);
+	auto mlem_image_curr_frame = std::make_unique<ImageOwned>(imageParams);
 	mlem_image_curr_frame->allocate();
 
-	GCImage* sens_image = sensitivityImages[0];
+	Image* sens_image = sensitivityImages[0];
 	std::cout << "Computing global Warp-to-ref frame" << std::endl;
 	warper->computeGlobalWarpToRefFrame(sens_image, saveSteps > 0);
 	std::cout << "Applying threshold" << std::endl;

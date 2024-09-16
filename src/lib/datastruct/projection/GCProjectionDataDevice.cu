@@ -28,7 +28,7 @@ void py_setup_gcprojectiondatadevice(py::module& m)
 	c.def(
 	    "loadEventLORs",
 	    [](GCProjectionDataDevice& self, size_t subsetId, size_t batchId,
-	       const GCImageParams& imgParams)
+	       const ImageParams& imgParams)
 	    { self.loadEventLORs(subsetId, batchId, imgParams); },
 	    "Load the LORs of a specific batch in a specific subset", "subsetId"_a,
 	    "batchId"_a, "imgParams"_a);
@@ -195,7 +195,7 @@ void GCProjectionDataDevice::createBatchSetups(float shareOfMemoryToUse)
 }
 
 void GCProjectionDataDevice::loadEventLORs(size_t subsetId, size_t batchId,
-                                           const GCImageParams& imgParams,
+                                           const ImageParams& imgParams,
                                            const cudaStream_t* stream)
 {
 	mp_LORs->loadEventLORs(*mp_binIteratorList.at(subsetId),

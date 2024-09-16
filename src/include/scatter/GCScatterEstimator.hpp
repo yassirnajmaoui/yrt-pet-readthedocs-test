@@ -10,7 +10,7 @@
 #include "scatter/GCSingleScatterSimulator.hpp"
 
 class GCScanner;
-class GCImage;
+class Image;
 
 namespace Scatter
 {
@@ -18,7 +18,7 @@ namespace Scatter
 	{
 	public:
 		GCScatterEstimator(const GCScanner& pr_scanner,
-		                   const GCImage& pr_lambda, const GCImage& pr_mu,
+		                   const Image& pr_lambda, const Image& pr_mu,
 		                   const GCHistogram3D* pp_promptsHis,
 		                   const GCHistogram3D* pp_normOrSensHis,
 		                   const GCHistogram3D* pp_randomsHis,

@@ -5,7 +5,7 @@
 
 #include "operators/GCOperatorDevice.cuh"
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCGPUUtils.cuh"
 #include "utils/GCGlobals.hpp"
@@ -23,7 +23,7 @@ void py_setup_gcoperatorprojectordevice(py::module& m)
 
 namespace Util
 {
-	GCGPULaunchParams3D initiateDeviceParameters(const GCImageParams& params)
+	GCGPULaunchParams3D initiateDeviceParameters(const ImageParams& params)
 	{
 		GCGPULaunchParams3D launchParams;
 		if (params.nz > 1)
@@ -90,7 +90,7 @@ GCCUScannerParams GCOperatorDevice::getCUScannerParams(const GCScanner& scanner)
 }
 
 GCCUImageParams
-    GCOperatorDevice::getCUImageParams(const GCImageParams& imgParams)
+    GCOperatorDevice::getCUImageParams(const ImageParams& imgParams)
 {
 	GCCUImageParams params;
 
@@ -167,14 +167,14 @@ GCProjectionDataDeviceOwned&
 	return *mp_intermediaryProjData;
 }
 
-const GCImageDevice& GCOperatorProjectorDevice::getAttImageDevice() const
+const ImageDevice& GCOperatorProjectorDevice::getAttImageDevice() const
 {
 	ASSERT_MSG(mp_attImageDevice != nullptr,
 	           "Device attenuation image not initialized");
 	return *mp_attImageDevice;
 }
 
-const GCImageDevice&
+const ImageDevice&
     GCOperatorProjectorDevice::getAttImageForBackprojectionDevice() const
 {
 	ASSERT_MSG(mp_attImageForBackprojectionDevice != nullptr,
@@ -187,22 +187,22 @@ size_t GCOperatorProjectorDevice::getBatchSize() const
 	return m_batchSize;
 }
 
-void GCOperatorProjectorDevice::setAttImage(const GCImage* attImage)
+void GCOperatorProjectorDevice::setAttImage(const Image* attImage)
 {
 	GCOperatorProjectorBase::setAttImage(attImage);
 
-	mp_attImageDevice = std::make_unique<GCImageDeviceOwned>(
+	mp_attImageDevice = std::make_unique<ImageDeviceOwned>(
 	    attImage->getParams(), getAuxStream());
 	mp_attImageDevice->allocate(getAuxStream());
 	mp_attImageDevice->transferToDeviceMemory(attImage, false);
 }
 
 void GCOperatorProjectorDevice::setAttImageForBackprojection(
-    const GCImage* attImage)
+    const Image* attImage)
 {
 	GCOperatorProjectorBase::setAttImageForBackprojection(attImage);
 
-	mp_attImageForBackprojectionDevice = std::make_unique<GCImageDeviceOwned>(
+	mp_attImageForBackprojectionDevice = std::make_unique<ImageDeviceOwned>(
 	    attImage->getParams(), getAuxStream());
 	mp_attImageForBackprojectionDevice->allocate(getAuxStream());
 	mp_attImageForBackprojectionDevice->transferToDeviceMemory(attImage, false);

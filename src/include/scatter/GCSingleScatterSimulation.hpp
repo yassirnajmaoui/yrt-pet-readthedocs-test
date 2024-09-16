@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "geometry/GCCylinder.hpp"
@@ -16,8 +16,8 @@
 class GCSingleScatterSimulation
 {
 public:
-	GCSingleScatterSimulation(GCScanner* p_scanner, GCImage* p_lambda,
-	                          GCImage* p_mu, GCHistogram3D* p_prompts_histo,
+	GCSingleScatterSimulation(GCScanner* p_scanner, Image* p_lambda,
+	                          Image* p_mu, GCHistogram3D* p_prompts_histo,
 	                          GCHistogram3D* p_norm_histo,
 	                          GCHistogram3D* p_acf_histo,
 	                          const std::string& mu_det_file, int seedi = 13,
@@ -50,8 +50,8 @@ protected:
 	GCHistogram3D* mp_promptsHisto;
 	GCHistogram3D* mp_normHisto;
 	GCHistogram3D* mp_acfHisto;
-	GCImage* mp_mu;      // Attenuation image
-	GCImage* mp_lambda;  // Image from one iteration
+	Image* mp_mu;      // Attenuation image
+	Image* mp_lambda;  // Image from one iteration
 	GCCylinder m_cyl1, m_cyl2;
 	GCPlane m_endPlate1, m_endPlate2;
 

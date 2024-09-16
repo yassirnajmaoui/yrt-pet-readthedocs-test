@@ -17,8 +17,8 @@ set(SOURCES
         datastruct/scanner/GCDetRegular.cpp
         datastruct/scanner/GCDetectorSetup.cpp
         datastruct/scanner/GCScanner.cpp
-        datastruct/image/GCImageBase.cpp
-        datastruct/image/GCImage.cpp
+        datastruct/image/ImageBase.cpp
+        datastruct/image/Image.cpp
         datastruct/GCIO.cpp
         geometry/GCStraightLineParam.cpp
         geometry/GCMatrix.cpp
@@ -56,8 +56,8 @@ set(SOURCES
 if (USE_CUDA)
     set(SOURCES "${SOURCES}"
             datastruct/scanner/GCScannerDevice.cu
-            datastruct/image/GCImageDevice.cu
-            datastruct/image/GCImageSpaceKernels.cu
+            datastruct/image/ImageDevice.cu
+            datastruct/image/ImageSpaceKernels.cu
             datastruct/projection/GCLORsDevice.cu
             datastruct/projection/GCProjectionDataDevice.cu
             datastruct/projection/GCProjectionSpaceKernels.cu

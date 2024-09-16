@@ -5,7 +5,7 @@
 
 #include "scatter/GCSingleScatterSimulator.hpp"
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "geometry/GCConstants.hpp"
@@ -27,7 +27,7 @@ void py_setup_gcsinglescattersimulator(py::module& m)
 {
 	auto c = py::class_<Scatter::GCSingleScatterSimulator>(
 	    m, "GCSingleScatterSimulator");
-	c.def(py::init<const GCScanner&, const GCImage&, const GCImage&,
+	c.def(py::init<const GCScanner&, const Image&, const Image&,
 	               Scatter::CrystalMaterial, int>(),
 	      "scanner"_a, "attenuation_image"_a, "source_image"_a,
 	      "crystal_material"_a, "seed"_a);
@@ -47,14 +47,14 @@ void py_setup_gcsinglescattersimulator(py::module& m)
 namespace Scatter
 {
 	GCSingleScatterSimulator::GCSingleScatterSimulator(
-	    const GCScanner& pr_scanner, const GCImage& pr_mu,
-	    const GCImage& pr_lambda, CrystalMaterial p_crystalMaterial, int seedi)
+	    const GCScanner& pr_scanner, const Image& pr_mu,
+	    const Image& pr_lambda, CrystalMaterial p_crystalMaterial, int seedi)
 	    : mr_scanner(pr_scanner),
 	      mr_mu(pr_mu),
 	      mr_lambda(pr_lambda),
 	      m_crystalMaterial(p_crystalMaterial)
 	{
-		const GCImageParams& mu_params = mr_mu.getParams();
+		const ImageParams& mu_params = mr_mu.getParams();
 		// YP low level discriminatory energy
 		m_energyLLD = mr_scanner.energyLLD;
 

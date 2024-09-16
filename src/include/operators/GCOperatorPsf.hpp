@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "operators/GCOperator.hpp"
 
 #include <vector>
@@ -13,8 +13,8 @@
 class GCOperatorPsf : public GCOperator
 {
 public:
-	GCOperatorPsf(const GCImageParams& img_params);
-	GCOperatorPsf(const GCImageParams& img_params,
+	GCOperatorPsf(const ImageParams& img_params);
+	GCOperatorPsf(const ImageParams& img_params,
 	              const std::string& image_space_psf_filename);
 	~GCOperatorPsf() override;
 
@@ -23,7 +23,7 @@ public:
 	void applyA(const GCVariable* in, GCVariable* out) override;
 	void applyAH(const GCVariable* in, GCVariable* out) override;
 
-	void convolve(const GCImage* in, GCImage* out,
+	void convolve(const Image* in, Image* out,
 	              const std::vector<float>& KernelX,
 	              const std::vector<float>& KernelY,
 	              const std::vector<float>& KernelZ) const;
@@ -40,5 +40,5 @@ protected:
 	std::vector<float> m_KernelX_flipped;
 	std::vector<float> m_KernelY_flipped;
 	std::vector<float> m_KernelZ_flipped;
-	GCImageParams m_params;
+	ImageParams m_params;
 };

@@ -12,7 +12,7 @@
 
 #define GCIMAGEPARAMS_FILE_VERSION 1.0
 
-class GCImageParams
+class ImageParams
 {
 public:
 	int nx;
@@ -29,19 +29,19 @@ public:
 	double vx, vy, vz;
 	float fov_radius;
 
-	GCImageParams();
-	GCImageParams(int nxi, int nyi, int nzi, double length_xi, double length_yi,
+	ImageParams();
+	ImageParams(int nxi, int nyi, int nzi, double length_xi, double length_yi,
 	              double length_zi, double offset_xi = 0.,
 	              double offset_yi = 0., double offset_zi = 0.);
-	GCImageParams(const GCImageParams& in);
-	GCImageParams& operator=(const GCImageParams& in);
-	explicit GCImageParams(const std::string& fname);
-	bool isSameDimensionsAs(const GCImageParams& other) const;
-	bool isSameLengthsAs(const GCImageParams& other) const;
-	bool isSameOffsetsAs(const GCImageParams& other) const;
-	bool isSameAs(const GCImageParams& other) const;
+	ImageParams(const ImageParams& in);
+	ImageParams& operator=(const ImageParams& in);
+	explicit ImageParams(const std::string& fname);
+	bool isSameDimensionsAs(const ImageParams& other) const;
+	bool isSameLengthsAs(const ImageParams& other) const;
+	bool isSameOffsetsAs(const ImageParams& other) const;
+	bool isSameAs(const ImageParams& other) const;
 
-	void copy(const GCImageParams& in);
+	void copy(const ImageParams& in);
 	void setup();
 	void serialize(const std::string& fname) const;
 	void writeToJSON(nlohmann::json& geom_json) const;
@@ -50,27 +50,27 @@ public:
 	bool isValid() const;
 };
 
-class GCImageBase : public GCVariable
+class ImageBase : public GCVariable
 {
 public:
-	GCImageBase(const GCImageParams& imgParams);
-	~GCImageBase() override = default;
+	ImageBase(const ImageParams& imgParams);
+	~ImageBase() override = default;
 
 	// Common functions
 	float getRadius() const;
-	const GCImageParams& getParams() const;
-	void setParams(const GCImageParams& newParams);
+	const ImageParams& getParams() const;
+	void setParams(const ImageParams& newParams);
 
 	virtual void setValue(double initValue) = 0;
-	virtual void addFirstImageToSecond(GCImageBase* second) const = 0;
-	virtual void applyThreshold(const GCImageBase* mask_img, double threshold,
+	virtual void addFirstImageToSecond(ImageBase* second) const = 0;
+	virtual void applyThreshold(const ImageBase* mask_img, double threshold,
 	                            double val_le_scale, double val_le_off,
 	                            double val_gt_scale, double val_gt_off) = 0;
 	virtual void writeToFile(const std::string& image_fname) const = 0;
-	virtual void updateEMThreshold(GCImageBase* update_img,
-	                               const GCImageBase* norm_img,
+	virtual void updateEMThreshold(ImageBase* update_img,
+	                               const ImageBase* norm_img,
 	                               double threshold) = 0;
 
 private:
-	GCImageParams m_params;
+	ImageParams m_params;
 };

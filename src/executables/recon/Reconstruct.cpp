@@ -166,7 +166,7 @@ int main(int argc, char** argv)
 	osem->num_MLEM_iterations = numIterations;
 	osem->num_OSEM_subsets = numSubsets;
 	osem->hardThreshold = hardThreshold;
-	osem->imageParams = GCImageParams(imgParams_fname);
+	osem->imageParams = ImageParams(imgParams_fname);
 	osem->projectorType = projectorType;
 	osem->numRays = numRays;
 	GCGlobals::set_num_threads(numThreads);
@@ -177,8 +177,8 @@ int main(int argc, char** argv)
 	osem->setListModeEnabled(useListMode);
 
 	// Attenuation image
-	std::unique_ptr<GCImageParams> att_img_params = nullptr;
-	std::unique_ptr<GCImageOwned> att_img = nullptr;
+	std::unique_ptr<ImageParams> att_img_params = nullptr;
+	std::unique_ptr<ImageOwned> att_img = nullptr;
 	if (!attImg_fname.empty())
 	{
 		if (attImgParams_fname.empty())
@@ -188,8 +188,8 @@ int main(int argc, char** argv)
 			    << "parameter file must also be provided" << std::endl;
 			return -1;
 		}
-		att_img_params = std::make_unique<GCImageParams>(attImgParams_fname);
-		att_img = std::make_unique<GCImageOwned>(*att_img_params, attImg_fname);
+		att_img_params = std::make_unique<ImageParams>(attImgParams_fname);
+		att_img = std::make_unique<ImageOwned>(*att_img_params, attImg_fname);
 	}
 
 	// Image-space PSF
@@ -208,7 +208,7 @@ int main(int argc, char** argv)
 	}
 
 	// Sensitivity image(s)
-	std::vector<std::unique_ptr<GCImage>> sensImages;
+	std::vector<std::unique_ptr<Image>> sensImages;
 	if (sensImg_fnames.empty())
 	{
 		std::unique_ptr<IProjectionData> sensData = nullptr;
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
 	{
 		for (auto& sensImg_fname : sensImg_fnames)
 		{
-			sensImages.push_back(std::make_unique<GCImageOwned>(
+			sensImages.push_back(std::make_unique<ImageOwned>(
 			    osem->imageParams, sensImg_fname));
 		}
 		osem->registerSensitivityImages(sensImages);
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
 	osem->setSaveSteps(saveSteps, out_fname);
 
 	// Prepare output image
-	auto out_img = std::make_unique<GCImageOwned>(osem->imageParams);
+	auto out_img = std::make_unique<ImageOwned>(osem->imageParams);
 	out_img->allocate();
 	osem->outImage = out_img.get();
 

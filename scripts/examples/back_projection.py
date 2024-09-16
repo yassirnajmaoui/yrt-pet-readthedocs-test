@@ -13,8 +13,8 @@ dataset = gc.GCListModeLUTOwned(scanner)
 dataset.readFromFile("<path to a listmode to be backprojected>")
 
 # Prepare an image
-imgParams = gc.GCImageParams("<path to the image parameters file>")
-outImage = gc.GCImageOwned(imgParams)
+imgParams = gc.ImageParams("<path to the image parameters file>")
+outImage = gc.ImageOwned(imgParams)
 outImage.Allocate()
 
 projectorType = gc.GCOperatorProjector.ProjectorType.DD_GPU

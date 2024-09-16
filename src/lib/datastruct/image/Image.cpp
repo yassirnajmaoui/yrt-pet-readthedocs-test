@@ -3,8 +3,8 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/image/GCImage.hpp"
-#include "datastruct/image/GCImageBase.hpp"
+#include "datastruct/image/Image.hpp"
+#include "datastruct/image/ImageBase.hpp"
 #include "utils/GCAssert.hpp"
 
 #include <cmath>
@@ -17,35 +17,35 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gcimage(py::module& m)
+void py_setup_image(py::module& m)
 {
 	auto c =
-	    py::class_<GCImage, GCImageBase>(m, "GCImage", py::buffer_protocol());
-	c.def("setValue", &GCImage::setValue);
+	    py::class_<Image, ImageBase>(m, "Image", py::buffer_protocol());
+	c.def("setValue", &Image::setValue);
 	c.def_buffer(
-	    [](GCImage& img) -> py::buffer_info
+	    [](Image& img) -> py::buffer_info
 	    {
 		    Array3DBase<double>& d = img.getData();
 		    return py::buffer_info(d.getRawPointer(), sizeof(double),
 		                           py::format_descriptor<double>::format(), 3,
 		                           d.getDims(), d.getStrides());
 	    });
-	c.def("copyFromImage", &GCImage::copyFromImage);
-	c.def("multWithScalar", &GCImage::multWithScalar);
-	c.def("addFirstImageToSecond", &GCImage::addFirstImageToSecond);
-	c.def("applyThreshold", &GCImage::applyThreshold, py::arg("maskImage"),
+	c.def("copyFromImage", &Image::copyFromImage);
+	c.def("multWithScalar", &Image::multWithScalar);
+	c.def("addFirstImageToSecond", &Image::addFirstImageToSecond);
+	c.def("applyThreshold", &Image::applyThreshold, py::arg("maskImage"),
 	      py::arg("threshold"), py::arg("val_le_scale"), py::arg("val_le_off"),
 	      py::arg("val_gt_scale"), py::arg("val_gt_off"));
-	c.def("updateEMThreshold", &GCImage::updateEMThreshold);
-	c.def("dot_product", &GCImage::dot_product);
-	c.def("getRadius", &GCImage::getRadius);
-	c.def("getParams", &GCImage::getParams);
-	c.def("interpol_image", &GCImage::interpol_image);
-	c.def("interpol_image2", &GCImage::interpol_image2);
-	c.def("nearest_neigh", &GCImage::nearest_neigh, py::arg("pt"));
+	c.def("updateEMThreshold", &Image::updateEMThreshold);
+	c.def("dot_product", &Image::dot_product);
+	c.def("getRadius", &Image::getRadius);
+	c.def("getParams", &Image::getParams);
+	c.def("interpol_image", &Image::interpol_image);
+	c.def("interpol_image2", &Image::interpol_image2);
+	c.def("nearest_neigh", &Image::nearest_neigh, py::arg("pt"));
 	c.def(
 	    "nearest_neigh2",
-	    [](const GCImage& img, const GCVector& pt) -> py::tuple
+	    [](const Image& img, const GCVector& pt) -> py::tuple
 	    {
 		    int pi, pj, pk;
 		    double val = img.nearest_neigh2(pt, &pi, &pj, &pk);
@@ -54,28 +54,28 @@ void py_setup_gcimage(py::module& m)
 	    py::arg("pt"));
 	c.def(
 	    "get_nearest_neigh_idx",
-	    [](const GCImage& img, const GCVector& pt) -> py::tuple
+	    [](const Image& img, const GCVector& pt) -> py::tuple
 	    {
 		    int pi, pj, pk;
 		    img.get_nearest_neigh_idx(pt, &pi, &pj, &pk);
 		    return py::make_tuple(pi, pj, pk);
 	    },
 	    py::arg("pt"));
-	c.def("transformImage", &GCImage::transformImage, py::arg("rotation"),
+	c.def("transformImage", &Image::transformImage, py::arg("rotation"),
 	      py::arg("translation"));
-	c.def("update_image_nearest_neigh", &GCImage::update_image_nearest_neigh);
-	c.def("assign_image_nearest_neigh", &GCImage::assign_image_nearest_neigh);
-	c.def("update_image_inter", &GCImage::update_image_inter, py::arg("pt"),
+	c.def("update_image_nearest_neigh", &Image::update_image_nearest_neigh);
+	c.def("assign_image_nearest_neigh", &Image::assign_image_nearest_neigh);
+	c.def("update_image_inter", &Image::update_image_inter, py::arg("pt"),
 	      py::arg("value"), py::arg("mult_flag") = false);
-	c.def("assign_image_inter", &GCImage::assign_image_inter, py::arg("pt"),
+	c.def("assign_image_inter", &Image::assign_image_inter, py::arg("pt"),
 	      py::arg("value"));
-	c.def("writeToFile", &GCImage::writeToFile);
+	c.def("writeToFile", &Image::writeToFile);
 
-	auto c_alias = py::class_<GCImageAlias, GCImage>(m, "GCImageAlias");
-	c_alias.def(py::init<const GCImageParams&>());
+	auto c_alias = py::class_<ImageAlias, Image>(m, "ImageAlias");
+	c_alias.def(py::init<const ImageParams&>());
 	c_alias.def(
 	    "bind",
-	    [](GCImageAlias& self, py::buffer& np_data)
+	    [](ImageAlias& self, py::buffer& np_data)
 	    {
 		    py::buffer_info buffer = np_data.request();
 		    if (buffer.ndim != 3)
@@ -104,58 +104,58 @@ void py_setup_gcimage(py::module& m)
 		              dims[2]);
 	    });
 
-	auto c_owned = py::class_<GCImageOwned, GCImage>(m, "GCImageOwned");
-	c_owned.def(py::init<const GCImageParams&>());
-	c_owned.def(py::init<const GCImageParams&, std::string>());
-	c_owned.def("allocate", &GCImageOwned::allocate);
-	c_owned.def("readFromFile", &GCImageOwned::readFromFile);
+	auto c_owned = py::class_<ImageOwned, Image>(m, "ImageOwned");
+	c_owned.def(py::init<const ImageParams&>());
+	c_owned.def(py::init<const ImageParams&, std::string>());
+	c_owned.def("allocate", &ImageOwned::allocate);
+	c_owned.def("readFromFile", &ImageOwned::readFromFile);
 }
 
 #endif  // if BUILD_PYBIND11
 
 
-GCImage::GCImage(const GCImageParams& img_params) : GCImageBase(img_params) {}
+Image::Image(const ImageParams& img_params) : ImageBase(img_params) {}
 
-void GCImage::setValue(double initValue)
+void Image::setValue(double initValue)
 {
 	m_dataPtr->fill(initValue);
 }
 
-void GCImage::copyFromImage(const GCImage* imSrc)
+void Image::copyFromImage(const Image* imSrc)
 {
 	ASSERT(m_dataPtr != nullptr);
 	m_dataPtr->copy(imSrc->getData());
 	setParams(imSrc->getParams());
 }
 
-Array3DBase<double>& GCImage::getData()
+Array3DBase<double>& Image::getData()
 {
 	return *m_dataPtr;
 }
 
-const Array3DBase<double>& GCImage::getData() const
+const Array3DBase<double>& Image::getData() const
 {
 	return *m_dataPtr;
 }
 
-void GCImage::addFirstImageToSecond(GCImageBase* second) const
+void Image::addFirstImageToSecond(ImageBase* second) const
 {
-	auto* second_GCImage = dynamic_cast<GCImage*>(second);
+	auto* second_Image = dynamic_cast<Image*>(second);
 
-	ASSERT(second_GCImage != nullptr);
+	ASSERT(second_Image != nullptr);
 	ASSERT_MSG(second->getParams().isSameDimensionsAs(getParams()),
 	           "The two images do not share the same image space");
 
-	second_GCImage->getData() += *m_dataPtr;
+	second_Image->getData() += *m_dataPtr;
 }
 
-void GCImage::multWithScalar(double scalar)
+void Image::multWithScalar(double scalar)
 {
 	*m_dataPtr *= scalar;
 }
 
 // interpolation operation. It does not account for the offset values.
-double GCImage::interpol_image(GCVector pt)
+double Image::interpol_image(GCVector pt)
 {
 	double x = pt.x;
 	double y = pt.y;
@@ -265,7 +265,7 @@ double GCImage::interpol_image(GCVector pt)
 
 // calculate the value of a point on the image matrix
 // using tri-linear interpolation and weighting with image "sens":
-double GCImage::interpol_image2(GCVector pt, GCImage* sens)
+double Image::interpol_image2(GCVector pt, Image* sens)
 {
 
 	double x = pt.x;
@@ -385,7 +385,7 @@ double GCImage::interpol_image2(GCVector pt, GCImage* sens)
 }
 
 // return the value of the voxel the nearest to "point":
-double GCImage::nearest_neigh(const GCVector& pt) const
+double Image::nearest_neigh(const GCVector& pt) const
 {
 	int ix, iy, iz;
 
@@ -399,7 +399,7 @@ double GCImage::nearest_neigh(const GCVector& pt) const
 }
 
 // return the value of the voxel the nearest to "point":
-double GCImage::nearest_neigh2(const GCVector& pt, int* pi, int* pj,
+double Image::nearest_neigh2(const GCVector& pt, int* pi, int* pj,
                                int* pk) const
 {
 	if (get_nearest_neigh_idx(pt, pi, pj, pk))
@@ -413,7 +413,7 @@ double GCImage::nearest_neigh2(const GCVector& pt, int* pi, int* pj,
 
 
 // update image with "value" using nearest neighbor method:
-void GCImage::update_image_nearest_neigh(const GCVector& pt, double value,
+void Image::update_image_nearest_neigh(const GCVector& pt, double value,
                                          bool mult_flag)
 {
 	int ix, iy, iz;
@@ -436,7 +436,7 @@ void GCImage::update_image_nearest_neigh(const GCVector& pt, double value,
 }
 
 // assign image with "value" using nearest neighbor method:
-void GCImage::assign_image_nearest_neigh(const GCVector& pt, double value)
+void Image::assign_image_nearest_neigh(const GCVector& pt, double value)
 {
 	int ix, iy, iz;
 	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
@@ -449,13 +449,13 @@ void GCImage::assign_image_nearest_neigh(const GCVector& pt, double value)
 	}
 }
 
-bool GCImage::get_nearest_neigh_idx(const GCVector& pt, int* pi, int* pj,
+bool Image::get_nearest_neigh_idx(const GCVector& pt, int* pi, int* pj,
                                     int* pk) const
 {
 	const double x = pt.x;
 	const double y = pt.y;
 	const double z = pt.z;
-	const GCImageParams& params = getParams();
+	const ImageParams& params = getParams();
 
 	// if point is outside of the grid, return false
 	if ((fabs(x) >= (params.length_x / 2.0)) ||
@@ -484,7 +484,7 @@ bool GCImage::get_nearest_neigh_idx(const GCVector& pt, int* pi, int* pj,
 }
 
 // update image with "value" using trilinear interpolation:
-void GCImage::update_image_inter(GCVector point, double value, bool mult_flag)
+void Image::update_image_inter(GCVector point, double value, bool mult_flag)
 {
 	double x = point.x;
 	double y = point.y;
@@ -608,7 +608,7 @@ void GCImage::update_image_inter(GCVector point, double value, bool mult_flag)
 }
 
 // assign image with "value" using trilinear interpolation:
-void GCImage::assign_image_inter(GCVector point, double value)
+void Image::assign_image_inter(GCVector point, double value)
 {
 	double x = point.x;
 	double y = point.y;
@@ -718,14 +718,14 @@ void GCImage::assign_image_inter(GCVector point, double value)
 }
 
 // this function writes "image" on disk @ "image_fname"
-void GCImage::writeToFile(const std::string& image_fname) const
+void Image::writeToFile(const std::string& image_fname) const
 {
 	m_dataPtr->writeToFile(image_fname);
 }
 
 
 // this function copy "image_file_name" to image:
-void GCImageOwned::readFromFile(const std::string& image_file_name)
+void ImageOwned::readFromFile(const std::string& image_file_name)
 {
 	std::array<size_t, 3> dims{static_cast<size_t>(getParams().nz),
 	                           static_cast<size_t>(getParams().ny),
@@ -733,15 +733,15 @@ void GCImageOwned::readFromFile(const std::string& image_file_name)
 	m_dataPtr->readFromFile(image_file_name, dims);
 }
 
-void GCImage::applyThreshold(const GCImageBase* maskImg, double threshold,
+void Image::applyThreshold(const ImageBase* maskImg, double threshold,
                              double val_le_scale, double val_le_off,
                              double val_gt_scale, double val_gt_off)
 {
-	const GCImage* maskImg_GCImage = dynamic_cast<const GCImage*>(maskImg);
-	ASSERT_MSG(maskImg_GCImage != nullptr, "Input image has the wrong type");
+	const Image* maskImg_Image = dynamic_cast<const Image*>(maskImg);
+	ASSERT_MSG(maskImg_Image != nullptr, "Input image has the wrong type");
 
 	double* ptr = m_dataPtr->getRawPointer();
-	const double* mask_ptr = maskImg_GCImage->getData().getRawPointer();
+	const double* mask_ptr = maskImg_Image->getData().getRawPointer();
 	for (size_t k = 0; k < m_dataPtr->getSizeTotal(); k++, ptr++, mask_ptr++)
 	{
 		if (*mask_ptr <= threshold)
@@ -755,22 +755,22 @@ void GCImage::applyThreshold(const GCImageBase* maskImg, double threshold,
 	}
 }
 
-void GCImage::updateEMThreshold(GCImageBase* updateImg,
-                                const GCImageBase* normImg, double threshold)
+void Image::updateEMThreshold(ImageBase* updateImg,
+                                const ImageBase* normImg, double threshold)
 {
-	GCImage* updateImg_GCImage = dynamic_cast<GCImage*>(updateImg);
-	const GCImage* normImg_GCImage = dynamic_cast<const GCImage*>(normImg);
+	Image* updateImg_Image = dynamic_cast<Image*>(updateImg);
+	const Image* normImg_Image = dynamic_cast<const Image*>(normImg);
 
-	ASSERT_MSG(updateImg_GCImage != nullptr, "Update image has the wrong type");
-	ASSERT_MSG(normImg_GCImage != nullptr, "Norm image has the wrong type");
-	ASSERT_MSG(normImg_GCImage->getParams().isSameAs(getParams()),
+	ASSERT_MSG(updateImg_Image != nullptr, "Update image has the wrong type");
+	ASSERT_MSG(normImg_Image != nullptr, "Norm image has the wrong type");
+	ASSERT_MSG(normImg_Image->getParams().isSameAs(getParams()),
 	           "Image dimensions mismatch");
-	ASSERT_MSG(updateImg_GCImage->getParams().isSameAs(getParams()),
+	ASSERT_MSG(updateImg_Image->getParams().isSameAs(getParams()),
 	           "Image dimensions mismatch");
 
 	double* ptr = m_dataPtr->getRawPointer();
-	double* up_ptr = updateImg_GCImage->getData().getRawPointer();
-	const double* norm_ptr = normImg_GCImage->getData().getRawPointer();
+	double* up_ptr = updateImg_Image->getData().getRawPointer();
+	const double* norm_ptr = normImg_Image->getData().getRawPointer();
 
 	for (size_t k = 0; k < m_dataPtr->getSizeTotal();
 	     k++, ptr++, up_ptr++, norm_ptr++)
@@ -782,7 +782,7 @@ void GCImage::updateEMThreshold(GCImageBase* updateImg,
 	}
 }
 
-double GCImage::dot_product(GCImage* y) const
+double Image::dot_product(Image* y) const
 {
 	double out = 0.0;
 	const double* x_ptr = m_dataPtr->getRawPointer();
@@ -794,19 +794,19 @@ double GCImage::dot_product(GCImage* y) const
 	return out;
 }
 
-Array3DAlias<double> GCImage::getArray() const
+Array3DAlias<double> Image::getArray() const
 {
 	return {m_dataPtr.get()};
 }
 
-std::unique_ptr<GCImage>
-    GCImage::transformImage(const GCVector& rotation,
+std::unique_ptr<Image>
+    Image::transformImage(const GCVector& rotation,
                             const GCVector& translation) const
 {
-	GCImageParams params = getParams();
+	ImageParams params = getParams();
 	const double* rawPtr = getData().getRawPointer();
 	const int num_xy = params.nx * params.ny;
-	auto newImg = std::make_unique<GCImageOwned>(params);
+	auto newImg = std::make_unique<ImageOwned>(params);
 	newImg->allocate();
 	newImg->setValue(0.0);
 	const double alpha = rotation.z;
@@ -853,36 +853,36 @@ std::unique_ptr<GCImage>
 	return newImg;
 }
 
-GCImageOwned::GCImageOwned(const GCImageParams& img_params)
-    : GCImage(img_params)
+ImageOwned::ImageOwned(const ImageParams& img_params)
+    : Image(img_params)
 {
 	m_dataPtr = std::make_unique<Array3D<double>>();
 }
 
-GCImageOwned::GCImageOwned(const GCImageParams& img_params,
+ImageOwned::ImageOwned(const ImageParams& img_params,
                            const std::string& filename)
-    : GCImageOwned(img_params)
+    : ImageOwned(img_params)
 {
 	readFromFile(filename);
 }
 
-void GCImageOwned::allocate()
+void ImageOwned::allocate()
 {
 	static_cast<Array3D<double>*>(m_dataPtr.get())
 	    ->allocate(getParams().nz, getParams().ny, getParams().nx);
 }
 
-GCImageAlias::GCImageAlias(const GCImageParams& img_params)
-    : GCImage(img_params)
+ImageAlias::ImageAlias(const ImageParams& img_params)
+    : Image(img_params)
 {
 	m_dataPtr = std::make_unique<Array3DAlias<double>>();
 }
 
-void GCImageAlias::bind(Array3DBase<double>& p_data)
+void ImageAlias::bind(Array3DBase<double>& p_data)
 {
 	static_cast<Array3DAlias<double>*>(m_dataPtr.get())->bind(p_data);
 	if (m_dataPtr->getRawPointer() != p_data.getRawPointer())
 	{
-		throw std::runtime_error("An error occured during GCImage binding");
+		throw std::runtime_error("An error occured during Image binding");
 	}
 }

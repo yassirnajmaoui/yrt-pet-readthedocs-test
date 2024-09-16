@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/image/GCImageBase.hpp"
+#include "datastruct/image/ImageBase.hpp"
 #include "geometry/GCConstants.hpp"
 
 #include "nlohmann/json.hpp"
@@ -15,24 +15,24 @@ using json = nlohmann::json;
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gcimagebase(py::module& m)
+void py_setup_imagebase(py::module& m)
 {
-	auto c = py::class_<GCImageBase, GCVariable>(m, "GCImageBase");
+	auto c = py::class_<ImageBase, GCVariable>(m, "ImageBase");
 
-	c.def("setValue", &GCImageBase::setValue, py::arg("initValue"));
-	c.def("addFirstImageToSecond", &GCImageBase::addFirstImageToSecond,
+	c.def("setValue", &ImageBase::setValue, py::arg("initValue"));
+	c.def("addFirstImageToSecond", &ImageBase::addFirstImageToSecond,
 	      py::arg("second"));
-	c.def("applyThreshold", &GCImageBase::applyThreshold, py::arg("maskImage"),
+	c.def("applyThreshold", &ImageBase::applyThreshold, py::arg("maskImage"),
 	      py::arg("threshold"), py::arg("val_le_scale"), py::arg("val_le_off"),
 	      py::arg("val_gt_scale"), py::arg("val_gt_off"));
-	c.def("writeToFile", &GCImageBase::writeToFile, py::arg("filename"));
-	c.def("updateEMThreshold", &GCImageBase::updateEMThreshold,
+	c.def("writeToFile", &ImageBase::writeToFile, py::arg("filename"));
+	c.def("updateEMThreshold", &ImageBase::updateEMThreshold,
 	      py::arg("update_img"), py::arg("norm_img"), py::arg("threshold"));
 }
 
-void py_setup_gcimageparams(py::module& m)
+void py_setup_imageparams(py::module& m)
 {
-	auto c = py::class_<GCImageParams>(m, "GCImageParams");
+	auto c = py::class_<ImageParams>(m, "ImageParams");
 	c.def(py::init<>());
 	c.def(py::init<int, int, int, double, double, double, double, double,
 	               double>(),
@@ -40,30 +40,30 @@ void py_setup_gcimageparams(py::module& m)
 	      py::arg("length_y"), py::arg("length_z"), py::arg("offset_x") = 0.,
 	      py::arg("offset_y") = 0., py::arg("offset_z") = 0.);
 	c.def(py::init<std::string>());
-	c.def(py::init<const GCImageParams&>());
-	c.def_readwrite("nx", &GCImageParams::nx);
-	c.def_readwrite("ny", &GCImageParams::ny);
-	c.def_readwrite("nz", &GCImageParams::nz);
+	c.def(py::init<const ImageParams&>());
+	c.def_readwrite("nx", &ImageParams::nx);
+	c.def_readwrite("ny", &ImageParams::ny);
+	c.def_readwrite("nz", &ImageParams::nz);
 
-	c.def_readwrite("length_x", &GCImageParams::length_x);
-	c.def_readwrite("length_y", &GCImageParams::length_y);
-	c.def_readwrite("length_z", &GCImageParams::length_z);
+	c.def_readwrite("length_x", &ImageParams::length_x);
+	c.def_readwrite("length_y", &ImageParams::length_y);
+	c.def_readwrite("length_z", &ImageParams::length_z);
 
-	c.def_readwrite("off_x", &GCImageParams::off_x);
-	c.def_readwrite("off_y", &GCImageParams::off_y);
-	c.def_readwrite("off_z", &GCImageParams::off_z);
+	c.def_readwrite("off_x", &ImageParams::off_x);
+	c.def_readwrite("off_y", &ImageParams::off_y);
+	c.def_readwrite("off_z", &ImageParams::off_z);
 
 	// Automatically populated fields
-	c.def_readwrite("vx", &GCImageParams::vx);
-	c.def_readwrite("vy", &GCImageParams::vy);
-	c.def_readwrite("vz", &GCImageParams::vz);
-	c.def_readwrite("fov_radius", &GCImageParams::fov_radius);
+	c.def_readwrite("vx", &ImageParams::vx);
+	c.def_readwrite("vy", &ImageParams::vy);
+	c.def_readwrite("vz", &ImageParams::vz);
+	c.def_readwrite("fov_radius", &ImageParams::fov_radius);
 
-	c.def("setup", &GCImageParams::setup);
-	c.def("serialize", &GCImageParams::serialize);
+	c.def("setup", &ImageParams::setup);
+	c.def("serialize", &ImageParams::serialize);
 
 	c.def(py::pickle(
-	    [](const GCImageParams& g)
+	    [](const ImageParams& g)
 	    {
 		    nlohmann::json geom_json;
 		    g.writeToJSON(geom_json);
@@ -75,7 +75,7 @@ void py_setup_gcimageparams(py::module& m)
 	    {
 		    nlohmann::json geom_json;
 		    geom_json = json::parse(s);
-		    GCImageParams g;
+		    ImageParams g;
 		    g.readFromJSON(geom_json);
 		    return g;
 	    }));
@@ -83,7 +83,7 @@ void py_setup_gcimageparams(py::module& m)
 #endif
 
 
-GCImageParams::GCImageParams()
+ImageParams::ImageParams()
     : nx(-1),
       ny(-1),
       nz(-1),
@@ -99,7 +99,7 @@ GCImageParams::GCImageParams()
 {
 }
 
-GCImageParams::GCImageParams(int nxi, int nyi, int nzi, double length_xi,
+ImageParams::ImageParams(int nxi, int nyi, int nzi, double length_xi,
                              double length_yi, double length_zi,
                              double offset_xi, double offset_yi,
                              double offset_zi)
@@ -116,18 +116,18 @@ GCImageParams::GCImageParams(int nxi, int nyi, int nzi, double length_xi,
 	setup();
 }
 
-GCImageParams::GCImageParams(const GCImageParams& in)
+ImageParams::ImageParams(const ImageParams& in)
 {
 	copy(in);
 }
 
-GCImageParams& GCImageParams::operator=(const GCImageParams& in)
+ImageParams& ImageParams::operator=(const ImageParams& in)
 {
 	copy(in);
 	return *this;
 }
 
-void GCImageParams::copy(const GCImageParams& in)
+void ImageParams::copy(const ImageParams& in)
 {
 	nx = in.nx;
 	ny = in.ny;
@@ -141,12 +141,12 @@ void GCImageParams::copy(const GCImageParams& in)
 	setup();
 }
 
-GCImageParams::GCImageParams(const std::string& fname)
+ImageParams::ImageParams(const std::string& fname)
 {
 	deserialize(fname);
 }
 
-void GCImageParams::setup()
+void ImageParams::setup()
 {
 	vx = length_x / (double)nx;
 	vy = length_y / (double)ny;
@@ -155,7 +155,7 @@ void GCImageParams::setup()
 	fov_radius -= (float)(std::max(vx, vy) / 1000);
 }
 
-void GCImageParams::serialize(const std::string& fname) const
+void ImageParams::serialize(const std::string& fname) const
 {
 	std::ofstream output(fname);
 	json geom_json;
@@ -163,7 +163,7 @@ void GCImageParams::serialize(const std::string& fname) const
 	output << geom_json << std::endl;
 }
 
-void GCImageParams::writeToJSON(json& geom_json) const
+void ImageParams::writeToJSON(json& geom_json) const
 {
 	geom_json["GCIMAGEPARAMS_FILE_VERSION"] = GCIMAGEPARAMS_FILE_VERSION;
 	geom_json["nx"] = nx;
@@ -177,23 +177,23 @@ void GCImageParams::writeToJSON(json& geom_json) const
 	geom_json["off_z"] = off_z;
 }
 
-void GCImageParams::deserialize(const std::string& fname)
+void ImageParams::deserialize(const std::string& fname)
 {
 	std::ifstream json_file(fname);
 	if (!json_file.is_open())
 	{
-		throw std::runtime_error("Error opening GCImageParams file: " + fname);
+		throw std::runtime_error("Error opening ImageParams file: " + fname);
 	}
 	json geom_json;
 	json_file >> geom_json;
 	readFromJSON(geom_json);
 }
 
-void GCImageParams::readFromJSON(json& geom_json)
+void ImageParams::readFromJSON(json& geom_json)
 {
 	if (geom_json["GCIMAGEPARAMS_FILE_VERSION"] != GCIMAGEPARAMS_FILE_VERSION)
 	{
-		throw std::logic_error("Error in GCImageParams file version");
+		throw std::logic_error("Error in ImageParams file version");
 	}
 	nx = geom_json["nx"].get<int>();
 	ny = geom_json["ny"].get<int>();
@@ -208,52 +208,52 @@ void GCImageParams::readFromJSON(json& geom_json)
 	setup();
 }
 
-bool GCImageParams::isValid() const
+bool ImageParams::isValid() const
 {
 	return nx > 0 && ny > 0 && nz > 0 && length_x > 0. && length_y > 0. &&
 	       length_z > 0.;
 }
 
-bool GCImageParams::isSameDimensionsAs(const GCImageParams& other) const
+bool ImageParams::isSameDimensionsAs(const ImageParams& other) const
 {
 	return nx == other.nx && ny == other.ny && nz == other.nz;
 }
 
-bool GCImageParams::isSameLengthsAs(const GCImageParams& other) const
+bool ImageParams::isSameLengthsAs(const ImageParams& other) const
 {
 	return std::abs(length_x - other.length_x) < SMALL &&
 	       std::abs(length_z - other.length_z) < SMALL &&
 	       std::abs(length_z - other.length_z) < SMALL;
 }
 
-bool GCImageParams::isSameOffsetsAs(const GCImageParams& other) const
+bool ImageParams::isSameOffsetsAs(const ImageParams& other) const
 {
 	return std::abs(off_x - other.off_x) < SMALL &&
 	       std::abs(off_z - other.off_z) < SMALL &&
 	       std::abs(off_z - other.off_z) < SMALL;
 }
 
-bool GCImageParams::isSameAs(const GCImageParams& other) const
+bool ImageParams::isSameAs(const ImageParams& other) const
 {
 	return isSameDimensionsAs(other) && isSameLengthsAs(other) &&
 	       isSameOffsetsAs(other);
 }
 
-GCImageBase::GCImageBase(const GCImageParams& img_params) : m_params(img_params)
+ImageBase::ImageBase(const ImageParams& img_params) : m_params(img_params)
 {
 }
 
-const GCImageParams& GCImageBase::getParams() const
+const ImageParams& ImageBase::getParams() const
 {
 	return m_params;
 }
 
-void GCImageBase::setParams(const GCImageParams& newParams)
+void ImageBase::setParams(const ImageParams& newParams)
 {
 	m_params = newParams;
 }
 
-float GCImageBase::getRadius() const
+float ImageBase::getRadius() const
 {
 	return m_params.fov_radius;
 }

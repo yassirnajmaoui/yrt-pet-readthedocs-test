@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
 
 #include "catch.hpp"
@@ -17,7 +17,7 @@
  * Compute the backprojection of the line of response into img_bp, and return
  * the dot product between img and img_bp.
  */
-double bp_dot(GCStraightLineParam& lor, GCImage* img_bp, GCImage* img,
+double bp_dot(GCStraightLineParam& lor, Image* img_bp, Image* img,
               double proj_val)
 {
 	img_bp->setValue(0.0);
@@ -25,7 +25,7 @@ double bp_dot(GCStraightLineParam& lor, GCImage* img_bp, GCImage* img,
 	return img->dot_product(img_bp);
 }
 
-double bp_dot_slow(GCStraightLineParam& lor, GCImage* img_bp, GCImage* img,
+double bp_dot_slow(GCStraightLineParam& lor, Image* img_bp, Image* img,
                    double proj_val)
 {
 	img_bp->setValue(0.0);
@@ -50,11 +50,11 @@ TEST_CASE("Siddon-simple", "[siddon]")
 	double ox = 0.0;
 	double oy = 0.0;
 	double oz = 0.0;
-	GCImageParams img_params(nx, ny, nz, sx, sy, sz, ox, oy, oz);
-	auto img = std::make_unique<GCImageOwned>(img_params);
+	ImageParams img_params(nx, ny, nz, sx, sy, sz, ox, oy, oz);
+	auto img = std::make_unique<ImageOwned>(img_params);
 	img->allocate();
 	img->setValue(1.0);
-	auto img_bp = std::make_unique<GCImageOwned>(img_params);
+	auto img_bp = std::make_unique<ImageOwned>(img_params);
 	img_bp->allocate();
 	img_bp->setValue(0.0);
 	double fov_radius = img->getRadius();
@@ -355,8 +355,8 @@ TEST_CASE("Siddon-random", "[siddon]")
 	double ox = 0.0;
 	double oy = 0.0;
 	double oz = 0.0;
-	GCImageParams img_params(nx, ny, nz, sx, sy, sz, ox, oy, oz);
-	auto img = std::make_unique<GCImageOwned>(img_params);
+	ImageParams img_params(nx, ny, nz, sx, sy, sz, ox, oy, oz);
+	auto img = std::make_unique<ImageOwned>(img_params);
 	img->allocate();
 	img->setValue(1.0);
 	// Randomize image content
@@ -371,7 +371,7 @@ TEST_CASE("Siddon-random", "[siddon]")
 			}
 		}
 	}
-	auto img_bp = std::make_unique<GCImageOwned>(img_params);
+	auto img_bp = std::make_unique<ImageOwned>(img_params);
 	img_bp->allocate();
 	img_bp->setValue(0.0);
 	double fov_radius = img->getRadius();
@@ -506,8 +506,8 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 		double sx = 38.4;
 		double sy = 38.4;
 		double sz = 25;
-		GCImageParams img_params(nx, ny, nz, sx, sy, sz);
-		auto img = std::make_unique<GCImageOwned>(img_params);
+		ImageParams img_params(nx, ny, nz, sx, sy, sz);
+		auto img = std::make_unique<ImageOwned>(img_params);
 		img->allocate();
 		double v = rand() / (double)RAND_MAX * 1000.0;
 		img->setValue(v);
@@ -532,8 +532,8 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 		double sx = 25.0;
 		double sy = 25.0;
 		double sz = 23.5;
-		GCImageParams img_params(nx, ny, nz, sx, sy, sz);
-		auto img = std::make_unique<GCImageOwned>(img_params);
+		ImageParams img_params(nx, ny, nz, sx, sy, sz);
+		auto img = std::make_unique<ImageOwned>(img_params);
 		img->allocate();
 		double v = rand() / (double)RAND_MAX * 1000.0;
 		img->setValue(v);
@@ -563,8 +563,8 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 		double sx = 4.0;
 		double sy = 4.0;
 		double sz = 4.0;
-		GCImageParams img_params(nx, ny, nz, sx, sy, sz);
-		auto img = std::make_unique<GCImageOwned>(img_params);
+		ImageParams img_params(nx, ny, nz, sx, sy, sz);
+		auto img = std::make_unique<ImageOwned>(img_params);
 		img->allocate();
 		// Randomize image content
 		Array3DAlias<double> img_arr = img->getArray();

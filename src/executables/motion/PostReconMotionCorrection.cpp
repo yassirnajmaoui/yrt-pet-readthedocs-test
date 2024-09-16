@@ -14,7 +14,7 @@
  *		- Add frame disabling in parser and set it in the warper.
  * *************************************************************************************/
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "motion/ImageWarperFunction.hpp"
 
 #include <cxxopts.hpp>
@@ -77,14 +77,14 @@ int main(int argc, char* argv[])
 	}
 
 	// Load the images.
-	GCImageParams imgParams(outParamFile);
-	std::vector<std::unique_ptr<GCImageOwned>> imageList(im_fname.size());
+	ImageParams imgParams(outParamFile);
+	std::vector<std::unique_ptr<ImageOwned>> imageList(im_fname.size());
 	for (size_t i = 0; i < im_fname.size(); i++)
 	{
 		std::ifstream f(im_fname[i].c_str());
 		if (f.good())
 		{
-			imageList[i] = std::make_unique<GCImageOwned>(imgParams);
+			imageList[i] = std::make_unique<ImageOwned>(imgParams);
 			imageList[i]->allocate();
 			imageList[i]->readFromFile(im_fname[i]);
 		}
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 	warper.setImageHyperParam(imgParams);
 	warper.setFramesParamFromFile(warpParamFile);
 
-	auto postMotionCorrImage = std::make_unique<GCImageOwned>(imgParams);
+	auto postMotionCorrImage = std::make_unique<ImageOwned>(imgParams);
 	postMotionCorrImage->allocate();
 	for (size_t m = 0; m < imageList.size(); m++)
 	{

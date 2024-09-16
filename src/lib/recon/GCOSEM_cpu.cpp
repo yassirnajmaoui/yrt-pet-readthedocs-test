@@ -26,7 +26,7 @@ GCOSEM_cpu::~GCOSEM_cpu() = default;
 
 void GCOSEM_cpu::allocateForSensImgGen()
 {
-	auto tempSensImageBuffer = std::make_unique<GCImageOwned>(getImageParams());
+	auto tempSensImageBuffer = std::make_unique<ImageOwned>(getImageParams());
 	tempSensImageBuffer->allocate();
 	mp_tempSensImageBuffer = std::move(tempSensImageBuffer);
 }
@@ -65,7 +65,7 @@ void GCOSEM_cpu::SetupOperatorsForSensImgGen()
 	}
 }
 
-std::unique_ptr<GCImage>
+std::unique_ptr<Image>
     GCOSEM_cpu::GetLatestSensitivityImage(bool isLastSubset)
 {
 	// This will dereference mp_tempSensImageBuffer
@@ -86,7 +86,7 @@ void GCOSEM_cpu::EndSensImgGen()
 	mp_tempSensImageBuffer = nullptr;
 }
 
-GCImageBase* GCOSEM_cpu::GetSensImageBuffer()
+ImageBase* GCOSEM_cpu::GetSensImageBuffer()
 {
 	if (mp_tempSensImageBuffer != nullptr)
 	{
@@ -103,11 +103,11 @@ IProjectionData* GCOSEM_cpu::GetSensDataInputBuffer()
 	return getSensDataInput();
 }
 
-GCImageBase* GCOSEM_cpu::GetMLEMImageBuffer()
+ImageBase* GCOSEM_cpu::GetMLEMImageBuffer()
 {
 	return outImage;
 }
-GCImageBase* GCOSEM_cpu::GetMLEMImageTmpBuffer()
+ImageBase* GCOSEM_cpu::GetMLEMImageTmpBuffer()
 {
 	return mp_mlemImageTmp.get();
 }
@@ -165,15 +165,15 @@ void GCOSEM_cpu::allocateForRecon()
 	reinterpret_cast<GCProjectionListOwned*>(mp_datTmp.get())->allocate();
 
 	// Allocate for image-space buffers
-	mp_mlemImageTmp = std::make_unique<GCImageOwned>(getImageParams());
-	reinterpret_cast<GCImageOwned*>(mp_mlemImageTmp.get())->allocate();
+	mp_mlemImageTmp = std::make_unique<ImageOwned>(getImageParams());
+	reinterpret_cast<ImageOwned*>(mp_mlemImageTmp.get())->allocate();
 
 	// Initialize output image
 	GetMLEMImageBuffer()->setValue(INITIAL_VALUE_MLEM);
 
 	// Apply mask image
 	std::cout << "Applying threshold" << std::endl;
-	auto applyMask = [this](const GCImage* maskImage) -> void
+	auto applyMask = [this](const Image* maskImage) -> void
 	{ GetMLEMImageBuffer()->applyThreshold(maskImage, 0.0, 0.0, 0.0, 0.0, 1); };
 	if (maskImage != nullptr)
 	{
@@ -189,7 +189,7 @@ void GCOSEM_cpu::allocateForRecon()
 		std::cout << "Summing sensitivity images to generate mask image..."
 		          << std::endl;
 		auto sensitivityImageSum =
-		    std::make_unique<GCImageOwned>(getImageParams());
+		    std::make_unique<ImageOwned>(getImageParams());
 		sensitivityImageSum->allocate();
 		for (int i = 0; i < num_OSEM_subsets; ++i)
 		{

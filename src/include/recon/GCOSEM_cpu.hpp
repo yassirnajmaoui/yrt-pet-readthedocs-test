@@ -17,7 +17,7 @@ protected:
 	// Sens Image generator driver
 	void SetupOperatorsForSensImgGen() override;
 	void allocateForSensImgGen() override;
-	std::unique_ptr<GCImage> GetLatestSensitivityImage(bool isLastSubset) override;
+	std::unique_ptr<Image> GetLatestSensitivityImage(bool isLastSubset) override;
 	void EndSensImgGen() override;
 
 	// Reconstruction driver
@@ -27,10 +27,10 @@ protected:
 	void CompleteMLEMIteration() override;
 
 	// Internal getters
-	GCImageBase* GetSensImageBuffer() override;
+	ImageBase* GetSensImageBuffer() override;
 	IProjectionData* GetSensDataInputBuffer() override;
-	GCImageBase* GetMLEMImageBuffer() override;
-	GCImageBase* GetMLEMImageTmpBuffer() override;
+	ImageBase* GetMLEMImageBuffer() override;
+	ImageBase* GetMLEMImageTmpBuffer() override;
 	IProjectionData* GetMLEMDataBuffer() override;
 	IProjectionData* GetMLEMDataTmpBuffer() override;
 
@@ -40,9 +40,9 @@ protected:
 
 private:
 	// For sensitivity image generation
-	std::unique_ptr<GCImage> mp_tempSensImageBuffer;
+	std::unique_ptr<Image> mp_tempSensImageBuffer;
 	// For reconstruction
-	std::unique_ptr<GCImage> mp_mlemImageTmp;
+	std::unique_ptr<Image> mp_mlemImageTmp;
 	std::unique_ptr<IProjectionData> mp_datTmp;
 
 	int m_current_OSEM_subset;

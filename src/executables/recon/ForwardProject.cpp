@@ -100,13 +100,13 @@ int main(int argc, char** argv)
 	GCGlobals::set_num_threads(numThreads);
 
 	// Input file
-	GCImageParams imageParams(imgParams_fname);
+	ImageParams imageParams(imgParams_fname);
 	auto inputImage =
-	    std::make_unique<GCImageOwned>(imageParams, inputImage_fname);
+	    std::make_unique<ImageOwned>(imageParams, inputImage_fname);
 
 	// Attenuation image
-	std::unique_ptr<GCImageParams> attImgParams = nullptr;
-	std::unique_ptr<GCImageOwned> attImg = nullptr;
+	std::unique_ptr<ImageParams> attImgParams = nullptr;
+	std::unique_ptr<ImageOwned> attImg = nullptr;
 	if (!attImg_fname.empty())
 	{
 		if (attImgParams_fname.empty())
@@ -116,8 +116,8 @@ int main(int argc, char** argv)
 			    << "parameter file must also be provided" << std::endl;
 			return -1;
 		}
-		attImgParams = std::make_unique<GCImageParams>(attImgParams_fname);
-		attImg = std::make_unique<GCImageOwned>(*attImgParams, attImg_fname);
+		attImgParams = std::make_unique<ImageParams>(attImgParams_fname);
+		attImg = std::make_unique<ImageOwned>(*attImgParams, attImg_fname);
 	}
 
 	// Image-space PSF

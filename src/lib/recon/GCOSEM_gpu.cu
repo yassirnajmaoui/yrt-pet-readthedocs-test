@@ -5,7 +5,7 @@
 
 #include "recon/GCOSEM_gpu.cuh"
 
-#include "datastruct/image/GCImageDevice.cuh"
+#include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/GCProjectionDataDevice.cuh"
 #include "datastruct/projection/GCProjectionSpaceKernels.cuh"
 #include "operators/GCOperatorProjectorDD_gpu.cuh"
@@ -63,7 +63,7 @@ void GCOSEM_gpu::allocateForSensImgGen()
 {
 	// Allocate for image space
 	mpd_sensImageBuffer =
-	    std::make_unique<GCImageDeviceOwned>(getImageParams(), getAuxStream());
+	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
 	mpd_sensImageBuffer->allocate(true);
 
 	// Allocate for projection space
@@ -72,12 +72,12 @@ void GCOSEM_gpu::allocateForSensImgGen()
 	mpd_tempSensDataInput = std::move(tempSensDataInput);
 }
 
-std::unique_ptr<GCImage>
+std::unique_ptr<Image>
     GCOSEM_gpu::GetLatestSensitivityImage(bool isLastSubset)
 {
 	(void)isLastSubset;  // Copy flag is obsolete since the data is not yet on
 	                     // Host-side
-	auto img = std::make_unique<GCImageOwned>(getImageParams());
+	auto img = std::make_unique<ImageOwned>(getImageParams());
 	img->allocate();
 	mpd_sensImageBuffer->transferToHostMemory(img.get(), true);
 	return img;
@@ -123,11 +123,11 @@ void GCOSEM_gpu::allocateForRecon()
 {
 	// Allocate image-space buffers
 	mpd_mlemImage =
-	    std::make_unique<GCImageDeviceOwned>(getImageParams(), getAuxStream());
+	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
 	mpd_mlemImageTmp =
-	    std::make_unique<GCImageDeviceOwned>(getImageParams(), getAuxStream());
+	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
 	mpd_sensImageBuffer =
-	    std::make_unique<GCImageDeviceOwned>(getImageParams(), getAuxStream());
+	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
 	mpd_mlemImage->allocate(false);
 	mpd_mlemImageTmp->allocate(false);
 	mpd_sensImageBuffer->allocate(false);
@@ -169,7 +169,7 @@ void GCOSEM_gpu::EndRecon()
 	mpd_datTmp = nullptr;
 }
 
-GCImageBase* GCOSEM_gpu::GetSensImageBuffer()
+ImageBase* GCOSEM_gpu::GetSensImageBuffer()
 {
 	return mpd_sensImageBuffer.get();
 }
@@ -179,12 +179,12 @@ IProjectionData* GCOSEM_gpu::GetSensDataInputBuffer()
 	return mpd_tempSensDataInput.get();
 }
 
-GCImageBase* GCOSEM_gpu::GetMLEMImageBuffer()
+ImageBase* GCOSEM_gpu::GetMLEMImageBuffer()
 {
 	return mpd_mlemImage.get();
 }
 
-GCImageBase* GCOSEM_gpu::GetMLEMImageTmpBuffer()
+ImageBase* GCOSEM_gpu::GetMLEMImageTmpBuffer()
 {
 	return mpd_mlemImageTmp.get();
 }

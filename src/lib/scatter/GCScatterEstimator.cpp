@@ -5,7 +5,7 @@
 
 #include "scatter/GCScatterEstimator.hpp"
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "geometry/GCConstants.hpp"
 #include "scatter/GCCrystal.hpp"
@@ -21,7 +21,7 @@ void py_setup_gcscatterestimator(py::module& m)
 {
 	auto c = py::class_<Scatter::GCScatterEstimator>(m, "GCScatterEstimator");
 	c.def(
-	    py::init<const GCScanner&, const GCImage&, const GCImage&,
+	    py::init<const GCScanner&, const Image&, const Image&,
 	             const GCHistogram3D*, const GCHistogram3D*,
 	             const GCHistogram3D*, const GCHistogram3D*,
 	             Scatter::CrystalMaterial, int, bool, bool, int, float, bool>(),
@@ -39,8 +39,8 @@ void py_setup_gcscatterestimator(py::module& m)
 namespace Scatter
 {
 	GCScatterEstimator::GCScatterEstimator(
-	    const GCScanner& pr_scanner, const GCImage& pr_lambda,
-	    const GCImage& pr_mu, const GCHistogram3D* pp_promptsHis,
+	    const GCScanner& pr_scanner, const Image& pr_lambda,
+	    const Image& pr_mu, const GCHistogram3D* pp_promptsHis,
 	    const GCHistogram3D* pp_normOrSensHis,
 	    const GCHistogram3D* pp_randomsHis, const GCHistogram3D* pp_acfHis,
 	    CrystalMaterial p_crystalMaterial, int seedi, bool p_doTailFitting,

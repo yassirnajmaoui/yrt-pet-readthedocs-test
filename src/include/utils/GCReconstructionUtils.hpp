@@ -40,45 +40,45 @@ namespace Util
 	                         int vmax = 256);
 
 	// Forward projection
-	void forwProject(const GCScanner* scanner, const GCImage* img,
+	void forwProject(const GCScanner* scanner, const Image* img,
 	                 IProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
-	                 const GCImage* attImage = nullptr,
+	                 const Image* attImage = nullptr,
 	                 const IHistogram* additiveHistogram = nullptr);
-	void forwProject(const GCScanner* scanner, const GCImage* img,
+	void forwProject(const GCScanner* scanner, const Image* img,
 	                 IProjectionData* projData,
 	                 const GCBinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
-	                 const GCImage* attImage = nullptr,
+	                 const Image* attImage = nullptr,
 	                 const IHistogram* additiveHistogram = nullptr);
-	void forwProject(const GCImage* img, IProjectionData* projData,
+	void forwProject(const Image* img, IProjectionData* projData,
 	                 const GCOperatorProjectorParams& projParams,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
-	                 const GCImage* attImage = nullptr,
+	                 const Image* attImage = nullptr,
 	                 const IHistogram* additiveHistogram = nullptr);
 
 	// Back projection
-	void backProject(const GCScanner* scanner, GCImage* img,
+	void backProject(const GCScanner* scanner, Image* img,
 	                 const IProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
-	                 const GCImage* attImage = nullptr,
+	                 const Image* attImage = nullptr,
 	                 const IHistogram* additiveHistogram = nullptr);
-	void backProject(const GCScanner* scanner, GCImage* img,
+	void backProject(const GCScanner* scanner, Image* img,
 	                 const IProjectionData* projData,
 	                 const GCBinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
-	                 const GCImage* attImage = nullptr,
+	                 const Image* attImage = nullptr,
 	                 const IHistogram* additiveHistogram = nullptr);
-	void backProject(GCImage* img, const IProjectionData* projData,
+	void backProject(Image* img, const IProjectionData* projData,
 	                 const GCOperatorProjectorParams& projParams,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
-	                 const GCImage* attImage = nullptr,
+	                 const Image* attImage = nullptr,
 	                 const IHistogram* additiveHistogram = nullptr);
 
 }  // namespace Util

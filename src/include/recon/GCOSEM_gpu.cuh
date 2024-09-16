@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "datastruct/image/GCImage.hpp"
-#include "datastruct/image/GCImageDevice.cuh"
+#include "datastruct/image/Image.hpp"
+#include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/GCProjectionDataDevice.cuh"
 #include "datastruct/projection/IProjectionData.hpp"
 #include "recon/GCOSEM.hpp"
@@ -21,7 +21,7 @@ public:
 	// Sens Image generator driver
 	void SetupOperatorsForSensImgGen() override;
 	void allocateForSensImgGen() override;
-	std::unique_ptr<GCImage>
+	std::unique_ptr<Image>
 	    GetLatestSensitivityImage(bool isLastSubset) override;
 	void EndSensImgGen() override;
 
@@ -32,10 +32,10 @@ public:
 	void CompleteMLEMIteration() override;
 
 	// Internal getters
-	GCImageBase* GetSensImageBuffer() override;
+	ImageBase* GetSensImageBuffer() override;
 	IProjectionData* GetSensDataInputBuffer() override;
-	GCImageBase* GetMLEMImageBuffer() override;
-	GCImageBase* GetMLEMImageTmpBuffer() override;
+	ImageBase* GetMLEMImageBuffer() override;
+	ImageBase* GetMLEMImageTmpBuffer() override;
 	IProjectionData* GetMLEMDataBuffer() override;
 	IProjectionData* GetMLEMDataTmpBuffer() override;
 	int GetNumBatches(int subsetId, bool forRecon) const override;
@@ -48,10 +48,10 @@ private:
 	const cudaStream_t* getAuxStream() const;
 	const cudaStream_t* getMainStream() const;
 
-	std::unique_ptr<GCImageDeviceOwned> mpd_sensImageBuffer;
+	std::unique_ptr<ImageDeviceOwned> mpd_sensImageBuffer;
 	std::unique_ptr<GCProjectionDataDeviceOwned> mpd_tempSensDataInput;
-	std::unique_ptr<GCImageDeviceOwned> mpd_mlemImage;
-	std::unique_ptr<GCImageDeviceOwned> mpd_mlemImageTmp;
+	std::unique_ptr<ImageDeviceOwned> mpd_mlemImage;
+	std::unique_ptr<ImageDeviceOwned> mpd_mlemImageTmp;
 	std::unique_ptr<GCProjectionDataDeviceOwned> mpd_dat;
 	std::unique_ptr<GCProjectionDataDeviceOwned> mpd_datTmp;
 

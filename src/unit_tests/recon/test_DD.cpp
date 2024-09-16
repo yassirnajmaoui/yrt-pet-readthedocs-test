@@ -5,7 +5,7 @@
 
 #include "catch.hpp"
 
-#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/Image.hpp"
 #include "datastruct/projection/GCListModeLUT.hpp"
 #include "datastruct/projection/IListMode.hpp"
 #include "datastruct/scanner/GCDetRegular.hpp"
@@ -21,9 +21,9 @@
 #endif
 
 
-double get_rmse(const GCImage* img_ref, const GCImage* img)
+double get_rmse(const Image* img_ref, const Image* img)
 {
-	const GCImageParams& params = img_ref->getParams();
+	const ImageParams& params = img_ref->getParams();
 	const size_t numPixels =
 	    static_cast<size_t>(params.nx * params.ny * params.nz);
 	const double* ptr_ref = img_ref->getData().getRawPointer();
@@ -41,7 +41,7 @@ double get_rmse(const GCImage* img_ref, const GCImage* img)
 }
 
 void dd(const GCScanner* scanner, IListMode* proj,
-        std::unique_ptr<GCImage>& out, const bool flag_cuda)
+        std::unique_ptr<Image>& out, const bool flag_cuda)
 {
 	const auto osem = Util::createOSEM(scanner, flag_cuda);
 	osem->imageParams = out->getParams();
@@ -55,7 +55,7 @@ void dd(const GCScanner* scanner, IListMode* proj,
 	{
 		osem->projectorType = GCOperatorProjector::DD;
 	}
-	std::vector<std::unique_ptr<GCImage>> sensImages;
+	std::vector<std::unique_ptr<Image>> sensImages;
 	osem->generateSensitivityImages(sensImages, "");
 	out = std::move(sensImages[0]);
 }
@@ -115,8 +115,8 @@ TEST_CASE("DD", "[dd]")
 	const double ox = 0.0;
 	const double oy = 0.0;
 	const double oz = 0.0;
-	GCImageParams img_params(nx, ny, nz, sx, sy, sz, ox, oy, oz);
-	auto img = std::make_unique<GCImageOwned>(img_params);
+	ImageParams img_params(nx, ny, nz, sx, sy, sz, ox, oy, oz);
+	auto img = std::make_unique<ImageOwned>(img_params);
 	img->allocate();
 
 	auto data = std::make_unique<GCListModeLUTOwned>(scanner.get());
@@ -130,16 +130,16 @@ TEST_CASE("DD", "[dd]")
 	}
 
 	// Helpter aliases
-	using GCImageUniquePTR = std::unique_ptr<GCImage>;
-	const auto toOwned = [](const GCImageUniquePTR& i)
-	{ return reinterpret_cast<GCImageOwned*>(i.get()); };
+	using ImageUniquePTR = std::unique_ptr<Image>;
+	const auto toOwned = [](const ImageUniquePTR& i)
+	{ return reinterpret_cast<ImageOwned*>(i.get()); };
 
-	GCImageUniquePTR img_cpu = std::make_unique<GCImageOwned>(img_params);
+	ImageUniquePTR img_cpu = std::make_unique<ImageOwned>(img_params);
 	toOwned(img_cpu)->allocate();
 	img_cpu->setValue(0.0);
 	dd(scanner.get(), data.get(), img_cpu, false);
 
-	GCImageUniquePTR img_gpu = std::make_unique<GCImageOwned>(img_params);
+	ImageUniquePTR img_gpu = std::make_unique<ImageOwned>(img_params);
 	toOwned(img_gpu)->allocate();
 	img_gpu->setValue(0.0);
 	dd(scanner.get(), data.get(), img_gpu, true);

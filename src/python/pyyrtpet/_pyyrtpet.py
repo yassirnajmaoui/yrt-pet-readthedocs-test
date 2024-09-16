@@ -80,7 +80,7 @@ class DataFileRawd:
 
 # Wrapper for Siddon operator
 class GCProjectionOper:
-    def __init__(self, scanner: gc.GCScanner, img_params: gc.GCImageParams,
+    def __init__(self, scanner: gc.GCScanner, img_params: gc.ImageParams,
                  projData: gc.IProjectionData, projector='Siddon',
                  idx_subset=0, num_subsets=1,
                  tof_width_ps=None, tof_n_std=0,
@@ -111,7 +111,7 @@ class GCProjectionOper:
         xx = np.require(x, dtype=np.float64)
         if xx.ndim == 2:
             xx = xx[None, ...]
-        img = gc.GCImageAlias(self._img_params)
+        img = gc.ImageAlias(self._img_params)
         img.Bind(xx)
         self._y[:] = 0
         projlist = gc.GCProjectionListAlias(self._projData)
@@ -125,7 +125,7 @@ class GCProjectionOper:
         projlist = gc.GCProjectionListAlias(self._projData)
         projlist.Bind(yy)
         self._x[:] = 0
-        img = gc.GCImageAlias(self._img_params)
+        img = gc.ImageAlias(self._img_params)
         img.Bind(self._x)
         self._oper.applyAH(projlist, img)
         return self._x
