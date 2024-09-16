@@ -26,8 +26,8 @@ double get_rmse(const GCImage* img_ref, const GCImage* img)
 	const GCImageParams& params = img_ref->getParams();
 	const size_t numPixels =
 	    static_cast<size_t>(params.nx * params.ny * params.nz);
-	const double* ptr_ref = img_ref->getData().GetRawPointer();
-	const double* ptr = img->getData().GetRawPointer();
+	const double* ptr_ref = img_ref->getData().getRawPointer();
+	const double* ptr = img->getData().getRawPointer();
 	double rmse = 0.0;
 
 	for (size_t i = 0; i < numPixels; i++)

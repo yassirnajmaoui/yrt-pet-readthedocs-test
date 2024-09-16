@@ -24,20 +24,20 @@ TEST_CASE("array1d", "[array]")
 
 	SECTION("array1d-data")
 	{
-		REQUIRE(arr->GetSize(0) == 10);
+		REQUIRE(arr->getSize(0) == 10);
 		REQUIRE((*arr)[4] == 8);
 	}
 
 	Array1DAlias<int> arr_alias = Array1DAlias<int>();
-	arr_alias.Bind(*arr);
+	arr_alias.bind(*arr);
 
 	SECTION("array1d-binding")
 	{
-		REQUIRE(arr_alias.GetSize(0) == 10);
+		REQUIRE(arr_alias.getSize(0) == 10);
 		REQUIRE((arr_alias)[4] == 8);
 	}
 
-	arr->WriteToFile("array1d");
+	arr->writeToFile("array1d");
 
 	Array1DBase<int>* arr2;
 	std::unique_ptr<Array1D<int>> _arr2 = std::make_unique<Array1D<int>>();
@@ -50,7 +50,7 @@ TEST_CASE("array1d", "[array]")
 	{
 		REQUIRE((*arr)[0] == (*arr2)[0]);
 		REQUIRE((*arr)[4] == (*arr2)[4]);
-		REQUIRE(arr2->GetSize(0) == 10);
+		REQUIRE(arr2->getSize(0) == 10);
 	}
 }
 TEST_CASE("array2d", "[array]")
@@ -74,24 +74,24 @@ TEST_CASE("array2d", "[array]")
 
 	SECTION("array2d-data")
 	{
-		REQUIRE(arr->GetSize(1) == 10);
-		REQUIRE(arr->GetSize(0) == 2);
+		REQUIRE(arr->getSize(1) == 10);
+		REQUIRE(arr->getSize(0) == 2);
 		REQUIRE((*arr)[0][4] == 8);
 		REQUIRE((*arr)[1][4] == 88);
 	}
 
 	Array2DAlias<int> arr_alias = Array2DAlias<int>();
-	arr_alias.Bind(*arr);
+	arr_alias.bind(*arr);
 
 	SECTION("array2d-binding")
 	{
-		REQUIRE(arr_alias.GetSize(1) == 10);
-		REQUIRE(arr_alias.GetSize(0) == 2);
+		REQUIRE(arr_alias.getSize(1) == 10);
+		REQUIRE(arr_alias.getSize(0) == 2);
 		REQUIRE((arr_alias)[0][4] == 8);
 		REQUIRE((arr_alias)[1][4] == 88);
 	}
 
-	arr->WriteToFile("array2d");
+	arr->writeToFile("array2d");
 
 	Array2DBase<int>* arr2;
 	std::unique_ptr<Array2D<int>> _arr2 = std::make_unique<Array2D<int>>();
@@ -106,8 +106,8 @@ TEST_CASE("array2d", "[array]")
 		REQUIRE((*arr)[0][1] == (*arr2)[0][1]);
 		REQUIRE((*arr)[1][0] == (*arr2)[1][0]);
 		REQUIRE((*arr)[1][4] == (*arr2)[1][4]);
-		REQUIRE(arr2->GetSize(1) == 10);
-		REQUIRE(arr2->GetSize(0) == 2);
+		REQUIRE(arr2->getSize(1) == 10);
+		REQUIRE(arr2->getSize(0) == 2);
 	}
 }
 TEST_CASE("array3d", "[array]")
@@ -138,9 +138,9 @@ TEST_CASE("array3d", "[array]")
 
 	SECTION("array3d-data")
 	{
-		REQUIRE(arr->GetSize(2) == 10);
-		REQUIRE(arr->GetSize(1) == 2);
-		REQUIRE(arr->GetSize(0) == 3);
+		REQUIRE(arr->getSize(2) == 10);
+		REQUIRE(arr->getSize(1) == 2);
+		REQUIRE(arr->getSize(0) == 3);
 		REQUIRE((*arr)[0][0][4] == 8);
 		REQUIRE((*arr)[1][0][3] == 40);
 		REQUIRE((*arr)[2][0][2] == 93);
@@ -150,13 +150,13 @@ TEST_CASE("array3d", "[array]")
 	}
 
 	Array3DAlias<int> arr_alias = Array3DAlias<int>();
-	arr_alias.Bind(*arr);
+	arr_alias.bind(*arr);
 
 	SECTION("array3d-binding")
 	{
-		REQUIRE(arr_alias.GetSize(2) == 10);
-		REQUIRE(arr_alias.GetSize(1) == 2);
-		REQUIRE(arr_alias.GetSize(0) == 3);
+		REQUIRE(arr_alias.getSize(2) == 10);
+		REQUIRE(arr_alias.getSize(1) == 2);
+		REQUIRE(arr_alias.getSize(0) == 3);
 		REQUIRE((arr_alias)[0][0][4] == 8);
 		REQUIRE((arr_alias)[1][0][3] == 40);
 		REQUIRE((arr_alias)[2][0][2] == 93);
@@ -165,7 +165,7 @@ TEST_CASE("array3d", "[array]")
 		REQUIRE((arr_alias)[2][1][2] == 938);
 	}
 
-	arr->WriteToFile("array3d");
+	arr->writeToFile("array3d");
 
 	Array3DBase<int>* arr2;
 	std::unique_ptr<Array3D<int>> _arr2 = std::make_unique<Array3D<int>>();
@@ -182,9 +182,9 @@ TEST_CASE("array3d", "[array]")
 		REQUIRE((*arr)[1][1][4] == (*arr2)[1][1][4]);
 		REQUIRE((*arr)[2][1][0] == (*arr2)[2][1][0]);
 		REQUIRE((*arr)[2][1][4] == (*arr2)[2][1][4]);
-		REQUIRE(arr2->GetSize(2) == 10);
-		REQUIRE(arr2->GetSize(1) == 2);
-		REQUIRE(arr2->GetSize(0) == 3);
+		REQUIRE(arr2->getSize(2) == 10);
+		REQUIRE(arr2->getSize(1) == 2);
+		REQUIRE(arr2->getSize(0) == 3);
 	}
 
 	SECTION("array3d-variadic")
@@ -211,7 +211,7 @@ TEST_CASE("array1d-stl-type", "[array]")
 		REQUIRE(arr[1].first == 3);
 	}
 
-	arr.WriteToFile("array-stl");
+	arr.writeToFile("array-stl");
 	Array1D<Pair> arr2;
 	arr2.readFromFile("array-stl");
 	std::remove("array-stl");
@@ -222,7 +222,7 @@ TEST_CASE("array1d-stl-type", "[array]")
 	}
 
 	Array1DAlias<Pair> arr_alias;
-	arr_alias.Bind(arr);
+	arr_alias.bind(arr);
 	SECTION("array1d-stl-alias")
 	{
 		REQUIRE(arr[1].second == arr_alias[1].second);

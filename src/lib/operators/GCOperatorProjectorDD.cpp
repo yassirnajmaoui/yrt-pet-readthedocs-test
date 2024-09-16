@@ -179,7 +179,7 @@ void GCOperatorProjectorDD::dd_project_ref(
 		detFootprintExt = psfManager->getHalfWidth_mm();
 	}
 	// Pixel limits (ignore detector width)
-	double* raw_img_ptr = in_image->getData().GetRawPointer();
+	double* raw_img_ptr = in_image->getData().getRawPointer();
 	const int num_xy = params.nx * params.ny;
 	const float dx = params.vx;
 	const float dy = params.vy;

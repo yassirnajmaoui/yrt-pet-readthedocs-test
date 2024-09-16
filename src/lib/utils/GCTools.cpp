@@ -144,36 +144,36 @@ namespace Util
 	                      const Array1DBase<T>& kernelY,
 	                      const Array1DBase<T>& kernelZ, Array3DBase<T>& dst)
 	{
-		size_t kerSize = kernelX.GetSize(0);
+		size_t kerSize = kernelX.getSize(0);
 		int kerIndexCentered = std::floor(
 		    kerSize / 2);  // kernel size must always be an odd number
 		                   // and must have same size in all 3 dimensions
 
-		size_t nz = dst.GetSize(0);
-		size_t ny = dst.GetSize(1);
-		size_t nx = dst.GetSize(2);
+		size_t nz = dst.getSize(0);
+		size_t ny = dst.getSize(1);
+		size_t nx = dst.getSize(2);
 
-		if (nz != src.GetSize(0) || ny != src.GetSize(1) ||
-		    nx != src.GetSize(2))
+		if (nz != src.getSize(0) || ny != src.getSize(1) ||
+		    nx != src.getSize(2))
 		{
 			throw std::invalid_argument("Error in convolution, size mismatch "
 			                            "between image and destination");
 		}
-		if (kernelX.GetSize(0) != kernelY.GetSize(0) ||
-		    kernelX.GetSize(0) != kernelZ.GetSize(0))
+		if (kernelX.getSize(0) != kernelY.getSize(0) ||
+		    kernelX.getSize(0) != kernelZ.getSize(0))
 		{
 			throw std::invalid_argument("Error in convolution, size mismatch "
 			                            "between separated kernels");
 		}
-		if (kernelX.GetSize(0) % 2 != 1)
+		if (kernelX.getSize(0) % 2 != 1)
 		{
 			throw std::logic_error("Kernel size must be an odd number");
 		}
 
 		auto dst1 = std::make_unique<Array3D<T>>();
 		auto dst2 = std::make_unique<Array3D<T>>();
-		dst1->allocate(src.GetSize(0), src.GetSize(1), src.GetSize(2));
-		dst2->allocate(src.GetSize(0), src.GetSize(1), src.GetSize(2));
+		dst1->allocate(src.getSize(0), src.getSize(1), src.getSize(2));
+		dst2->allocate(src.getSize(0), src.getSize(1), src.getSize(2));
 
 		for (size_t k = 0; k < nz; k++)
 		{
@@ -252,12 +252,12 @@ namespace Util
 	void conv3D(const Array3DBase<T>& image, const Array3DBase<T>& kernel,
 	            Array3DBase<T>& newImage)
 	{
-		size_t i_nz = image.GetSize(0);
-		size_t i_ny = image.GetSize(1);
-		size_t i_nx = image.GetSize(2);
-		size_t k_nz = kernel.GetSize(0);
-		size_t k_ny = kernel.GetSize(1);
-		size_t k_nx = kernel.GetSize(2);
+		size_t i_nz = image.getSize(0);
+		size_t i_ny = image.getSize(1);
+		size_t i_nx = image.getSize(2);
+		size_t k_nz = kernel.getSize(0);
+		size_t k_ny = kernel.getSize(1);
+		size_t k_nx = kernel.getSize(2);
 
 		// Iterate over image
 
@@ -297,7 +297,7 @@ namespace Util
 	template <typename T>
 	void gauss1DKernelFill(Array1DBase<T>& kernel)
 	{
-		size_t kerSize = kernel.GetSize(0);
+		size_t kerSize = kernel.getSize(0);
 		for (size_t i = 0; i < kerSize; ++i)
 		{
 			double gauss = 1 / ((double)kerSize) *

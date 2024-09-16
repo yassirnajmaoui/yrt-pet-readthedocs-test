@@ -68,5 +68,5 @@ class GCImageAlias : public GCImage
 {
 public:
 	GCImageAlias(const GCImageParams& img_params);
-	void Bind(Array3DBase<double>& p_data);
+	void bind(Array3DBase<double>& p_data);
 };

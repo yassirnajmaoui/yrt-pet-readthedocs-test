@@ -24,9 +24,9 @@ void declare_array(pybind11::module& m, std::string type_str)
 	    [](T& d) -> pybind11::buffer_info
 	    {
 		    return pybind11::buffer_info(
-		        d.GetRawPointer(), sizeof(U),
-		        pybind11::format_descriptor<U>::format(), ndim, d.GetDims(),
-		        d.GetStrides());
+		        d.getRawPointer(), sizeof(U),
+		        pybind11::format_descriptor<U>::format(), ndim, d.getDims(),
+		        d.getStrides());
 	    });
 	c.def("allocate", &T::allocate);
 	c.def("readFromFile",
@@ -35,13 +35,13 @@ void declare_array(pybind11::module& m, std::string type_str)
 	      static_cast<void (T::*)(const std::string&,
 	                              const std::array<size_t, ndim>&)>(
 	          &T::readFromFile));
-	c.def("WriteToFile", &T::WriteToFile);
-	c.def("GetSize", &T::GetSize);
-	c.def("GetStrides", &T::GetStrides);
-	c.def("GetSizeTotal", &T::GetSizeTotal);
-	c.def("GetFlatIdx",
+	c.def("writeToFile", &T::writeToFile);
+	c.def("getSize", &T::getSize);
+	c.def("getStrides", &T::getStrides);
+	c.def("getSizeTotal", &T::getSizeTotal);
+	c.def("getFlatIdx",
 	      static_cast<size_t (T::*)(const std::array<size_t, ndim>&) const>(
-	          &T::GetFlatIdx));
+	          &T::getFlatIdx));
 	c.def("get_flat", &T::get_flat);
 	c.def("set_flat", &T::set_flat);
 	c.def(
@@ -50,7 +50,7 @@ void declare_array(pybind11::module& m, std::string type_str)
 	c.def("__setitem__",
 	      static_cast<void (T::*)(const std::array<size_t, ndim>&, U val)>(
 	          &T::set));
-	c.def("Fill", &T::Fill);
+	c.def("fill", &T::fill);
 }
 
 void py_setup_array(pybind11::module& m)

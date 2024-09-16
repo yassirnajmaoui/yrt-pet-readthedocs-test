@@ -68,8 +68,8 @@ void GCHistogram3DOwned::readFromFile(const std::string& filename)
 
 void GCHistogram3DAlias::Bind(Array3DBase<float>& p_data)
 {
-	static_cast<Array3DAlias<float>*>(mp_data.get())->Bind(p_data);
-	if (mp_data->GetRawPointer() != p_data.GetRawPointer())
+	static_cast<Array3DAlias<float>*>(mp_data.get())->bind(p_data);
+	if (mp_data->getRawPointer() != p_data.getRawPointer())
 	{
 		throw std::runtime_error(
 		    "Error occured in the binding of the given array");
@@ -83,7 +83,7 @@ void GCHistogram3DOwned::allocate()
 
 void GCHistogram3D::writeToFile(const std::string& filename) const
 {
-	mp_data->WriteToFile(filename);
+	mp_data->writeToFile(filename);
 }
 
 bin_t GCHistogram3D::getBinIdFromCoords(coord_t r, coord_t phi,
@@ -375,7 +375,7 @@ void GCHistogram3D::clearProjections()
 
 void GCHistogram3D::clearProjections(float value)
 {
-	mp_data->Fill(value);
+	mp_data->fill(value);
 }
 
 std::unique_ptr<GCBinIterator> GCHistogram3D::getBinIter(int numSubsets,
@@ -425,9 +425,9 @@ void py_setup_gchistogram3d(pybind11::module& m)
 	    [](GCHistogram3D& self) -> py::buffer_info
 	    {
 		    Array3DBase<float>& d = self.getData();
-		    return py::buffer_info(d.GetRawPointer(), sizeof(float),
+		    return py::buffer_info(d.getRawPointer(), sizeof(float),
 		                           py::format_descriptor<float>::format(), 3,
-		                           d.GetDims(), d.GetStrides());
+		                           d.getDims(), d.getStrides());
 	    });
 	c.def("writeToFile", &GCHistogram3D::writeToFile);
 	c.def("getBinIdFromCoords", &GCHistogram3D::getBinIdFromCoords);
@@ -535,7 +535,7 @@ void py_setup_gchistogram3d(pybind11::module& m)
 			    }
 		    }
 		    static_cast<Array3DAlias<float>&>(self.getData())
-		        .Bind(reinterpret_cast<float*>(buffer.ptr), dims[0], dims[1],
+		        .bind(reinterpret_cast<float*>(buffer.ptr), dims[0], dims[1],
 		              dims[2]);
 	    });
 }

@@ -268,41 +268,41 @@ void GCListModeLUTDOIAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
                                  Array1DBase<float>* pp_tof_ps)
 {
 	static_cast<Array1DAlias<timestamp_t>*>(mp_timestamps.get())
-	    ->Bind(*pp_timestamps);
-	if (mp_timestamps->GetRawPointer() == nullptr)
+	    ->bind(*pp_timestamps);
+	if (mp_timestamps->getRawPointer() == nullptr)
 	{
 		throw std::runtime_error("The timestamps array could not be bound");
 	}
 
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId1.get())
-	    ->Bind(*pp_detector_ids1);
-	if (mp_detectorId1->GetRawPointer() == nullptr)
+	    ->bind(*pp_detector_ids1);
+	if (mp_detectorId1->getRawPointer() == nullptr)
 	{
 		throw std::runtime_error("The detector_ids1 array could not be bound");
 	}
 
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId2.get())
-	    ->Bind(*pp_detector_ids2);
-	if (mp_detectorId2->GetRawPointer() == nullptr)
+	    ->bind(*pp_detector_ids2);
+	if (mp_detectorId2->getRawPointer() == nullptr)
 	{
 		throw std::runtime_error("The detector_ids2 array could not be bound");
 	}
 
-	static_cast<Array1DAlias<unsigned char>*>(mp_doi1.get())->Bind(*pp_doi1);
-	if (mp_doi1->GetRawPointer() == nullptr)
+	static_cast<Array1DAlias<unsigned char>*>(mp_doi1.get())->bind(*pp_doi1);
+	if (mp_doi1->getRawPointer() == nullptr)
 	{
 		throw std::runtime_error("The doi1 array could not be bound");
 	}
-	static_cast<Array1DAlias<unsigned char>*>(mp_doi2.get())->Bind(*pp_doi2);
-	if (mp_doi2->GetRawPointer() == nullptr)
+	static_cast<Array1DAlias<unsigned char>*>(mp_doi2.get())->bind(*pp_doi2);
+	if (mp_doi2->getRawPointer() == nullptr)
 	{
 		throw std::runtime_error("The doi2 array could not be bound");
 	}
 
 	if (mp_tof_ps != nullptr && pp_tof_ps != nullptr)
 	{
-		static_cast<Array1DAlias<float>*>(mp_tof_ps.get())->Bind(*pp_tof_ps);
-		if (mp_tof_ps->GetRawPointer() == nullptr)
+		static_cast<Array1DAlias<float>*>(mp_tof_ps.get())->bind(*pp_tof_ps);
+		if (mp_tof_ps->getRawPointer() == nullptr)
 			throw std::runtime_error("The tof_ps array could not be bound");
 	}
 }
@@ -322,7 +322,7 @@ void GCListModeLUTDOIAlias::Bind(
 		    "The timestamps buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<timestamp_t>*>(mp_timestamps.get())
-	    ->Bind(reinterpret_cast<timestamp_t*>(buffer1.ptr), buffer1.shape[0]);
+	    ->bind(reinterpret_cast<timestamp_t*>(buffer1.ptr), buffer1.shape[0]);
 
 	pybind11::buffer_info buffer2 = p_detector_ids1.request();
 	if (buffer2.ndim != 1)
@@ -331,7 +331,7 @@ void GCListModeLUTDOIAlias::Bind(
 		    "The detector_ids1 buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId1.get())
-	    ->Bind(reinterpret_cast<det_id_t*>(buffer2.ptr), buffer2.shape[0]);
+	    ->bind(reinterpret_cast<det_id_t*>(buffer2.ptr), buffer2.shape[0]);
 
 	pybind11::buffer_info buffer3 = p_detector_ids2.request();
 	if (buffer3.ndim != 1)
@@ -340,7 +340,7 @@ void GCListModeLUTDOIAlias::Bind(
 		    "The detector_ids2 buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId2.get())
-	    ->Bind(reinterpret_cast<det_id_t*>(buffer3.ptr), buffer3.shape[0]);
+	    ->bind(reinterpret_cast<det_id_t*>(buffer3.ptr), buffer3.shape[0]);
 
 	pybind11::buffer_info buffer4 = p_doi1.request();
 	if (buffer4.ndim != 1)
@@ -348,14 +348,14 @@ void GCListModeLUTDOIAlias::Bind(
 		throw std::invalid_argument("The doi1 buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<unsigned char>*>(mp_doi1.get())
-	    ->Bind(reinterpret_cast<unsigned char*>(buffer4.ptr), buffer4.shape[0]);
+	    ->bind(reinterpret_cast<unsigned char*>(buffer4.ptr), buffer4.shape[0]);
 	pybind11::buffer_info buffer5 = p_doi2.request();
 	if (buffer5.ndim != 1)
 	{
 		throw std::invalid_argument("The doi2 buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<unsigned char>*>(mp_doi2.get())
-	    ->Bind(reinterpret_cast<unsigned char*>(buffer5.ptr), buffer5.shape[0]);
+	    ->bind(reinterpret_cast<unsigned char*>(buffer5.ptr), buffer5.shape[0]);
 }
 
 void GCListModeLUTDOIAlias::Bind(
@@ -376,7 +376,7 @@ void GCListModeLUTDOIAlias::Bind(
 		throw std::invalid_argument("The TOF buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<float>*>(mp_tof_ps.get())
-	    ->Bind(reinterpret_cast<float*>(buffer.ptr), buffer.shape[0]);
+	    ->bind(reinterpret_cast<float*>(buffer.ptr), buffer.shape[0]);
 }
 #endif
 

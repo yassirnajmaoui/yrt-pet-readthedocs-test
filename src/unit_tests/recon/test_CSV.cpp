@@ -15,9 +15,9 @@ template <typename T>
 bool compArray(Array2D<T>& x, Array2D<T>& y)
 {
 	bool pass = true;
-	for (size_t row = 0; row < x.GetSize(0) && pass; row++)
+	for (size_t row = 0; row < x.getSize(0) && pass; row++)
 	{
-		for (size_t col = 0; col < x.GetSize(1) && pass; col++)
+		for (size_t col = 0; col < x.getSize(1) && pass; col++)
 		{
 			pass &= x[row][col] == y[row][col];
 		}
@@ -30,12 +30,12 @@ void writeCSV(Array2D<T>& dat, std::string fname)
 {
 	std::ofstream myfile;
 	myfile.open(fname);
-	for (size_t row = 0; row < dat.GetSize(0); row++)
+	for (size_t row = 0; row < dat.getSize(0); row++)
 	{
-		for (size_t col = 0; col < dat.GetSize(1); col++)
+		for (size_t col = 0; col < dat.getSize(1); col++)
 		{
 			myfile << dat[row][col];
-			if (col < dat.GetSize(1) - 1)
+			if (col < dat.getSize(1) - 1)
 			{
 				myfile << ",";
 			}
@@ -73,9 +73,9 @@ void test_helper(int num_rows_max, int num_cols_max)
 		{
 			Array2D<int> dat_in;
 			dat_in.allocate(num_rows, num_cols);
-			for (size_t row = 0; row < dat_in.GetSize(0); row++)
+			for (size_t row = 0; row < dat_in.getSize(0); row++)
 			{
-				for (size_t col = 0; col < dat_in.GetSize(1); col++)
+				for (size_t col = 0; col < dat_in.getSize(1); col++)
 				{
 					T val;
 					get_rand<T>(val);
@@ -90,10 +90,10 @@ void test_helper(int num_rows_max, int num_cols_max)
 			// Read CSV file from disk
 			Array2D<int> dat_out;
 			Util::readCSV(fname, dat_out);
-			if (dat_in.GetSizeTotal() > 0)
+			if (dat_in.getSizeTotal() > 0)
 			{
-				REQUIRE(dat_in.GetSize(0) == dat_out.GetSize(0));
-				REQUIRE(dat_in.GetSize(1) == dat_out.GetSize(1));
+				REQUIRE(dat_in.getSize(0) == dat_out.getSize(0));
+				REQUIRE(dat_in.getSize(1) == dat_out.getSize(1));
 			}
 
 			REQUIRE(compArray(dat_in, dat_out));

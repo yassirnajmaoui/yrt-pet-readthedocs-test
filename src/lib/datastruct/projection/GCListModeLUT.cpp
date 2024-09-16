@@ -33,9 +33,9 @@ void py_setup_gclistmodelut(py::module& m)
 	      {
 		      Array1DBase<timestamp_t>* arr = self.getTimestampArrayPtr();
 		      auto buf_info = py::buffer_info(
-		          arr->GetRawPointer(), sizeof(timestamp_t),
+		          arr->getRawPointer(), sizeof(timestamp_t),
 		          py::format_descriptor<timestamp_t>::format(), 1,
-		          {arr->GetSizeTotal()}, {sizeof(timestamp_t)});
+		          {arr->getSizeTotal()}, {sizeof(timestamp_t)});
 		      return py::array_t<timestamp_t>(buf_info);
 	      });
 	c.def("getDetector1Array",
@@ -43,9 +43,9 @@ void py_setup_gclistmodelut(py::module& m)
 	      {
 		      Array1DBase<det_id_t>* arr = self.getDetector1ArrayPtr();
 		      auto buf_info =
-		          py::buffer_info(arr->GetRawPointer(), sizeof(det_id_t),
+		          py::buffer_info(arr->getRawPointer(), sizeof(det_id_t),
 		                          py::format_descriptor<det_id_t>::format(), 1,
-		                          {arr->GetSizeTotal()}, {sizeof(det_id_t)});
+		                          {arr->getSizeTotal()}, {sizeof(det_id_t)});
 		      return py::array_t<det_id_t>(buf_info);
 	      });
 	c.def("getDetector2Array",
@@ -53,9 +53,9 @@ void py_setup_gclistmodelut(py::module& m)
 	      {
 		      Array1DBase<det_id_t>* arr = self.getDetector2ArrayPtr();
 		      auto buf_info =
-		          py::buffer_info(arr->GetRawPointer(), sizeof(det_id_t),
+		          py::buffer_info(arr->getRawPointer(), sizeof(det_id_t),
 		                          py::format_descriptor<det_id_t>::format(), 1,
-		                          {arr->GetSizeTotal()}, {sizeof(det_id_t)});
+		                          {arr->getSizeTotal()}, {sizeof(det_id_t)});
 		      return py::array_t<det_id_t>(buf_info);
 	      });
 	c.def("addLORMotion", &GCListModeLUT::addLORMotion);
@@ -281,7 +281,7 @@ timestamp_t GCListModeLUT::getTimestamp(bin_t eventId) const
 
 size_t GCListModeLUT::count() const
 {
-	return mp_timestamps->GetSize(0);
+	return mp_timestamps->getSize(0);
 }
 
 bool GCListModeLUT::isUniform() const
@@ -412,24 +412,24 @@ void GCListModeLUTAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
                               Array1DBase<float>* pp_tof_ps)
 {
 	static_cast<Array1DAlias<timestamp_t>*>(mp_timestamps.get())
-	    ->Bind(*pp_timestamps);
-	if (mp_timestamps->GetRawPointer() == nullptr)
+	    ->bind(*pp_timestamps);
+	if (mp_timestamps->getRawPointer() == nullptr)
 		throw std::runtime_error("The timestamps array could not be bound");
 
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId1.get())
-	    ->Bind(*pp_detectorIds1);
-	if (mp_detectorId1->GetRawPointer() == nullptr)
+	    ->bind(*pp_detectorIds1);
+	if (mp_detectorId1->getRawPointer() == nullptr)
 		throw std::runtime_error("The detector_ids1 array could not be bound");
 
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId2.get())
-	    ->Bind(*pp_detectorIds2);
-	if (mp_detectorId2->GetRawPointer() == nullptr)
+	    ->bind(*pp_detectorIds2);
+	if (mp_detectorId2->getRawPointer() == nullptr)
 		throw std::runtime_error("The detector_ids2 array could not be bound");
 
 	if (mp_tof_ps != nullptr && pp_tof_ps != nullptr)
 	{
-		static_cast<Array1DAlias<float>*>(mp_tof_ps.get())->Bind(*pp_tof_ps);
-		if (mp_tof_ps->GetRawPointer() == nullptr)
+		static_cast<Array1DAlias<float>*>(mp_tof_ps.get())->bind(*pp_tof_ps);
+		if (mp_tof_ps->getRawPointer() == nullptr)
 			throw std::runtime_error("The tof_ps array could not be bound");
 	}
 }
@@ -447,7 +447,7 @@ void GCListModeLUTAlias::Bind(
 		    "The timestamps buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<timestamp_t>*>(mp_timestamps.get())
-	    ->Bind(reinterpret_cast<timestamp_t*>(buffer1.ptr), buffer1.shape[0]);
+	    ->bind(reinterpret_cast<timestamp_t*>(buffer1.ptr), buffer1.shape[0]);
 
 	pybind11::buffer_info buffer2 = p_detectorIds1.request();
 	if (buffer2.ndim != 1)
@@ -456,7 +456,7 @@ void GCListModeLUTAlias::Bind(
 		    "The detector_ids1 buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId1.get())
-	    ->Bind(reinterpret_cast<det_id_t*>(buffer2.ptr), buffer2.shape[0]);
+	    ->bind(reinterpret_cast<det_id_t*>(buffer2.ptr), buffer2.shape[0]);
 
 	pybind11::buffer_info buffer3 = p_detectorIds2.request();
 	if (buffer3.ndim != 1)
@@ -465,7 +465,7 @@ void GCListModeLUTAlias::Bind(
 		    "The detector_ids2 buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<det_id_t>*>(mp_detectorId2.get())
-	    ->Bind(reinterpret_cast<det_id_t*>(buffer3.ptr), buffer3.shape[0]);
+	    ->bind(reinterpret_cast<det_id_t*>(buffer3.ptr), buffer3.shape[0]);
 }
 
 void GCListModeLUTAlias::Bind(
@@ -484,7 +484,7 @@ void GCListModeLUTAlias::Bind(
 		throw std::invalid_argument("The TOF buffer has to be 1-dimensional");
 	}
 	static_cast<Array1DAlias<float>*>(mp_tof_ps.get())
-	    ->Bind(reinterpret_cast<float*>(buffer.ptr), buffer.shape[0]);
+	    ->bind(reinterpret_cast<float*>(buffer.ptr), buffer.shape[0]);
 }
 #endif
 

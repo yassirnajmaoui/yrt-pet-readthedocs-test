@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/GCPluginFramework.hpp"
+#include "datastruct/PluginFramework.hpp"
 #include "datastruct/projection/GCListModeLUT.hpp"
 #include "utils/Array.hpp"
 

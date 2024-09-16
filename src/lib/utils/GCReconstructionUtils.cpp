@@ -125,7 +125,7 @@ namespace Util
 	                              GCListModeLUTOwned* lmOut, size_t numEvents)
 	{
 		ASSERT(lmOut != nullptr);
-		const float* dataPtr = histo->getData().GetRawPointer();
+		const float* dataPtr = histo->getData().getRawPointer();
 
 		// Phase 1: calculate sum of histogram values
 		double sum = 0.0;
@@ -228,7 +228,7 @@ namespace Util
 	void convertToHistogram3D(const IProjectionData& dat,
 	                          GCHistogram3D& histoOut)
 	{
-		float* histoDataPointer = histoOut.getData().GetRawPointer();
+		float* histoDataPointer = histoOut.getData().getRawPointer();
 		const size_t numDatBins = dat.count();
 
 		GCProgressDisplay progressBar(numDatBins, 1);

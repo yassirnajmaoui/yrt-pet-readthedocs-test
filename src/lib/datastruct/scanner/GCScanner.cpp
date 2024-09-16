@@ -45,7 +45,7 @@ void py_setup_gcscanner(pybind11::module& m)
 		      s.createLUT(*lut.get());
 		      size_t shape[2]{s.getNumDets(), 6};
 		      auto lut_array = py::array_t<float>(
-		          shape, std::move(lut.get())->GetRawPointer());
+		          shape, std::move(lut.get())->getRawPointer());
 		      return lut_array;
 	      });
 

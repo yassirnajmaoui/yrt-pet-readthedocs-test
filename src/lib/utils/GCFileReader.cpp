@@ -18,7 +18,7 @@ namespace Util
 		if (isUsingCache())
 		{
 			m_cache.allocate(p_cacheSize);
-			m_cacheSize = static_cast<std::streamsize>(m_cache.GetSize(0));
+			m_cacheSize = static_cast<std::streamsize>(m_cache.getSize(0));
 		}
 	}
 
@@ -53,7 +53,7 @@ namespace Util
 			}
 
 			std::streamoff offset = (startPos - m_cacheStart);
-			char* initPos = m_cache.GetRawPointer() + offset;
+			char* initPos = m_cache.getRawPointer() + offset;
 			char* lastPos = std::copy_n(
 			    initPos, std::min(m_cacheSize - offset, bytesToRead),
 			    receivingBuffer);
@@ -77,7 +77,7 @@ namespace Util
 			    "Error reading file: Either the seeked position"
 			    "is outside the file or the file is corrupt");
 		}
-		mr_istream.read(m_cache.GetRawPointer(), m_cacheSize);
+		mr_istream.read(m_cache.getRawPointer(), m_cacheSize);
 		if (mr_istream.eof())
 		{
 			m_cacheSize = mr_istream.gcount();

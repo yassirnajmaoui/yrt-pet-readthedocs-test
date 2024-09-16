@@ -119,8 +119,8 @@ void GCOperatorPsf::convolve(const GCImage* in, GCImage* out,
 	int kerIndexCenteredX = m_kerSize[0] / 2;
 	int kerIndexCenteredY = m_kerSize[1] / 2;
 	int kerIndexCenteredZ = m_kerSize[2] / 2;
-	const double* inPtr = in->getData().GetRawPointer();
-	double* outPtr = out->getData().GetRawPointer();
+	const double* inPtr = in->getData().getRawPointer();
+	double* outPtr = out->getData().getRawPointer();
 
 	for (int k = 0; k < m_nz; k++)
 	{

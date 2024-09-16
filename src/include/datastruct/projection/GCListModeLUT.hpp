@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/GCPluginFramework.hpp"
+#include "datastruct/PluginFramework.hpp"
 #include "datastruct/projection/GCLORMotion.hpp"
 #include "datastruct/projection/IListMode.hpp"
 #include "geometry/GCStraightLineParam.hpp"

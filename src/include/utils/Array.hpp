@@ -46,7 +46,7 @@ class Array
 public:
 	Array() : _shape(nullptr), _data(nullptr) {}
 	virtual ~Array() = default;
-	size_t GetFlatIdx(const std::array<size_t, ndim>& idx) const
+	size_t getFlatIdx(const std::array<size_t, ndim>& idx) const
 	{
 		size_t flat_idx = 0;
 		size_t stride = 1;
@@ -59,24 +59,24 @@ public:
 	}
 	T& get(const std::array<size_t, ndim>& idx) const
 	{
-		return _data[GetFlatIdx(idx)];
+		return _data[getFlatIdx(idx)];
 	}
 	void set(const std::array<size_t, ndim>& l, T val)
 	{
-		_data[GetFlatIdx(l)] = val;
+		_data[getFlatIdx(l)] = val;
 	}
 	void increment(const std::array<size_t, ndim>& idx, T val)
 	{
-		_data[GetFlatIdx(idx)] += val;
+		_data[getFlatIdx(idx)] += val;
 	}
 	void increment_flat(size_t idx, T val) { _data[idx] += val; }
 	void scale(const std::array<size_t, ndim>& idx, T val)
 	{
-		_data[GetFlatIdx(idx)] *= val;
+		_data[getFlatIdx(idx)] *= val;
 	}
 	void set_flat(size_t idx, T val) { _data[idx] = val; }
 	T& get_flat(size_t idx) const { return _data[idx]; }
-	size_t GetSize(size_t dim) const
+	size_t getSize(size_t dim) const
 	{
 		if (_shape == nullptr)
 		{
@@ -91,7 +91,7 @@ public:
 			return _shape.get()[dim];
 		}
 	}
-	size_t GetSizeTotal() const
+	size_t getSizeTotal() const
 	{
 		if (_shape == nullptr)
 		{
@@ -107,14 +107,14 @@ public:
 			return size;
 		}
 	}
-	void GetDims(size_t output[]) const
+	void getDims(size_t output[]) const
 	{
 		for (int dim = 0; dim < ndim; dim++)
 		{
 			output[dim] = _shape.get()[dim];
 		}
 	}
-	std::array<size_t, ndim> GetDims() const
+	std::array<size_t, ndim> getDims() const
 	{
 		std::array<size_t, ndim> dims;
 		for (int dim = 0; dim < ndim; dim++)
@@ -123,7 +123,7 @@ public:
 		}
 		return dims;
 	}
-	std::array<size_t, ndim> GetStrides() const
+	std::array<size_t, ndim> getStrides() const
 	{
 		std::array<size_t, ndim> strides;
 		for (int dim = ndim - 1; dim >= 0; --dim)
@@ -135,14 +135,14 @@ public:
 			}
 			else
 			{
-				stride = GetSize(dim + 1) * strides[dim + 1];
+				stride = getSize(dim + 1) * strides[dim + 1];
 			}
 			strides[dim] = stride;
 		}
 		return strides;
 	}
-	void Fill(T val) { std::fill(_data, _data + GetSizeTotal(), val); }
-	void WriteToFile(const std::string& fname) const
+	void fill(T val) { std::fill(_data, _data + getSizeTotal(), val); }
+	void writeToFile(const std::string& fname) const
 	{
 		std::ofstream file;
 		file.open(fname.c_str(), std::ios::binary | std::ios::out);
@@ -157,7 +157,7 @@ public:
 		file.write((char*)&magic, sizeof(int));
 		file.write((char*)&num_dims, sizeof(int));
 		file.write((char*)_shape.get(), ndim * sizeof(size_t));
-		file.write((char*)_data, GetSizeTotal() * sizeof(T));
+		file.write((char*)_data, getSizeTotal() * sizeof(T));
 	}
 	void readFromFile(const std::string& fname)
 	{
@@ -226,14 +226,14 @@ public:
 			}
 		}
 		setShape(dims.get());
-		allocateFlat(GetSizeTotal());
-		file.read((char*)_data, GetSizeTotal() * sizeof(T));
+		allocateFlat(getSizeTotal());
+		file.read((char*)_data, getSizeTotal() * sizeof(T));
 	}
-	T* GetRawPointer() { return _data; }
-	const T* GetRawPointer() const { return _data; }
+	T* getRawPointer() { return _data; }
+	const T* getRawPointer() const { return _data; }
 	Array<ndim, T>& operator+=(const Array<ndim, T>& other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] += other._data[i];
 		}
@@ -241,7 +241,7 @@ public:
 	}
 	Array<ndim, T>& operator+=(T other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] += other;
 		}
@@ -249,7 +249,7 @@ public:
 	}
 	Array<ndim, T>& operator*=(const Array<ndim, T>& other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] *= other._data[i];
 		}
@@ -257,7 +257,7 @@ public:
 	}
 	Array<ndim, T>& operator/=(const Array<ndim, T>& other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] /= other._data[i];
 		}
@@ -265,7 +265,7 @@ public:
 	}
 	Array<ndim, T>& operator*=(T other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] *= other;
 		}
@@ -273,7 +273,7 @@ public:
 	}
 	Array<ndim, T>& operator/=(T other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] /= other;
 		}
@@ -281,7 +281,7 @@ public:
 	}
 	Array<ndim, T>& operator-=(const Array<ndim, T>& other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] -= other._data[i];
 		}
@@ -289,7 +289,7 @@ public:
 	}
 	Array<ndim, T>& operator-=(T other)
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] -= other;
 		}
@@ -297,17 +297,17 @@ public:
 	}
 	Array<ndim, T>& invert()
 	{
-		for (size_t i = 0; i < GetSizeTotal(); i++)
+		for (size_t i = 0; i < getSizeTotal(); i++)
 		{
 			_data[i] = 1 / _data[i];
 		}
 		return *this;
 	}
 	// Copy from array object (memory must be allocated and appropriately sized)
-	void Copy(const Array<ndim, T>& src)
+	void copy(const Array<ndim, T>& src)
 	{
-		size_t num_el = src.GetSizeTotal();
-		if (num_el != GetSizeTotal())
+		size_t num_el = src.getSizeTotal();
+		if (num_el != getSizeTotal())
 		{
 			throw std::runtime_error("The source to copy has a size that does "
 			                         "not match the initial array's size");
@@ -318,9 +318,9 @@ public:
 			                         "impossible to copy data");
 		}
 		size_t size[ndim];
-		src.GetDims(size);
+		src.getDims(size);
 		setShape(size);
-		const T* data_ptr = src.GetRawPointer();
+		const T* data_ptr = src.getRawPointer();
 		std::copy(data_ptr, data_ptr + num_el, _data);
 	}
 
@@ -390,7 +390,7 @@ public:
 	Array1D() : Array1DBase<T>() {}
 	void allocate(size_t num_el)
 	{
-		if (num_el != this->GetSizeTotal())
+		if (num_el != this->getSizeTotal())
 		{
 			if (_data_ptr != nullptr)
 			{
@@ -421,14 +421,14 @@ class Array1DAlias : public Array1DBase<T>
 {
 public:
 	Array1DAlias() : Array1DBase<T>() {}
-	void Bind(const Array1DBase<T>& array)
+	void bind(const Array1DBase<T>& array)
 	{
 		size_t dims[1];
-		array.GetDims(dims);
+		array.getDims(dims);
 		this->setShape(dims);
 		this->_data = &(array[0]);
 	}
-	void Bind(T* data, size_t num_el)
+	void bind(T* data, size_t num_el)
 	{
 		size_t dims[1] = {num_el};
 		this->setShape(dims);
@@ -436,10 +436,10 @@ public:
 	}
 	Array1DAlias(const Array1DAlias<T>& array) : Array1DBase<T>()
 	{
-		Bind(array);
+		bind(array);
 	}
-	Array1DAlias(const Array1DBase<T>* array) { Bind(*array); }
-	Array1DAlias(const Array1D<T>& array) { Bind(array); }
+	Array1DAlias(const Array1DBase<T>* array) { bind(*array); }
+	Array1DAlias(const Array1D<T>& array) { bind(array); }
 
 protected:
 	void allocateFlat(size_t size) override
@@ -483,7 +483,7 @@ public:
 	Array2D() : Array2DBase<T>() {}
 	void allocate(size_t num_rows, size_t num_el)
 	{
-		if (num_rows * num_el != this->GetSizeTotal())
+		if (num_rows * num_el != this->getSizeTotal())
 		{
 			if (_data_ptr != nullptr)
 			{
@@ -515,14 +515,14 @@ class Array2DAlias : public Array2DBase<T>
 {
 public:
 	Array2DAlias() : Array2DBase<T>() {}
-	void Bind(const Array2DBase<T>& array)
+	void bind(const Array2DBase<T>& array)
 	{
 		size_t dims[2];
-		array.GetDims(dims);
+		array.getDims(dims);
 		this->setShape(dims);
 		this->_data = array[0];
 	}
-	void Bind(T* data, size_t num_rows, size_t num_el)
+	void bind(T* data, size_t num_rows, size_t num_el)
 	{
 		size_t dims[2] = {num_rows, num_el};
 		this->setShape(dims);
@@ -530,10 +530,10 @@ public:
 	}
 	Array2DAlias(const Array2DAlias<T>& array) : Array2DBase<T>()
 	{
-		Bind(array);
+		bind(array);
 	}
 	Array2DAlias(const Array2DBase<T>* array) { Bind(*array); }
-	Array2DAlias(const Array2D<T>& array) { Bind(array); }
+	Array2DAlias(const Array2D<T>& array) { bind(array); }
 
 protected:
 	void allocateFlat(size_t size) override
@@ -554,27 +554,27 @@ public:
 		size_t dims[3] = {0, 0, 0};
 		this->setShape(dims);
 	}
-	T* GetSlicePtr(size_t ri)
+	T* getSlicePtr(size_t ri)
 	{
 		return &this->_data[ri * this->_shape.get()[1] * this->_shape.get()[2]];
 	}
-	T* GetSlicePtr(size_t ri) const
+	T* getSlicePtr(size_t ri) const
 	{
 		return &this->_data[ri * this->_shape.get()[1] * this->_shape.get()[2]];
 	}
 	Array2DAlias<T> operator[](size_t ri)
 	{
 		Array2DAlias<T> slice_array;
-		T* data_slice = GetSlicePtr(ri);
-		slice_array.Bind(data_slice, this->_shape.get()[1],
+		T* data_slice = getSlicePtr(ri);
+		slice_array.bind(data_slice, this->_shape.get()[1],
 		                 this->_shape.get()[2]);
 		return slice_array;
 	}
 	Array2DAlias<T> operator[](size_t ri) const
 	{
 		Array2DAlias<T> slice_array;
-		T* data_slice = GetSlicePtr(ri);
-		slice_array.Bind(data_slice, this->_shape.get()[1],
+		T* data_slice = getSlicePtr(ri);
+		slice_array.bind(data_slice, this->_shape.get()[1],
 		                 this->_shape.get()[2]);
 		return slice_array;
 	}
@@ -590,7 +590,7 @@ public:
 	Array3D() : Array3DBase<T>() {}
 	void allocate(size_t num_slices, size_t num_rows, size_t num_el)
 	{
-		if (num_slices * num_rows * num_el != this->GetSizeTotal())
+		if (num_slices * num_rows * num_el != this->getSizeTotal())
 		{
 			if (_data_ptr != nullptr)
 			{
@@ -622,25 +622,25 @@ class Array3DAlias : public Array3DBase<T>
 {
 public:
 	Array3DAlias() : Array3DBase<T>() {}
-	void Bind(const Array3DBase<T>& array)
+	void bind(const Array3DBase<T>& array)
 	{
 		size_t dims[3];
-		array.GetDims(dims);
+		array.getDims(dims);
 		this->setShape(dims);
 		this->_data = array[0][0];
 	}
-	void Bind(T* data, size_t num_slices, size_t num_rows, size_t num_el)
+	void bind(T* data, size_t num_slices, size_t num_rows, size_t num_el)
 	{
 		size_t dims[3] = {num_slices, num_rows, num_el};
 		this->setShape(dims);
 		this->_data = data;
 	}
-	Array3DAlias(const Array3DBase<T>* array) { Bind(*array); }
+	Array3DAlias(const Array3DBase<T>* array) { bind(*array); }
 	Array3DAlias(const Array3DAlias<T>& array) : Array3DBase<T>()
 	{
-		Bind(array);
+		bind(array);
 	}
-	Array3DAlias(const Array3D<T>& array) { Bind(array); }
+	Array3DAlias(const Array3D<T>& array) { bind(array); }
 
 protected:
 	void allocateFlat(size_t size) override

@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	Array3D<float> x_in;
 	x_in.readFromFile(img_in_fname);
 	size_t shape[3];
-	x_in.GetDims(shape);
+	x_in.getDims(shape);
 	size_t num_pixels = shape[0] * shape[1] * shape[2];
 	size_t num_neighbors = (2 * W + 1) * (2 * W + 1) * (2 * W + 1);
 	size_t num_cols = 0;
@@ -94,28 +94,28 @@ int main(int argc, char** argv)
 	// Build K matrix
 	if (mode.compare("full") == 0)
 	{
-		GCKernel::build_K_full(x_in.GetRawPointer(), k_out.GetRawPointer(),
-		                       k_i_out.GetRawPointer(), k_j_out.GetRawPointer(),
+		GCKernel::build_K_full(x_in.getRawPointer(), k_out.getRawPointer(),
+		                       k_i_out.getRawPointer(), k_j_out.getRawPointer(),
 		                       shape[0], shape[1], shape[2], num_k, sigma2,
 		                       num_threads);
 	}
 	else if (mode.compare("knn") == 0)
 	{
 		GCKernel::build_K_knn_neighbors(
-		    x_in.GetRawPointer(), k_out.GetRawPointer(),
-		    k_i_out.GetRawPointer(), k_j_out.GetRawPointer(), shape[0],
+		    x_in.getRawPointer(), k_out.getRawPointer(),
+		    k_i_out.getRawPointer(), k_j_out.getRawPointer(), shape[0],
 		    shape[1], shape[2], W, P, num_k, sigma2, num_threads);
 	}
 	else if (mode.compare("neighbors") == 0)
 	{
-		GCKernel::build_K_neighbors(x_in.GetRawPointer(), k_out.GetRawPointer(),
-		                            k_i_out.GetRawPointer(),
-		                            k_j_out.GetRawPointer(), shape[0], shape[1],
+		GCKernel::build_K_neighbors(x_in.getRawPointer(), k_out.getRawPointer(),
+		                            k_i_out.getRawPointer(),
+		                            k_j_out.getRawPointer(), shape[0], shape[1],
 		                            shape[2], W, sigma2, num_threads);
 	}
 
-	k_out.WriteToFile(out_fname);
-	k_i_out.WriteToFile(out_i_fname);
-	k_j_out.WriteToFile(out_j_fname);
+	k_out.writeToFile(out_fname);
+	k_i_out.writeToFile(out_i_fname);
+	k_j_out.writeToFile(out_j_fname);
 	return 0;
 }

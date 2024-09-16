@@ -199,7 +199,7 @@ void GCImageDevice::transferToDeviceMemory(const GCImage* hp_img_ptr,
 
 	m_tempBuffer.reAllocateIfNeeded(m_imgSize);
 	float* h_floatTempBuffer_ptr = m_tempBuffer.getPointer();
-	const double* h_double_ptr = hp_img_ptr->getData().GetRawPointer();
+	const double* h_double_ptr = hp_img_ptr->getData().getRawPointer();
 	ASSERT_MSG(h_double_ptr != nullptr,
 	           "Either the image given is invalid or not allocated");
 
@@ -230,7 +230,7 @@ void GCImageDevice::transferToHostMemory(GCImage* hp_img_ptr,
 	ASSERT(hp_img_ptr != nullptr);
 	// Note: Eventually we'll need to use float32 for images in order to avoid
 	// caveats like this
-	double* hp_double_ptr = hp_img_ptr->getData().GetRawPointer();
+	double* hp_double_ptr = hp_img_ptr->getData().getRawPointer();
 	ASSERT_MSG(hp_double_ptr != nullptr,
 	           "The GCImage provided is not yet allocated or bound");
 	for (int id = 0; id < static_cast<int>(m_imgSize); id++)

@@ -22,9 +22,9 @@ void py_setup_gcprojectionlist(pybind11::module& m)
 	    [](GCProjectionList& self) -> py::buffer_info
 	    {
 		    Array1DBase<float>* d = self.getProjectionsArrayRef();
-		    return py::buffer_info(d->GetRawPointer(), sizeof(float),
+		    return py::buffer_info(d->getRawPointer(), sizeof(float),
 		                           py::format_descriptor<float>::format(), 1,
-		                           d->GetDims(), d->GetStrides());
+		                           d->getDims(), d->getStrides());
 	    });
 
 	auto c_owned = pybind11::class_<GCProjectionListOwned, GCProjectionList>(
@@ -59,7 +59,7 @@ void py_setup_gcprojectionlist(pybind11::module& m)
 		    }
 		    reinterpret_cast<Array1DAlias<float>*>(
 		        self.getProjectionsArrayRef())
-		        ->Bind(reinterpret_cast<float*>(buffer.ptr), buffer.size);
+		        ->bind(reinterpret_cast<float*>(buffer.ptr), buffer.size);
 	    });
 }
 
@@ -83,7 +83,7 @@ void GCProjectionList::setProjectionValue(bin_t id, float val)
 
 void GCProjectionList::clearProjections(float value)
 {
-	mp_projs->Fill(value);
+	mp_projs->fill(value);
 }
 
 frame_t GCProjectionList::getFrame(bin_t id) const
@@ -163,7 +163,7 @@ Array1DBase<float>* GCProjectionList::getProjectionsArrayRef() const
 
 size_t GCProjectionList::count() const
 {
-	return mp_projs->GetSize(0);
+	return mp_projs->getSize(0);
 }
 
 histo_bin_t GCProjectionList::getHistogramBin(bin_t id) const
@@ -184,7 +184,7 @@ void GCProjectionListOwned::allocate()
 	          << " for " << num_events << " events" << std::endl;
 	static_cast<Array1D<float>*>(mp_projs.get())->allocate(num_events);
 	std::cout << "Memory successfully allocated: " << std::flush
-	          << mp_projs->GetSize(0) << std::endl;
+	          << mp_projs->getSize(0) << std::endl;
 }
 
 GCProjectionListAlias::GCProjectionListAlias(IProjectionData* p)
@@ -195,8 +195,8 @@ GCProjectionListAlias::GCProjectionListAlias(IProjectionData* p)
 
 void GCProjectionListAlias::Bind(Array1DBase<float>* projs_in)
 {
-	static_cast<Array1DAlias<float>*>(mp_projs.get())->Bind(*projs_in);
-	if (mp_projs->GetRawPointer() == nullptr)
+	static_cast<Array1DAlias<float>*>(mp_projs.get())->bind(*projs_in);
+	if (mp_projs->getRawPointer() == nullptr)
 	{
 		throw std::runtime_error(
 		    "An error occured during the ProjectionList binding");

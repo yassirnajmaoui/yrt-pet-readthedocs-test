@@ -32,8 +32,8 @@ TEST_CASE("scanner", "[createLUT]")
 
 	SECTION("lut-size")
 	{
-		REQUIRE(lut.GetSize(0) == scanner->getNumDets());
-		REQUIRE(lut.GetSize(1) == 6);
+		REQUIRE(lut.getSize(0) == scanner->getNumDets());
+		REQUIRE(lut.getSize(1) == 6);
 	}
 
 	SECTION("lut-det_pos")

@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/GCPluginFramework.hpp"
+#include "datastruct/PluginFramework.hpp"
 
 #if BUILD_PYBIND11
 

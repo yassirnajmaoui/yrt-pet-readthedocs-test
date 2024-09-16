@@ -26,9 +26,9 @@ void py_setup_gcimage(py::module& m)
 	    [](GCImage& img) -> py::buffer_info
 	    {
 		    Array3DBase<double>& d = img.getData();
-		    return py::buffer_info(d.GetRawPointer(), sizeof(double),
+		    return py::buffer_info(d.getRawPointer(), sizeof(double),
 		                           py::format_descriptor<double>::format(), 3,
-		                           d.GetDims(), d.GetStrides());
+		                           d.getDims(), d.getStrides());
 	    });
 	c.def("copyFromImage", &GCImage::copyFromImage);
 	c.def("multWithScalar", &GCImage::multWithScalar);
@@ -74,7 +74,7 @@ void py_setup_gcimage(py::module& m)
 	auto c_alias = py::class_<GCImageAlias, GCImage>(m, "GCImageAlias");
 	c_alias.def(py::init<const GCImageParams&>());
 	c_alias.def(
-	    "Bind",
+	    "bind",
 	    [](GCImageAlias& self, py::buffer& np_data)
 	    {
 		    py::buffer_info buffer = np_data.request();
@@ -100,7 +100,7 @@ void py_setup_gcimage(py::module& m)
 			    }
 		    }
 		    static_cast<Array3DAlias<double>&>(self.getData())
-		        .Bind(reinterpret_cast<double*>(buffer.ptr), dims[0], dims[1],
+		        .bind(reinterpret_cast<double*>(buffer.ptr), dims[0], dims[1],
 		              dims[2]);
 	    });
 
@@ -118,13 +118,13 @@ GCImage::GCImage(const GCImageParams& img_params) : GCImageBase(img_params) {}
 
 void GCImage::setValue(double initValue)
 {
-	m_dataPtr->Fill(initValue);
+	m_dataPtr->fill(initValue);
 }
 
 void GCImage::copyFromImage(const GCImage* imSrc)
 {
 	ASSERT(m_dataPtr != nullptr);
-	m_dataPtr->Copy(imSrc->getData());
+	m_dataPtr->copy(imSrc->getData());
 	setParams(imSrc->getParams());
 }
 
@@ -242,7 +242,7 @@ double GCImage::interpol_image(GCVector pt)
 			iz2 = iz1;
 	}
 	// interpolate in z:
-	double* ptr = m_dataPtr->GetRawPointer();
+	double* ptr = m_dataPtr->getRawPointer();
 	size_t num_x = getParams().nx;
 	size_t num_xy = getParams().nx * getParams().ny;
 	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
@@ -355,8 +355,8 @@ double GCImage::interpol_image2(GCVector pt, GCImage* sens)
 			iz2 = iz1;
 	}
 	// interpolate in z:
-	double* ptr = m_dataPtr->GetRawPointer();
-	double* sptr = sens->getData().GetRawPointer();
+	double* ptr = m_dataPtr->getRawPointer();
+	double* sptr = sens->getData().getRawPointer();
 	size_t num_x = getParams().nx;
 	size_t num_xy = getParams().nx * getParams().ny;
 	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
@@ -420,7 +420,7 @@ void GCImage::update_image_nearest_neigh(const GCVector& pt, double value,
 	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
 	{
 		// update multiplicatively or additively:
-		double* ptr = m_dataPtr->GetRawPointer();
+		double* ptr = m_dataPtr->getRawPointer();
 		const size_t num_x = getParams().nx;
 		const size_t num_xy = getParams().nx * getParams().ny;
 		const size_t idx = iz * num_xy + iy * num_x + ix;
@@ -442,7 +442,7 @@ void GCImage::assign_image_nearest_neigh(const GCVector& pt, double value)
 	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
 	{
 		// update multiplicatively or additively:
-		double* ptr = m_dataPtr->GetRawPointer();
+		double* ptr = m_dataPtr->getRawPointer();
 		const size_t num_x = getParams().nx;
 		const size_t num_xy = getParams().nx * getParams().ny;
 		ptr[iz * num_xy + iy * num_x + ix] = value;
@@ -576,7 +576,7 @@ void GCImage::update_image_inter(GCVector point, double value, bool mult_flag)
 	}
 
 	// interpolate multiplicatively or additively:
-	double* ptr = m_dataPtr->GetRawPointer();
+	double* ptr = m_dataPtr->getRawPointer();
 	size_t num_x = getParams().nx;
 	size_t num_xy = getParams().nx * getParams().ny;
 	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
@@ -700,7 +700,7 @@ void GCImage::assign_image_inter(GCVector point, double value)
 	}
 
 	// assign:
-	double* ptr = m_dataPtr->GetRawPointer();
+	double* ptr = m_dataPtr->getRawPointer();
 	const size_t num_x = getParams().nx;
 	const size_t num_xy = getParams().nx * getParams().ny;
 	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
@@ -720,7 +720,7 @@ void GCImage::assign_image_inter(GCVector point, double value)
 // this function writes "image" on disk @ "image_fname"
 void GCImage::writeToFile(const std::string& image_fname) const
 {
-	m_dataPtr->WriteToFile(image_fname);
+	m_dataPtr->writeToFile(image_fname);
 }
 
 
@@ -740,9 +740,9 @@ void GCImage::applyThreshold(const GCImageBase* maskImg, double threshold,
 	const GCImage* maskImg_GCImage = dynamic_cast<const GCImage*>(maskImg);
 	ASSERT_MSG(maskImg_GCImage != nullptr, "Input image has the wrong type");
 
-	double* ptr = m_dataPtr->GetRawPointer();
-	const double* mask_ptr = maskImg_GCImage->getData().GetRawPointer();
-	for (size_t k = 0; k < m_dataPtr->GetSizeTotal(); k++, ptr++, mask_ptr++)
+	double* ptr = m_dataPtr->getRawPointer();
+	const double* mask_ptr = maskImg_GCImage->getData().getRawPointer();
+	for (size_t k = 0; k < m_dataPtr->getSizeTotal(); k++, ptr++, mask_ptr++)
 	{
 		if (*mask_ptr <= threshold)
 		{
@@ -768,11 +768,11 @@ void GCImage::updateEMThreshold(GCImageBase* updateImg,
 	ASSERT_MSG(updateImg_GCImage->getParams().isSameAs(getParams()),
 	           "Image dimensions mismatch");
 
-	double* ptr = m_dataPtr->GetRawPointer();
-	double* up_ptr = updateImg_GCImage->getData().GetRawPointer();
-	const double* norm_ptr = normImg_GCImage->getData().GetRawPointer();
+	double* ptr = m_dataPtr->getRawPointer();
+	double* up_ptr = updateImg_GCImage->getData().getRawPointer();
+	const double* norm_ptr = normImg_GCImage->getData().getRawPointer();
 
-	for (size_t k = 0; k < m_dataPtr->GetSizeTotal();
+	for (size_t k = 0; k < m_dataPtr->getSizeTotal();
 	     k++, ptr++, up_ptr++, norm_ptr++)
 	{
 		if (*norm_ptr > threshold)
@@ -785,9 +785,9 @@ void GCImage::updateEMThreshold(GCImageBase* updateImg,
 double GCImage::dot_product(GCImage* y) const
 {
 	double out = 0.0;
-	const double* x_ptr = m_dataPtr->GetRawPointer();
-	double* y_ptr = y->getData().GetRawPointer();
-	for (size_t k = 0; k < m_dataPtr->GetSizeTotal(); k++, x_ptr++, y_ptr++)
+	const double* x_ptr = m_dataPtr->getRawPointer();
+	double* y_ptr = y->getData().getRawPointer();
+	for (size_t k = 0; k < m_dataPtr->getSizeTotal(); k++, x_ptr++, y_ptr++)
 	{
 		out += (*x_ptr) * (*y_ptr);
 	}
@@ -804,7 +804,7 @@ std::unique_ptr<GCImage>
                             const GCVector& translation) const
 {
 	GCImageParams params = getParams();
-	const double* rawPtr = getData().GetRawPointer();
+	const double* rawPtr = getData().getRawPointer();
 	const int num_xy = params.nx * params.ny;
 	auto newImg = std::make_unique<GCImageOwned>(params);
 	newImg->allocate();
@@ -878,10 +878,10 @@ GCImageAlias::GCImageAlias(const GCImageParams& img_params)
 	m_dataPtr = std::make_unique<Array3DAlias<double>>();
 }
 
-void GCImageAlias::Bind(Array3DBase<double>& p_data)
+void GCImageAlias::bind(Array3DBase<double>& p_data)
 {
-	static_cast<Array3DAlias<double>*>(m_dataPtr.get())->Bind(p_data);
-	if (m_dataPtr->GetRawPointer() != p_data.GetRawPointer())
+	static_cast<Array3DAlias<double>*>(m_dataPtr.get())->bind(p_data);
+	if (m_dataPtr->getRawPointer() != p_data.getRawPointer())
 	{
 		throw std::runtime_error("An error occured during GCImage binding");
 	}

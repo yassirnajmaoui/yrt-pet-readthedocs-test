@@ -87,7 +87,7 @@ void ImageWarperMatrix::warp(GCImage* _image, int _frameId) const
 
 	for (int k = 0; k < m_imNbVoxel[2]; k++)
 	{
-		slice.Bind(data.GetSlicePtr(k), m_imNbVoxel[1], m_imNbVoxel[0]);
+		slice.bind(data.getSlicePtr(k), m_imNbVoxel[1], m_imNbVoxel[0]);
 		voxPos[2] = getVoxelPhysPos(k, 2);
 		for (int j = 0; j < m_imNbVoxel[1]; j++)
 		{
@@ -145,7 +145,7 @@ void ImageWarperMatrix::inverseWarp(GCImage* _image, int _frameId) const
 
 	for (int k = 0; k < m_imNbVoxel[2]; k++)
 	{
-		slice_copy.Bind(data_copy.GetSlicePtr(k), m_imNbVoxel[1],
+		slice_copy.bind(data_copy.getSlicePtr(k), m_imNbVoxel[1],
 		                m_imNbVoxel[0]);
 		voxPos[2] = getVoxelPhysPos(k, 2);
 		for (int j = 0; j < m_imNbVoxel[1]; j++)

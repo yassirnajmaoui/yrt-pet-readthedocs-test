@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/GCPluginFramework.hpp"
+#include "datastruct/PluginFramework.hpp"
 #include "datastruct/projection/IProjectionData.hpp"
 #include "operators/GCOperatorProjector.hpp"
 

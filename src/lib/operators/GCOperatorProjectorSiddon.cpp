@@ -373,7 +373,7 @@ void GCOperatorProjectorSiddon::project_helper(
 
 	// Prepare data pointer (this assumes that the data is stored as a
 	// contiguous array)
-	double* raw_img_ptr = img->getData().GetRawPointer();
+	double* raw_img_ptr = img->getData().getRawPointer();
 	double* cur_img_ptr = nullptr;
 	int num_x = params.nx;
 	int num_xy = params.nx * params.ny;

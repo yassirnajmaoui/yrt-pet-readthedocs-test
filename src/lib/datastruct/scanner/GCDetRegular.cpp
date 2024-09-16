@@ -181,7 +181,7 @@ void GCDetRegular::setZorient(det_id_t detID, float f)
 
 size_t GCDetRegular::getNumDets() const
 {
-	return this->mp_Xpos->GetSize(0);
+	return this->mp_Xpos->getSize(0);
 }
 
 
@@ -205,9 +205,9 @@ void py_setup_gcdetregular(py::module& m)
 	      {
 		      Array1DBase<float>* posArr = self.getXposArrayRef();
 		      auto buf_info =
-		          py::buffer_info(posArr->GetRawPointer(), sizeof(float),
+		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
 		                          py::format_descriptor<float>::format(), 1,
-		                          {posArr->GetSizeTotal()}, {sizeof(float)});
+		                          {posArr->getSizeTotal()}, {sizeof(float)});
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getYposArray",
@@ -215,9 +215,9 @@ void py_setup_gcdetregular(py::module& m)
 	      {
 		      Array1DBase<float>* posArr = self.getYposArrayRef();
 		      auto buf_info =
-		          py::buffer_info(posArr->GetRawPointer(), sizeof(float),
+		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
 		                          py::format_descriptor<float>::format(), 1,
-		                          {posArr->GetSizeTotal()}, {sizeof(float)});
+		                          {posArr->getSizeTotal()}, {sizeof(float)});
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getZposArray",
@@ -225,9 +225,9 @@ void py_setup_gcdetregular(py::module& m)
 	      {
 		      Array1DBase<float>* posArr = self.getZposArrayRef();
 		      auto buf_info =
-		          py::buffer_info(posArr->GetRawPointer(), sizeof(float),
+		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
 		                          py::format_descriptor<float>::format(), 1,
-		                          {posArr->GetSizeTotal()}, {sizeof(float)});
+		                          {posArr->getSizeTotal()}, {sizeof(float)});
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getXorientArray",
@@ -235,9 +235,9 @@ void py_setup_gcdetregular(py::module& m)
 	      {
 		      Array1DBase<float>* orientArr = self.getXorientArrayRef();
 		      auto buf_info =
-		          py::buffer_info(orientArr->GetRawPointer(), sizeof(float),
+		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
 		                          py::format_descriptor<float>::format(), 1,
-		                          {orientArr->GetSizeTotal()}, {sizeof(float)});
+		                          {orientArr->getSizeTotal()}, {sizeof(float)});
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getYorientArray",
@@ -245,9 +245,9 @@ void py_setup_gcdetregular(py::module& m)
 	      {
 		      Array1DBase<float>* orientArr = self.getYorientArrayRef();
 		      auto buf_info =
-		          py::buffer_info(orientArr->GetRawPointer(), sizeof(float),
+		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
 		                          py::format_descriptor<float>::format(), 1,
-		                          {orientArr->GetSizeTotal()}, {sizeof(float)});
+		                          {orientArr->getSizeTotal()}, {sizeof(float)});
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getZorientArray",
@@ -255,9 +255,9 @@ void py_setup_gcdetregular(py::module& m)
 	      {
 		      Array1DBase<float>* orientArr = self.getZorientArrayRef();
 		      auto buf_info =
-		          py::buffer_info(orientArr->GetRawPointer(), sizeof(float),
+		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
 		                          py::format_descriptor<float>::format(), 1,
-		                          {orientArr->GetSizeTotal()}, {sizeof(float)});
+		                          {orientArr->getSizeTotal()}, {sizeof(float)});
 		      return py::array_t<float>(buf_info);
 	      });
 }
