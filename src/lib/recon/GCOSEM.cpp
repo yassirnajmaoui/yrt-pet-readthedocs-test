@@ -5,7 +5,7 @@
 
 #include "recon/GCOSEM.hpp"
 
-#include "datastruct/GCIO.hpp"
+#include "datastruct/IO.hpp"
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/projection/GCUniformHistogram.hpp"

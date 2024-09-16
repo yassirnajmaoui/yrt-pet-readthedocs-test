@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/GCIO.hpp"
+#include "datastruct/IO.hpp"
 
 #include "datastruct/projection/IProjectionData.hpp"
 #include "utils/GCUtilities.hpp"

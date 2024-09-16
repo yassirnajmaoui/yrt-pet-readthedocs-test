@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/GCIO.hpp"
+#include "datastruct/IO.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "operators/GCOperatorProjector.hpp"

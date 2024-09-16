@@ -4,7 +4,7 @@
  */
 
 #include "../PluginOptionsHelper.hpp"
-#include "datastruct/GCIO.hpp"
+#include "datastruct/IO.hpp"
 #include "datastruct/projection/GCUniformHistogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "motion/ImageWarperMatrix.hpp"

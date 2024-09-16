@@ -19,7 +19,7 @@ set(SOURCES
         datastruct/scanner/GCScanner.cpp
         datastruct/image/ImageBase.cpp
         datastruct/image/Image.cpp
-        datastruct/GCIO.cpp
+        datastruct/IO.cpp
         geometry/GCStraightLineParam.cpp
         geometry/GCMatrix.cpp
         geometry/GCVector.cpp

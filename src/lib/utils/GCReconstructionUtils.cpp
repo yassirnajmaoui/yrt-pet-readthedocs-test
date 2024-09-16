@@ -5,7 +5,7 @@
 
 #include "utils/GCReconstructionUtils.hpp"
 
-#include "datastruct/GCIO.hpp"
+#include "datastruct/IO.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/projection/GCListModeLUT.hpp"
 #include "geometry/GCMatrix.hpp"

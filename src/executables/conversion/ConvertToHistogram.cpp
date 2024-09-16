@@ -4,7 +4,7 @@
  */
 
 #include "../PluginOptionsHelper.hpp"
-#include "datastruct/GCIO.hpp"
+#include "datastruct/IO.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/projection/GCSparseHistogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
