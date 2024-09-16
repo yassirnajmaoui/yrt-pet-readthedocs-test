@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "scatter/GCCrystal.hpp"
 #include "scatter/GCSingleScatterSimulator.hpp"
 
@@ -19,10 +19,10 @@ namespace Scatter
 	public:
 		GCScatterEstimator(const GCScanner& pr_scanner,
 		                   const Image& pr_lambda, const Image& pr_mu,
-		                   const GCHistogram3D* pp_promptsHis,
-		                   const GCHistogram3D* pp_normOrSensHis,
-		                   const GCHistogram3D* pp_randomsHis,
-		                   const GCHistogram3D* pp_acfHis,
+		                   const Histogram3D* pp_promptsHis,
+		                   const Histogram3D* pp_normOrSensHis,
+		                   const Histogram3D* pp_randomsHis,
+		                   const Histogram3D* pp_acfHis,
 		                   CrystalMaterial p_crystalMaterial, int seedi,
 		                   bool p_doTailFitting, bool isNorm, int maskWidth,
 		                   float maskThreshold, bool saveIntermediary);
@@ -30,10 +30,10 @@ namespace Scatter
 		void estimateScatter(size_t numberZ, size_t numberPhi, size_t numberR,
 		                     bool printProgress = false);
 
-		const GCHistogram3DOwned* getScatterHistogram() const;
+		const Histogram3DOwned* getScatterHistogram() const;
 
 	protected:
-		static void generateScatterTailsMask(const GCHistogram3D& acfHis,
+		static void generateScatterTailsMask(const Histogram3D& acfHis,
 		                                     std::vector<bool>& mask,
 		                                     size_t maskWidth,
 		                                     float maskThreshold);
@@ -43,10 +43,10 @@ namespace Scatter
 	private:
 		const GCScanner& mr_scanner;
 		GCSingleScatterSimulator m_sss;
-		const GCHistogram3D* mp_promptsHis;
-		const GCHistogram3D* mp_randomsHis;
-		const GCHistogram3D* mp_normOrSensHis;
-		const GCHistogram3D* mp_acfHis;
+		const Histogram3D* mp_promptsHis;
+		const Histogram3D* mp_randomsHis;
+		const Histogram3D* mp_normOrSensHis;
+		const Histogram3D* mp_acfHis;
 
 		std::vector<bool> m_scatterTailsMask;
 		bool m_doTailFitting;
@@ -55,6 +55,6 @@ namespace Scatter
 		float m_maskThreshold;
 		size_t m_scatterTailsMaskWidth;
 
-		std::unique_ptr<GCHistogram3DOwned> mp_scatterHisto;  // Final structure
+		std::unique_ptr<Histogram3DOwned> mp_scatterHisto;  // Final structure
 	};
 }  // namespace Scatter

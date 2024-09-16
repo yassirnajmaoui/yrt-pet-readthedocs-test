@@ -5,7 +5,7 @@
 
 #include "catch.hpp"
 
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/GCDetRegular.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/Array.hpp"
@@ -25,7 +25,7 @@ TEST_CASE("scanner", "[createLUT]")
 	auto detRegular = std::make_unique<GCDetRegular>(scanner.get());
 	detRegular->generateLUT();
 	scanner->setDetectorSetup(detRegular.get());
-	auto histo3d = std::make_unique<GCHistogram3DOwned>(scanner.get());
+	auto histo3d = std::make_unique<Histogram3DOwned>(scanner.get());
 
 	Array2D<float> lut;
 	scanner->createLUT(lut);

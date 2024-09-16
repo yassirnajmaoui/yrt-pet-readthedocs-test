@@ -12,7 +12,7 @@ namespace py = pybind11;
 void py_setup_gcuniformhistogram(py::module& m)
 {
 	auto c =
-	    py::class_<GCUniformHistogram, GCHistogram3D>(m, "GCUniformHistogram");
+	    py::class_<GCUniformHistogram, Histogram3D>(m, "GCUniformHistogram");
 	c.def(py::init<const GCScanner*, float>(), py::arg("scanner"),
 	      py::arg("value") = 1.0f);
 }
@@ -21,7 +21,7 @@ void py_setup_gcuniformhistogram(py::module& m)
 
 GCUniformHistogram::GCUniformHistogram(const GCScanner* p_scanner,
                                        float p_value)
-    : GCHistogram3D(p_scanner), m_value(p_value)
+    : Histogram3D(p_scanner), m_value(p_value)
 {
 }
 
@@ -37,13 +37,13 @@ void GCUniformHistogram::writeToFile(const std::string& filename) const
 	}
 	int magic = MAGIC_NUMBER;
 	int num_dims = 3;
-	size_t shape[3]{GCHistogram3D::n_z_bin, GCHistogram3D::n_phi,
-	                GCHistogram3D::n_r};
+	size_t shape[3]{Histogram3D::n_z_bin, Histogram3D::n_phi,
+	                Histogram3D::n_r};
 	file.write((char*)&magic, sizeof(int));
 	file.write((char*)&num_dims, sizeof(int));
 	file.write((char*)shape, 3 * sizeof(size_t));
 
-	for (size_t i = 0; i < GCHistogram3D::count(); i++)
+	for (size_t i = 0; i < Histogram3D::count(); i++)
 	{
 		file.write((char*)&m_value, sizeof(float));
 	}

@@ -22,8 +22,8 @@ void py_setup_gcscatterestimator(py::module& m)
 	auto c = py::class_<Scatter::GCScatterEstimator>(m, "GCScatterEstimator");
 	c.def(
 	    py::init<const GCScanner&, const Image&, const Image&,
-	             const GCHistogram3D*, const GCHistogram3D*,
-	             const GCHistogram3D*, const GCHistogram3D*,
+	             const Histogram3D*, const Histogram3D*,
+	             const Histogram3D*, const Histogram3D*,
 	             Scatter::CrystalMaterial, int, bool, bool, int, float, bool>(),
 	    "scanner"_a, "source_image"_a, "attenuation_image"_a, "prompts_his"_a,
 	    "norm_or_sens_his"_a, "randoms_his"_a, "acf_his"_a,
@@ -40,9 +40,9 @@ namespace Scatter
 {
 	GCScatterEstimator::GCScatterEstimator(
 	    const GCScanner& pr_scanner, const Image& pr_lambda,
-	    const Image& pr_mu, const GCHistogram3D* pp_promptsHis,
-	    const GCHistogram3D* pp_normOrSensHis,
-	    const GCHistogram3D* pp_randomsHis, const GCHistogram3D* pp_acfHis,
+	    const Image& pr_mu, const Histogram3D* pp_promptsHis,
+	    const Histogram3D* pp_normOrSensHis,
+	    const Histogram3D* pp_randomsHis, const Histogram3D* pp_acfHis,
 	    CrystalMaterial p_crystalMaterial, int seedi, bool p_doTailFitting,
 	    bool isNorm, int maskWidth, float maskThreshold, bool saveIntermediary)
 	    : mr_scanner(pr_scanner),
@@ -66,7 +66,7 @@ namespace Scatter
 		m_saveIntermediary = saveIntermediary;
 
 		// Initialize buffers
-		mp_scatterHisto = std::make_unique<GCHistogram3DOwned>(&mr_scanner);
+		mp_scatterHisto = std::make_unique<Histogram3DOwned>(&mr_scanner);
 		mp_scatterHisto->allocate();
 		mp_scatterHisto->clearProjections();
 	}
@@ -126,14 +126,14 @@ namespace Scatter
 	}
 
 
-	const GCHistogram3DOwned* GCScatterEstimator::getScatterHistogram() const
+	const Histogram3DOwned* GCScatterEstimator::getScatterHistogram() const
 	{
 		return mp_scatterHisto.get();
 	}
 
 	void GCScatterEstimator::saveScatterTailsMask()
 	{
-		const auto tmpHisto = std::make_unique<GCHistogram3DOwned>(&mr_scanner);
+		const auto tmpHisto = std::make_unique<Histogram3DOwned>(&mr_scanner);
 		tmpHisto->allocate();
 		tmpHisto->operationOnEachBinParallel(
 		    [this](bin_t bin) -> float
@@ -143,7 +143,7 @@ namespace Scatter
 
 
 	void GCScatterEstimator::generateScatterTailsMask(
-	    const GCHistogram3D& acfHis, std::vector<bool>& mask, size_t maskWidth,
+	    const Histogram3D& acfHis, std::vector<bool>& mask, size_t maskWidth,
 	    float maskThreshold)
 	{
 		const size_t numBins = acfHis.count();

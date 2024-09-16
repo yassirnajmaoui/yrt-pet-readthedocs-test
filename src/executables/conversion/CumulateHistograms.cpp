@@ -5,7 +5,7 @@
 
 #include "../PluginOptionsHelper.hpp"
 #include "datastruct/IO.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/GCSparseHistogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCAssert.hpp"
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		auto histo3DOut = std::make_unique<GCHistogram3DOwned>(scanner.get());
+		auto histo3DOut = std::make_unique<Histogram3DOwned>(scanner.get());
 		histo3DOut->allocate();
 		histo3DOut->clearProjections(0.0f);
 		histoOut = std::move(histo3DOut);
@@ -120,12 +120,12 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			auto histo3DOut = reinterpret_cast<GCHistogram3D*>(histoOut.get());
+			auto histo3DOut = reinterpret_cast<Histogram3D*>(histoOut.get());
 			if (histo3DToHisto3D)
 			{
 				std::cout << "Adding Histogram3Ds..." << std::endl;
 				const auto* dataInputHisto3D =
-				    dynamic_cast<const GCHistogram3D*>(dataInput.get());
+				    dynamic_cast<const Histogram3D*>(dataInput.get());
 				ASSERT(dataInputHisto3D != nullptr);
 
 				histo3DOut->getData() += dataInputHisto3D->getData();
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
 	else
 	{
 		const auto* histo3DOut =
-		    reinterpret_cast<const GCHistogram3D*>(histoOut.get());
+		    reinterpret_cast<const Histogram3D*>(histoOut.get());
 		std::cout << "Saving output Histogram3D..." << std::endl;
 		histo3DOut->writeToFile(out_fname);
 	}

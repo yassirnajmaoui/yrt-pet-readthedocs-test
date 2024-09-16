@@ -7,7 +7,7 @@ scanner = gc.GCScannerOwned("<path to the scanner's json file>")
 
 imgParams = gc.ImageParams("<path to the image parameters file>")
 
-dataset = gc.GCHistogram3DOwned(scanner, "<path to the histogram file>")
+dataset = gc.Histogram3DOwned(scanner, "<path to the histogram file>")
 # or, alternatively, read a ListMode file
 dataset = gc.GCListModeLUTOwned(scanner, "<path to the listmode file>")
 

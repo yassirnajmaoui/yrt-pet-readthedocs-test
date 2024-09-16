@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/projection/GCBinIterator.hpp"
+#include "datastruct/projection/BinIterator.hpp"
 #include "recon/GCVariable.hpp"
 #include "utils/GCTypes.hpp"
 
@@ -25,7 +25,7 @@ public:
 	virtual det_id_t getDetector2(bin_t id) const = 0;
 	virtual det_pair_t getDetectorPair(bin_t id) const;
 	virtual histo_bin_t getHistogramBin(bin_t bin) const;
-	virtual std::unique_ptr<GCBinIterator> getBinIter(int numSubsets,
+	virtual std::unique_ptr<BinIterator> getBinIter(int numSubsets,
 	                                                  int idxSubset) const = 0;
 
 	// Optional methods
@@ -47,7 +47,7 @@ public:
 	// Helper functions
 	virtual void clearProjections(float value);
 	virtual void divideMeasurements(const IProjectionData* measurements,
-	                                const GCBinIterator* binIter);
+	                                const BinIterator* binIter);
 
 	virtual void operationOnEachBin(const std::function<float(bin_t)>& func);
 	// Note: The function given as argument should be able to be called in

@@ -6,7 +6,7 @@ import pyyrtpet as gc
 scanner = gc.GCScannerOwned("<path to the scanner's json file>")
 
 # Read an histogram
-dataset = gc.GCHistogram3DOwned(scanner)
+dataset = gc.Histogram3DOwned(scanner)
 dataset.readFromFile("<path to an histogram to be backprojected>")
 # or, alternatively, read a ListMode file
 dataset = gc.GCListModeLUTOwned(scanner)

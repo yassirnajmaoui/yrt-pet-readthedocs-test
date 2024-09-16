@@ -9,7 +9,7 @@
 #include "geometry/GCPlane.hpp"
 #include "scatter/GCCrystal.hpp"
 
-class GCHistogram3D;
+class Histogram3D;
 class GCScanner;
 class Image;
 
@@ -23,7 +23,7 @@ namespace Scatter
 		                         CrystalMaterial p_crystalMaterial, int seedi);
 
 		void runSSS(size_t numberZ, size_t numberPhi, size_t numberR,
-		            GCHistogram3D& scatterHisto, bool printProgress = false);
+		            Histogram3D& scatterHisto, bool printProgress = false);
 
 		double computeSingleScatterInLOR(const GCStraightLineParam& lor) const;
 

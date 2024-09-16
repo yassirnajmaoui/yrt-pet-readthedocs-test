@@ -6,7 +6,7 @@ import pyyrtpet as gc
 scanner = gc.GCScannerOwned("<path to the scanner's json file>")
 
 # Prepare an empty histogram
-outHis = gc.GCHistogram3DOwned(scanner)
+outHis = gc.Histogram3DOwned(scanner)
 outHis.Allocate()
 
 # Read an image to Forward-project

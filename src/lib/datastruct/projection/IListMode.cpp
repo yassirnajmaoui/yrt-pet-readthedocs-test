@@ -37,7 +37,7 @@ void IListMode::setProjectionValue(bin_t id, float val)
 	throw std::logic_error("setProjectionValue unimplemented");
 }
 
-std::unique_ptr<GCBinIterator> IListMode::getBinIter(int numSubsets,
+std::unique_ptr<BinIterator> IListMode::getBinIter(int numSubsets,
                                                      int idxSubset) const
 {
 	ASSERT_MSG(idxSubset < numSubsets,
@@ -48,6 +48,6 @@ std::unique_ptr<GCBinIterator> IListMode::getBinIter(int numSubsets,
 	    "be less than or equal to zero");
 
 	size_t numEvents = count();
-	return std::make_unique<GCBinIteratorChronological>(numSubsets, numEvents,
+	return std::make_unique<BinIteratorChronological>(numSubsets, numEvents,
 	                                                    idxSubset);
 }

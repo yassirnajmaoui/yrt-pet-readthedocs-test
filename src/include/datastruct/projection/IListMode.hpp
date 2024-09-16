@@ -18,6 +18,6 @@ public:
 	float getProjectionValue(bin_t id) const override;
 	void setProjectionValue(bin_t id, float val) override;
 
-	std::unique_ptr<GCBinIterator> getBinIter(int numSubsets,
+	std::unique_ptr<BinIterator> getBinIter(int numSubsets,
 	                                          int idxSubset) const override;
 };

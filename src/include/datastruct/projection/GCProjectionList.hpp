@@ -30,7 +30,7 @@ public:
 	det_id_t getDetector2(bin_t evId) const override;
 	det_pair_t getDetectorPair(bin_t evId) const override;
 	histo_bin_t getHistogramBin(bin_t id) const override;
-	std::unique_ptr<GCBinIterator> getBinIter(int numSubsets,
+	std::unique_ptr<BinIterator> getBinIter(int numSubsets,
 	                                          int idxSubset) const override;
 	frame_t getFrame(bin_t id) const override;
 	timestamp_t getTimestamp(bin_t id) const override;

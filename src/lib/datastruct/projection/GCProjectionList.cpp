@@ -203,7 +203,7 @@ void GCProjectionListAlias::Bind(Array1DBase<float>* projs_in)
 	}
 }
 
-std::unique_ptr<GCBinIterator> GCProjectionList::getBinIter(int numSubsets,
+std::unique_ptr<BinIterator> GCProjectionList::getBinIter(int numSubsets,
                                                             int idxSubset) const
 {
 	return mp_reference->getBinIter(numSubsets, idxSubset);

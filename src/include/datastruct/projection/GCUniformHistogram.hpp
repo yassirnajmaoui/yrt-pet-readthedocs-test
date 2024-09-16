@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 
-class GCUniformHistogram : public GCHistogram3D
+class GCUniformHistogram : public Histogram3D
 {
 public:
 	GCUniformHistogram(const GCScanner* p_scanner, float p_value = 1.0f);

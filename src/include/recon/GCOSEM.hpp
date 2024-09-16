@@ -142,7 +142,7 @@ private:
 	    std::vector<std::unique_ptr<Image>>& sensImages);
 	void InitializeForRecon();
 
-	std::vector<std::unique_ptr<GCBinIterator>> m_binIterators;
+	std::vector<std::unique_ptr<BinIterator>> m_binIterators;
 
 	IProjectionData* sensDataInput;
 	IProjectionData* dataInput;

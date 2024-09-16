@@ -3,12 +3,12 @@ project(lib)
 # List source files explicitly
 set(SOURCES
         datastruct/projection/IHistogram.cpp
-        datastruct/projection/GCHistogram3D.cpp
+        datastruct/projection/Histogram3D.cpp
         datastruct/projection/GCUniformHistogram.cpp
         datastruct/projection/GCListModeLUT.cpp
         datastruct/projection/GCListModeLUTDOI.cpp
         datastruct/projection/GCLORMotion.cpp
-        datastruct/projection/GCBinIterator.cpp
+        datastruct/projection/BinIterator.cpp
         datastruct/projection/GCProjectionList.cpp
         datastruct/projection/GCSparseHistogram.cpp
         datastruct/projection/IProjectionData.cpp

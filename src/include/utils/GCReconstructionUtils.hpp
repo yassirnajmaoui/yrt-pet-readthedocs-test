@@ -10,18 +10,18 @@
 #include <memory>
 
 class GCListModeLUTOwned;
-class GCHistogram3D;
+class Histogram3D;
 class IListMode;
 
 namespace Util
 {
-	void histogram3DToListModeLUT(const GCHistogram3D* histo,
+	void histogram3DToListModeLUT(const Histogram3D* histo,
 	                              GCListModeLUTOwned* listMode,
 	                              size_t numEvents = 0);
 
 	template<bool RequiresAtomic>
 	void convertToHistogram3D(const IProjectionData& dat,
-	                          GCHistogram3D& histoOut);
+	                          Histogram3D& histoOut);
 
 	// Helper function to unify LOR loading
 	GCOperatorProjectorBase::ProjectionProperties
@@ -48,7 +48,7 @@ namespace Util
 	                 const IHistogram* additiveHistogram = nullptr);
 	void forwProject(const GCScanner* scanner, const Image* img,
 	                 IProjectionData* projData,
-	                 const GCBinIterator& binIterator,
+	                 const BinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
@@ -69,7 +69,7 @@ namespace Util
 	                 const IHistogram* additiveHistogram = nullptr);
 	void backProject(const GCScanner* scanner, Image* img,
 	                 const IProjectionData* projData,
-	                 const GCBinIterator& binIterator,
+	                 const BinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,

@@ -11,11 +11,11 @@
 #include <vector>
 
 
-class GCBinIterator
+class BinIterator
 {
 public:
-	GCBinIterator() {}
-	virtual ~GCBinIterator() {}
+	BinIterator() {}
+	virtual ~BinIterator() {}
 	virtual bin_t begin() const = 0;
 	virtual bin_t end() const = 0;
 	bin_t get(bin_t idx) const;
@@ -25,12 +25,12 @@ private:
 	virtual bin_t getSafe(bin_t idx) const = 0;
 };
 
-class GCBinIteratorRange : public GCBinIterator
+class BinIteratorRange : public BinIterator
 {
 public:
-	GCBinIteratorRange(bin_t num);
-	GCBinIteratorRange(bin_t p_idxStart, bin_t p_idxEnd, bin_t p_idxStride = 1);
-	GCBinIteratorRange(std::tuple<bin_t, bin_t, bin_t> info);
+	BinIteratorRange(bin_t num);
+	BinIteratorRange(bin_t p_idxStart, bin_t p_idxEnd, bin_t p_idxStride = 1);
+	BinIteratorRange(std::tuple<bin_t, bin_t, bin_t> info);
 	bin_t begin() const override;
 	bin_t end() const override;
 	size_t size() const override;
@@ -45,10 +45,10 @@ protected:
 	bin_t idxStride;
 };
 
-class GCBinIteratorRange2D : public GCBinIterator
+class BinIteratorRange2D : public BinIterator
 {
 public:
-	GCBinIteratorRange2D(bin_t p_idxStart, bin_t p_numSlices, bin_t p_sliceSize,
+	BinIteratorRange2D(bin_t p_idxStart, bin_t p_numSlices, bin_t p_sliceSize,
 	                     bin_t p_idxStride);
 	bin_t begin() const override;
 	bin_t end() const override;
@@ -64,10 +64,10 @@ protected:
 	bin_t idxStride;
 };
 
-class GCBinIteratorRangeHistogram3D : public GCBinIterator
+class BinIteratorRangeHistogram3D : public BinIterator
 {
 public:
-	GCBinIteratorRangeHistogram3D(size_t p_n_z_bin, size_t p_n_phi,
+	BinIteratorRangeHistogram3D(size_t p_n_z_bin, size_t p_n_phi,
 	                              size_t p_n_r, int p_num_subsets,
 	                              int p_idx_subset);
 	bin_t begin() const override;
@@ -84,10 +84,10 @@ protected:
 	bin_t phi_0, phi_stride, n_phi_subset;
 };
 
-class GCBinIteratorVector : public GCBinIterator
+class BinIteratorVector : public BinIterator
 {
 public:
-	GCBinIteratorVector(std::unique_ptr<std::vector<bin_t>>& p_idxList);
+	BinIteratorVector(std::unique_ptr<std::vector<bin_t>>& p_idxList);
 	bin_t begin() const override;
 	bin_t end() const override;
 	size_t size() const override;
@@ -97,10 +97,10 @@ protected:
 	bin_t getSafe(bin_t idx) const override;
 };
 
-class GCBinIteratorChronological : public GCBinIteratorRange
+class BinIteratorChronological : public BinIteratorRange
 {
 public:
-	GCBinIteratorChronological(bin_t p_numSubsets, bin_t p_numEvents,
+	BinIteratorChronological(bin_t p_numSubsets, bin_t p_numEvents,
 	                           bin_t p_idxSubset);
 
 private:

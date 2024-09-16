@@ -5,7 +5,7 @@
 
 #include "../PluginOptionsHelper.hpp"
 #include "datastruct/IO.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/GCSparseHistogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCGlobals.hpp"
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 	else
 	{
 		std::cout << "Preparing output Histogram3D..." << std::endl;
-		auto histoOut = std::make_unique<GCHistogram3DOwned>(scanner.get());
+		auto histoOut = std::make_unique<Histogram3DOwned>(scanner.get());
 		histoOut->allocate();
 		histoOut->clearProjections(0.0f);
 		std::cout << "Done preparing output Histogram3D." << std::endl;

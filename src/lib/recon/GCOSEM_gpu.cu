@@ -145,7 +145,7 @@ void GCOSEM_gpu::allocateForRecon()
 	// Allocate projection-space buffers
 
 	// Use the already-computed BinIterators instead of recomputing them
-	std::vector<const GCBinIterator*> binIteratorPtrList;
+	std::vector<const BinIterator*> binIteratorPtrList;
 	for (const auto& subsetBinIter : getBinIterators())
 		binIteratorPtrList.push_back(subsetBinIter.get());
 

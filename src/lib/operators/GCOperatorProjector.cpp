@@ -6,8 +6,8 @@
 #include "operators/GCOperatorProjector.hpp"
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/projection/GCBinIterator.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/BinIterator.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "geometry/GCConstants.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
@@ -32,7 +32,7 @@ void py_setup_gcoperatorprojectorparams(py::module& m)
 {
 	auto c =
 	    py::class_<GCOperatorProjectorParams>(m, "GCOperatorProjectorParams");
-	c.def(py::init<GCBinIterator*, GCScanner*, float, int, const std::string&,
+	c.def(py::init<BinIterator*, GCScanner*, float, int, const std::string&,
 	               int>(),
 	      py::arg("binIter"), py::arg("scanner"), py::arg("tofWidth_ps") = 0.f,
 	      py::arg("tofNumStd") = 0, py::arg("psfProjFilename") = "",
@@ -85,7 +85,7 @@ void py_setup_gcoperatorprojector(py::module& m)
 #endif
 
 GCOperatorProjectorParams::GCOperatorProjectorParams(
-    const GCBinIterator* p_binIter, const GCScanner* p_scanner,
+    const BinIterator* p_binIter, const GCScanner* p_scanner,
     float p_tofWidth_ps, int p_tofNumStd, std::string p_psfProjFilename,
     int p_num_rays)
     : binIter(p_binIter),
@@ -115,7 +115,7 @@ void GCOperatorProjectorBase::setAddHisto(const IHistogram* p_addHisto)
 	addHisto = p_addHisto;
 }
 
-void GCOperatorProjectorBase::setBinIter(const GCBinIterator* p_binIter)
+void GCOperatorProjectorBase::setBinIter(const BinIterator* p_binIter)
 {
 	binIter = p_binIter;
 }
@@ -139,7 +139,7 @@ void GCOperatorProjectorBase::setAttImage(const Image* p_attImage)
 	attImage = p_attImage;
 }
 
-const GCBinIterator* GCOperatorProjectorBase::getBinIter() const
+const BinIterator* GCOperatorProjectorBase::getBinIter() const
 {
 	return binIter;
 }

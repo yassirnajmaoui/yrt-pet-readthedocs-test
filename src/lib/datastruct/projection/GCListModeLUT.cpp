@@ -5,7 +5,7 @@
 
 #include "datastruct/projection/GCListModeLUT.hpp"
 
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
@@ -97,7 +97,7 @@ void py_setup_gclistmodelut(py::module& m)
 	c_owned.def("readFromFile", &GCListModeLUTOwned::readFromFile);
 	c_owned.def("allocate", &GCListModeLUTOwned::allocate);
 	c_owned.def("createFromHistogram3D",
-	            [](GCListModeLUTOwned* self, const GCHistogram3D* histo,
+	            [](GCListModeLUTOwned* self, const Histogram3D* histo,
 	               size_t num_events)
 	            { Util::histogram3DToListModeLUT(histo, self, num_events); });
 }

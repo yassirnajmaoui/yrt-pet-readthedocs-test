@@ -14,8 +14,8 @@
 
 GCSingleScatterSimulation::GCSingleScatterSimulation(
     GCScanner* pp_scanner, Image* pp_lambda, Image* pp_mu,
-    GCHistogram3D* pp_promptsHisto, GCHistogram3D* pp_normHisto,
-    GCHistogram3D* pp_acfHisto, const std::string& muDetFile, int seedi,
+    Histogram3D* pp_promptsHisto, Histogram3D* pp_normHisto,
+    Histogram3D* pp_acfHisto, const std::string& muDetFile, int seedi,
     bool p_doTailFitting)
 {
 	// TODO yssrnjm: add Randoms correction
@@ -124,7 +124,7 @@ GCSingleScatterSimulation::GCSingleScatterSimulation(
 	}
 
 	// Initialize buffers
-	mp_scatterHisto = std::make_unique<GCHistogram3DOwned>(mp_scanner);
+	mp_scatterHisto = std::make_unique<Histogram3DOwned>(mp_scanner);
 	mp_scatterHisto->allocate();
 	mp_scatterHisto->clearProjections();
 

@@ -18,14 +18,14 @@ public:
 	GCSparseHistogram(const GCScanner& pr_scanner, const std::string& filename);
 	GCSparseHistogram(const GCScanner& pr_scanner,
 	                  const IProjectionData& pr_projData,
-	                  const GCBinIterator* pp_binIter = nullptr);
+	                  const BinIterator* pp_binIter = nullptr);
 
 	void allocate(size_t numBins);
 
 	// Insertion
 	template <bool IgnoreZeros = false>
 	void accumulate(const IProjectionData& projData,
-	                const GCBinIterator* binIter = nullptr);
+	                const BinIterator* binIter = nullptr);
 	void accumulate(det_pair_t detPair, float projValue);
 
 	// Getters
@@ -36,7 +36,7 @@ public:
 	det_id_t getDetector1(bin_t id) const override;
 	det_id_t getDetector2(bin_t id) const override;
 	det_pair_t getDetectorPair(bin_t id) const override;
-	std::unique_ptr<GCBinIterator> getBinIter(int numSubsets,
+	std::unique_ptr<BinIterator> getBinIter(int numSubsets,
 	                                          int idxSubset) const override;
 	float getProjectionValue(bin_t id) const override;
 	void setProjectionValue(bin_t id, float val) override;

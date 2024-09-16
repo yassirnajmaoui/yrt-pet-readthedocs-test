@@ -6,7 +6,7 @@
 #include "scatter/GCSingleScatterSimulator.hpp"
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "geometry/GCConstants.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
@@ -158,7 +158,7 @@ namespace Scatter
 
 	void GCSingleScatterSimulator::runSSS(size_t numberZ, size_t numberPhi,
 	                                      size_t numberR,
-	                                      GCHistogram3D& scatterHisto,
+	                                      Histogram3D& scatterHisto,
 	                                      bool printProgress)
 	{
 		const size_t num_i_z = numberZ;

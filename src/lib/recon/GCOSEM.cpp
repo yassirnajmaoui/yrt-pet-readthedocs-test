@@ -7,7 +7,7 @@
 
 #include "datastruct/IO.hpp"
 #include "datastruct/image/Image.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/GCUniformHistogram.hpp"
 #include "datastruct/projection/IListMode.hpp"
 #include "datastruct/projection/IProjectionData.hpp"
@@ -548,7 +548,7 @@ void GCOSEM::reconstructWithWarperMotion()
 	// Subset operators
 	for (frameId = 0; frameId < numFrames; frameId++)
 	{
-		getBinIterators().push_back(std::make_unique<GCBinIteratorRange>(
+		getBinIterators().push_back(std::make_unique<BinIteratorRange>(
 		    eventsPartitionOverMotionFrame[frameId],
 		    eventsPartitionOverMotionFrame[frameId + 1] - 1));
 	}

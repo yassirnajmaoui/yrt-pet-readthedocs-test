@@ -5,7 +5,7 @@
 
 #include "catch.hpp"
 
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/GCListModeLUT.hpp"
 #include "datastruct/projection/GCSparseHistogram.hpp"
 #include "datastruct/scanner/GCDetRegular.hpp"
@@ -53,13 +53,13 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 	SECTION("from-histogram3d")
 	{
-		auto histo = std::make_unique<GCHistogram3DOwned>(scanner.get());
+		auto histo = std::make_unique<Histogram3DOwned>(scanner.get());
 		histo->allocate();
 		histo->clearProjections(1.0f);
 
 		auto sparseHisto =
 		    std::make_unique<GCSparseHistogram>(*scanner, *histo);
-		// Because GCHistogram3D also only has "unique" LORs
+		// Because Histogram3D also only has "unique" LORs
 		REQUIRE(sparseHisto->count() == histo->count());
 
 		for (bin_t i = 0; i < sparseHisto->count(); i++)
@@ -70,7 +70,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 	SECTION("from-histogram3d-with-biniterator")
 	{
-		auto histo = std::make_unique<GCHistogram3DOwned>(scanner.get());
+		auto histo = std::make_unique<Histogram3DOwned>(scanner.get());
 		histo->allocate();
 		auto binIter = histo->getBinIter(5, 2);
 
@@ -84,7 +84,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 		auto sparseHisto = std::make_unique<GCSparseHistogram>(*scanner, *histo,
 		                                                       binIter.get());
-		// Because GCHistogram3D also only has "unique" LORs
+		// Because Histogram3D also only has "unique" LORs
 		REQUIRE(sparseHisto->count() == binIter->size());
 
 		for (bin_t bin = 0; bin < binIter->size(); bin++)

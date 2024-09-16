@@ -161,7 +161,7 @@ void IProjectionData::clearProjections(float value)
 }
 
 void IProjectionData::divideMeasurements(const IProjectionData* measurements,
-                                         const GCBinIterator* binIter)
+                                         const BinIterator* binIter)
 {
 	int num_threads = GCGlobals::get_num_threads();
 #pragma omp parallel for num_threads(num_threads)

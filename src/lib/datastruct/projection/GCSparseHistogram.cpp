@@ -22,7 +22,7 @@ void py_setup_gcsparsehistogram(py::module& m)
 	c.def(py::init<const GCScanner&, const std::string&>(), "scanner"_a,
 	      "filename"_a);
 	c.def(py::init<const GCScanner&, const IProjectionData&,
-	               const GCBinIterator*>(),
+	               const BinIterator*>(),
 	      "scanner"_a, "projectionData"_a, "binIterator"_a = nullptr);
 	c.def("allocate", &GCSparseHistogram::allocate, "numBins"_a);
 	c.def("accumulate",
@@ -32,7 +32,7 @@ void py_setup_gcsparsehistogram(py::module& m)
 	      "detPair"_a, "projValue"_a);
 	c.def("accumulate",
 	      static_cast<void (GCSparseHistogram::*)(
-	          const IProjectionData& projData, const GCBinIterator* binIter)>(
+	          const IProjectionData& projData, const BinIterator* binIter)>(
 	          &GCSparseHistogram::accumulate),
 	      "projData"_a, "binIter"_a = nullptr);
 	c.def("getProjectionValueFromDetPair",
@@ -65,7 +65,7 @@ GCSparseHistogram::GCSparseHistogram(const GCScanner& pr_scanner,
 
 GCSparseHistogram::GCSparseHistogram(const GCScanner& pr_scanner,
                                      const IProjectionData& pr_projData,
-                                     const GCBinIterator* pp_binIter)
+                                     const BinIterator* pp_binIter)
     : GCSparseHistogram(pr_scanner)
 {
 	accumulate(pr_projData, pp_binIter);
@@ -80,7 +80,7 @@ void GCSparseHistogram::allocate(size_t numBins)
 
 template <bool IgnoreZeros>
 void GCSparseHistogram::accumulate(const IProjectionData& projData,
-                                   const GCBinIterator* binIter)
+                                   const BinIterator* binIter)
 {
 	size_t numBins;
 	if (binIter == nullptr)
@@ -116,10 +116,10 @@ void GCSparseHistogram::accumulate(const IProjectionData& projData,
 }
 template void
     GCSparseHistogram::accumulate<true>(const IProjectionData& projData,
-                                        const GCBinIterator* binIter);
+                                        const BinIterator* binIter);
 template void
     GCSparseHistogram::accumulate<false>(const IProjectionData& projData,
-                                         const GCBinIterator* binIter);
+                                         const BinIterator* binIter);
 
 void GCSparseHistogram::accumulate(det_pair_t detPair, float projValue)
 {
@@ -179,7 +179,7 @@ det_pair_t GCSparseHistogram::getDetectorPair(bin_t id) const
 	return m_detPairs[id];
 }
 
-std::unique_ptr<GCBinIterator>
+std::unique_ptr<BinIterator>
     GCSparseHistogram::getBinIter(int numSubsets, int idxSubset) const
 {
 	ASSERT_MSG(idxSubset < numSubsets,
@@ -187,7 +187,7 @@ std::unique_ptr<GCBinIterator>
 	ASSERT_MSG(idxSubset == 0 && numSubsets == 1,
 	           "Multiple subsets are not supported in sparse histograms");
 
-	return std::make_unique<GCBinIteratorChronological>(numSubsets, count(),
+	return std::make_unique<BinIteratorChronological>(numSubsets, count(),
 	                                                    idxSubset);
 }
 

@@ -108,7 +108,7 @@ GCProjectionDataDevice::GCProjectionDataDevice(
 
 GCProjectionDataDevice::GCProjectionDataDevice(
     const GCScanner* pp_scanner, const IProjectionData* pp_reference,
-    std::vector<const GCBinIterator*> pp_binIteratorList,
+    std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : GCProjectionList(pp_reference),
       mp_binIteratorList(std::move(pp_binIteratorList)),
@@ -120,7 +120,7 @@ GCProjectionDataDevice::GCProjectionDataDevice(
 
 GCProjectionDataDevice::GCProjectionDataDevice(
     std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
-    std::vector<const GCBinIterator*> pp_binIteratorList,
+    std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : GCProjectionList(pp_reference),
       mp_binIteratorList(std::move(pp_binIteratorList)),
@@ -423,13 +423,13 @@ void GCProjectionDataDevice::clearProjections(const cudaStream_t* stream)
 }
 
 void GCProjectionDataDevice::divideMeasurements(
-    const IProjectionData* measurements, const GCBinIterator* binIter)
+    const IProjectionData* measurements, const BinIterator* binIter)
 {
 	divideMeasurements(measurements, binIter, nullptr);
 }
 
 void GCProjectionDataDevice::divideMeasurements(
-    const IProjectionData* measurements, const GCBinIterator* binIter,
+    const IProjectionData* measurements, const BinIterator* binIter,
     const cudaStream_t* stream)
 {
 	(void)binIter;  // Not needed as this class has its own BinIterators
@@ -499,7 +499,7 @@ bool GCProjectionDataDevice::areLORsGathered() const
 
 GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
     const GCScanner* pp_scanner, const IProjectionData* pp_reference,
-    std::vector<const GCBinIterator*> pp_binIteratorList,
+    std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : GCProjectionDataDevice(pp_scanner, pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse)
@@ -537,7 +537,7 @@ GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
 
 GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
     std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
-    std::vector<const GCBinIterator*> pp_binIteratorList,
+    std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : GCProjectionDataDevice(std::move(pp_LORs), pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse)
@@ -581,7 +581,7 @@ void GCProjectionDataDeviceOwned::loadProjValuesFromHostInternal(
 
 GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
     const GCScanner* pp_scanner, const IProjectionData* pp_reference,
-    std::vector<const GCBinIterator*> pp_binIteratorList,
+    std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : GCProjectionDataDevice(pp_scanner, pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse),
@@ -619,7 +619,7 @@ GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
 
 GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
     std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
-    std::vector<const GCBinIterator*> pp_binIteratorList,
+    std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : GCProjectionDataDevice(std::move(pp_LORs), pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse),

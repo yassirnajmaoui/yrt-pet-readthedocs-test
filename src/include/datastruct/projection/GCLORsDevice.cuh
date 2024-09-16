@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/projection/GCBinIterator.hpp"
+#include "datastruct/projection/BinIterator.hpp"
 #include "datastruct/scanner/GCScannerDevice.cuh"
 #include "utils/GCGPUTypes.cuh"
 
@@ -22,7 +22,7 @@ public:
 	GCLORsDevice(const GCScanner* pp_scanner);
 
 	// Load the events' detector ids from a specific subset&batch id
-	void loadEventLORs(const GCBinIterator& binIter,
+	void loadEventLORs(const BinIterator& binIter,
 	                   const GCGPUBatchSetup& batchSetup, size_t subsetId,
 	                   size_t batchId, const IProjectionData& reference,
 	                   const ImageParams& imgParams,

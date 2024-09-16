@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "geometry/GCCylinder.hpp"
 #include "geometry/GCPlane.hpp"
@@ -17,9 +17,9 @@ class GCSingleScatterSimulation
 {
 public:
 	GCSingleScatterSimulation(GCScanner* p_scanner, Image* p_lambda,
-	                          Image* p_mu, GCHistogram3D* p_prompts_histo,
-	                          GCHistogram3D* p_norm_histo,
-	                          GCHistogram3D* p_acf_histo,
+	                          Image* p_mu, Histogram3D* p_prompts_histo,
+	                          Histogram3D* p_norm_histo,
+	                          Histogram3D* p_acf_histo,
 	                          const std::string& mu_det_file, int seedi = 13,
 	                          bool p_doTailFitting = true);
 
@@ -28,7 +28,7 @@ public:
 	             bool printProgress = false);
 	double compute_single_scatter_in_lor(GCStraightLineParam* lor);
 
-	GCHistogram3DOwned* getScatterHistogram() { return mp_scatterHisto.get(); }
+	Histogram3DOwned* getScatterHistogram() { return mp_scatterHisto.get(); }
 
 protected:
 	double ran1(int* idum);
@@ -47,9 +47,9 @@ public:
 
 protected:
 	GCScanner* mp_scanner;
-	GCHistogram3D* mp_promptsHisto;
-	GCHistogram3D* mp_normHisto;
-	GCHistogram3D* mp_acfHisto;
+	Histogram3D* mp_promptsHisto;
+	Histogram3D* mp_normHisto;
+	Histogram3D* mp_acfHisto;
 	Image* mp_mu;      // Attenuation image
 	Image* mp_lambda;  // Image from one iteration
 	GCCylinder m_cyl1, m_cyl2;
@@ -59,5 +59,5 @@ protected:
 	bool m_doTailFitting;
 	const float m_maskThreshold = 1.05;
 
-	std::unique_ptr<GCHistogram3DOwned> mp_scatterHisto;  // Final structure
+	std::unique_ptr<Histogram3DOwned> mp_scatterHisto;  // Final structure
 };

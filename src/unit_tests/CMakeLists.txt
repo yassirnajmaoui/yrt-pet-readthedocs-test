@@ -13,7 +13,7 @@ set(SOURCES_DATASTRUCT
         recon/test_ListMode.cpp
         recon/test_Scanner.cpp
         recon/test_TimeOfFlight.cpp
-        utils/test_GCBinIterator.cpp)
+        utils/test_BinIterator.cpp)
 
 if (${USE_CUDA})
     set(SOURCES_DATASTRUCT "${SOURCES_DATASTRUCT};utils/test_CUDA.cu")

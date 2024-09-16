@@ -22,7 +22,7 @@ void py_setup_imagebase(py::module&);
 void py_setup_imageparams(py::module&);
 void py_setup_image(py::module&);
 void py_setup_iprojectiondata(py::module& m);
-void py_setup_gcbiniterator(py::module& m);
+void py_setup_biniterator(py::module& m);
 void py_setup_ihistogram(py::module& m);
 void py_setup_gchistogram3d(py::module& m);
 void py_setup_gcuniformhistogram(py::module& m);
@@ -81,7 +81,7 @@ PYBIND11_MODULE(pyyrtpet, m)
 	py_setup_imagebase(m);
 	py_setup_imageparams(m);
 	py_setup_image(m);
-	py_setup_gcbiniterator(m);
+	py_setup_biniterator(m);
 	py_setup_iprojectiondata(m);
 	py_setup_ihistogram(m);
 	py_setup_gchistogram3d(m);

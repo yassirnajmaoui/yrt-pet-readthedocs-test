@@ -112,7 +112,7 @@ void GCOperatorProjectorDD_gpu::applyA(const GCVariable* in, GCVariable* out)
 		    "The Projection Data provded is not a GCProjectionDataDevice "
 		    "nor a IProjectionData (host)");
 
-		std::vector<const GCBinIterator*> binIterators;
+		std::vector<const BinIterator*> binIterators;
 		binIterators.push_back(binIter);  // We project only one subset
 		deviceDat_out = std::make_unique<GCProjectionDataDeviceOwned>(
 		    getScanner(), hostDat_out, binIterators);
@@ -195,7 +195,7 @@ void GCOperatorProjectorDD_gpu::applyAH(const GCVariable* in, GCVariable* out)
 		    "The Projection Data provded is not a GCProjectionDataDevice "
 		    "nor a IProjectionData (host)");
 
-		std::vector<const GCBinIterator*> binIterators;
+		std::vector<const BinIterator*> binIterators;
 		binIterators.push_back(binIter);  // We project only one subset
 		deviceDat_in = std::make_unique<GCProjectionDataDeviceOwned>(
 		    getScanner(), hostDat_in, binIterators);

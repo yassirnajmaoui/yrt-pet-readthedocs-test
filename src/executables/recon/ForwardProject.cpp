@@ -4,7 +4,7 @@
  */
 
 #include "datastruct/IO.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "operators/GCOperatorProjector.hpp"
 #include "utils/GCGlobals.hpp"
@@ -131,7 +131,7 @@ int main(int argc, char** argv)
 	}
 
 	// Create histo here
-	auto his = std::make_unique<GCHistogram3DOwned>(scanner.get());
+	auto his = std::make_unique<Histogram3DOwned>(scanner.get());
 	his->allocate();
 
 

@@ -180,7 +180,7 @@ The listmode file is a record of all the events to be considered for the reconst
     ...
 The file extension used is `.lmDat`.
 
-### Histogram (`GCHistogram3D`)
+### Histogram (`Histogram3D`)
 
 Histograms are in YRT-PET raw data format (described earlier). They are stored as `float32`. The histogram's dimensions are defined by the scanner properties defined in the `json` file decribed earlier.
 The file extension used is `.his`.

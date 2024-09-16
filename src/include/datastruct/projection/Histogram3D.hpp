@@ -30,14 +30,14 @@ typedef std::array<coord_t, 3> DetCoordinates;      // r, phi, z
 typedef std::array<coord_t, 2> DetRingCoordinates;  // r, phi
 typedef std::pair<det_id_t, det_id_t> DetRingPair;  // d1, d2
 
-class GCHistogram3D : public IHistogram
+class Histogram3D : public IHistogram
 {
 public:
 	const GCScanner* getScanner() const { return mp_scanner; }
 	Array3DBase<float>& getData() { return *mp_data; }
 	const Array3DBase<float>& getData() const { return *mp_data; }
 	virtual void writeToFile(const std::string& filename) const;
-	~GCHistogram3D() override = 0;
+	~Histogram3D() override = 0;
 
 	// binId
 	bin_t getBinIdFromCoords(coord_t r, coord_t phi, coord_t z_bin) const;
@@ -63,7 +63,7 @@ public:
 	det_pair_t getDetectorPair(bin_t id) const override;
 	void clearProjections();
 	void clearProjections(float value) override;
-	std::unique_ptr<GCBinIterator> getBinIter(int numSubsets,
+	std::unique_ptr<BinIterator> getBinIter(int numSubsets,
 	                                          int idxSubset) const override;
 
 	float getProjectionValueFromHistogramBin(
@@ -71,7 +71,7 @@ public:
 	void get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const;
 
 protected:
-	GCHistogram3D(const GCScanner* pp_scanner);
+	Histogram3D(const GCScanner* pp_scanner);
 	void getDetPairInSameRing(coord_t r_ring, coord_t phi, det_id_t& d1,
 	                          det_id_t& d2) const;
 	void getCoordsInSameRing(det_id_t d1_ring, det_id_t d2_ring,
@@ -103,18 +103,18 @@ protected:
 	size_t n_z_bin_diff;  // Number of z_bins that have z1 < z2
 };
 
-class GCHistogram3DAlias : public GCHistogram3D
+class Histogram3DAlias : public Histogram3D
 {
 public:
-	GCHistogram3DAlias(const GCScanner* p_scanner);
+	Histogram3DAlias(const GCScanner* p_scanner);
 	void Bind(Array3DBase<float>& p_data);
 };
 
-class GCHistogram3DOwned : public GCHistogram3D
+class Histogram3DOwned : public Histogram3D
 {
 public:
-	GCHistogram3DOwned(const GCScanner* p_scanner);
-	GCHistogram3DOwned(const GCScanner* p_scanner, const std::string& filename);
+	Histogram3DOwned(const GCScanner* p_scanner);
+	Histogram3DOwned(const GCScanner* p_scanner, const std::string& filename);
 	void allocate();
 	void readFromFile(const std::string& filename);
 

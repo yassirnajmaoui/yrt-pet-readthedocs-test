@@ -4,7 +4,7 @@
  */
 
 #include "datastruct/IO.hpp"
-#include "datastruct/projection/GCHistogram3D.hpp"
+#include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "geometry/GCConstants.hpp"
 #include "scatter/GCScatterEstimator.hpp"
@@ -150,19 +150,19 @@ int main(int argc, char** argv)
 		    std::make_unique<ImageOwned>(attImageParams, attImg_fname);
 
 		std::cout << "Reading histograms..." << std::endl;
-		auto promptsHis = std::make_unique<GCHistogram3DOwned>(
+		auto promptsHis = std::make_unique<Histogram3DOwned>(
 		    scanner.get(), promptsHis_fname);
-		auto randomsHis = std::make_unique<GCHistogram3DOwned>(
+		auto randomsHis = std::make_unique<Histogram3DOwned>(
 		    scanner.get(), randomsHis_fname);
-		auto normOrSensHis = std::make_unique<GCHistogram3DOwned>(
+		auto normOrSensHis = std::make_unique<Histogram3DOwned>(
 		    scanner.get(), *normOrSensHis_fname);
 		auto acfHis =
-		    std::make_unique<GCHistogram3DOwned>(scanner.get(), acfHis_fname);
+		    std::make_unique<Histogram3DOwned>(scanner.get(), acfHis_fname);
 		std::cout << "Done reading histograms." << std::endl;
 
 		// Generate additive histogram
 		std::cout << "Preparing additive histogram..." << std::endl;
-		auto additiveHis = std::make_unique<GCHistogram3DOwned>(scanner.get());
+		auto additiveHis = std::make_unique<Histogram3DOwned>(scanner.get());
 		additiveHis->allocate();
 		if (isNorm)
 		{
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
 			std::cout << "Preparing sensitivity histogram for the MLEM part..."
 			          << std::endl;
 			auto sensDataHis =
-			    std::make_unique<GCHistogram3DOwned>(scanner.get());
+			    std::make_unique<Histogram3DOwned>(scanner.get());
 			sensDataHis->allocate();
 			if (isNorm)
 			{
@@ -287,7 +287,7 @@ int main(int argc, char** argv)
 		sss.estimateScatter(nZ, nPhi, nR, printProgressFlag);
 
 		// Generate _final_ additive histogram
-		const GCHistogram3D* scatterHis = sss.getScatterHistogram();
+		const Histogram3D* scatterHis = sss.getScatterHistogram();
 		additiveHis->operationOnEachBinParallel(
 		    [&additiveHis, &scatterHis](const bin_t bin) -> float
 		    {

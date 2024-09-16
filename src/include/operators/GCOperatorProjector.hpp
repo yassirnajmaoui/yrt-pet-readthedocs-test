@@ -10,7 +10,7 @@
 #include "operators/GCTimeOfFlight.hpp"
 #include "utils/GCTypes.hpp"
 
-class GCBinIterator;
+class BinIterator;
 class Image;
 class GCScanner;
 class IProjectionData;
@@ -19,13 +19,13 @@ class IHistogram;
 class GCOperatorProjectorParams
 {
 public:
-	GCOperatorProjectorParams(const GCBinIterator* p_binIter,
+	GCOperatorProjectorParams(const BinIterator* p_binIter,
 	                          const GCScanner* p_scanner,
 	                          float p_tofWidth_ps = 0.f, int p_tofNumStd = 0,
 	                          std::string p_psfProjFilename = "",
 	                          int p_num_rays = 1);
 
-	const GCBinIterator* binIter;
+	const BinIterator* binIter;
 	const GCScanner* scanner;
 
 	// Time of Flight
@@ -55,13 +55,13 @@ public:
 	GCOperatorProjectorBase(const GCOperatorProjectorParams& p_projParams);
 
 	const GCScanner* getScanner() const;
-	const GCBinIterator* getBinIter() const;
+	const BinIterator* getBinIter() const;
 
 	virtual void setAttImage(const Image* p_attImage);  // alias
 	virtual void setAttImageForBackprojection(const Image* p_attImage);
 	void setAttenuationImage(const Image* p_attImage);
 	virtual void setAddHisto(const IHistogram* p_addHisto);
-	void setBinIter(const GCBinIterator* p_binIter);
+	void setBinIter(const BinIterator* p_binIter);
 
 	const Image* getAttImage() const;
 	const Image* getAttImageForBackprojection() const;
@@ -69,7 +69,7 @@ public:
 
 protected:
 	// Bin iterator
-	const GCBinIterator* binIter;
+	const BinIterator* binIter;
 
 	// To take scanner properties into account
 	const GCScanner* scanner;

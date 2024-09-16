@@ -25,7 +25,7 @@ public:
 	// already been generated
 	GCProjectionDataDevice(const GCScanner* pp_scanner,
 	                       const IProjectionData* pp_reference,
-	                       std::vector<const GCBinIterator*> pp_binIteratorList,
+	                       std::vector<const BinIterator*> pp_binIteratorList,
 	                       float shareOfMemoryToUse = DefaultMemoryShare);
 	// The Scanner LUT has to be loaded to device AND the BinIterators have to
 	// be generated
@@ -49,7 +49,7 @@ public:
 	// no need to generate the BinIterators
 	GCProjectionDataDevice(std::shared_ptr<GCLORsDevice> pp_LORs,
 	                       const IProjectionData* pp_reference,
-	                       std::vector<const GCBinIterator*> pp_binIteratorList,
+	                       std::vector<const BinIterator*> pp_binIteratorList,
 	                       float shareOfMemoryToUse = DefaultMemoryShare);
 	// Proxy for the above
 	GCProjectionDataDevice(const GCProjectionDataDevice* orig);
@@ -92,9 +92,9 @@ public:
 	void clearProjections(float value, const cudaStream_t* stream);
 	void clearProjections(const cudaStream_t* stream = nullptr);
 	void divideMeasurements(const IProjectionData* measurements,
-	                        const GCBinIterator* binIter) override;
+	                        const BinIterator* binIter) override;
 	void divideMeasurements(const IProjectionData* measurements,
-	                        const GCBinIterator* binIter,
+	                        const BinIterator* binIter,
 	                        const cudaStream_t* stream);
 	void addProjValues(const GCProjectionDataDevice* projValues,
 	                   const cudaStream_t* stream);
@@ -118,7 +118,7 @@ protected:
 
 	// We need all the BinIterators in order to be able to properly load the
 	// data from Host to device (and vice-verse)
-	std::vector<const GCBinIterator*> mp_binIteratorList;
+	std::vector<const BinIterator*> mp_binIteratorList;
 
 private:
 	void createBinIterators(int num_OSEM_subsets);
@@ -130,7 +130,7 @@ private:
 	std::vector<GCGPUBatchSetup> m_batchSetups;  // One batch setup per subset
 
 	// In case we need to compute our own BinIterators
-	std::vector<std::unique_ptr<GCBinIterator>> m_binIterators;
+	std::vector<std::unique_ptr<BinIterator>> m_binIterators;
 };
 
 class GCProjectionDataDeviceOwned : public GCProjectionDataDevice
@@ -138,7 +138,7 @@ class GCProjectionDataDeviceOwned : public GCProjectionDataDevice
 public:
 	GCProjectionDataDeviceOwned(
 	    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
-	    std::vector<const GCBinIterator*> pp_binIteratorList,
+	    std::vector<const BinIterator*> pp_binIteratorList,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
 	GCProjectionDataDeviceOwned(const GCScanner* pp_scanner,
 	                            const IProjectionData* pp_reference,
@@ -155,7 +155,7 @@ public:
 	GCProjectionDataDeviceOwned(
 	    std::shared_ptr<GCLORsDevice> pp_LORs,
 	    const IProjectionData* pp_reference,
-	    std::vector<const GCBinIterator*> pp_binIteratorList,
+	    std::vector<const BinIterator*> pp_binIteratorList,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
 	GCProjectionDataDeviceOwned(const GCProjectionDataDevice* orig);
 
@@ -180,7 +180,7 @@ class GCProjectionDataDeviceAlias : public GCProjectionDataDevice
 public:
 	GCProjectionDataDeviceAlias(
 	    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
-	    std::vector<const GCBinIterator*> pp_binIteratorList,
+	    std::vector<const BinIterator*> pp_binIteratorList,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
 	GCProjectionDataDeviceAlias(const GCScanner* pp_scanner,
 	                            const IProjectionData* pp_reference,
@@ -197,7 +197,7 @@ public:
 	GCProjectionDataDeviceAlias(
 	    std::shared_ptr<GCLORsDevice> pp_LORs,
 	    const IProjectionData* pp_reference,
-	    std::vector<const GCBinIterator*> pp_binIteratorList,
+	    std::vector<const BinIterator*> pp_binIteratorList,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
 	GCProjectionDataDeviceAlias(const GCProjectionDataDevice* orig);
 

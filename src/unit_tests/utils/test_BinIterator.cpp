@@ -8,9 +8,9 @@
 #include <iostream>
 #include <vector>
 
-#include "datastruct/projection/GCBinIterator.hpp"
+#include "datastruct/projection/BinIterator.hpp"
 
-bool test_iter(GCBinIterator* iter, size_t begin, size_t second, size_t end_t)
+bool test_iter(BinIterator* iter, size_t begin, size_t second, size_t end_t)
 {
 	if (iter->size() == 1)
 	{
@@ -34,7 +34,7 @@ TEST_CASE("gcbiniterator_range", "[iterator]")
 		{
 			end_t += stride;
 		}
-		auto iter = GCBinIteratorRange(begin, end, stride);
+		auto iter = BinIteratorRange(begin, end, stride);
 		REQUIRE(test_iter(&iter, begin, begin + stride, end_t));
 	}
 
@@ -44,7 +44,7 @@ TEST_CASE("gcbiniterator_range", "[iterator]")
 		size_t stride = 1 + rand() % 20;
 		size_t end = begin + stride - 1;
 		size_t end_t = begin;
-		auto iter = GCBinIteratorRange(begin, end, stride);
+		auto iter = BinIteratorRange(begin, end, stride);
 		REQUIRE(test_iter(&iter, begin, begin + stride, end_t));
 		REQUIRE(iter.size() == 1);
 	}
@@ -59,7 +59,7 @@ TEST_CASE("gcbiniterator_range", "[iterator]")
 		{
 			end_t += stride;
 		}
-		auto iter = GCBinIteratorRange(begin, end, stride);
+		auto iter = BinIteratorRange(begin, end, stride);
 		REQUIRE(test_iter(&iter, begin, begin + stride, end_t));
 	}
 }
@@ -70,7 +70,7 @@ TEST_CASE("gcbiniterator_vector", "[iterator]")
 	{
 		std::vector<size_t> vec{1, 2, 3, 4, 5};
 		auto vec_ptr = std::make_unique<std::vector<size_t>>(vec);
-		auto iter = GCBinIteratorVector(vec_ptr);
+		auto iter = BinIteratorVector(vec_ptr);
 		REQUIRE(test_iter(&iter, 1, 2, 5));
 		REQUIRE(iter.size() == 5);
 	}
@@ -84,7 +84,7 @@ TEST_CASE("gcbiniterator_chronological", "[iterator]")
 	{
 		size_t idxSubset = 0;
 		auto iter =
-		    GCBinIteratorChronological(numSubsets, numEvents, idxSubset);
+		    BinIteratorChronological(numSubsets, numEvents, idxSubset);
 		REQUIRE(test_iter(&iter, 0, 1, 3));
 		REQUIRE(iter.size() == 4);
 	}
@@ -92,7 +92,7 @@ TEST_CASE("gcbiniterator_chronological", "[iterator]")
 	{
 		size_t idxSubset = numSubsets - 1;
 		auto iter =
-		    GCBinIteratorChronological(numSubsets, numEvents, idxSubset);
+		    BinIteratorChronological(numSubsets, numEvents, idxSubset);
 		REQUIRE(test_iter(&iter, 8, 9, 12));
 		REQUIRE(iter.size() == 5);
 	}
@@ -102,10 +102,10 @@ TEST_CASE("gcbiniterator_chronological", "[iterator]")
 		size_t numEvents = 12;
 		size_t idxSubset = numSubsets - 1;
 		auto iter =
-		    GCBinIteratorChronological(numSubsets, numEvents, idxSubset);
+		    BinIteratorChronological(numSubsets, numEvents, idxSubset);
 		REQUIRE(test_iter(&iter, 8, 9, 11));
 		REQUIRE(iter.size() == 4);
 	}
 }
 
-// TODO: Add a unit test for GCBinIteratorRange3D
+// TODO: Add a unit test for BinIteratorRange3D

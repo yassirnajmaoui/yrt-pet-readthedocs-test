@@ -33,7 +33,7 @@ GCLORsDevice::GCLORsDevice(const GCScanner* pp_scanner)
 	initializeDeviceArrays();
 }
 
-void GCLORsDevice::loadEventLORs(const GCBinIterator& binIter,
+void GCLORsDevice::loadEventLORs(const BinIterator& binIter,
                                  const GCGPUBatchSetup& batchSetup,
                                  size_t subsetId, size_t batchId,
                                  const IProjectionData& reference,
