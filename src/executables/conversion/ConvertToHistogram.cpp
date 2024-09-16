@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "../GCPluginOptionsHelper.hpp"
+#include "../PluginOptionsHelper.hpp"
 #include "datastruct/GCIO.hpp"
 #include "datastruct/projection/GCHistogram3D.hpp"
 #include "datastruct/projection/GCSparseHistogram.hpp"
