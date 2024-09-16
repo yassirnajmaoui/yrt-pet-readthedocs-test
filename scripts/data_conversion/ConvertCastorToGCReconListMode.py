@@ -1,5 +1,5 @@
 #!/bin/env python
-"""This script converts castor list mode data to GCRecon format
+"""This script converts castor list mode data to YRT-PET format
 
 When no TOF information is present in the castor list mode this script simply
 converts <uint32><uint32><uint32> to <float32><uint32><uint32>
@@ -34,7 +34,7 @@ def parse_header(fname):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Converts a CASToR ListMode file (uint32-uint32-uint32) ' +
-        'to a GCRecon ListMode file (float32-uint32-uint32)')
+        'to a YRT-PET ListMode file (float32-uint32-uint32)')
     parser.add_argument('-i', '--input', dest='input_file', type=str,
                         required=True, nargs='+',
                         help='Input list-mode file name for Castor (.Cdh)')

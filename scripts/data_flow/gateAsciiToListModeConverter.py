@@ -25,7 +25,7 @@ def convertGateDetIdToCastorDetId(_eventGateDetId, _sortProjDetId=True):
     return eventCastorDetId
 
 if __name__=='__main__':
-    parser = argparse.ArgumentParser(description='Convert the ASCII output of a Gate file to a a GCRecon-compatible ListMode file. (Works only for SAVANT or UHR)')
+    parser = argparse.ArgumentParser(description='Convert the ASCII output of a Gate file to a a YRT-PET-compatible ListMode file. (Works only for SAVANT or UHR)')
     parser.add_argument('-i', dest='inputFile', type=str, required=True, help='Path to the ASCII file.')
     parser.add_argument('-o', dest='outputFile', type=str, required=True, help='Path to the output ListMode file.')
     args = parser.parse_args()

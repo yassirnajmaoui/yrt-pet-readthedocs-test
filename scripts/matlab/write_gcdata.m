@@ -1,5 +1,5 @@
 function write_gcdata(data, fname, precision, flag_legacy)
-%Write binary data from file in GCRecon format
+%Write binary data from file in YRT-PET format
 %
 % function write_gcdata(data, fname, flag_legacy)
 %

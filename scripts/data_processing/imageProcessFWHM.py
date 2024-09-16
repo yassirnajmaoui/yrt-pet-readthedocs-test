@@ -62,7 +62,7 @@ def fit_img_fixed(img: np.ndarray, *args):
 
 if(__name__ == "__main__"):
     parser = argparse.ArgumentParser(description='Data processing')
-    parser.add_argument('--image', type=str, nargs='+', required=True, help='GCRecon image file(s)')
+    parser.add_argument('--image', type=str, nargs='+', required=True, help='YRT-PET image file(s)')
     parser.add_argument('--slice_list', type=str, required=True, help='CSV file of the list of slices to consider')
     parser.add_argument('--crop_box_list', type=str, required=True, help='CSV file of the list of crop-boxes')
     parser.add_argument('--res_full', type=str, required=False, help='res_full.npy file if already computed')

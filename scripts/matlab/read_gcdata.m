@@ -1,5 +1,5 @@
 function data = read_gcdata(fname, precision, flag_legacy, dims)
-%Read binary data from file in GCRecon format
+%Read binary data from file in YRT-PET format
 %
 % function read_gcdata(fname, precision, flag_legacy, dims)
 %

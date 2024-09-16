@@ -10,7 +10,7 @@ be found in the [wiki](https://gitlab.partners.org/gcmisavant/highrespetrecon/wi
 ### MLEM
 
 ```
-GCRecon reconstruction driver
+YRT-PET reconstruction driver
 Usage:
   yrtpet_reconstruct [OPTION...]
 
@@ -87,15 +87,15 @@ Note that all binary formats are in little endian.
 
 ### Utilities
 
-Helper functions to read/write data for GCRecon can be found under the `utils`
+Helper functions to read/write data for YRT-PET can be found under the `utils`
 folder (MATLAB and Python versions are available in the `scripts` folder).
 Most binary files are either raw binary files without header (legacy mode)
-or follow the GCRecon raw data format.
+or follow the YRT-PET raw data format.
 
-### GCRecon raw data format
-The GCRecon format is defined as follows:
+### YRT-PET raw data format
+The YRT-PET format is defined as follows:
 
-    MAGIC NUMBER (int32): 732174000 in decimal, used to detect GCRecon file type
+    MAGIC NUMBER (int32): 732174000 in decimal, used to detect YRT-PET file type
     Number of dimensions D (int32)
     Dimension 0 (int64)
     ...
@@ -164,7 +164,7 @@ The file extension used is `.lut`.
 
 ### Image (`GCImage`)
 
-Images are stored in GCRecon raw data format (i.e. with the header described
+Images are stored in YRT-PET raw data format (i.e. with the header described
 [earlier](#yrt-pet_raw_data_format)).  Images are currently stored as
 `float64` although this is likely to change in the future.
 The file extension used is `.img`.
@@ -182,7 +182,7 @@ The file extension used is `.lmDat`.
 
 ### Histogram (`GCHistogram3D`)
 
-Histograms are in GCRecon raw data format (described earlier). They are stored as `float32`. The histogram's dimensions are defined by the scanner properties defined in the `json` file decribed earlier.
+Histograms are in YRT-PET raw data format (described earlier). They are stored as `float32`. The histogram's dimensions are defined by the scanner properties defined in the `json` file decribed earlier.
 The file extension used is `.his`.
 
 ### Image parameters file
@@ -253,7 +253,7 @@ To start working on the code,
 
 This section will contain guidelines for writing code, once agreed upon by the
 members of the team.  As a starting point `clang-format` is used with a
-configuration file stored in the repository at `recon_engine/GCRecon/.clang-format`
+configuration file stored in the repository at `src/.clang-format`
 
 ## Testing
 

@@ -9,7 +9,7 @@ import tqdm
 # %% Main function
 
 def make_lut_from_LUTExplorer(fname):
-    """Read detector positions into LUT for GCRecon"""
+    """Read detector positions into LUT for YRT-PET"""
     lut_raw = [s.strip() for s in tqdm.tqdm(open(fname, 'rt').readlines(),
                                             desc='Read input')
                if s.strip()]
@@ -33,7 +33,7 @@ def make_lut_from_LUTExplorer(fname):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='LUT generation script for GCRecon')
+        description='LUT generation script for YRT-PET')
     parser.add_argument('-i', '--input', dest='input_file', type=str,
                         required=True,
                         description='Input file (output of ' +
