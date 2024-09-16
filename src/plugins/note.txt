@@ -1,0 +1,3 @@
+Add or "ln -s" your plugins here.
+
+Make sure you have a CMakeLists.txt file inside

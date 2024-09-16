@@ -1,0 +1,12 @@
+*__pycache__*
+*~
+*.patch
+GPATH
+GRTAGS
+GTAGS
+/.idea/
+/.vscode/
+.DS_Store
+.*cache/
+compile_commands.json
+/build*/

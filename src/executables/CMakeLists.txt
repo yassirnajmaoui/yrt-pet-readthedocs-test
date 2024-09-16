@@ -1,0 +1,14 @@
+project(executables)
+
+define_target_exe(yrtpet_post_recon_motion_correction motion/PostReconMotionCorrection.cpp)
+
+define_target_exe(yrtpet_reconstruct recon/GCReconstruct.cpp GCPluginOptionsHelper.cpp)
+define_target_exe(yrtpet_forward_project recon/GCForwardProject.cpp)
+
+define_target_exe(yrtpet_convert_to_histogram conversion/GCConvertToHistogram.cpp GCPluginOptionsHelper.cpp)
+define_target_exe(yrtpet_cumulate_histograms conversion/GCCumulateHistograms.cpp GCPluginOptionsHelper.cpp)
+define_target_exe(yrtpet_histogram_to_listmode conversion/GCHistogram3DToListMode.cpp)
+
+define_target_exe(yrtpet_estimate_scatter scatter/GCEstimateScatter.cpp)
+
+define_target_exe(yrtpet_build_k kernel/GCBuildK.cpp)

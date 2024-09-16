@@ -1,0 +1,888 @@
+/*
+ * This file is subject to the terms and conditions defined in
+ * file 'LICENSE.txt', which is part of this source code package.
+ */
+
+#include "datastruct/image/GCImage.hpp"
+#include "datastruct/image/GCImageBase.hpp"
+#include "utils/GCAssert.hpp"
+
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <vector>
+
+#if BUILD_PYBIND11
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
+
+void py_setup_gcimage(py::module& m)
+{
+	auto c =
+	    py::class_<GCImage, GCImageBase>(m, "GCImage", py::buffer_protocol());
+	c.def("setValue", &GCImage::setValue);
+	c.def_buffer(
+	    [](GCImage& img) -> py::buffer_info
+	    {
+		    Array3DBase<double>& d = img.getData();
+		    return py::buffer_info(d.GetRawPointer(), sizeof(double),
+		                           py::format_descriptor<double>::format(), 3,
+		                           d.GetDims(), d.GetStrides());
+	    });
+	c.def("copyFromImage", &GCImage::copyFromImage);
+	c.def("multWithScalar", &GCImage::multWithScalar);
+	c.def("addFirstImageToSecond", &GCImage::addFirstImageToSecond);
+	c.def("applyThreshold", &GCImage::applyThreshold, py::arg("maskImage"),
+	      py::arg("threshold"), py::arg("val_le_scale"), py::arg("val_le_off"),
+	      py::arg("val_gt_scale"), py::arg("val_gt_off"));
+	c.def("updateEMThreshold", &GCImage::updateEMThreshold);
+	c.def("dot_product", &GCImage::dot_product);
+	c.def("getRadius", &GCImage::getRadius);
+	c.def("getParams", &GCImage::getParams);
+	c.def("interpol_image", &GCImage::interpol_image);
+	c.def("interpol_image2", &GCImage::interpol_image2);
+	c.def("nearest_neigh", &GCImage::nearest_neigh, py::arg("pt"));
+	c.def(
+	    "nearest_neigh2",
+	    [](const GCImage& img, const GCVector& pt) -> py::tuple
+	    {
+		    int pi, pj, pk;
+		    double val = img.nearest_neigh2(pt, &pi, &pj, &pk);
+		    return py::make_tuple(val, pi, pj, pk);
+	    },
+	    py::arg("pt"));
+	c.def(
+	    "get_nearest_neigh_idx",
+	    [](const GCImage& img, const GCVector& pt) -> py::tuple
+	    {
+		    int pi, pj, pk;
+		    img.get_nearest_neigh_idx(pt, &pi, &pj, &pk);
+		    return py::make_tuple(pi, pj, pk);
+	    },
+	    py::arg("pt"));
+	c.def("transformImage", &GCImage::transformImage, py::arg("rotation"),
+	      py::arg("translation"));
+	c.def("update_image_nearest_neigh", &GCImage::update_image_nearest_neigh);
+	c.def("assign_image_nearest_neigh", &GCImage::assign_image_nearest_neigh);
+	c.def("update_image_inter", &GCImage::update_image_inter, py::arg("pt"),
+	      py::arg("value"), py::arg("mult_flag") = false);
+	c.def("assign_image_inter", &GCImage::assign_image_inter, py::arg("pt"),
+	      py::arg("value"));
+	c.def("writeToFile", &GCImage::writeToFile);
+
+	auto c_alias = py::class_<GCImageAlias, GCImage>(m, "GCImageAlias");
+	c_alias.def(py::init<const GCImageParams&>());
+	c_alias.def(
+	    "Bind",
+	    [](GCImageAlias& self, py::buffer& np_data)
+	    {
+		    py::buffer_info buffer = np_data.request();
+		    if (buffer.ndim != 3)
+		    {
+			    throw std::invalid_argument(
+			        "The buffer given has to have 3 dimensions");
+		    }
+		    if (buffer.format != py::format_descriptor<double>::format())
+		    {
+			    throw std::invalid_argument(
+			        "The buffer given has to have a float64 format");
+		    }
+		    std::vector<int> dims = {self.getParams().nz, self.getParams().ny,
+		                             self.getParams().nx};
+		    for (int i = 0; i < 3; i++)
+		    {
+			    if (buffer.shape[i] != dims[i])
+			    {
+				    throw std::invalid_argument(
+				        "The buffer shape does not match with the image "
+				        "parameters");
+			    }
+		    }
+		    static_cast<Array3DAlias<double>&>(self.getData())
+		        .Bind(reinterpret_cast<double*>(buffer.ptr), dims[0], dims[1],
+		              dims[2]);
+	    });
+
+	auto c_owned = py::class_<GCImageOwned, GCImage>(m, "GCImageOwned");
+	c_owned.def(py::init<const GCImageParams&>());
+	c_owned.def(py::init<const GCImageParams&, std::string>());
+	c_owned.def("allocate", &GCImageOwned::allocate);
+	c_owned.def("readFromFile", &GCImageOwned::readFromFile);
+}
+
+#endif  // if BUILD_PYBIND11
+
+
+GCImage::GCImage(const GCImageParams& img_params) : GCImageBase(img_params) {}
+
+void GCImage::setValue(double initValue)
+{
+	m_dataPtr->Fill(initValue);
+}
+
+void GCImage::copyFromImage(const GCImage* imSrc)
+{
+	ASSERT(m_dataPtr != nullptr);
+	m_dataPtr->Copy(imSrc->getData());
+	setParams(imSrc->getParams());
+}
+
+Array3DBase<double>& GCImage::getData()
+{
+	return *m_dataPtr;
+}
+
+const Array3DBase<double>& GCImage::getData() const
+{
+	return *m_dataPtr;
+}
+
+void GCImage::addFirstImageToSecond(GCImageBase* second) const
+{
+	auto* second_GCImage = dynamic_cast<GCImage*>(second);
+
+	ASSERT(second_GCImage != nullptr);
+	ASSERT_MSG(second->getParams().isSameDimensionsAs(getParams()),
+	           "The two images do not share the same image space");
+
+	second_GCImage->getData() += *m_dataPtr;
+}
+
+void GCImage::multWithScalar(double scalar)
+{
+	*m_dataPtr *= scalar;
+}
+
+// interpolation operation. It does not account for the offset values.
+double GCImage::interpol_image(GCVector pt)
+{
+	double x = pt.x;
+	double y = pt.y;
+	double z = pt.z;
+	// if point outside of the image, return 0:
+	if ((fabs(x) >= (getParams().length_x / 2)) ||
+	    (fabs(y) >= (getParams().length_y / 2)) ||
+	    (fabs(z) >= (getParams().length_z / 2)))
+	{
+		return 0.0;
+	}
+	double dx = (x + getParams().length_x / 2) / getParams().length_x *
+	            ((double)getParams().nx);
+	double dy = (y + getParams().length_y / 2) / getParams().length_y *
+	            ((double)getParams().ny);
+	double dz = (z + getParams().length_z / 2) / getParams().length_z *
+	            ((double)getParams().nz);
+
+	int ix = (int)dx;
+	int iy = (int)dy;
+	int iz = (int)dz;
+
+	double delta_x = dx - (double)ix;
+	double delta_y = dy - (double)iy;
+	double delta_z = dz - (double)iz;
+
+	// parameters of the x interpolation:
+	int ix1, ix2, iy1, iy2, iz1, iz2;
+	double dx1, dy1, dz1;
+	if (delta_x < 0.5)
+	{
+		ix1 = ix;
+		dx1 = 0.5 - delta_x;
+		if (ix != 0)
+			ix2 = ix - 1;
+		else
+			ix2 = ix1;
+	}
+	else
+	{
+		ix1 = ix;
+		dx1 = delta_x - 0.5;
+		if (ix != (getParams().nx - 1))
+			ix2 = ix + 1;
+		else
+			ix2 = ix1;
+	}
+	// parameters of the y interpolation:
+	if (delta_y < 0.5)
+	{
+		iy1 = iy;
+		dy1 = 0.5 - delta_y;
+		if (iy != 0)
+			iy2 = iy - 1;
+		else
+			iy2 = iy1;
+	}
+	else
+	{
+		iy1 = iy;
+		dy1 = delta_y - 0.5;
+		if (iy != (getParams().ny - 1))
+			iy2 = iy + 1;
+		else
+			iy2 = iy1;
+	}
+	// parameters of the z interpolation:
+	if (delta_z < 0.5)
+	{
+		iz1 = iz;
+		dz1 = 0.5 - delta_z;
+		if (iz != 0)
+			iz2 = iz - 1;
+		else
+			iz2 = iz1;
+	}
+	else
+	{
+		iz1 = iz;
+		dz1 = delta_z - 0.5;
+		if (iz != (getParams().nz - 1))
+			iz2 = iz + 1;
+		else
+			iz2 = iz1;
+	}
+	// interpolate in z:
+	double* ptr = m_dataPtr->GetRawPointer();
+	size_t num_x = getParams().nx;
+	size_t num_xy = getParams().nx * getParams().ny;
+	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
+	double* ptr_12 = ptr + iz1 * num_xy + iy2 * num_x;
+	double* ptr_21 = ptr + iz2 * num_xy + iy1 * num_x;
+	double* ptr_22 = ptr + iz2 * num_xy + iy2 * num_x;
+	double v1 = ptr_11[ix1] * (1 - dz1) + ptr_21[ix1] * dz1;
+	double v2 = ptr_12[ix1] * (1 - dz1) + ptr_22[ix1] * dz1;
+	double v3 = ptr_11[ix2] * (1 - dz1) + ptr_21[ix2] * dz1;
+	double v4 = ptr_12[ix2] * (1 - dz1) + ptr_22[ix2] * dz1;
+	// interpolate in y:
+	double vv1 = v1 * (1 - dy1) + v2 * dy1;
+	double vv2 = v3 * (1 - dy1) + v4 * dy1;
+	// interpolate in the x direction:
+	double vvv = vv1 * (1 - dx1) + vv2 * dx1;
+
+	return vvv;
+}
+
+
+// calculate the value of a point on the image matrix
+// using tri-linear interpolation and weighting with image "sens":
+double GCImage::interpol_image2(GCVector pt, GCImage* sens)
+{
+
+	double x = pt.x;
+	double y = pt.y;
+	double z = pt.z;
+
+	// if point outside of the image, return 0:
+	if ((fabs(x) >= (getParams().length_x / 2)) ||
+	    (fabs(y) >= (getParams().length_y / 2)) ||
+	    (fabs(z) >= (getParams().length_z / 2)))
+	{
+		return 0.;
+	}
+
+	double dx = (x + getParams().length_x / 2) / getParams().length_x *
+	            ((double)getParams().nx);
+	double dy = (y + getParams().length_y / 2) / getParams().length_y *
+	            ((double)getParams().ny);
+	double dz = (z + getParams().length_z / 2) / getParams().length_z *
+	            ((double)getParams().nz);
+
+	int ix = (int)dx;
+	int iy = (int)dy;
+	int iz = (int)dz;
+
+	double delta_x = dx - (double)ix;
+	double delta_y = dy - (double)iy;
+	double delta_z = dz - (double)iz;
+
+	// parameters of the x interpolation:
+	int ix1, ix2, iy1, iy2, iz1, iz2;
+	double dx1, dy1, dz1;
+	if (delta_x < 0.5)
+	{
+		ix1 = ix;
+		dx1 = 0.5 - delta_x;
+		if (ix != 0)
+			ix2 = ix - 1;
+		else
+			ix2 = ix1;
+	}
+	else
+	{
+		ix1 = ix;
+		dx1 = delta_x - 0.5;
+		if (ix != (getParams().nx - 1))
+			ix2 = ix + 1;
+		else
+			ix2 = ix1;
+	}
+	// parameters of the y interpolation:
+	if (delta_y < 0.5)
+	{
+		iy1 = iy;
+		dy1 = 0.5 - delta_y;
+		if (iy != 0)
+			iy2 = iy - 1;
+		else
+			iy2 = iy1;
+	}
+	else
+	{
+		iy1 = iy;
+		dy1 = delta_y - 0.5;
+		if (iy != (getParams().ny - 1))
+			iy2 = iy + 1;
+		else
+			iy2 = iy1;
+	}
+	// parameters of the z interpolation:
+	if (delta_z < 0.5)
+	{
+		iz1 = iz;
+		dz1 = 0.5 - delta_z;
+		if (iz != 0)
+			iz2 = iz - 1;
+		else
+			iz2 = iz1;
+	}
+	else
+	{
+		iz1 = iz;
+		dz1 = delta_z - 0.5;
+		if (iz != (getParams().nz - 1))
+			iz2 = iz + 1;
+		else
+			iz2 = iz1;
+	}
+	// interpolate in z:
+	double* ptr = m_dataPtr->GetRawPointer();
+	double* sptr = sens->getData().GetRawPointer();
+	size_t num_x = getParams().nx;
+	size_t num_xy = getParams().nx * getParams().ny;
+	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
+	double* ptr_21 = ptr + iz2 * num_xy + iy1 * num_x;
+	double* ptr_12 = ptr + iz1 * num_xy + iy2 * num_x;
+	double* ptr_22 = ptr + iz2 * num_xy + iy2 * num_x;
+	double* sptr_11 = sptr + iz1 * num_xy + iy1 * num_x;
+	double* sptr_21 = sptr + iz2 * num_xy + iy1 * num_x;
+	double* sptr_12 = sptr + iz1 * num_xy + iy2 * num_x;
+	double* sptr_22 = sptr + iz2 * num_xy + iy2 * num_x;
+	double v1 = ptr_11[ix1] * sptr_11[ix1] * (1 - dz1) +
+	            ptr_21[ix1] * sptr_21[ix1] * dz1;
+	double v2 = ptr_12[ix1] * sptr_12[ix1] * (1 - dz1) +
+	            ptr_22[ix1] * sptr_22[ix1] * dz1;
+	double v3 = ptr_11[ix2] * sptr_11[ix2] * (1 - dz1) +
+	            ptr_21[ix2] * sptr_21[ix2] * dz1;
+	double v4 = ptr_12[ix2] * sptr_12[ix2] * (1 - dz1) +
+	            ptr_22[ix2] * sptr_22[ix2] * dz1;
+	// interpolate in y:
+	double vv1 = v1 * (1 - dy1) + v2 * dy1;
+	double vv2 = v3 * (1 - dy1) + v4 * dy1;
+	// interpolate in the x direction:
+	double vvv = vv1 * (1 - dx1) + vv2 * dx1;
+
+	return vvv;
+}
+
+// return the value of the voxel the nearest to "point":
+double GCImage::nearest_neigh(const GCVector& pt) const
+{
+	int ix, iy, iz;
+
+	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
+	{
+		const size_t num_x = getParams().nx;
+		const size_t num_xy = getParams().nx * getParams().ny;
+		return m_dataPtr->get_flat(iz * num_xy + iy * num_x + ix);
+	}
+	return 0;
+}
+
+// return the value of the voxel the nearest to "point":
+double GCImage::nearest_neigh2(const GCVector& pt, int* pi, int* pj,
+                               int* pk) const
+{
+	if (get_nearest_neigh_idx(pt, pi, pj, pk))
+	{
+		const size_t num_x = getParams().nx;
+		const size_t num_xy = getParams().nx * getParams().ny;
+		return m_dataPtr->get_flat(*pk * num_xy + *pj * num_x + *pi);
+	}
+	return 0.0;
+}
+
+
+// update image with "value" using nearest neighbor method:
+void GCImage::update_image_nearest_neigh(const GCVector& pt, double value,
+                                         bool mult_flag)
+{
+	int ix, iy, iz;
+	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
+	{
+		// update multiplicatively or additively:
+		double* ptr = m_dataPtr->GetRawPointer();
+		const size_t num_x = getParams().nx;
+		const size_t num_xy = getParams().nx * getParams().ny;
+		const size_t idx = iz * num_xy + iy * num_x + ix;
+		if (mult_flag)
+		{
+			ptr[idx] *= value;
+		}
+		else
+		{
+			ptr[idx] += value;
+		}
+	}
+}
+
+// assign image with "value" using nearest neighbor method:
+void GCImage::assign_image_nearest_neigh(const GCVector& pt, double value)
+{
+	int ix, iy, iz;
+	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
+	{
+		// update multiplicatively or additively:
+		double* ptr = m_dataPtr->GetRawPointer();
+		const size_t num_x = getParams().nx;
+		const size_t num_xy = getParams().nx * getParams().ny;
+		ptr[iz * num_xy + iy * num_x + ix] = value;
+	}
+}
+
+bool GCImage::get_nearest_neigh_idx(const GCVector& pt, int* pi, int* pj,
+                                    int* pk) const
+{
+	const double x = pt.x;
+	const double y = pt.y;
+	const double z = pt.z;
+	const GCImageParams& params = getParams();
+
+	// if point is outside of the grid, return false
+	if ((fabs(x) >= (params.length_x / 2.0)) ||
+	    (fabs(y) >= (params.length_y / 2.0)) ||
+	    (fabs(z) >= (params.length_z / 2.0)))
+	{
+		return false;
+	}
+
+	const double dx = (x + params.length_x / 2.0) /
+	                  params.length_x * static_cast<double>(params.nx);
+	const double dy = (y + params.length_y / 2.0) /
+	                  params.length_y * static_cast<double>(params.ny);
+	const double dz = (z + params.length_z / 2.0) /
+	                  params.length_z * static_cast<double>(params.nz);
+
+	const int ix = static_cast<int>(dx);
+	const int iy = static_cast<int>(dy);
+	const int iz = static_cast<int>(dz);
+
+	*pi = ix;
+	*pj = iy;
+	*pk = iz;
+
+	return true;
+}
+
+// update image with "value" using trilinear interpolation:
+void GCImage::update_image_inter(GCVector point, double value, bool mult_flag)
+{
+	double x = point.x;
+	double y = point.y;
+	double z = point.z;
+
+	// if point is outside of the grid do nothing:
+	if ((fabs(x) >= (getParams().length_x / 2)) ||
+	    (fabs(y) >= (getParams().length_y / 2)) ||
+	    (fabs(z) >= (getParams().length_z / 2)))
+	{
+		return;
+	}
+
+	double dx = (x + getParams().length_x / 2) / getParams().length_x *
+	            ((double)getParams().nx);
+	double dy = (y + getParams().length_y / 2) / getParams().length_y *
+	            ((double)getParams().ny);
+	double dz = (z + getParams().length_z / 2) / getParams().length_z *
+	            ((double)getParams().nz);
+
+	int ix = (int)dx;
+	int iy = (int)dy;
+	int iz = (int)dz;
+
+	double delta_x = dx - (double)ix;
+	double delta_y = dy - (double)iy;
+	double delta_z = dz - (double)iz;
+
+	// parameters of the x interpolation:
+	int ix1, ix2, iy1, iy2, iz1, iz2;
+	double dx1, dy1, dz1;
+	if (delta_x < 0.5)
+	{
+		ix1 = ix;
+		dx1 = 0.5 - delta_x;
+		if (ix != 0)
+			ix2 = ix - 1;
+		else
+			ix2 = ix1;
+	}
+	else
+	{
+		ix1 = ix;
+		dx1 = delta_x - 0.5;
+		if (ix != (getParams().nx - 1))
+			ix2 = ix + 1;
+		else
+			ix2 = ix1;
+	}
+
+	// parameters of the y interpolation:
+	if (delta_y < 0.5)
+	{
+		iy1 = iy;
+		dy1 = 0.5 - delta_y;
+		if (iy != 0)
+			iy2 = iy - 1;
+		else
+			iy2 = iy1;
+	}
+	else
+	{
+		iy1 = iy;
+		dy1 = delta_y - 0.5;
+		if (iy != (getParams().ny - 1))
+			iy2 = iy + 1;
+		else
+			iy2 = iy1;
+	}
+
+	// parameters of the z interpolation:
+	if (delta_z < 0.5)
+	{
+		iz1 = iz;
+		dz1 = 0.5 - delta_z;
+		if (iz != 0)
+			iz2 = iz - 1;
+		else
+			iz2 = iz1;
+	}
+	else
+	{
+		iz1 = iz;
+		dz1 = delta_z - 0.5;
+		if (iz != (getParams().nz - 1))
+			iz2 = iz + 1;
+		else
+			iz2 = iz1;
+	}
+
+	// interpolate multiplicatively or additively:
+	double* ptr = m_dataPtr->GetRawPointer();
+	size_t num_x = getParams().nx;
+	size_t num_xy = getParams().nx * getParams().ny;
+	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
+	double* ptr_21 = ptr + iz2 * num_xy + iy1 * num_x;
+	double* ptr_12 = ptr + iz1 * num_xy + iy2 * num_x;
+	double* ptr_22 = ptr + iz2 * num_xy + iy2 * num_x;
+	if (mult_flag)
+	{
+		ptr_11[ix1] *= value * (1 - dz1) * (1 - dy1) * (1 - dx1);
+		ptr_21[ix1] *= value * dz1 * (1 - dy1) * (1 - dx1);
+		ptr_11[ix2] *= value * (1 - dz1) * (1 - dy1) * dx1;
+		ptr_21[ix2] *= value * dz1 * (1 - dy1) * dx1;
+		ptr_12[ix1] *= value * (1 - dz1) * dy1 * (1 - dx1);
+		ptr_22[ix1] *= value * dz1 * dy1 * (1 - dx1);
+		ptr_12[ix2] *= value * (1 - dz1) * dy1 * dx1;
+		ptr_22[ix2] *= value * dz1 * dy1 * dx1;
+	}
+	else
+	{
+		ptr_11[ix1] += value * (1 - dz1) * (1 - dy1) * (1 - dx1);
+		ptr_21[ix1] += value * dz1 * (1 - dy1) * (1 - dx1);
+		ptr_11[ix2] += value * (1 - dz1) * (1 - dy1) * dx1;
+		ptr_21[ix2] += value * dz1 * (1 - dy1) * dx1;
+		ptr_12[ix1] += value * (1 - dz1) * dy1 * (1 - dx1);
+		ptr_22[ix1] += value * dz1 * dy1 * (1 - dx1);
+		ptr_12[ix2] += value * (1 - dz1) * dy1 * dx1;
+		ptr_22[ix2] += value * dz1 * dy1 * dx1;
+	}
+}
+
+// assign image with "value" using trilinear interpolation:
+void GCImage::assign_image_inter(GCVector point, double value)
+{
+	double x = point.x;
+	double y = point.y;
+	double z = point.z;
+
+	// if point is outside of the grid do nothing:
+	if ((fabs(x) >= (getParams().length_x / 2)) ||
+	    (fabs(y) >= (getParams().length_y / 2)) ||
+	    (fabs(z) >= (getParams().length_z / 2)))
+	{
+		return;
+	}
+
+	double dx = (x + getParams().length_x / 2) / getParams().length_x *
+	            ((double)getParams().nx);
+	double dy = (y + getParams().length_y / 2) / getParams().length_y *
+	            ((double)getParams().ny);
+	double dz = (z + getParams().length_z / 2) / getParams().length_z *
+	            ((double)getParams().nz);
+
+	int ix = (int)dx;
+	int iy = (int)dy;
+	int iz = (int)dz;
+
+	double delta_x = dx - (double)ix;
+	double delta_y = dy - (double)iy;
+	double delta_z = dz - (double)iz;
+
+	// parameters of the x interpolation:
+	double dx1, dy1, dz1;
+	int ix1, ix2, iy1, iy2, iz1, iz2;
+	if (delta_x < 0.5)
+	{
+		ix1 = ix;
+		dx1 = 0.5 - delta_x;
+		if (ix != 0)
+			ix2 = ix - 1;
+		else
+			ix2 = ix1;
+	}
+	else
+	{
+		ix1 = ix;
+		dx1 = delta_x - 0.5;
+		if (ix != (getParams().nx - 1))
+			ix2 = ix + 1;
+		else
+			ix2 = ix1;
+	}
+
+	// parameters of the y interpolation:
+	if (delta_y < 0.5)
+	{
+		iy1 = iy;
+		dy1 = 0.5 - delta_y;
+		if (iy != 0)
+			iy2 = iy - 1;
+		else
+			iy2 = iy1;
+	}
+	else
+	{
+		iy1 = iy;
+		dy1 = delta_y - 0.5;
+		if (iy != (getParams().ny - 1))
+			iy2 = iy + 1;
+		else
+			iy2 = iy1;
+	}
+
+	// parameters of the z interpolation:
+	if (delta_z < 0.5)
+	{
+		iz1 = iz;
+		dz1 = 0.5 - delta_z;
+		if (iz != 0)
+			iz2 = iz - 1;
+		else
+			iz2 = iz1;
+	}
+	else
+	{
+		iz1 = iz;
+		dz1 = delta_z - 0.5;
+		if (iz != (getParams().nz - 1))
+			iz2 = iz + 1;
+		else
+			iz2 = iz1;
+	}
+
+	// assign:
+	double* ptr = m_dataPtr->GetRawPointer();
+	const size_t num_x = getParams().nx;
+	const size_t num_xy = getParams().nx * getParams().ny;
+	double* ptr_11 = ptr + iz1 * num_xy + iy1 * num_x;
+	double* ptr_21 = ptr + iz2 * num_xy + iy1 * num_x;
+	double* ptr_12 = ptr + iz1 * num_xy + iy2 * num_x;
+	double* ptr_22 = ptr + iz2 * num_xy + iy2 * num_x;
+	ptr_11[ix1] = value * (1 - dz1) * (1 - dy1) * (1 - dx1);
+	ptr_21[ix1] = value * dz1 * (1 - dy1) * (1 - dx1);
+	ptr_11[ix2] = value * (1 - dz1) * (1 - dy1) * dx1;
+	ptr_21[ix2] = value * dz1 * (1 - dy1) * dx1;
+	ptr_12[ix1] = value * (1 - dz1) * dy1 * (1 - dx1);
+	ptr_22[ix1] = value * dz1 * dy1 * (1 - dx1);
+	ptr_12[ix2] = value * (1 - dz1) * dy1 * dx1;
+	ptr_22[ix2] = value * dz1 * dy1 * dx1;
+}
+
+// this function writes "image" on disk @ "image_fname"
+void GCImage::writeToFile(const std::string& image_fname) const
+{
+	m_dataPtr->WriteToFile(image_fname);
+}
+
+
+// this function copy "image_file_name" to image:
+void GCImageOwned::readFromFile(const std::string& image_file_name)
+{
+	std::array<size_t, 3> dims{static_cast<size_t>(getParams().nz),
+	                           static_cast<size_t>(getParams().ny),
+	                           static_cast<size_t>(getParams().nx)};
+	m_dataPtr->readFromFile(image_file_name, dims);
+}
+
+void GCImage::applyThreshold(const GCImageBase* maskImg, double threshold,
+                             double val_le_scale, double val_le_off,
+                             double val_gt_scale, double val_gt_off)
+{
+	const GCImage* maskImg_GCImage = dynamic_cast<const GCImage*>(maskImg);
+	ASSERT_MSG(maskImg_GCImage != nullptr, "Input image has the wrong type");
+
+	double* ptr = m_dataPtr->GetRawPointer();
+	const double* mask_ptr = maskImg_GCImage->getData().GetRawPointer();
+	for (size_t k = 0; k < m_dataPtr->GetSizeTotal(); k++, ptr++, mask_ptr++)
+	{
+		if (*mask_ptr <= threshold)
+		{
+			*ptr = *ptr * val_le_scale + val_le_off;
+		}
+		else
+		{
+			*ptr = *ptr * val_gt_scale + val_gt_off;
+		}
+	}
+}
+
+void GCImage::updateEMThreshold(GCImageBase* updateImg,
+                                const GCImageBase* normImg, double threshold)
+{
+	GCImage* updateImg_GCImage = dynamic_cast<GCImage*>(updateImg);
+	const GCImage* normImg_GCImage = dynamic_cast<const GCImage*>(normImg);
+
+	ASSERT_MSG(updateImg_GCImage != nullptr, "Update image has the wrong type");
+	ASSERT_MSG(normImg_GCImage != nullptr, "Norm image has the wrong type");
+	ASSERT_MSG(normImg_GCImage->getParams().isSameAs(getParams()),
+	           "Image dimensions mismatch");
+	ASSERT_MSG(updateImg_GCImage->getParams().isSameAs(getParams()),
+	           "Image dimensions mismatch");
+
+	double* ptr = m_dataPtr->GetRawPointer();
+	double* up_ptr = updateImg_GCImage->getData().GetRawPointer();
+	const double* norm_ptr = normImg_GCImage->getData().GetRawPointer();
+
+	for (size_t k = 0; k < m_dataPtr->GetSizeTotal();
+	     k++, ptr++, up_ptr++, norm_ptr++)
+	{
+		if (*norm_ptr > threshold)
+		{
+			*ptr *= *up_ptr / *norm_ptr;
+		}
+	}
+}
+
+double GCImage::dot_product(GCImage* y) const
+{
+	double out = 0.0;
+	const double* x_ptr = m_dataPtr->GetRawPointer();
+	double* y_ptr = y->getData().GetRawPointer();
+	for (size_t k = 0; k < m_dataPtr->GetSizeTotal(); k++, x_ptr++, y_ptr++)
+	{
+		out += (*x_ptr) * (*y_ptr);
+	}
+	return out;
+}
+
+Array3DAlias<double> GCImage::getArray() const
+{
+	return {m_dataPtr.get()};
+}
+
+std::unique_ptr<GCImage>
+    GCImage::transformImage(const GCVector& rotation,
+                            const GCVector& translation) const
+{
+	GCImageParams params = getParams();
+	const double* rawPtr = getData().GetRawPointer();
+	const int num_xy = params.nx * params.ny;
+	auto newImg = std::make_unique<GCImageOwned>(params);
+	newImg->allocate();
+	newImg->setValue(0.0);
+	const double alpha = rotation.z;
+	const double beta = rotation.y;
+	const double gamma = rotation.x;
+	for (int i = 0; i < params.nz; i++)
+	{
+		const double z = static_cast<double>(i) * params.vz -
+		                 params.length_z / 2.0 + params.off_z + params.vz / 2.0;
+		for (int j = 0; j < params.ny; j++)
+		{
+			const double y = static_cast<double>(j) * params.vy -
+			                 params.length_y / 2.0 + params.off_y +
+			                 params.vy / 2.0;
+			for (int k = 0; k < params.nx; k++)
+			{
+				const double x = static_cast<double>(k) * params.vx -
+				                 params.length_x / 2.0 + params.off_x +
+				                 params.vx / 2.0;
+
+				double newX = x * cos(alpha) * cos(beta) +
+				              y * (-sin(alpha) * cos(gamma) +
+				                   sin(beta) * sin(gamma) * cos(alpha)) +
+				              z * (sin(alpha) * sin(gamma) +
+				                   sin(beta) * cos(alpha) * cos(gamma));
+				newX += translation.x;
+				double newY = x * sin(alpha) * cos(beta) +
+				              y * (sin(alpha) * sin(beta) * sin(gamma) +
+				                   cos(alpha) * cos(gamma)) +
+				              z * (sin(alpha) * sin(beta) * cos(gamma) -
+				                   sin(gamma) * cos(alpha));
+				newY += translation.y;
+				double newZ = -x * sin(beta) + y * sin(gamma) * cos(beta) +
+				              z * cos(beta) * cos(gamma);
+				newZ += translation.z;
+
+				const double currentValue =
+				    rawPtr[i * num_xy + j * params.nx + k];
+				newImg->update_image_inter({newX, newY, newZ}, currentValue,
+				                           false);
+			}
+		}
+	}
+	return newImg;
+}
+
+GCImageOwned::GCImageOwned(const GCImageParams& img_params)
+    : GCImage(img_params)
+{
+	m_dataPtr = std::make_unique<Array3D<double>>();
+}
+
+GCImageOwned::GCImageOwned(const GCImageParams& img_params,
+                           const std::string& filename)
+    : GCImageOwned(img_params)
+{
+	readFromFile(filename);
+}
+
+void GCImageOwned::allocate()
+{
+	static_cast<Array3D<double>*>(m_dataPtr.get())
+	    ->allocate(getParams().nz, getParams().ny, getParams().nx);
+}
+
+GCImageAlias::GCImageAlias(const GCImageParams& img_params)
+    : GCImage(img_params)
+{
+	m_dataPtr = std::make_unique<Array3DAlias<double>>();
+}
+
+void GCImageAlias::Bind(Array3DBase<double>& p_data)
+{
+	static_cast<Array3DAlias<double>*>(m_dataPtr.get())->Bind(p_data);
+	if (m_dataPtr->GetRawPointer() != p_data.GetRawPointer())
+	{
+		throw std::runtime_error("An error occured during GCImage binding");
+	}
+}

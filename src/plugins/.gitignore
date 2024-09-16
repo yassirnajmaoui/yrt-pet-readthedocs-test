@@ -1,0 +1,10 @@
+# Ignore everything in the plugins directory
+*
+
+# Except the note.txt file
+!note.txt
+!.gitignore
+
+# Ignore all directories
+*/
+

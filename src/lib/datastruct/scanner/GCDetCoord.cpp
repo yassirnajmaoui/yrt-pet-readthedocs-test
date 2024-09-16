@@ -1,0 +1,367 @@
+/*
+ * This file is subject to the terms and conditions defined in
+ * file 'LICENSE.txt', which is part of this source code package.
+ */
+
+#include "datastruct/scanner/GCDetCoord.hpp"
+
+#include "utils/Array.hpp"
+
+#if BUILD_PYBIND11
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+namespace py = pybind11;
+#endif
+
+#include <fstream>
+
+GCDetCoord::GCDetCoord() {}
+GCDetCoordOwned::GCDetCoordOwned() : GCDetCoord()
+{
+	mp_Xpos = std::make_unique<Array1D<float>>();
+	mp_Ypos = std::make_unique<Array1D<float>>();
+	mp_Zpos = std::make_unique<Array1D<float>>();
+	mp_Xorient = std::make_unique<Array1D<float>>();
+	mp_Yorient = std::make_unique<Array1D<float>>();
+	mp_Zorient = std::make_unique<Array1D<float>>();
+}
+GCDetCoordOwned::GCDetCoordOwned(const std::string& filename)
+    : GCDetCoordOwned()
+{
+	readFromFile(filename);
+}
+GCDetCoordAlias::GCDetCoordAlias() : GCDetCoord()
+{
+	mp_Xpos = std::make_unique<Array1DAlias<float>>();
+	mp_Ypos = std::make_unique<Array1DAlias<float>>();
+	mp_Zpos = std::make_unique<Array1DAlias<float>>();
+	mp_Xorient = std::make_unique<Array1DAlias<float>>();
+	mp_Yorient = std::make_unique<Array1DAlias<float>>();
+	mp_Zorient = std::make_unique<Array1DAlias<float>>();
+}
+
+
+void GCDetCoordOwned::allocate(size_t num_dets)
+{
+	static_cast<Array1D<float>*>(mp_Xpos.get())->allocate(num_dets);
+	static_cast<Array1D<float>*>(mp_Ypos.get())->allocate(num_dets);
+	static_cast<Array1D<float>*>(mp_Zpos.get())->allocate(num_dets);
+	static_cast<Array1D<float>*>(mp_Xorient.get())->allocate(num_dets);
+	static_cast<Array1D<float>*>(mp_Yorient.get())->allocate(num_dets);
+	static_cast<Array1D<float>*>(mp_Zorient.get())->allocate(num_dets);
+}
+
+void GCDetCoord::writeToFile(const std::string& detCoord_fname) const
+{
+	std::ofstream file;
+	file.open(detCoord_fname.c_str(), std::ios::binary | std::ios::out);
+	if (!file.is_open())
+	{
+		throw std::runtime_error("Error in opening of file " + detCoord_fname +
+		                         ".");
+	}
+	for (size_t j = 0; j < getNumDets(); j++)
+	{
+		float Xpos10 = (*mp_Xpos)[j];
+		float Ypos10 = (*mp_Ypos)[j];
+		float Zpos10 = (*mp_Zpos)[j];
+
+		file.write((char*)(&(Xpos10)), sizeof(float));
+		file.write((char*)(&(Ypos10)), sizeof(float));
+		file.write((char*)(&(Zpos10)), sizeof(float));
+
+		file.write((char*)(&((*mp_Xorient)[j])), sizeof(float));
+		file.write((char*)(&((*mp_Yorient)[j])), sizeof(float));
+		file.write((char*)(&((*mp_Zorient)[j])), sizeof(float));
+	}
+}
+
+void GCDetCoordOwned::readFromFile(const std::string& filename)
+{
+	// File format:
+	// <float><float><float><float><float><float>
+	// <float><float><float><float><float><float>
+	// <float><float><float><float><float><float>
+	// ...
+	std::ifstream fin(filename.c_str(), std::ios::in | std::ios::binary);
+	if (!fin.good())
+	{
+		throw std::runtime_error("Error reading input file " + filename +
+		                         " GCDetCoord::readDetCoords.");
+	}
+
+	// first check that file has the right size:
+	fin.seekg(0, std::ios::end);
+	size_t end = fin.tellg();
+	fin.seekg(0, std::ios::beg);
+	size_t begin = fin.tellg();
+	size_t file_size = end - begin;
+
+	size_t num_float = file_size / sizeof(float);
+
+	if (file_size <= 0 || file_size % sizeof(float) != 0 || num_float % 6 != 0)
+	{
+		throw std::logic_error("Error: Input file has incorrect size");
+	}
+
+	size_t num_el = num_float / 6;
+	allocate(num_el);
+
+	auto buff = std::make_unique<float[]>(num_float);
+
+	fin.read((char*)buff.get(), num_float * sizeof(float));
+
+	for (size_t i = 0; i < num_el; i++)
+	{
+		(*mp_Xpos)[i] = buff[6 * i];
+		(*mp_Ypos)[i] = buff[6 * i + 1];
+		(*mp_Zpos)[i] = buff[6 * i + 2];
+		(*mp_Xorient)[i] = buff[6 * i + 3];
+		(*mp_Yorient)[i] = buff[6 * i + 4];
+		(*mp_Zorient)[i] = buff[6 * i + 5];
+	}
+
+	fin.close();
+}
+
+void GCDetCoordAlias::Bind(GCDetCoord* p_detCoord)
+{
+	Bind(p_detCoord->getXposArrayRef(), p_detCoord->getYposArrayRef(),
+	     p_detCoord->getZposArrayRef(), p_detCoord->getXorientArrayRef(),
+	     p_detCoord->getYorientArrayRef(), p_detCoord->getZorientArrayRef());
+}
+
+void GCDetCoordAlias::Bind(Array1DBase<float>* p_Xpos,
+                           Array1DBase<float>* p_Ypos,
+                           Array1DBase<float>* p_Zpos,
+                           Array1DBase<float>* p_Xorient,
+                           Array1DBase<float>* p_Yorient,
+                           Array1DBase<float>* p_Zorient)
+{
+	bool isNotNull = true;
+
+	static_cast<Array1DAlias<float>*>(mp_Xpos.get())->Bind(*p_Xpos);
+	static_cast<Array1DAlias<float>*>(mp_Ypos.get())->Bind(*p_Ypos);
+	static_cast<Array1DAlias<float>*>(mp_Zpos.get())->Bind(*p_Zpos);
+	static_cast<Array1DAlias<float>*>(mp_Xorient.get())->Bind(*p_Xorient);
+	static_cast<Array1DAlias<float>*>(mp_Yorient.get())->Bind(*p_Yorient);
+	static_cast<Array1DAlias<float>*>(mp_Zorient.get())->Bind(*p_Zorient);
+
+	isNotNull &= (mp_Xpos->GetRawPointer() != nullptr);
+	isNotNull &= (mp_Ypos->GetRawPointer() != nullptr);
+	isNotNull &= (mp_Zpos->GetRawPointer() != nullptr);
+	isNotNull &= (mp_Xorient->GetRawPointer() != nullptr);
+	isNotNull &= (mp_Yorient->GetRawPointer() != nullptr);
+	isNotNull &= (mp_Zorient->GetRawPointer() != nullptr);
+	if (!isNotNull)
+	{
+		throw std::runtime_error(
+		    "An error occured during the binding of the GCDetCoord");
+	}
+}
+
+// GETTERS AND SETTERS
+float GCDetCoord::getXpos(det_id_t detID) const
+{
+	return (*mp_Xpos)[detID];
+}
+float GCDetCoord::getYpos(det_id_t detID) const
+{
+	return (*mp_Ypos)[detID];
+}
+float GCDetCoord::getZpos(det_id_t detID) const
+{
+	return (*mp_Zpos)[detID];
+}
+float GCDetCoord::getXorient(det_id_t detID) const
+{
+	return (*mp_Xorient)[detID];
+}
+float GCDetCoord::getYorient(det_id_t detID) const
+{
+	return (*mp_Yorient)[detID];
+}
+float GCDetCoord::getZorient(det_id_t detID) const
+{
+	return (*mp_Zorient)[detID];
+}
+
+void GCDetCoord::setXpos(det_id_t detID, float f)
+{
+	(*mp_Xpos)[detID] = f;
+}
+void GCDetCoord::setYpos(det_id_t detID, float f)
+{
+	(*mp_Ypos)[detID] = f;
+}
+void GCDetCoord::setZpos(det_id_t detID, float f)
+{
+	(*mp_Zpos)[detID] = f;
+}
+void GCDetCoord::setXorient(det_id_t detID, float f)
+{
+	(*mp_Xorient)[detID] = f;
+}
+void GCDetCoord::setYorient(det_id_t detID, float f)
+{
+	(*mp_Yorient)[detID] = f;
+}
+void GCDetCoord::setZorient(det_id_t detID, float f)
+{
+	(*mp_Zorient)[detID] = f;
+}
+
+size_t GCDetCoord::getNumDets() const
+{
+	return this->mp_Xpos->GetSize(0);
+}
+
+#if BUILD_PYBIND11
+void py_setup_gcdetcoord(py::module& m)
+{
+	auto c = pybind11::class_<GCDetCoord, GCDetectorSetup>(m, "GCDetCoord");
+	c.def("setXpos", &GCDetCoord::setXpos);
+	c.def("setYpos", &GCDetCoord::setYpos);
+	c.def("setZpos", &GCDetCoord::setZpos);
+	c.def("setXorient", &GCDetCoord::setXorient);
+	c.def("setYorient", &GCDetCoord::setYorient);
+	c.def("setZorient", &GCDetCoord::setZorient);
+
+	c.def("getXposArray",
+	      [](const GCDetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* posArr = self.getXposArrayRef();
+		      auto buf_info =
+		          py::buffer_info(posArr->GetRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {posArr->GetSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getYposArray",
+	      [](const GCDetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* posArr = self.getYposArrayRef();
+		      auto buf_info =
+		          py::buffer_info(posArr->GetRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {posArr->GetSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getZposArray",
+	      [](const GCDetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* posArr = self.getZposArrayRef();
+		      auto buf_info =
+		          py::buffer_info(posArr->GetRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {posArr->GetSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getXorientArray",
+	      [](const GCDetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* orientArr = self.getXorientArrayRef();
+		      auto buf_info =
+		          py::buffer_info(orientArr->GetRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {orientArr->GetSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getYorientArray",
+	      [](const GCDetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* orientArr = self.getYorientArrayRef();
+		      auto buf_info =
+		          py::buffer_info(orientArr->GetRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {orientArr->GetSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getZorientArray",
+	      [](const GCDetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* orientArr = self.getZorientArrayRef();
+		      auto buf_info =
+		          py::buffer_info(orientArr->GetRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {orientArr->GetSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+
+
+	auto c_owned =
+	    pybind11::class_<GCDetCoordOwned, GCDetCoord>(m, "GCDetCoordOwned");
+	c_owned.def(py::init<>());
+	c_owned.def(py::init<const std::string&>());
+	c_owned.def("readFromFile", &GCDetCoordOwned::readFromFile);
+	c_owned.def("allocate", &GCDetCoordOwned::allocate);
+
+	auto c_alias =
+	    pybind11::class_<GCDetCoordAlias, GCDetCoord>(m, "GCDetCoordAlias");
+	c_alias.def(py::init<>());
+	c_alias.def(
+	    "Bind",
+	    [](GCDetCoordAlias& self, py::buffer& xpos, py::buffer& ypos,
+	       py::buffer& zpos, py::buffer& xorient, py::buffer& yorient,
+	       py::buffer& zorient)
+	    {
+		    py::buffer_info xpos_info = xpos.request();
+		    py::buffer_info zpos_info = ypos.request();
+		    py::buffer_info ypos_info = zpos.request();
+		    py::buffer_info xorient_info = xorient.request();
+		    py::buffer_info zorient_info = yorient.request();
+		    py::buffer_info yorient_info = zorient.request();
+		    if (xpos_info.format != py::format_descriptor<float>::format() ||
+		        xpos_info.ndim != 1)
+			    throw std::invalid_argument(
+			        "The XPos array has to be a 1-dimensional float32 array");
+		    if (ypos_info.format != py::format_descriptor<float>::format() ||
+		        ypos_info.ndim != 1)
+			    throw std::invalid_argument(
+			        "The YPos array has to be a 1-dimensional float32 array");
+		    if (zpos_info.format != py::format_descriptor<float>::format() ||
+		        zpos_info.ndim != 1)
+			    throw std::invalid_argument(
+			        "The ZPos array has to be a 1-dimensional float32 array");
+		    if (xorient_info.format != py::format_descriptor<float>::format() ||
+		        xorient_info.ndim != 1)
+			    throw std::invalid_argument("The XOrient array has to be a "
+			                                "1-dimensional float32 array");
+		    if (yorient_info.format != py::format_descriptor<float>::format() ||
+		        yorient_info.ndim != 1)
+			    throw std::invalid_argument("The YOrient array has to be a "
+			                                "1-dimensional float32 array");
+		    if (zorient_info.format != py::format_descriptor<float>::format() ||
+		        zorient_info.ndim != 1)
+			    throw std::invalid_argument("The ZOrient array has to be a "
+			                                "1-dimensional float32 array");
+		    if (xpos_info.shape[0] != ypos_info.shape[0] ||
+		        xpos_info.shape[0] != zpos_info.shape[0] ||
+		        xpos_info.shape[0] != xorient_info.shape[0] ||
+		        xpos_info.shape[0] != yorient_info.shape[0] ||
+		        xpos_info.shape[0] != zorient_info.shape[0])
+			    throw std::invalid_argument(
+			        "All the arrays given have to have the same size");
+
+		    static_cast<Array1DAlias<float>*>(self.getXposArrayRef())
+		        ->Bind(reinterpret_cast<float*>(xpos_info.ptr),
+		               xpos_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getYposArrayRef())
+		        ->Bind(reinterpret_cast<float*>(ypos_info.ptr),
+		               ypos_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getZposArrayRef())
+		        ->Bind(reinterpret_cast<float*>(zpos_info.ptr),
+		               zpos_info.shape[0]);
+
+		    static_cast<Array1DAlias<float>*>(self.getXorientArrayRef())
+		        ->Bind(reinterpret_cast<float*>(xorient_info.ptr),
+		               xorient_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getYorientArrayRef())
+		        ->Bind(reinterpret_cast<float*>(yorient_info.ptr),
+		               yorient_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getZorientArrayRef())
+		        ->Bind(reinterpret_cast<float*>(zorient_info.ptr),
+		               zorient_info.shape[0]);
+	    });
+}
+#endif
