@@ -15,7 +15,7 @@
 
 namespace py = pybind11;
 
-void py_setup_gcscanner(pybind11::module& m)
+void py_setup_scanner(pybind11::module& m)
 {
 	auto c = py::class_<Scanner>(m, "Scanner");
 	c.def("getNumDets", &Scanner::getNumDets);

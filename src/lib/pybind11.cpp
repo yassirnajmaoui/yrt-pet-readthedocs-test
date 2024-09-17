@@ -31,19 +31,19 @@ void py_setup_listmode(py::module& m);
 void py_setup_listmodelut(py::module& m);
 void py_setup_listmodelutdoi(py::module& m);
 void py_setup_projectionlist(py::module& m);
-void py_setup_gcdetectorsetup(py::module& m);
-void py_setup_gcosem(py::module& m);
-void py_setup_gcreconstructionutils(py::module& m);
-void py_setup_gcscanner(py::module& m);
-void py_setup_gcdetcoord(py::module& m);
-void py_setup_gcdetregular(py::module& m);
-void py_setup_gcio(py::module& m);
+void py_setup_detectorsetup(py::module& m);
+void py_setup_osem(py::module& m);
+void py_setup_reconstructionutils(py::module& m);
+void py_setup_scanner(py::module& m);
+void py_setup_detcoord(py::module& m);
+void py_setup_detregular(py::module& m);
+void py_setup_io(py::module& m);
 
 void py_setup_srtm(py::module& m);
 void py_setup_imagewarpertemplate(py::module& m);
 void py_setup_imagewarpermatrix(py::module& m);
 void py_setup_imagewarperfunction(py::module& m);
-void py_setup_gcutilities(py::module& m);
+void py_setup_utilities(py::module& m);
 
 void py_setup_operator(py::module& m);
 void py_setup_operatorpsf(py::module& m);
@@ -53,15 +53,15 @@ void py_setup_operatorprojector(py::module& m);
 void py_setup_operatorprojectorsiddon(py::module& m);
 void py_setup_operatorprojectordd(py::module& m);
 
-void py_setup_Globals(py::module& m);
+void py_setup_globals(py::module& m);
 
 void py_setup_crystal(py::module& m);
 void py_setup_singlescattersimulator(py::module& m);
-void py_setup_gcscatterestimator(py::module& m);
+void py_setup_scatterestimator(py::module& m);
 
 #ifdef BUILD_CUDA
-void py_setup_gcimagedevice(py::module&);
-void py_setup_gcprojectiondatadevice(py::module& m);
+void py_setup_imagedevice(py::module&);
+void py_setup_projectiondatadevice(py::module& m);
 void py_setup_operatorprojectordevice(py::module& m);
 void py_setup_operatorprojectordd_gpu(py::module& m);
 #endif
@@ -91,17 +91,17 @@ PYBIND11_MODULE(pyyrtpet, m)
 	py_setup_listmodelut(m);
 	py_setup_listmodelutdoi(m);
 	py_setup_projectionlist(m);
-	py_setup_gcdetectorsetup(m);
-	py_setup_gcscanner(m);
-	py_setup_gcdetcoord(m);
-	py_setup_gcdetregular(m);
-	py_setup_gcio(m);
+	py_setup_detectorsetup(m);
+	py_setup_scanner(m);
+	py_setup_detcoord(m);
+	py_setup_detregular(m);
+	py_setup_io(m);
 
 	py_setup_srtm(m);
 	py_setup_imagewarpertemplate(m);
 	py_setup_imagewarpermatrix(m);
 	py_setup_imagewarperfunction(m);
-	py_setup_gcutilities(m);
+	py_setup_utilities(m);
 
 	py_setup_operator(m);
 	py_setup_operatorpsf(m);
@@ -110,18 +110,18 @@ PYBIND11_MODULE(pyyrtpet, m)
 	py_setup_operatorprojectorparams(m);
 	py_setup_operatorprojectorsiddon(m);
 	py_setup_operatorprojectordd(m);
-	py_setup_gcosem(m);
-	py_setup_gcreconstructionutils(m);
+	py_setup_osem(m);
+	py_setup_reconstructionutils(m);
 
-	py_setup_Globals(m);
+	py_setup_globals(m);
 
 	py_setup_crystal(m);
 	py_setup_singlescattersimulator(m);
-	py_setup_gcscatterestimator(m);
+	py_setup_scatterestimator(m);
 
 #ifdef BUILD_CUDA
-	py_setup_gcimagedevice(m);
-	py_setup_gcprojectiondatadevice(m);
+	py_setup_imagedevice(m);
+	py_setup_projectiondatadevice(m);
 	py_setup_operatorprojectordevice(m);
 	py_setup_operatorprojectordd_gpu(m);
 #endif

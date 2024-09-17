@@ -17,7 +17,7 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-void py_setup_gcscatterestimator(py::module& m)
+void py_setup_scatterestimator(py::module& m)
 {
 	auto c = py::class_<Scatter::ScatterEstimator>(m, "ScatterEstimator");
 	c.def(

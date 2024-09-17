@@ -28,7 +28,7 @@
 
 namespace py = pybind11;
 
-void py_setup_gcreconstructionutils(pybind11::module& m)
+void py_setup_reconstructionutils(pybind11::module& m)
 {
 	m.def("histogram3DToListModeLUT", &Util::histogram3DToListModeLUT);
 	m.def(

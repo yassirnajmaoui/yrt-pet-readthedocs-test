@@ -26,7 +26,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
-void py_setup_gcosem(pybind11::module& m)
+void py_setup_osem(pybind11::module& m)
 {
 	auto c = py::class_<OSEM>(m, "OSEM");
 

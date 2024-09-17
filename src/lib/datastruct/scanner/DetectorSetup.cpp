@@ -8,7 +8,7 @@
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
-void py_setup_gcdetectorsetup(pybind11::module& m)
+void py_setup_detectorsetup(pybind11::module& m)
 {
 	auto c = py::class_<DetectorSetup>(m, "DetectorSetup");
 	c.def("getNumDets", &DetectorSetup::getNumDets);

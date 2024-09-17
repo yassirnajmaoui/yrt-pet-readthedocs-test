@@ -186,7 +186,7 @@ size_t DetRegular::getNumDets() const
 
 
 #if BUILD_PYBIND11
-void py_setup_gcdetregular(py::module& m)
+void py_setup_detregular(py::module& m)
 {
 	auto c = pybind11::class_<DetRegular, DetectorSetup>(m, "DetRegular");
 	c.def(py::init<Scanner*>());

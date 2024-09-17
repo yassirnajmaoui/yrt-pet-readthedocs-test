@@ -16,7 +16,7 @@ namespace py = pybind11;
 #include <fstream>
 
 #if BUILD_PYBIND11
-void py_setup_gcdetcoord(py::module& m)
+void py_setup_detcoord(py::module& m)
 {
 	auto c = pybind11::class_<DetCoord, DetectorSetup>(m, "DetCoord");
 	c.def("setXpos", &DetCoord::setXpos);

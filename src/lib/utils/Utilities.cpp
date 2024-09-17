@@ -14,7 +14,7 @@
 
 namespace py = pybind11;
 
-void py_setup_gcutilities(py::module& m)
+void py_setup_utilities(py::module& m)
 {
 	m.def("compiledWithCuda", &Util::compiledWithCuda);
 }

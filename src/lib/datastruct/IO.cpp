@@ -16,7 +16,7 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-void py_setup_gcio(py::module& m)
+void py_setup_io(py::module& m)
 {
 	m.def("openProjectionData", &IO::openProjectionData, "input_fname"_a,
 	      "input_format"_a, "scanner"_a, "pluginOptions"_a);
