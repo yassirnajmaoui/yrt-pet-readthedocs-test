@@ -3,12 +3,12 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "operators/GCOperatorProjectorDD_gpu.cuh"
+#include "operators/OperatorProjectorDD_GPU.cuh"
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/ProjectionDataDevice.cuh"
-#include "operators/GCOperatorProjectorDD_kernels.cuh"
+#include "operators/OperatorProjectorDD_GPUKernels.cuh"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGPUUtils.cuh"
 
@@ -16,62 +16,62 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gcoperatorprojectordd_gpu(py::module& m)
+void py_setup_operatorprojectordd_gpu(py::module& m)
 {
-	auto c = py::class_<GCOperatorProjectorDD_gpu, GCOperatorProjectorDevice>(
-	    m, "GCOperatorProjectorDD_gpu");
-	c.def(py::init<const GCOperatorProjectorParams&>(), py::arg("projParams"));
+	auto c = py::class_<OperatorProjectorDD_GPU, OperatorProjectorDevice>(
+	    m, "OperatorProjectorDD_GPU");
+	c.def(py::init<const OperatorProjectorParams&>(), py::arg("projParams"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const ImageDevice* img,
+	    [](OperatorProjector& self, const ImageDevice* img,
 	       ProjectionData* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const Image* img, ProjectionData* proj)
+	    [](OperatorProjector& self, const Image* img, ProjectionData* proj)
 	    { self.applyA(img, proj); }, py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const ImageDevice* img,
+	    [](OperatorProjector& self, const ImageDevice* img,
 	       ProjectionDataDevice* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const Image* img,
+	    [](OperatorProjector& self, const Image* img,
 	       ProjectionDataDevice* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const ProjectionData* proj, Image* img)
+	    [](OperatorProjector& self, const ProjectionData* proj, Image* img)
 	    { self.applyAH(proj, img); }, py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const ProjectionData* proj,
+	    [](OperatorProjector& self, const ProjectionData* proj,
 	       ImageDevice* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const ProjectionDataDevice* proj,
+	    [](OperatorProjector& self, const ProjectionDataDevice* proj,
 	       Image* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const ProjectionDataDevice* proj,
+	    [](OperatorProjector& self, const ProjectionDataDevice* proj,
 	       ImageDevice* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 }
 #endif
 
-GCOperatorProjectorDD_gpu::GCOperatorProjectorDD_gpu(
-    const GCOperatorProjectorParams& projParams, bool p_synchronized,
+OperatorProjectorDD_GPU::OperatorProjectorDD_GPU(
+    const OperatorProjectorParams& projParams, bool p_synchronized,
     const cudaStream_t* mainStream, const cudaStream_t* auxStream)
-    : GCOperatorProjectorDevice(projParams, p_synchronized, mainStream,
+    : OperatorProjectorDevice(projParams, p_synchronized, mainStream,
                                 auxStream)
 {
 }
 
-void GCOperatorProjectorDD_gpu::applyA(const GCVariable* in, GCVariable* out)
+void OperatorProjectorDD_GPU::applyA(const GCVariable* in, GCVariable* out)
 {
 	auto* img_in_const = dynamic_cast<const ImageDevice*>(in);
 	auto* dat_out = dynamic_cast<ProjectionDataDevice*>(out);
@@ -155,7 +155,7 @@ void GCOperatorProjectorDD_gpu::applyA(const GCVariable* in, GCVariable* out)
 	}
 }
 
-void GCOperatorProjectorDD_gpu::applyAH(const GCVariable* in, GCVariable* out)
+void OperatorProjectorDD_GPU::applyAH(const GCVariable* in, GCVariable* out)
 {
 	auto* dat_in_const = dynamic_cast<const ProjectionDataDevice*>(in);
 	auto* img_out = dynamic_cast<ImageDevice*>(out);
@@ -252,7 +252,7 @@ void GCOperatorProjectorDD_gpu::applyAH(const GCVariable* in, GCVariable* out)
 	}
 }
 
-void GCOperatorProjectorDD_gpu::applyAttenuationOnLoadedBatchIfNeeded(
+void OperatorProjectorDD_GPU::applyAttenuationOnLoadedBatchIfNeeded(
     const ProjectionDataDevice* imgProjData, bool duringForward)
 {
 	if (requiresIntermediaryProjData())
@@ -264,7 +264,7 @@ void GCOperatorProjectorDD_gpu::applyAttenuationOnLoadedBatchIfNeeded(
 	}
 }
 
-void GCOperatorProjectorDD_gpu::applyAttenuationOnLoadedBatchIfNeeded(
+void OperatorProjectorDD_GPU::applyAttenuationOnLoadedBatchIfNeeded(
     const ProjectionDataDevice* imgProjData,
     ProjectionDataDevice* destProjData, bool duringForward)
 {
@@ -299,7 +299,7 @@ void GCOperatorProjectorDD_gpu::applyAttenuationOnLoadedBatchIfNeeded(
 	std::cout << "Done applying attenuation on current batch." << std::endl;
 }
 
-void GCOperatorProjectorDD_gpu::applyAdditiveOnLoadedBatchIfNeeded(
+void OperatorProjectorDD_GPU::applyAdditiveOnLoadedBatchIfNeeded(
     ProjectionDataDevice* imgProjData)
 {
 	if (addHisto != nullptr)
@@ -317,13 +317,13 @@ void GCOperatorProjectorDD_gpu::applyAdditiveOnLoadedBatchIfNeeded(
 }
 
 template <bool IsForward>
-void GCOperatorProjectorDD_gpu::applyOnLoadedBatch(ProjectionDataDevice* dat,
+void OperatorProjectorDD_GPU::applyOnLoadedBatch(ProjectionDataDevice* dat,
                                                    ImageDevice* img)
 {
 	setBatchSize(dat->getCurrentBatchSize());
 	const auto cuScannerParams = getCUScannerParams(*getScanner());
 	const auto cuImageParams = getCUImageParams(img->getParams());
-	const GCTimeOfFlightHelper* tofHelperDevicePointer =
+	const TimeOfFlightHelper* tofHelperDevicePointer =
 	    getTOFHelperDevicePointer();
 
 	if (tofHelperDevicePointer == nullptr)
@@ -351,7 +351,7 @@ void GCOperatorProjectorDD_gpu::applyOnLoadedBatch(ProjectionDataDevice* dat,
 	}
 }
 
-void GCOperatorProjectorDD_gpu::applyAttenuationFactors(
+void OperatorProjectorDD_GPU::applyAttenuationFactors(
     const ProjectionDataDevice* attImgProj,
     const ProjectionDataDevice* imgProj, ProjectionDataDevice* destProj,
     float unitFactor)
@@ -388,11 +388,11 @@ void GCOperatorProjectorDD_gpu::applyAttenuationFactors(
 }
 
 template <bool IsForward, bool HasTOF>
-void GCOperatorProjectorDD_gpu::launchKernel(
+void OperatorProjectorDD_GPU::launchKernel(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const GCTimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
+    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
     GCCUImageParams imgParams, size_t batchSize, unsigned int gridSize,
     unsigned int blockSize, const cudaStream_t* stream, bool synchronize)
 {
@@ -404,7 +404,7 @@ void GCOperatorProjectorDD_gpu::launchKernel(
 
 	if (stream != nullptr)
 	{
-		GCOperatorProjectorDDCU_kernel<IsForward, HasTOF>
+		OperatorProjectorDDCU_kernel<IsForward, HasTOF>
 		    <<<gridSize, blockSize, 0, *stream>>>(
 		        pd_projValues, pd_image, pd_lorDet1Pos, pd_lorDet2Pos,
 		        pd_lorDet1Orient, pd_lorDet2Orient, pd_lorTOFValue,
@@ -416,7 +416,7 @@ void GCOperatorProjectorDD_gpu::launchKernel(
 	}
 	else
 	{
-		GCOperatorProjectorDDCU_kernel<IsForward, HasTOF>
+		OperatorProjectorDDCU_kernel<IsForward, HasTOF>
 		    <<<gridSize, blockSize>>>(
 		        pd_projValues, pd_image, pd_lorDet1Pos, pd_lorDet2Pos,
 		        pd_lorDet1Orient, pd_lorDet2Orient, pd_lorTOFValue,

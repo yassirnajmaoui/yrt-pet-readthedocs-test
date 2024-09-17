@@ -6,17 +6,17 @@
 #pragma once
 
 #include "datastruct/image/Image.hpp"
-#include "operators/GCOperator.hpp"
+#include "operators/Operator.hpp"
 
 #include <vector>
 
-class GCOperatorPsf : public GCOperator
+class OperatorPsf : public Operator
 {
 public:
-	GCOperatorPsf(const ImageParams& img_params);
-	GCOperatorPsf(const ImageParams& img_params,
+	OperatorPsf(const ImageParams& img_params);
+	OperatorPsf(const ImageParams& img_params,
 	              const std::string& image_space_psf_filename);
-	~GCOperatorPsf() override;
+	~OperatorPsf() override;
 
 	void readFromFile(const std::string& image_space_psf_filename);
 

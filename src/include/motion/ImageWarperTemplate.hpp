@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/image/Image.hpp"
-#include "operators/GCOperator.hpp"
+#include "operators/Operator.hpp"
 
 #include <string>
 #include <vector>
@@ -264,10 +264,10 @@ protected:
 	virtual void inverseWarp(Image* image, int frameId) const = 0;
 };
 
-class GCOperatorWarpRefImage : public GCOperator
+class OperatorWarpRefImage : public Operator
 {
 public:
-	GCOperatorWarpRefImage(int p_frameId = 0) : m_frameId(p_frameId) {}
+	OperatorWarpRefImage(int p_frameId = 0) : m_frameId(p_frameId) {}
 	void setFrameId(int p_frameId) { m_frameId = p_frameId; }
 	void applyA(const GCVariable* in, GCVariable* out) override;
 	void applyAH(const GCVariable* in, GCVariable* out) override;

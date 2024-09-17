@@ -7,8 +7,8 @@
 
 #include "datastruct/projection/ProjectionList.hpp"
 #include "datastruct/projection/ListMode.hpp"
-#include "operators/GCOperatorProjectorDD.hpp"
-#include "operators/GCOperatorProjectorSiddon.hpp"
+#include "operators/OperatorProjectorDD.hpp"
+#include "operators/OperatorProjectorSiddon.hpp"
 
 #include <utility>
 
@@ -45,17 +45,17 @@ void GCOSEM_cpu::SetupOperatorsForSensImgGen()
 	}
 
 	// Create ProjectorParams object
-	GCOperatorProjectorParams projParams(
+	OperatorProjectorParams projParams(
 	    nullptr /* Will be set later at each subset loading */, scanner, 0.f, 0,
 	    flagProjPSF ? projSpacePsf_fname : "", numRays);
 
-	if (projectorType == GCOperatorProjector::ProjectorType::SIDDON)
+	if (projectorType == OperatorProjector::ProjectorType::SIDDON)
 	{
-		mp_projector = std::make_unique<GCOperatorProjectorSiddon>(projParams);
+		mp_projector = std::make_unique<OperatorProjectorSiddon>(projParams);
 	}
-	else if (projectorType == GCOperatorProjector::ProjectorType::DD)
+	else if (projectorType == OperatorProjector::ProjectorType::DD)
 	{
-		mp_projector = std::make_unique<GCOperatorProjectorDD>(projParams);
+		mp_projector = std::make_unique<OperatorProjectorDD>(projParams);
 	}
 
 	if (attenuationImageForBackprojection != nullptr)
@@ -134,18 +134,18 @@ void GCOSEM_cpu::SetupOperatorsForRecon()
 	}
 
 	// Create ProjectorParams object
-	GCOperatorProjectorParams projParams(
+	OperatorProjectorParams projParams(
 	    nullptr /* Will be set later at each subset loading */, scanner,
 	    flagProjTOF ? tofWidth_ps : 0.f, flagProjTOF ? tofNumStd : 0,
 	    flagProjPSF ? projSpacePsf_fname : "", numRays);
 
-	if (projectorType == GCOperatorProjector::SIDDON)
+	if (projectorType == OperatorProjector::SIDDON)
 	{
-		mp_projector = std::make_unique<GCOperatorProjectorSiddon>(projParams);
+		mp_projector = std::make_unique<OperatorProjectorSiddon>(projParams);
 	}
-	else if (projectorType == GCOperatorProjector::DD)
+	else if (projectorType == OperatorProjector::DD)
 	{
-		mp_projector = std::make_unique<GCOperatorProjectorDD>(projParams);
+		mp_projector = std::make_unique<OperatorProjectorDD>(projParams);
 	}
 
 	if (attenuationImage != nullptr)

@@ -53,7 +53,7 @@ bool IO::isFormatListMode(const std::string& format)
 	return Plugin::PluginRegistry::instance().isFormatListMode(format);
 }
 
-GCOperatorProjector::ProjectorType
+OperatorProjector::ProjectorType
     IO::getProjector(const std::string& projectorName)
 {
 	const std::string projectorName_upper = Util::toUpper(projectorName);
@@ -61,25 +61,25 @@ GCOperatorProjector::ProjectorType
 	// Projector type
 	if (projectorName_upper == "DD_GPU")
 	{
-		return GCOperatorProjector::ProjectorType::DD_GPU;
+		return OperatorProjector::ProjectorType::DD_GPU;
 	}
 	if (projectorName_upper == "S" || projectorName_upper == "SIDDON")
 	{
-		return GCOperatorProjector::ProjectorType::SIDDON;
+		return OperatorProjector::ProjectorType::SIDDON;
 	}
 	if (projectorName_upper == "D" || projectorName_upper == "DD" ||
 	    projectorName_upper == "DD_CPU")
 	{
-		return GCOperatorProjector::ProjectorType::DD;
+		return OperatorProjector::ProjectorType::DD;
 	}
 	throw std::invalid_argument(
 	    "Invalid Projector name, choices are Siddon (S), "
 	    "Distance-Driven cpu (D) and Distance-Driven gpu (DD_GPU)");
 }
 
-bool IO::requiresGPU(GCOperatorProjector::ProjectorType projector)
+bool IO::requiresGPU(OperatorProjector::ProjectorType projector)
 {
-	if (projector == GCOperatorProjector::DD_GPU)
+	if (projector == OperatorProjector::DD_GPU)
 	{
 		return true;
 	}

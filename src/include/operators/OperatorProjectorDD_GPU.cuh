@@ -5,17 +5,17 @@
 
 #pragma once
 
-#include "operators/GCOperatorDevice.cuh"
-#include "operators/GCOperatorProjector.hpp"
+#include "operators/OperatorDevice.cuh"
+#include "operators/OperatorProjector.hpp"
 
 
 class ProjectionDataDevice;
 class ImageDevice;
 
-class GCOperatorProjectorDD_gpu : public GCOperatorProjectorDevice
+class OperatorProjectorDD_GPU : public OperatorProjectorDevice
 {
 public:
-	GCOperatorProjectorDD_gpu(const GCOperatorProjectorParams& projParams,
+	OperatorProjectorDD_GPU(const OperatorProjectorParams& projParams,
 	                          bool p_synchronized = true,
 	                          const cudaStream_t* mainStream = nullptr,
 	                          const cudaStream_t* auxStream = nullptr);
@@ -47,7 +47,7 @@ private:
 	                         const float4* pd_lorDet1Orient,
 	                         const float4* pd_lorDet2Orient,
 	                         const float* pd_lorTOFValue,
-	                         const GCTimeOfFlightHelper* pd_tofHelper,
+	                         const TimeOfFlightHelper* pd_tofHelper,
 	                         GCCUScannerParams scannerParams,
 	                         GCCUImageParams imgParams, size_t batchSize,
 	                         unsigned int gridSize, unsigned int blockSize,

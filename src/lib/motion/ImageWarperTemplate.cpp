@@ -43,11 +43,11 @@ void py_setup_imagewarpertemplate(py::module& m)
 	c.def("getFrameStartTime", &ImageWarperTemplate::getFrameStartTime);
 
 	auto c_operator =
-	    py::class_<GCOperatorWarpRefImage>(m, "GCOperatorWarpRefImage");
+	    py::class_<OperatorWarpRefImage>(m, "OperatorWarpRefImage");
 	c_operator.def(py::init<int>());
-	c_operator.def("setFrameId", &GCOperatorWarpRefImage::setFrameId);
-	c_operator.def("applyA", &GCOperatorWarpRefImage::applyA);
-	c_operator.def("applyAH", &GCOperatorWarpRefImage::applyAH);
+	c_operator.def("setFrameId", &OperatorWarpRefImage::setFrameId);
+	c_operator.def("applyA", &OperatorWarpRefImage::applyA);
+	c_operator.def("applyAH", &OperatorWarpRefImage::applyAH);
 }
 #endif
 
@@ -290,7 +290,7 @@ void ImageWarperTemplate::warpRefImage(Image* image, int frameId) const
 	}
 }
 
-void GCOperatorWarpRefImage::applyA(const GCVariable* warp, GCVariable* out)
+void OperatorWarpRefImage::applyA(const GCVariable* warp, GCVariable* out)
 {
 	const ImageWarperTemplate* warper = dynamic_cast<const ImageWarperTemplate*>(warp);
 	Image* img = dynamic_cast<Image*>(out);
@@ -298,7 +298,7 @@ void GCOperatorWarpRefImage::applyA(const GCVariable* warp, GCVariable* out)
 	ASSERT(warper != nullptr);
 	warper->warpRefImage(img, m_frameId);
 }
-void GCOperatorWarpRefImage::applyAH(const GCVariable* warp, GCVariable* out)
+void OperatorWarpRefImage::applyAH(const GCVariable* warp, GCVariable* out)
 {
 	const ImageWarperTemplate* warper = dynamic_cast<const ImageWarperTemplate*>(warp);
 	Image* img = dynamic_cast<Image*>(out);

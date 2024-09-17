@@ -7,8 +7,8 @@
 
 #include "geometry/Constants.hpp"
 #include "geometry/Vector3D.hpp"
-#include "operators/GCOperatorProjectorSiddon.hpp"
-#include "utils/GCGlobals.hpp"
+#include "operators/OperatorProjectorSiddon.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 #include "utils/GCTools.hpp"
 
@@ -186,7 +186,7 @@ void GCSingleScatterSimulation::run_SSS(size_t numberZ, size_t numberPhi,
 	size_t progress_max = num_i_z * num_i_phi * num_i_r;
 	size_t last_progress_print = 0;
 
-	int num_threads = GCGlobals::get_num_threads();
+	int num_threads = Globals::get_num_threads();
 #pragma omp parallel for schedule(static, 1) collapse(3) \
     num_threads(num_threads)
 	for (size_t z_i = 0; z_i < num_i_z; z_i++)
@@ -371,11 +371,11 @@ double GCSingleScatterSimulation::compute_single_scatter_in_lor(
 		// compute I1 and I2:
 		// TODO yssrnjm: Remove the "/10" once the right units are settled
 		att_s_1_511 =
-		    GCOperatorProjectorSiddon::singleForwardProjection(mp_mu, lor_1_s) /
+		    OperatorProjectorSiddon::singleForwardProjection(mp_mu, lor_1_s) /
 		    10;
 
 		att_s_1 = att_s_1_511 * mu_scaling_factor;
-		lamb_s_1 = GCOperatorProjectorSiddon::singleForwardProjection(mp_lambda,
+		lamb_s_1 = OperatorProjectorSiddon::singleForwardProjection(mp_lambda,
 		                                                              lor_1_s);
 		delta_1 = get_intersection_length_lor_crystal(&lor_1_s);
 		if (delta_1 > 10 * thickdet)
@@ -390,11 +390,11 @@ double GCSingleScatterSimulation::compute_single_scatter_in_lor(
 		// TODO yssrnjm: Remove the "/10" once the right units are settled
 		// (again)
 		att_s_2_511 =
-		    GCOperatorProjectorSiddon::singleForwardProjection(mp_mu, lor_2_s) /
+		    OperatorProjectorSiddon::singleForwardProjection(mp_mu, lor_2_s) /
 		    10;
 
 		att_s_2 = att_s_2_511 * mu_scaling_factor;
-		lamb_s_2 = GCOperatorProjectorSiddon::singleForwardProjection(mp_lambda,
+		lamb_s_2 = OperatorProjectorSiddon::singleForwardProjection(mp_lambda,
 		                                                              lor_2_s);
 		delta_2 = get_intersection_length_lor_crystal(&lor_2_s);
 

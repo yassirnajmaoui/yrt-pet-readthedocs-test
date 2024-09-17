@@ -7,7 +7,7 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/image/ImageSpaceKernels.cuh"
-#include "operators/GCOperatorDevice.cuh"
+#include "operators/OperatorDevice.cuh"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGPUMemory.cuh"
 #include "utils/GCGPUTypes.cuh"

@@ -6,7 +6,7 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
 #include <cxxopts.hpp>
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	GCGlobals::set_num_threads(numThreads);
+	Globals::set_num_threads(numThreads);
 
 	const auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
 	auto histo =

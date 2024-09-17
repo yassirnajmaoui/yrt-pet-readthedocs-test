@@ -11,10 +11,10 @@
 
 #include <cmath>
 
-class GCTimeOfFlightHelper
+class TimeOfFlightHelper
 {
 public:
-	explicit GCTimeOfFlightHelper(float tof_width_ps, int tof_n_std = -1);
+	explicit TimeOfFlightHelper(float tof_width_ps, int tof_n_std = -1);
 
 	HOST_DEVICE_CALLABLE inline void getAlphaRange(double& alpha_min,
 	                                               double& alpha_max,

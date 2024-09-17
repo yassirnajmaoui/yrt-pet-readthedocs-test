@@ -36,7 +36,7 @@ TEST_CASE("listmode", "[list-mode]")
 	SECTION("listmode-binding")
 	{
 		ListModeLUTAlias listMode_alias(nullptr);
-		listMode_alias.Bind(listMode.get());
+		listMode_alias.bind(listMode.get());
 		CHECK(listMode->getTimestamp(0) == listMode_alias.getTimestamp(0));
 		CHECK(listMode->getTimestamp(13) == listMode_alias.getTimestamp(13));
 		CHECK(listMode->getDetector1(0) == listMode_alias.getDetector1(0));

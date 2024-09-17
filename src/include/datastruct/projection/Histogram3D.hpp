@@ -107,7 +107,7 @@ class Histogram3DAlias : public Histogram3D
 {
 public:
 	Histogram3DAlias(const Scanner* p_scanner);
-	void Bind(Array3DBase<float>& p_data);
+	void bind(Array3DBase<float>& p_data);
 };
 
 class Histogram3DOwned : public Histogram3D

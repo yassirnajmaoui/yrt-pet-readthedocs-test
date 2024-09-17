@@ -15,10 +15,10 @@ dataset.readFromFile("<path to a listmode to be backprojected>")
 # Prepare an image
 imgParams = gc.ImageParams("<path to the image parameters file>")
 outImage = gc.ImageOwned(imgParams)
-outImage.Allocate()
+outImage.allocate()
 
-projectorType = gc.GCOperatorProjector.ProjectorType.DD_GPU
+projectorType = gc.OperatorProjector.ProjectorType.DD_GPU
 # Available projectors: SIDDON, DD, DD_GPU
-gc.backProject(scanner, inputImage, outHis, projectorType)
+gc.backProject(scanner, outImage, dataset, projectorType)
 
 outImage.writeToFile("<path where to save the output image>")

@@ -32,12 +32,12 @@ set(SOURCES
         motion/ImageWarperMatrix.cpp
         motion/ImageWarperTemplate.cpp
         motion/ImageWarperFunction.cpp
-        operators/GCOperatorProjector.cpp
-        operators/GCOperatorProjectorSiddon.cpp
-        operators/GCOperatorProjectorDD.cpp
-        operators/GCOperatorPsf.cpp
-        operators/GCProjectionPsfManager.cpp
-        operators/GCTimeOfFlight.cpp
+        operators/OperatorProjector.cpp
+        operators/OperatorProjectorSiddon.cpp
+        operators/OperatorProjectorDD.cpp
+        operators/OperatorPsf.cpp
+        operators/ProjectionPsfManager.cpp
+        operators/TimeOfFlight.cpp
         recon/GCOSEM.cpp
         recon/GCOSEM_cpu.cpp
         scatter/GCScatterEstimator.cpp
@@ -50,7 +50,7 @@ set(SOURCES
         utils/GCReconstructionUtils.cpp
         utils/Array.cpp
         utils/GCFileReader.cpp
-        utils/GCGlobals.cpp)
+        utils/Globals.cpp)
 
 # cuda
 if (USE_CUDA)
@@ -61,9 +61,9 @@ if (USE_CUDA)
             datastruct/projection/LORsDevice.cu
             datastruct/projection/ProjectionDataDevice.cu
             datastruct/projection/ProjectionSpaceKernels.cu
-            operators/GCOperatorDevice.cu
-            operators/GCOperatorProjectorDD_kernels.cu
-            operators/GCOperatorProjectorDD_gpu.cu
+            operators/OperatorDevice.cu
+            operators/OperatorProjectorDD_GPUKernels.cu
+            operators/OperatorProjectorDD_GPU.cu
             recon/GCOSEM_gpu.cu
             utils/GCPageLockedBuffer.cu
             utils/GCGPUStream.cu

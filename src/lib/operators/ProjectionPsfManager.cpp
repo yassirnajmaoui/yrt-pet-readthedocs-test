@@ -3,17 +3,17 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "operators/GCProjectionPsfManager.hpp"
+#include "operators/ProjectionPsfManager.hpp"
 
 #include "utils/GCTools.hpp"
 
-GCProjectionPsfManager::GCProjectionPsfManager(const std::string& psfFilename)
+ProjectionPsfManager::ProjectionPsfManager(const std::string& psfFilename)
     : m_sStep(0.f), m_kSpacing(0.f)
 {
 	readFromFile(psfFilename);
 }
 
-void GCProjectionPsfManager::readFromFile(const std::string& psfFilename)
+void ProjectionPsfManager::readFromFile(const std::string& psfFilename)
 {
 	Util::readCSV<float>(psfFilename, m_kernelDataRaw);
 	m_sStep = m_kernelDataRaw[0][0];
@@ -38,18 +38,18 @@ void GCProjectionPsfManager::readFromFile(const std::string& psfFilename)
 }
 
 
-float GCProjectionPsfManager::getHalfWidth_mm() const
+float ProjectionPsfManager::getHalfWidth_mm() const
 {
 	// Zero-padding by one element
 	return (m_kernels.getSize(1) + 1) / 2 * m_kSpacing;
 }
 
-int GCProjectionPsfManager::getKernelSize() const
+int ProjectionPsfManager::getKernelSize() const
 {
 	return m_kernels.getSize(1);
 }
 
-float* GCProjectionPsfManager::getKernel(const StraightLineParam& lor,
+float* ProjectionPsfManager::getKernel(const StraightLineParam& lor,
                                          bool flagFlipped) const
 {
 	const Vector3D p1 = lor.point1;
@@ -82,7 +82,7 @@ float* GCProjectionPsfManager::getKernel(const StraightLineParam& lor,
 	}
 }
 
-float GCProjectionPsfManager::getWeight(const float* kernel, const float x0,
+float ProjectionPsfManager::getWeight(const float* kernel, const float x0,
                                         const float x1) const
 {
 	int halfWidth = (m_kernels.getSize(1) + 1) / 2;

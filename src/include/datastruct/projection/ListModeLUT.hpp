@@ -75,17 +75,17 @@ class ListModeLUTAlias : public ListModeLUT
 public:
 	ListModeLUTAlias(Scanner* s, bool p_flagTOF = false);
 	~ListModeLUTAlias() override = default;
-	void Bind(ListModeLUT* listMode);
-	void Bind(Array1DBase<timestamp_t>* p_timestamps,
+	void bind(ListModeLUT* listMode);
+	void bind(Array1DBase<timestamp_t>* p_timestamps,
 	          Array1DBase<det_id_t>* p_detector_ids1,
 	          Array1DBase<det_id_t>* p_detector_ids2,
 	          Array1DBase<float>* p_tof_ps = nullptr);
 #if BUILD_PYBIND11
-	void Bind(
+	void bind(
 	    pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2);
-	void Bind(
+	void bind(
 	    pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2,

@@ -63,8 +63,8 @@ class DetCoordAlias : public DetCoord
 {
 public:
 	DetCoordAlias();
-	void Bind(DetCoord* p_detCoord);
-	void Bind(Array1DBase<float>* Xpos, Array1DBase<float>* Ypos,
+	void bind(DetCoord* p_detCoord);
+	void bind(Array1DBase<float>* Xpos, Array1DBase<float>* Ypos,
 	          Array1DBase<float>* Zpos, Array1DBase<float>* Xorient,
 	          Array1DBase<float>* Yorient, Array1DBase<float>* Zorient);
 };

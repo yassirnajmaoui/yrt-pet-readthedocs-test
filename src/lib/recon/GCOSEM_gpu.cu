@@ -8,7 +8,7 @@
 #include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "datastruct/projection/ProjectionSpaceKernels.cuh"
-#include "operators/GCOperatorProjectorDD_gpu.cuh"
+#include "operators/OperatorProjectorDD_GPU.cuh"
 #include "utils/GCAssert.hpp"
 
 GCOSEM_gpu::GCOSEM_gpu(const Scanner* p_scanner)
@@ -24,14 +24,14 @@ GCOSEM_gpu::GCOSEM_gpu(const Scanner* p_scanner)
 	std::cout << "Creating an instance of OSEM gpu" << std::endl;
 
 	// Since the only available projector in GPU right now is DD_GPU:
-	projectorType = GCOperatorProjector::DD_GPU;
+	projectorType = OperatorProjector::DD_GPU;
 }
 
 GCOSEM_gpu::~GCOSEM_gpu() = default;
 
 void GCOSEM_gpu::SetupOperatorsForSensImgGen()
 {
-	ASSERT_MSG(projectorType == GCOperatorProjector::ProjectorType::DD_GPU,
+	ASSERT_MSG(projectorType == OperatorProjector::ProjectorType::DD_GPU,
 	           "No viable projector provided");
 
 	getBinIterators().clear();
@@ -45,11 +45,11 @@ void GCOSEM_gpu::SetupOperatorsForSensImgGen()
 
 		// Create ProjectorParams object
 	}
-	GCOperatorProjectorParams projParams(
+	OperatorProjectorParams projParams(
 	    nullptr /* Will be set later at each subset loading */, scanner, 0.f, 0,
 	    flagProjPSF ? projSpacePsf_fname : "", numRays);
 
-	mp_projector = std::make_unique<GCOperatorProjectorDD_gpu>(
+	mp_projector = std::make_unique<OperatorProjectorDD_GPU>(
 	    projParams, getMainStream(), getAuxStream());
 
 	if (attenuationImageForBackprojection != nullptr)
@@ -102,12 +102,12 @@ void GCOSEM_gpu::SetupOperatorsForRecon()
 	}
 
 	// Create ProjectorParams object
-	GCOperatorProjectorParams projParams(
+	OperatorProjectorParams projParams(
 	    nullptr /* Will be set later at each subset loading */, scanner,
 	    flagProjTOF ? tofWidth_ps : 0.f, flagProjTOF ? tofNumStd : 0,
 	    flagProjPSF ? projSpacePsf_fname : "", numRays);
 
-	mp_projector = std::make_unique<GCOperatorProjectorDD_gpu>(
+	mp_projector = std::make_unique<OperatorProjectorDD_GPU>(
 	    projParams, getMainStream(), getAuxStream());
 	if (attenuationImage != nullptr)
 	{

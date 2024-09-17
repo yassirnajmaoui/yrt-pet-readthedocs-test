@@ -36,7 +36,7 @@ void py_setup_projectionlist(pybind11::module& m)
 	    m, "ProjectionListAlias");
 	c_alias.def(pybind11::init<ProjectionData*>(), py::arg("projectionData"));
 	c_alias.def(
-	    "Bind",
+	    "bind",
 	    [](ProjectionListAlias& self, pybind11::buffer& projs_in)
 	    {
 		    pybind11::buffer_info buffer = projs_in.request();
@@ -193,7 +193,7 @@ ProjectionListAlias::ProjectionListAlias(ProjectionData* p)
 	mp_projs = std::make_unique<Array1DAlias<float>>();
 }
 
-void ProjectionListAlias::Bind(Array1DBase<float>* projs_in)
+void ProjectionListAlias::bind(Array1DBase<float>* projs_in)
 {
 	static_cast<Array1DAlias<float>*>(mp_projs.get())->bind(*projs_in);
 	if (mp_projs->getRawPointer() == nullptr)

@@ -4,7 +4,7 @@
  */
 
 #include "geometry/StraightLineParam.hpp"
-#include "operators/GCTimeOfFlight.hpp"
+#include "operators/TimeOfFlight.hpp"
 
 #include "catch.hpp"
 #include <cmath>
@@ -19,7 +19,7 @@ TEST_CASE("TOF", "[tof]")
 
 	SECTION("width_0")
 	{
-		auto tofHelper = GCTimeOfFlightHelper(0.f, 3);
+		auto tofHelper = TimeOfFlightHelper(0.f, 3);
 		StraightLineParam lor(
 		    Vector3D(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX,
 		             rand() / (float)RAND_MAX),
@@ -36,7 +36,7 @@ TEST_CASE("TOF", "[tof]")
 	SECTION("simple_geom")
 	{
 		float tof_width_ps = 95.f;
-		auto tofHelper = GCTimeOfFlightHelper(tof_width_ps, 3);
+		auto tofHelper = TimeOfFlightHelper(tof_width_ps, 3);
 		StraightLineParam lor(Vector3D(-155.0, 118.75, 367.5),
 		                        Vector3D(155.0, 163.75, 373.5));
 		double d_norm = (lor.point2 - lor.point1).getNorm();

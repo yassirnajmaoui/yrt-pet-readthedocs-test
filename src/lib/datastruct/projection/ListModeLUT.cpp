@@ -8,7 +8,7 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCAssert.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
 #include <cmath>
@@ -68,21 +68,21 @@ void py_setup_listmodelut(py::module& m)
 	c_alias.def(py::init<Scanner*, bool>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false);
 
-	c_alias.def("Bind",
+	c_alias.def("bind",
 	            static_cast<void (ListModeLUTAlias::*)(
 	                pybind11::array_t<timestamp_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&)>(
-	                &ListModeLUTAlias::Bind),
+	                &ListModeLUTAlias::bind),
 	            py::arg("timestamps"), py::arg("detector_ids1"),
 	            py::arg("detector_ids2"));
-	c_alias.def("Bind",
+	c_alias.def("bind",
 	            static_cast<void (ListModeLUTAlias::*)(
 	                pybind11::array_t<timestamp_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<float, pybind11::array::c_style>&)>(
-	                &ListModeLUTAlias::Bind),
+	                &ListModeLUTAlias::bind),
 	            py::arg("timestamps"), py::arg("detector_ids1"),
 	            py::arg("detector_ids2"), py::arg("tof_ps"));
 
@@ -181,7 +181,7 @@ void ListModeLUTOwned::readFromFile(const std::string& listMode_fname)
 		fin.read((char*)buff.get(),
 		         (read_size / num_fields) * num_fields * sizeof(float));
 
-		int num_threads = GCGlobals::get_num_threads();
+		int num_threads = Globals::get_num_threads();
 #pragma omp parallel for num_threads(num_threads)
 		for (size_t i = 0; i < read_size / num_fields; i++)
 		{
@@ -400,13 +400,13 @@ float ListModeLUT::getTOFValue(bin_t eventId) const
 		    "The given ListMode does not have any TOF values");
 }
 
-void ListModeLUTAlias::Bind(ListModeLUT* listMode)
+void ListModeLUTAlias::bind(ListModeLUT* listMode)
 {
-	Bind(listMode->getTimestampArrayPtr(), listMode->getDetector1ArrayPtr(),
+	bind(listMode->getTimestampArrayPtr(), listMode->getDetector1ArrayPtr(),
 	     listMode->getDetector2ArrayPtr());
 }
 
-void ListModeLUTAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
+void ListModeLUTAlias::bind(Array1DBase<timestamp_t>* pp_timestamps,
                               Array1DBase<det_id_t>* pp_detectorIds1,
                               Array1DBase<det_id_t>* pp_detectorIds2,
                               Array1DBase<float>* pp_tof_ps)
@@ -435,7 +435,7 @@ void ListModeLUTAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
 }
 
 #if BUILD_PYBIND11
-void ListModeLUTAlias::Bind(
+void ListModeLUTAlias::bind(
     pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detectorIds1,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detectorIds2)
@@ -468,13 +468,13 @@ void ListModeLUTAlias::Bind(
 	    ->bind(reinterpret_cast<det_id_t*>(buffer3.ptr), buffer3.shape[0]);
 }
 
-void ListModeLUTAlias::Bind(
+void ListModeLUTAlias::bind(
     pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2,
     pybind11::array_t<float, pybind11::array::c_style>& p_tof_ps)
 {
-	Bind(p_timestamps, p_detector_ids1, p_detector_ids2);
+	bind(p_timestamps, p_detector_ids1, p_detector_ids2);
 	if (!m_flagTOF)
 		throw std::logic_error(
 		    "The ListMode was not created with flag_tof at true");

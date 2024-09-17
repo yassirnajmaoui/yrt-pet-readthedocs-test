@@ -3,14 +3,14 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "operators/GCOperatorProjector.hpp"
+#include "operators/OperatorProjector.hpp"
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/BinIterator.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
 #include "geometry/Constants.hpp"
 #include "utils/GCAssert.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 #include "utils/GCTools.hpp"
 
@@ -23,68 +23,68 @@
 #include <utility>
 namespace py = pybind11;
 
-void py_setup_gcoperator(py::module& m)
+void py_setup_operator(py::module& m)
 {
-	auto c = py::class_<GCOperator>(m, "GCOperator");
+	auto c = py::class_<Operator>(m, "Operator");
 }
 
-void py_setup_gcoperatorprojectorparams(py::module& m)
+void py_setup_operatorprojectorparams(py::module& m)
 {
 	auto c =
-	    py::class_<GCOperatorProjectorParams>(m, "GCOperatorProjectorParams");
+	    py::class_<OperatorProjectorParams>(m, "OperatorProjectorParams");
 	c.def(py::init<BinIterator*, Scanner*, float, int, const std::string&,
 	               int>(),
 	      py::arg("binIter"), py::arg("scanner"), py::arg("tofWidth_ps") = 0.f,
 	      py::arg("tofNumStd") = 0, py::arg("psfProjFilename") = "",
 	      py::arg("num_rays") = 1);
-	c.def_readwrite("tofWidth_ps", &GCOperatorProjectorParams::tofWidth_ps);
-	c.def_readwrite("tofNumStd", &GCOperatorProjectorParams::tofNumStd);
+	c.def_readwrite("tofWidth_ps", &OperatorProjectorParams::tofWidth_ps);
+	c.def_readwrite("tofNumStd", &OperatorProjectorParams::tofNumStd);
 	c.def_readwrite("psfProjFilename",
-	                &GCOperatorProjectorParams::psfProjFilename);
-	c.def_readwrite("num_rays", &GCOperatorProjectorParams::numRays);
+	                &OperatorProjectorParams::psfProjFilename);
+	c.def_readwrite("num_rays", &OperatorProjectorParams::numRays);
 }
 
-void py_setup_gcoperatorprojectorbase(py::module& m)
+void py_setup_operatorprojectorbase(py::module& m)
 {
-	auto c = py::class_<GCOperatorProjectorBase, GCOperator>(
-	    m, "GCOperatorProjectorBase");
-	c.def("setAddHisto", &GCOperatorProjectorBase::setAddHisto);
-	c.def("setAttenuationImage", &GCOperatorProjectorBase::setAttenuationImage);
-	c.def("setAttImage", &GCOperatorProjectorBase::setAttenuationImage);
+	auto c = py::class_<OperatorProjectorBase, Operator>(
+	    m, "OperatorProjectorBase");
+	c.def("setAddHisto", &OperatorProjectorBase::setAddHisto);
+	c.def("setAttenuationImage", &OperatorProjectorBase::setAttenuationImage);
+	c.def("setAttImage", &OperatorProjectorBase::setAttenuationImage);
 	c.def("setAttImageForBackprojection",
-	      &GCOperatorProjectorBase::setAttImageForBackprojection);
-	c.def("getBinIter", &GCOperatorProjectorBase::getBinIter);
-	c.def("getScanner", &GCOperatorProjectorBase::getScanner);
-	c.def("getAttImage", &GCOperatorProjectorBase::getAttImage);
+	      &OperatorProjectorBase::setAttImageForBackprojection);
+	c.def("getBinIter", &OperatorProjectorBase::getBinIter);
+	c.def("getScanner", &OperatorProjectorBase::getScanner);
+	c.def("getAttImage", &OperatorProjectorBase::getAttImage);
 }
 
-void py_setup_gcoperatorprojector(py::module& m)
+void py_setup_operatorprojector(py::module& m)
 {
-	auto c = py::class_<GCOperatorProjector, GCOperatorProjectorBase>(
-	    m, "GCOperatorProjector");
-	c.def("setupTOFHelper", &GCOperatorProjector::setupTOFHelper);
-	c.def("getTOFHelper", &GCOperatorProjector::getTOFHelper);
+	auto c = py::class_<OperatorProjector, OperatorProjectorBase>(
+	    m, "OperatorProjector");
+	c.def("setupTOFHelper", &OperatorProjector::setupTOFHelper);
+	c.def("getTOFHelper", &OperatorProjector::getTOFHelper);
 	c.def("getProjectionPsfManager",
-	      &GCOperatorProjector::getProjectionPsfManager);
+	      &OperatorProjector::getProjectionPsfManager);
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const Image* img, ProjectionData* proj)
+	    [](OperatorProjector& self, const Image* img, ProjectionData* proj)
 	    { self.applyA(img, proj); }, py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const ProjectionData* proj, Image* img)
+	    [](OperatorProjector& self, const ProjectionData* proj, Image* img)
 	    { self.applyAH(proj, img); }, py::arg("proj"), py::arg("img"));
 
-	py::enum_<GCOperatorProjector::ProjectorType>(c, "ProjectorType")
-	    .value("SIDDON", GCOperatorProjector::ProjectorType::SIDDON)
-	    .value("DD", GCOperatorProjector::ProjectorType::DD)
-	    .value("DD_GPU", GCOperatorProjector::ProjectorType::DD_GPU)
+	py::enum_<OperatorProjector::ProjectorType>(c, "ProjectorType")
+	    .value("SIDDON", OperatorProjector::ProjectorType::SIDDON)
+	    .value("DD", OperatorProjector::ProjectorType::DD)
+	    .value("DD_GPU", OperatorProjector::ProjectorType::DD_GPU)
 	    .export_values();
 }
 
 #endif
 
-GCOperatorProjectorParams::GCOperatorProjectorParams(
+OperatorProjectorParams::OperatorProjectorParams(
     const BinIterator* p_binIter, const Scanner* p_scanner,
     float p_tofWidth_ps, int p_tofNumStd, std::string p_psfProjFilename,
     int p_num_rays)
@@ -97,8 +97,8 @@ GCOperatorProjectorParams::GCOperatorProjectorParams(
 {
 }
 
-GCOperatorProjectorBase::GCOperatorProjectorBase(
-    const GCOperatorProjectorParams& p_projParams)
+OperatorProjectorBase::OperatorProjectorBase(
+    const OperatorProjectorParams& p_projParams)
     : binIter(p_projParams.binIter),
       scanner(p_projParams.scanner),
       attImage(nullptr),
@@ -107,66 +107,66 @@ GCOperatorProjectorBase::GCOperatorProjectorBase(
 {
 }
 
-void GCOperatorProjectorBase::setAddHisto(const Histogram* p_addHisto)
+void OperatorProjectorBase::setAddHisto(const Histogram* p_addHisto)
 {
 	ASSERT_MSG(p_addHisto != nullptr,
 	           "The additive histogram given in "
-	           "GCOperatorProjector::setAddHisto is a null pointer");
+	           "OperatorProjector::setAddHisto is a null pointer");
 	addHisto = p_addHisto;
 }
 
-void GCOperatorProjectorBase::setBinIter(const BinIterator* p_binIter)
+void OperatorProjectorBase::setBinIter(const BinIterator* p_binIter)
 {
 	binIter = p_binIter;
 }
 
-void GCOperatorProjectorBase::setAttenuationImage(const Image* p_attImage)
+void OperatorProjectorBase::setAttenuationImage(const Image* p_attImage)
 {
 	setAttImage(p_attImage);
 }
 
-void GCOperatorProjectorBase::setAttImageForBackprojection(
+void OperatorProjectorBase::setAttImageForBackprojection(
     const Image* p_attImage)
 {
 	attImageForBackprojection = p_attImage;
 }
 
-void GCOperatorProjectorBase::setAttImage(const Image* p_attImage)
+void OperatorProjectorBase::setAttImage(const Image* p_attImage)
 {
 	ASSERT_MSG(p_attImage != nullptr,
 	           "The attenuation image given in "
-	           "GCOperatorProjector::setAttenuationImage is a null pointer");
+	           "OperatorProjector::setAttenuationImage is a null pointer");
 	attImage = p_attImage;
 }
 
-const BinIterator* GCOperatorProjectorBase::getBinIter() const
+const BinIterator* OperatorProjectorBase::getBinIter() const
 {
 	return binIter;
 }
 
-const Scanner* GCOperatorProjectorBase::getScanner() const
+const Scanner* OperatorProjectorBase::getScanner() const
 {
 	return scanner;
 }
 
-const Image* GCOperatorProjectorBase::getAttImage() const
+const Image* OperatorProjectorBase::getAttImage() const
 {
 	return attImage;
 }
 
-const Image* GCOperatorProjectorBase::getAttImageForBackprojection() const
+const Image* OperatorProjectorBase::getAttImageForBackprojection() const
 {
 	return attImageForBackprojection;
 }
 
-const Histogram* GCOperatorProjectorBase::getAddHisto() const
+const Histogram* OperatorProjectorBase::getAddHisto() const
 {
 	return addHisto;
 }
 
-GCOperatorProjector::GCOperatorProjector(
-    const GCOperatorProjectorParams& p_projParams)
-    : GCOperatorProjectorBase(p_projParams),
+OperatorProjector::OperatorProjector(
+    const OperatorProjectorParams& p_projParams)
+    : OperatorProjectorBase(p_projParams),
       mp_tofHelper(nullptr),
       mp_projPsfManager(nullptr)
 {
@@ -183,7 +183,7 @@ GCOperatorProjector::GCOperatorProjector(
 	    "Siddon does not support Projection space PSF. It will be ignored.");
 }
 
-void GCOperatorProjector::applyA(const GCVariable* in, GCVariable* out)
+void OperatorProjector::applyA(const GCVariable* in, GCVariable* out)
 {
 	auto* dat = dynamic_cast<ProjectionData*>(out);
 	auto* img = dynamic_cast<const Image*>(in);
@@ -217,7 +217,7 @@ void GCOperatorProjector::applyA(const GCVariable* in, GCVariable* out)
 	}
 }
 
-void GCOperatorProjector::applyAH(const GCVariable* in, GCVariable* out)
+void OperatorProjector::applyAH(const GCVariable* in, GCVariable* out)
 {
 	auto* dat = dynamic_cast<const ProjectionData*>(in);
 	auto* img = dynamic_cast<Image*>(out);
@@ -248,33 +248,33 @@ void GCOperatorProjector::applyAH(const GCVariable* in, GCVariable* out)
 	}
 }
 
-void GCOperatorProjector::setupTOFHelper(float tofWidth_ps, int tofNumStd)
+void OperatorProjector::setupTOFHelper(float tofWidth_ps, int tofNumStd)
 {
 	mp_tofHelper =
-	    std::make_unique<GCTimeOfFlightHelper>(tofWidth_ps, tofNumStd);
+	    std::make_unique<TimeOfFlightHelper>(tofWidth_ps, tofNumStd);
 	ASSERT_MSG(mp_tofHelper != nullptr,
-	           "Error occured during the setup of GCTimeOfFlightHelper");
+	           "Error occured during the setup of TimeOfFlightHelper");
 }
 
-void GCOperatorProjector::setupProjPsfManager(const std::string& psfFilename)
+void OperatorProjector::setupProjPsfManager(const std::string& psfFilename)
 {
-	mp_projPsfManager = std::make_unique<GCProjectionPsfManager>(psfFilename);
+	mp_projPsfManager = std::make_unique<ProjectionPsfManager>(psfFilename);
 	ASSERT_MSG(mp_projPsfManager != nullptr,
-	           "Error occured during the setup of GCProjectionPsfManager");
+	           "Error occured during the setup of ProjectionPsfManager");
 }
 
-const GCTimeOfFlightHelper* GCOperatorProjector::getTOFHelper() const
+const TimeOfFlightHelper* OperatorProjector::getTOFHelper() const
 {
 	return mp_tofHelper.get();
 }
 
-const GCProjectionPsfManager*
-    GCOperatorProjector::getProjectionPsfManager() const
+const ProjectionPsfManager*
+    OperatorProjector::getProjectionPsfManager() const
 {
 	return mp_projPsfManager.get();
 }
 
-void GCOperatorProjector::get_alpha(double r0, double r1, double p1, double p2,
+void OperatorProjector::get_alpha(double r0, double r1, double p1, double p2,
                                     double inv_p12, double& amin, double& amax)
 {
 	amin = 0.0;

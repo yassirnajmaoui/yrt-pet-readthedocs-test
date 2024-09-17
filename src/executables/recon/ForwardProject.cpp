@@ -6,8 +6,8 @@
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "operators/GCOperatorProjector.hpp"
-#include "utils/GCGlobals.hpp"
+#include "operators/OperatorProjector.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 #include "utils/GCTools.hpp"
 
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 	}
 
 	auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
-	GCGlobals::set_num_threads(numThreads);
+	Globals::set_num_threads(numThreads);
 
 	// Input file
 	ImageParams imageParams(imgParams_fname);
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 	if (!imageSpacePsf_fname.empty())
 	{
 		auto imageSpacePsf =
-		    std::make_unique<GCOperatorPsf>(imageParams, imageSpacePsf_fname);
+		    std::make_unique<OperatorPsf>(imageParams, imageSpacePsf_fname);
 		std::cout << "Applying Image-space PSF..." << std::endl;
 		imageSpacePsf->applyA(inputImage.get(), inputImage.get());
 		std::cout << "Done applying Image-space PSF" << std::endl;
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 
 	// Start forward projection
 	auto binIter = his->getBinIter(numSubsets, subsetId);
-	GCOperatorProjectorParams projParams(binIter.get(), scanner.get(),
+	OperatorProjectorParams projParams(binIter.get(), scanner.get(),
 	                                     tofWidth_ps, tofNumStd,
 	                                     projSpacePsf_fname, numRays);
 

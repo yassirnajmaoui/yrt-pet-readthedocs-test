@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "operators/GCOperatorProjectorDD_kernels.cuh"
+#include "operators/OperatorProjectorDD_GPUKernels.cuh"
 
 
 __device__ float3 operator+(const float3& a, const float3& b)
@@ -108,11 +108,11 @@ __device__ inline float get_overlap_safe(const float p0, const float p1,
 
 
 template <bool IsForward, bool HasTOF>
-__global__ void GCOperatorProjectorDDCU_kernel(
+__global__ void OperatorProjectorDDCU_kernel(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const GCTimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
+    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
     GCCUImageParams imgParams, size_t batchSize)
 {
 	const long eventId = blockIdx.x * blockDim.x + threadIdx.x;
@@ -437,29 +437,29 @@ __global__ void GCOperatorProjectorDDCU_kernel(
 	}
 }
 
-template __global__ void GCOperatorProjectorDDCU_kernel<true, true>(
+template __global__ void OperatorProjectorDDCU_kernel<true, true>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const GCTimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
+    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
     GCCUImageParams imgParams, size_t batchSize);
-template __global__ void GCOperatorProjectorDDCU_kernel<false, true>(
+template __global__ void OperatorProjectorDDCU_kernel<false, true>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const GCTimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
+    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
     GCCUImageParams imgParams, size_t batchSize);
-template __global__ void GCOperatorProjectorDDCU_kernel<true, false>(
+template __global__ void OperatorProjectorDDCU_kernel<true, false>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const GCTimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
+    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
     GCCUImageParams imgParams, size_t batchSize);
-template __global__ void GCOperatorProjectorDDCU_kernel<false, false>(
+template __global__ void OperatorProjectorDDCU_kernel<false, false>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const GCTimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
+    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
     GCCUImageParams imgParams, size_t batchSize);
 
 

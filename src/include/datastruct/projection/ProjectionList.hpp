@@ -59,7 +59,7 @@ class ProjectionListAlias : public ProjectionList
 public:
 	ProjectionListAlias(ProjectionData* p);
 	~ProjectionListAlias() override = default;
-	void Bind(Array1DBase<float>* projs_in);
+	void bind(Array1DBase<float>* projs_in);
 };
 
 class ProjectionListOwned : public ProjectionList

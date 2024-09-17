@@ -6,16 +6,16 @@
 #pragma once
 
 #include "geometry/MultiRayGenerator.hpp"
-#include "operators/GCOperatorProjector.hpp"
+#include "operators/OperatorProjector.hpp"
 
 #include "omp.h"
 
 class Image;
 
-class GCOperatorProjectorSiddon : public GCOperatorProjector
+class OperatorProjectorSiddon : public OperatorProjector
 {
 public:
-	GCOperatorProjectorSiddon(const GCOperatorProjectorParams& p_projParams);
+	OperatorProjectorSiddon(const OperatorProjectorParams& p_projParams);
 
 	double forwardProjection(const Image* img, const ProjectionData* dat,
 	                         bin_t bin) override;
@@ -27,27 +27,27 @@ public:
 	// Projection
 	double forwardProjection(const Image* img, const StraightLineParam& lor,
 	                         const Vector3D& n1, const Vector3D& n2,
-	                         const GCTimeOfFlightHelper* tofHelper = nullptr,
+	                         const TimeOfFlightHelper* tofHelper = nullptr,
 	                         float tofValue = 0.f) const;
 	void backProjection(Image* img, const StraightLineParam& lor,
 	                    const Vector3D& n1, const Vector3D& n2,
 	                    double projValue,
-	                    const GCTimeOfFlightHelper* tofHelper = nullptr,
+	                    const TimeOfFlightHelper* tofHelper = nullptr,
 	                    float tofValue = 0.f) const;
 
 	// Without Multi-ray siddon
 	static double singleForwardProjection(
 	    const Image* img, const StraightLineParam& lor,
-	    const GCTimeOfFlightHelper* tofHelper = nullptr, float tofValue = 0.f);
+	    const TimeOfFlightHelper* tofHelper = nullptr, float tofValue = 0.f);
 	static void singleBackProjection(
 	    Image* img, const StraightLineParam& lor, double projValue,
-	    const GCTimeOfFlightHelper* tofHelper = nullptr, float tofValue = 0.f);
+	    const TimeOfFlightHelper* tofHelper = nullptr, float tofValue = 0.f);
 
 
 	template <bool IS_FWD, bool FLAG_INCR, bool FLAG_TOF>
 	static void project_helper(Image* img, const StraightLineParam& lor,
 	                           double& value,
-	                           const GCTimeOfFlightHelper* tofHelper = nullptr,
+	                           const TimeOfFlightHelper* tofHelper = nullptr,
 	                           float tofValue = 0.f);
 
 	int getNumRays() const;

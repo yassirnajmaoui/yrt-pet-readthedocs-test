@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "operators/GCOperatorProjectorDD.hpp"
+#include "operators/OperatorProjectorDD.hpp"
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
@@ -15,16 +15,16 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gcoperatorprojectordd(py::module& m)
+void py_setup_operatorprojectordd(py::module& m)
 {
-	auto c = py::class_<GCOperatorProjectorDD, GCOperatorProjector>(
-	    m, "GCOperatorProjectorDD");
-	c.def(py::init<const GCOperatorProjectorParams&>(), py::arg("projParams"));
+	auto c = py::class_<OperatorProjectorDD, OperatorProjector>(
+	    m, "OperatorProjectorDD");
+	c.def(py::init<const OperatorProjectorParams&>(), py::arg("projParams"));
 	c.def(
 	    "forward_projection",
-	    [](const GCOperatorProjectorDD& self, const Image* in_image,
+	    [](const OperatorProjectorDD& self, const Image* in_image,
 	       const StraightLineParam& lor, const Vector3D& n1,
-	       const Vector3D& n2, const GCTimeOfFlightHelper* tofHelper,
+	       const Vector3D& n2, const TimeOfFlightHelper* tofHelper,
 	       float tofValue) -> double
 	    {
 		    return self.forwardProjection(in_image, lor, n1, n2, tofHelper,
@@ -34,10 +34,10 @@ void py_setup_gcoperatorprojectordd(py::module& m)
 	    py::arg("tofHelper") = nullptr, py::arg("tofValue") = 0.0f);
 	c.def(
 	    "back_projection",
-	    [](const GCOperatorProjectorDD& self, Image* in_image,
+	    [](const OperatorProjectorDD& self, Image* in_image,
 	       const StraightLineParam& lor, const Vector3D& n1,
 	       const Vector3D& n2, double proj_value,
-	       const GCTimeOfFlightHelper* tofHelper, float tofValue)
+	       const TimeOfFlightHelper* tofHelper, float tofValue)
 	    {
 		    self.backProjection(in_image, lor, n1, n2, proj_value, tofHelper,
 		                        tofValue, nullptr);
@@ -46,18 +46,18 @@ void py_setup_gcoperatorprojectordd(py::module& m)
 	    py::arg("proj_value"), py::arg("tofHelper") = nullptr,
 	    py::arg("tofValue") = 0.0f);
 
-	c.def_static("get_overlap", &GCOperatorProjectorDD::get_overlap);
+	c.def_static("get_overlap", &OperatorProjectorDD::get_overlap);
 }
 #endif
 
 
-GCOperatorProjectorDD::GCOperatorProjectorDD(
-    const GCOperatorProjectorParams& p_projParams)
-    : GCOperatorProjector(p_projParams)
+OperatorProjectorDD::OperatorProjectorDD(
+    const OperatorProjectorParams& p_projParams)
+    : OperatorProjector(p_projParams)
 {
 }
 
-double GCOperatorProjectorDD::forwardProjection(const Image* img,
+double OperatorProjectorDD::forwardProjection(const Image* img,
                                                 const ProjectionData* dat,
                                                 bin_t bin)
 {
@@ -70,7 +70,7 @@ double GCOperatorProjectorDD::forwardProjection(const Image* img,
 	                         mp_projPsfManager.get());
 }
 
-void GCOperatorProjectorDD::backProjection(Image* img,
+void OperatorProjectorDD::backProjection(Image* img,
                                            const ProjectionData* dat,
                                            bin_t bin, double projValue)
 {
@@ -81,10 +81,10 @@ void GCOperatorProjectorDD::backProjection(Image* img,
 	               mp_projPsfManager.get());
 }
 
-double GCOperatorProjectorDD::forwardProjection(
+double OperatorProjectorDD::forwardProjection(
     const Image* in_image, const StraightLineParam& lor, const Vector3D& n1,
-    const Vector3D& n2, const GCTimeOfFlightHelper* tofHelper, float tofValue,
-    const GCProjectionPsfManager* psfManager) const
+    const Vector3D& n2, const TimeOfFlightHelper* tofHelper, float tofValue,
+    const ProjectionPsfManager* psfManager) const
 {
 	double v = 0;
 	if (tofHelper != nullptr)
@@ -100,11 +100,11 @@ double GCOperatorProjectorDD::forwardProjection(
 	return v;
 }
 
-void GCOperatorProjectorDD::backProjection(
+void OperatorProjectorDD::backProjection(
     Image* in_image, const StraightLineParam& lor, const Vector3D& n1,
     const Vector3D& n2, double proj_value,
-    const GCTimeOfFlightHelper* tofHelper, float tofValue,
-    const GCProjectionPsfManager* psfManager) const
+    const TimeOfFlightHelper* tofHelper, float tofValue,
+    const ProjectionPsfManager* psfManager) const
 {
 	if (tofHelper != nullptr)
 	{
@@ -118,15 +118,15 @@ void GCOperatorProjectorDD::backProjection(
 	}
 }
 
-float GCOperatorProjectorDD::get_overlap_safe(float p0, float p1, float d0,
+float OperatorProjectorDD::get_overlap_safe(float p0, float p1, float d0,
                                               float d1)
 {
 	return std::min(p1, d1) - std::max(p0, d0);
 }
 
-float GCOperatorProjectorDD::get_overlap_safe(
+float OperatorProjectorDD::get_overlap_safe(
     const float p0, const float p1, const float d0, const float d1,
-    const GCProjectionPsfManager* psfManager, const float* psfKernel)
+    const ProjectionPsfManager* psfManager, const float* psfKernel)
 {
 	if (psfManager != nullptr)
 	{
@@ -135,20 +135,20 @@ float GCOperatorProjectorDD::get_overlap_safe(
 	return get_overlap_safe(p0, p1, d0, d1);
 }
 
-float GCOperatorProjectorDD::get_overlap(
+float OperatorProjectorDD::get_overlap(
     const float p0, const float p1, const float d0, const float d1,
-    const GCProjectionPsfManager* psfManager, const float* psfKernel)
+    const ProjectionPsfManager* psfManager, const float* psfKernel)
 {
 	return std::max(0.f,
 	                get_overlap_safe(p0, p1, d0, d1, psfManager, psfKernel));
 }
 
 template <bool IS_FWD, bool FLAG_TOF>
-void GCOperatorProjectorDD::dd_project_ref(
+void OperatorProjectorDD::dd_project_ref(
     Image* in_image, const StraightLineParam& lor, const Vector3D& n1,
     const Vector3D& n2, double& proj_value,
-    const GCTimeOfFlightHelper* tofHelper, float tofValue,
-    const GCProjectionPsfManager* psfManager) const
+    const TimeOfFlightHelper* tofHelper, float tofValue,
+    const ProjectionPsfManager* psfManager) const
 {
 	if constexpr (IS_FWD)
 	{
@@ -190,13 +190,13 @@ void GCOperatorProjectorDD::dd_project_ref(
 	const double inv_d12_z = (d1.z == d2.z) ? 0.0 : 1 / (d2.z - d1.z);
 
 	double ax_min, ax_max, ay_min, ay_max, az_min, az_max;
-	GCOperatorProjector::get_alpha(-0.5 * (params.length_x - dx),
+	OperatorProjector::get_alpha(-0.5 * (params.length_x - dx),
 	                               0.5 * (params.length_x - dx), d1.x, d2.x,
 	                               inv_d12_x, ax_min, ax_max);
-	GCOperatorProjector::get_alpha(-0.5 * (params.length_y - dy),
+	OperatorProjector::get_alpha(-0.5 * (params.length_y - dy),
 	                               0.5 * (params.length_y - dy), d1.y, d2.y,
 	                               inv_d12_y, ay_min, ay_max);
-	GCOperatorProjector::get_alpha(-0.5 * (params.length_z - dz),
+	OperatorProjector::get_alpha(-0.5 * (params.length_z - dz),
 	                               0.5 * (params.length_z - dz), d1.z, d2.z,
 	                               inv_d12_z, az_min, az_max);
 	double amin = std::max({0.0, ax_min, ay_min, az_min});
@@ -435,19 +435,19 @@ void GCOperatorProjectorDD::dd_project_ref(
 	}
 }
 
-template void GCOperatorProjectorDD::dd_project_ref<true, false>(
+template void OperatorProjectorDD::dd_project_ref<true, false>(
     Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
-    double&, const GCTimeOfFlightHelper*, float,
-    const GCProjectionPsfManager*) const;
-template void GCOperatorProjectorDD::dd_project_ref<false, false>(
+    double&, const TimeOfFlightHelper*, float,
+    const ProjectionPsfManager*) const;
+template void OperatorProjectorDD::dd_project_ref<false, false>(
     Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
-    double&, const GCTimeOfFlightHelper*, float,
-    const GCProjectionPsfManager*) const;
-template void GCOperatorProjectorDD::dd_project_ref<true, true>(
+    double&, const TimeOfFlightHelper*, float,
+    const ProjectionPsfManager*) const;
+template void OperatorProjectorDD::dd_project_ref<true, true>(
     Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
-    double&, const GCTimeOfFlightHelper*, float,
-    const GCProjectionPsfManager*) const;
-template void GCOperatorProjectorDD::dd_project_ref<false, true>(
+    double&, const TimeOfFlightHelper*, float,
+    const ProjectionPsfManager*) const;
+template void OperatorProjectorDD::dd_project_ref<false, true>(
     Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
-    double&, const GCTimeOfFlightHelper*, float,
-    const GCProjectionPsfManager*) const;
+    double&, const TimeOfFlightHelper*, float,
+    const ProjectionPsfManager*) const;

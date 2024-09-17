@@ -15,6 +15,156 @@ namespace py = pybind11;
 
 #include <fstream>
 
+#if BUILD_PYBIND11
+void py_setup_gcdetcoord(py::module& m)
+{
+	auto c = pybind11::class_<DetCoord, DetectorSetup>(m, "DetCoord");
+	c.def("setXpos", &DetCoord::setXpos);
+	c.def("setYpos", &DetCoord::setYpos);
+	c.def("setZpos", &DetCoord::setZpos);
+	c.def("setXorient", &DetCoord::setXorient);
+	c.def("setYorient", &DetCoord::setYorient);
+	c.def("setZorient", &DetCoord::setZorient);
+
+	c.def("getXposArray",
+	      [](const DetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* posArr = self.getXposArrayRef();
+		      auto buf_info =
+		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {posArr->getSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getYposArray",
+	      [](const DetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* posArr = self.getYposArrayRef();
+		      auto buf_info =
+		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {posArr->getSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getZposArray",
+	      [](const DetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* posArr = self.getZposArrayRef();
+		      auto buf_info =
+		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {posArr->getSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getXorientArray",
+	      [](const DetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* orientArr = self.getXorientArrayRef();
+		      auto buf_info =
+		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {orientArr->getSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getYorientArray",
+	      [](const DetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* orientArr = self.getYorientArrayRef();
+		      auto buf_info =
+		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {orientArr->getSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+	c.def("getZorientArray",
+	      [](const DetCoord& self) -> py::array_t<float>
+	      {
+		      Array1DBase<float>* orientArr = self.getZorientArrayRef();
+		      auto buf_info =
+		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
+		                          py::format_descriptor<float>::format(), 1,
+		                          {orientArr->getSizeTotal()}, {sizeof(float)});
+		      return py::array_t<float>(buf_info);
+	      });
+
+
+	auto c_owned =
+	    pybind11::class_<DetCoordOwned, DetCoord>(m, "DetCoordOwned");
+	c_owned.def(py::init<>());
+	c_owned.def(py::init<const std::string&>());
+	c_owned.def("readFromFile", &DetCoordOwned::readFromFile);
+	c_owned.def("allocate", &DetCoordOwned::allocate);
+
+	auto c_alias =
+	    pybind11::class_<DetCoordAlias, DetCoord>(m, "DetCoordAlias");
+	c_alias.def(py::init<>());
+	c_alias.def(
+	    "bind",
+	    [](DetCoordAlias& self, py::buffer& xpos, py::buffer& ypos,
+	       py::buffer& zpos, py::buffer& xorient, py::buffer& yorient,
+	       py::buffer& zorient)
+	    {
+		    py::buffer_info xpos_info = xpos.request();
+		    py::buffer_info zpos_info = ypos.request();
+		    py::buffer_info ypos_info = zpos.request();
+		    py::buffer_info xorient_info = xorient.request();
+		    py::buffer_info zorient_info = yorient.request();
+		    py::buffer_info yorient_info = zorient.request();
+		    if (xpos_info.format != py::format_descriptor<float>::format() ||
+		        xpos_info.ndim != 1)
+			    throw std::invalid_argument(
+			        "The XPos array has to be a 1-dimensional float32 array");
+		    if (ypos_info.format != py::format_descriptor<float>::format() ||
+		        ypos_info.ndim != 1)
+			    throw std::invalid_argument(
+			        "The YPos array has to be a 1-dimensional float32 array");
+		    if (zpos_info.format != py::format_descriptor<float>::format() ||
+		        zpos_info.ndim != 1)
+			    throw std::invalid_argument(
+			        "The ZPos array has to be a 1-dimensional float32 array");
+		    if (xorient_info.format != py::format_descriptor<float>::format() ||
+		        xorient_info.ndim != 1)
+			    throw std::invalid_argument("The XOrient array has to be a "
+			                                "1-dimensional float32 array");
+		    if (yorient_info.format != py::format_descriptor<float>::format() ||
+		        yorient_info.ndim != 1)
+			    throw std::invalid_argument("The YOrient array has to be a "
+			                                "1-dimensional float32 array");
+		    if (zorient_info.format != py::format_descriptor<float>::format() ||
+		        zorient_info.ndim != 1)
+			    throw std::invalid_argument("The ZOrient array has to be a "
+			                                "1-dimensional float32 array");
+		    if (xpos_info.shape[0] != ypos_info.shape[0] ||
+		        xpos_info.shape[0] != zpos_info.shape[0] ||
+		        xpos_info.shape[0] != xorient_info.shape[0] ||
+		        xpos_info.shape[0] != yorient_info.shape[0] ||
+		        xpos_info.shape[0] != zorient_info.shape[0])
+			    throw std::invalid_argument(
+			        "All the arrays given have to have the same size");
+
+		    static_cast<Array1DAlias<float>*>(self.getXposArrayRef())
+		        ->bind(reinterpret_cast<float*>(xpos_info.ptr),
+		               xpos_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getYposArrayRef())
+		        ->bind(reinterpret_cast<float*>(ypos_info.ptr),
+		               ypos_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getZposArrayRef())
+		        ->bind(reinterpret_cast<float*>(zpos_info.ptr),
+		               zpos_info.shape[0]);
+
+		    static_cast<Array1DAlias<float>*>(self.getXorientArrayRef())
+		        ->bind(reinterpret_cast<float*>(xorient_info.ptr),
+		               xorient_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getYorientArrayRef())
+		        ->bind(reinterpret_cast<float*>(yorient_info.ptr),
+		               yorient_info.shape[0]);
+		    static_cast<Array1DAlias<float>*>(self.getZorientArrayRef())
+		        ->bind(reinterpret_cast<float*>(zorient_info.ptr),
+		               zorient_info.shape[0]);
+	    });
+}
+#endif
+
 DetCoord::DetCoord() {}
 DetCoordOwned::DetCoordOwned() : DetCoord()
 {
@@ -124,14 +274,14 @@ void DetCoordOwned::readFromFile(const std::string& filename)
 	fin.close();
 }
 
-void DetCoordAlias::Bind(DetCoord* p_detCoord)
+void DetCoordAlias::bind(DetCoord* p_detCoord)
 {
-	Bind(p_detCoord->getXposArrayRef(), p_detCoord->getYposArrayRef(),
+	bind(p_detCoord->getXposArrayRef(), p_detCoord->getYposArrayRef(),
 	     p_detCoord->getZposArrayRef(), p_detCoord->getXorientArrayRef(),
 	     p_detCoord->getYorientArrayRef(), p_detCoord->getZorientArrayRef());
 }
 
-void DetCoordAlias::Bind(Array1DBase<float>* p_Xpos,
+void DetCoordAlias::bind(Array1DBase<float>* p_Xpos,
                            Array1DBase<float>* p_Ypos,
                            Array1DBase<float>* p_Zpos,
                            Array1DBase<float>* p_Xorient,
@@ -215,153 +365,3 @@ size_t DetCoord::getNumDets() const
 {
 	return this->mp_Xpos->getSize(0);
 }
-
-#if BUILD_PYBIND11
-void py_setup_gcdetcoord(py::module& m)
-{
-	auto c = pybind11::class_<DetCoord, DetectorSetup>(m, "DetCoord");
-	c.def("setXpos", &DetCoord::setXpos);
-	c.def("setYpos", &DetCoord::setYpos);
-	c.def("setZpos", &DetCoord::setZpos);
-	c.def("setXorient", &DetCoord::setXorient);
-	c.def("setYorient", &DetCoord::setYorient);
-	c.def("setZorient", &DetCoord::setZorient);
-
-	c.def("getXposArray",
-	      [](const DetCoord& self) -> py::array_t<float>
-	      {
-		      Array1DBase<float>* posArr = self.getXposArrayRef();
-		      auto buf_info =
-		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
-		                          py::format_descriptor<float>::format(), 1,
-		                          {posArr->getSizeTotal()}, {sizeof(float)});
-		      return py::array_t<float>(buf_info);
-	      });
-	c.def("getYposArray",
-	      [](const DetCoord& self) -> py::array_t<float>
-	      {
-		      Array1DBase<float>* posArr = self.getYposArrayRef();
-		      auto buf_info =
-		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
-		                          py::format_descriptor<float>::format(), 1,
-		                          {posArr->getSizeTotal()}, {sizeof(float)});
-		      return py::array_t<float>(buf_info);
-	      });
-	c.def("getZposArray",
-	      [](const DetCoord& self) -> py::array_t<float>
-	      {
-		      Array1DBase<float>* posArr = self.getZposArrayRef();
-		      auto buf_info =
-		          py::buffer_info(posArr->getRawPointer(), sizeof(float),
-		                          py::format_descriptor<float>::format(), 1,
-		                          {posArr->getSizeTotal()}, {sizeof(float)});
-		      return py::array_t<float>(buf_info);
-	      });
-	c.def("getXorientArray",
-	      [](const DetCoord& self) -> py::array_t<float>
-	      {
-		      Array1DBase<float>* orientArr = self.getXorientArrayRef();
-		      auto buf_info =
-		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
-		                          py::format_descriptor<float>::format(), 1,
-		                          {orientArr->getSizeTotal()}, {sizeof(float)});
-		      return py::array_t<float>(buf_info);
-	      });
-	c.def("getYorientArray",
-	      [](const DetCoord& self) -> py::array_t<float>
-	      {
-		      Array1DBase<float>* orientArr = self.getYorientArrayRef();
-		      auto buf_info =
-		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
-		                          py::format_descriptor<float>::format(), 1,
-		                          {orientArr->getSizeTotal()}, {sizeof(float)});
-		      return py::array_t<float>(buf_info);
-	      });
-	c.def("getZorientArray",
-	      [](const DetCoord& self) -> py::array_t<float>
-	      {
-		      Array1DBase<float>* orientArr = self.getZorientArrayRef();
-		      auto buf_info =
-		          py::buffer_info(orientArr->getRawPointer(), sizeof(float),
-		                          py::format_descriptor<float>::format(), 1,
-		                          {orientArr->getSizeTotal()}, {sizeof(float)});
-		      return py::array_t<float>(buf_info);
-	      });
-
-
-	auto c_owned =
-	    pybind11::class_<DetCoordOwned, DetCoord>(m, "DetCoordOwned");
-	c_owned.def(py::init<>());
-	c_owned.def(py::init<const std::string&>());
-	c_owned.def("readFromFile", &DetCoordOwned::readFromFile);
-	c_owned.def("allocate", &DetCoordOwned::allocate);
-
-	auto c_alias =
-	    pybind11::class_<DetCoordAlias, DetCoord>(m, "DetCoordAlias");
-	c_alias.def(py::init<>());
-	c_alias.def(
-	    "Bind",
-	    [](DetCoordAlias& self, py::buffer& xpos, py::buffer& ypos,
-	       py::buffer& zpos, py::buffer& xorient, py::buffer& yorient,
-	       py::buffer& zorient)
-	    {
-		    py::buffer_info xpos_info = xpos.request();
-		    py::buffer_info zpos_info = ypos.request();
-		    py::buffer_info ypos_info = zpos.request();
-		    py::buffer_info xorient_info = xorient.request();
-		    py::buffer_info zorient_info = yorient.request();
-		    py::buffer_info yorient_info = zorient.request();
-		    if (xpos_info.format != py::format_descriptor<float>::format() ||
-		        xpos_info.ndim != 1)
-			    throw std::invalid_argument(
-			        "The XPos array has to be a 1-dimensional float32 array");
-		    if (ypos_info.format != py::format_descriptor<float>::format() ||
-		        ypos_info.ndim != 1)
-			    throw std::invalid_argument(
-			        "The YPos array has to be a 1-dimensional float32 array");
-		    if (zpos_info.format != py::format_descriptor<float>::format() ||
-		        zpos_info.ndim != 1)
-			    throw std::invalid_argument(
-			        "The ZPos array has to be a 1-dimensional float32 array");
-		    if (xorient_info.format != py::format_descriptor<float>::format() ||
-		        xorient_info.ndim != 1)
-			    throw std::invalid_argument("The XOrient array has to be a "
-			                                "1-dimensional float32 array");
-		    if (yorient_info.format != py::format_descriptor<float>::format() ||
-		        yorient_info.ndim != 1)
-			    throw std::invalid_argument("The YOrient array has to be a "
-			                                "1-dimensional float32 array");
-		    if (zorient_info.format != py::format_descriptor<float>::format() ||
-		        zorient_info.ndim != 1)
-			    throw std::invalid_argument("The ZOrient array has to be a "
-			                                "1-dimensional float32 array");
-		    if (xpos_info.shape[0] != ypos_info.shape[0] ||
-		        xpos_info.shape[0] != zpos_info.shape[0] ||
-		        xpos_info.shape[0] != xorient_info.shape[0] ||
-		        xpos_info.shape[0] != yorient_info.shape[0] ||
-		        xpos_info.shape[0] != zorient_info.shape[0])
-			    throw std::invalid_argument(
-			        "All the arrays given have to have the same size");
-
-		    static_cast<Array1DAlias<float>*>(self.getXposArrayRef())
-		        ->bind(reinterpret_cast<float*>(xpos_info.ptr),
-		               xpos_info.shape[0]);
-		    static_cast<Array1DAlias<float>*>(self.getYposArrayRef())
-		        ->bind(reinterpret_cast<float*>(ypos_info.ptr),
-		               ypos_info.shape[0]);
-		    static_cast<Array1DAlias<float>*>(self.getZposArrayRef())
-		        ->bind(reinterpret_cast<float*>(zpos_info.ptr),
-		               zpos_info.shape[0]);
-
-		    static_cast<Array1DAlias<float>*>(self.getXorientArrayRef())
-		        ->bind(reinterpret_cast<float*>(xorient_info.ptr),
-		               xorient_info.shape[0]);
-		    static_cast<Array1DAlias<float>*>(self.getYorientArrayRef())
-		        ->bind(reinterpret_cast<float*>(yorient_info.ptr),
-		               yorient_info.shape[0]);
-		    static_cast<Array1DAlias<float>*>(self.getZorientArrayRef())
-		        ->bind(reinterpret_cast<float*>(zorient_info.ptr),
-		               zorient_info.shape[0]);
-	    });
-}
-#endif

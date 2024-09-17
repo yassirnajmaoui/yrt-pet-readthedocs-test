@@ -9,7 +9,7 @@
 #include "datastruct/scanner/Scanner.hpp"
 #include "motion/ImageWarperMatrix.hpp"
 #include "utils/GCAssert.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
 #include <cxxopts.hpp>
@@ -169,7 +169,7 @@ int main(int argc, char** argv)
 	osem->imageParams = ImageParams(imgParams_fname);
 	osem->projectorType = projectorType;
 	osem->numRays = numRays;
-	GCGlobals::set_num_threads(numThreads);
+	Globals::set_num_threads(numThreads);
 
 	// To make sure the sensitivity image gets generated accordingly
 	const bool useListMode =
@@ -193,10 +193,10 @@ int main(int argc, char** argv)
 	}
 
 	// Image-space PSF
-	std::unique_ptr<GCOperatorPsf> imageSpacePsf;
+	std::unique_ptr<OperatorPsf> imageSpacePsf;
 	if (!imageSpacePsf_fname.empty())
 	{
-		imageSpacePsf = std::make_unique<GCOperatorPsf>(osem->imageParams,
+		imageSpacePsf = std::make_unique<OperatorPsf>(osem->imageParams,
 		                                                imageSpacePsf_fname);
 		osem->addImagePSF(imageSpacePsf.get());
 	}

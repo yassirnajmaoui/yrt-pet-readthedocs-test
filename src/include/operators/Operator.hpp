@@ -7,10 +7,10 @@
 
 #include "recon/GCVariable.hpp"
 
-class GCOperator
+class Operator
 {
 public:
-	virtual ~GCOperator() = default;
+	virtual ~Operator() = default;
 	virtual void applyA(const GCVariable* in, GCVariable* out) = 0;
 	virtual void applyAH(const GCVariable* in, GCVariable* out) = 0;
 };

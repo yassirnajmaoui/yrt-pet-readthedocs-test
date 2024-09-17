@@ -40,20 +40,20 @@ public:
 	ListModeLUTDOIAlias(const Scanner* s, bool p_flagTOF = false,
 	                      int numLayers = 256);
 	~ListModeLUTDOIAlias() override = default;
-	void Bind(Array1DBase<timestamp_t>* pp_timestamps,
-	          Array1DBase<det_id_t>* pp_detector_ids1,
-	          Array1DBase<det_id_t>* p_detector_ids2,
-	          Array1DBase<unsigned char>* pp_doi1,
-	          Array1DBase<unsigned char>* pp_doi2,
-	          Array1DBase<float>* pp_tof_ps = nullptr);
+	void bind(const Array1DBase<timestamp_t>* pp_timestamps,
+	          const Array1DBase<det_id_t>* pp_detector_ids1,
+	          const Array1DBase<det_id_t>* pp_detector_ids2,
+	          const Array1DBase<unsigned char>* pp_doi1,
+	          const Array1DBase<unsigned char>* pp_doi2,
+	          const Array1DBase<float>* pp_tof_ps = nullptr);
 #if BUILD_PYBIND11
-	void Bind(
+	void bind(
 	    pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2,
 	    pybind11::array_t<unsigned char, pybind11::array::c_style>& p_doi1,
 	    pybind11::array_t<unsigned char, pybind11::array::c_style>& p_doi2);
-	void Bind(
+	void bind(
 	    pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
 	    pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2,

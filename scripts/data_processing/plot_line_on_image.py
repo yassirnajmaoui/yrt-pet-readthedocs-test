@@ -17,7 +17,7 @@ if(__name__ == "__main__"):
     args = parser.parse_args()
 
     gc_img = gc.Array3Ddouble()
-    gc_img.ReadFromFile(args.image)
+    gc_img.readFromFile(args.image)
     img = np.array(gc_img,copy=False)[args.slice]
 
     start_point = (args.p1[0],args.p1[1])

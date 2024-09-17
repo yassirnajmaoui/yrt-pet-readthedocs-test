@@ -8,7 +8,7 @@
 #include "omp.h"
 #include <cstddef>
 
-class GCGlobals
+class Globals
 {
 public:
 	static int get_num_threads() { return num_threads; }
@@ -25,11 +25,11 @@ private:
 	static int num_threads;
 };
 
-class GCGlobalsCuda
+class GlobalsCuda
 {
 public:
-	static constexpr size_t maxVRAM_Allowed = 2ull<<30; // bytes
-	static constexpr size_t threadsPerBlockData = 256;
-	static constexpr size_t threadsPerBlockImg3d = 8;
-	static constexpr size_t threadsPerBlockImg2d = 32;
+	static constexpr size_t MaxVRAMAllowed = 2ull<<30; // bytes
+	static constexpr size_t ThreadsPerBlockData = 256;
+	static constexpr size_t ThreadsPerBlockImg3d = 8;
+	static constexpr size_t ThreadsPerBlockImg2d = 32;
 };

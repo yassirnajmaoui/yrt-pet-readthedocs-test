@@ -16,7 +16,7 @@ void py_setup_array(py::module&);
 void py_setup_vector3dall(py::module&);
 void py_setup_straightlineparam(py::module&);
 void py_setup_tubeofresponse(py::module& m);
-void py_setup_gctimeofflight(py::module& m);
+void py_setup_timeofflight(py::module& m);
 
 void py_setup_imagebase(py::module&);
 void py_setup_imageparams(py::module&);
@@ -45,15 +45,15 @@ void py_setup_imagewarpermatrix(py::module& m);
 void py_setup_imagewarperfunction(py::module& m);
 void py_setup_gcutilities(py::module& m);
 
-void py_setup_gcoperator(py::module& m);
-void py_setup_gcoperatorpsf(py::module& m);
-void py_setup_gcoperatorprojectorparams(py::module& m);
-void py_setup_gcoperatorprojectorbase(py::module& m);
-void py_setup_gcoperatorprojector(py::module& m);
-void py_setup_gcoperatorprojectorsiddon(py::module& m);
-void py_setup_gcoperatorprojectordd(py::module& m);
+void py_setup_operator(py::module& m);
+void py_setup_operatorpsf(py::module& m);
+void py_setup_operatorprojectorparams(py::module& m);
+void py_setup_operatorprojectorbase(py::module& m);
+void py_setup_operatorprojector(py::module& m);
+void py_setup_operatorprojectorsiddon(py::module& m);
+void py_setup_operatorprojectordd(py::module& m);
 
-void py_setup_gcglobals(py::module& m);
+void py_setup_Globals(py::module& m);
 
 void py_setup_gccrystal(py::module& m);
 void py_setup_gcsinglescattersimulator(py::module& m);
@@ -62,8 +62,8 @@ void py_setup_gcscatterestimator(py::module& m);
 #ifdef BUILD_CUDA
 void py_setup_gcimagedevice(py::module&);
 void py_setup_gcprojectiondatadevice(py::module& m);
-void py_setup_gcoperatorprojectordevice(py::module& m);
-void py_setup_gcoperatorprojectordd_gpu(py::module& m);
+void py_setup_operatorprojectordevice(py::module& m);
+void py_setup_operatorprojectordd_gpu(py::module& m);
 #endif
 
 
@@ -76,7 +76,7 @@ PYBIND11_MODULE(pyyrtpet, m)
 	py_setup_vector3dall(m);
 	py_setup_straightlineparam(m);
 	py_setup_tubeofresponse(m);
-	py_setup_gctimeofflight(m);
+	py_setup_timeofflight(m);
 
 	py_setup_imagebase(m);
 	py_setup_imageparams(m);
@@ -103,17 +103,17 @@ PYBIND11_MODULE(pyyrtpet, m)
 	py_setup_imagewarperfunction(m);
 	py_setup_gcutilities(m);
 
-	py_setup_gcoperator(m);
-	py_setup_gcoperatorpsf(m);
-	py_setup_gcoperatorprojectorbase(m);
-	py_setup_gcoperatorprojector(m);
-	py_setup_gcoperatorprojectorparams(m);
-	py_setup_gcoperatorprojectorsiddon(m);
-	py_setup_gcoperatorprojectordd(m);
+	py_setup_operator(m);
+	py_setup_operatorpsf(m);
+	py_setup_operatorprojectorbase(m);
+	py_setup_operatorprojector(m);
+	py_setup_operatorprojectorparams(m);
+	py_setup_operatorprojectorsiddon(m);
+	py_setup_operatorprojectordd(m);
 	py_setup_gcosem(m);
 	py_setup_gcreconstructionutils(m);
 
-	py_setup_gcglobals(m);
+	py_setup_Globals(m);
 
 	py_setup_gccrystal(m);
 	py_setup_gcsinglescattersimulator(m);
@@ -122,8 +122,8 @@ PYBIND11_MODULE(pyyrtpet, m)
 #ifdef BUILD_CUDA
 	py_setup_gcimagedevice(m);
 	py_setup_gcprojectiondatadevice(m);
-	py_setup_gcoperatorprojectordevice(m);
-	py_setup_gcoperatorprojectordd_gpu(m);
+	py_setup_operatorprojectordevice(m);
+	py_setup_operatorprojectordd_gpu(m);
 #endif
 
 	// Add the plugins

@@ -3,21 +3,21 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "operators/GCOperatorDevice.cuh"
+#include "operators/OperatorDevice.cuh"
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCGPUUtils.cuh"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gcoperatorprojectordevice(py::module& m)
+void py_setup_operatorprojectordevice(py::module& m)
 {
-	auto c = py::class_<GCOperatorProjectorDevice, GCOperatorProjectorBase>(
-	    m, "GCOperatorProjectorDevice");
+	auto c = py::class_<OperatorProjectorDevice, OperatorProjectorBase>(
+	    m, "OperatorProjectorDevice");
 }
 #endif
 
@@ -29,7 +29,7 @@ namespace Util
 		if (params.nz > 1)
 		{
 			const size_t threadsPerBlockDimImage =
-			    GCGlobalsCuda::threadsPerBlockImg3d;
+			    GlobalsCuda::ThreadsPerBlockImg3d;
 			const auto threadsPerBlockDimImage_float =
 			    static_cast<float>(threadsPerBlockDimImage);
 			const auto threadsPerBlockDimImage_uint =
@@ -50,7 +50,7 @@ namespace Util
 		else
 		{
 			const size_t threadsPerBlockDimImage =
-			    GCGlobalsCuda::threadsPerBlockImg2d;
+			    GlobalsCuda::ThreadsPerBlockImg2d;
 			const auto threadsPerBlockDimImage_float =
 			    static_cast<float>(threadsPerBlockDimImage);
 			const auto threadsPerBlockDimImage_uint =
@@ -74,13 +74,13 @@ namespace Util
 		GCGPULaunchParams launchParams{};
 		launchParams.gridSize = static_cast<unsigned int>(
 		    std::ceil(batchSize /
-		              static_cast<float>(GCGlobalsCuda::threadsPerBlockData)));
-		launchParams.blockSize = GCGlobalsCuda::threadsPerBlockData;
+		              static_cast<float>(GlobalsCuda::ThreadsPerBlockData)));
+		launchParams.blockSize = GlobalsCuda::ThreadsPerBlockData;
 		return launchParams;
 	}
 }  // namespace Util
 
-GCCUScannerParams GCOperatorDevice::getCUScannerParams(const Scanner& scanner)
+GCCUScannerParams OperatorDevice::getCUScannerParams(const Scanner& scanner)
 {
 	GCCUScannerParams params;
 	params.crystalSize_trans = scanner.crystalSize_trans;
@@ -90,7 +90,7 @@ GCCUScannerParams GCOperatorDevice::getCUScannerParams(const Scanner& scanner)
 }
 
 GCCUImageParams
-    GCOperatorDevice::getCUImageParams(const ImageParams& imgParams)
+    OperatorDevice::getCUImageParams(const ImageParams& imgParams)
 {
 	GCCUImageParams params;
 
@@ -113,10 +113,10 @@ GCCUImageParams
 	return params;
 }
 
-GCOperatorProjectorDevice::GCOperatorProjectorDevice(
-    const GCOperatorProjectorParams& projParams, bool p_synchronized,
+OperatorProjectorDevice::OperatorProjectorDevice(
+    const OperatorProjectorParams& projParams, bool p_synchronized,
     const cudaStream_t* pp_mainStream, const cudaStream_t* pp_auxStream)
-    : GCOperatorProjectorBase(projParams), GCOperatorDevice()
+    : OperatorProjectorBase(projParams), OperatorDevice()
 {
 	if (projParams.tofWidth_ps > 0.f)
 	{
@@ -129,45 +129,45 @@ GCOperatorProjectorDevice::GCOperatorProjectorDevice(
 	mp_auxStream = pp_auxStream;
 }
 
-unsigned int GCOperatorProjectorDevice::getGridSize() const
+unsigned int OperatorProjectorDevice::getGridSize() const
 {
 	return m_launchParams.gridSize;
 }
-unsigned int GCOperatorProjectorDevice::getBlockSize() const
+unsigned int OperatorProjectorDevice::getBlockSize() const
 {
 	return m_launchParams.blockSize;
 }
 
-bool GCOperatorProjectorDevice::isSynchronized() const
+bool OperatorProjectorDevice::isSynchronized() const
 {
 	return m_synchonized;
 }
 
-const cudaStream_t* GCOperatorProjectorDevice::getMainStream() const
+const cudaStream_t* OperatorProjectorDevice::getMainStream() const
 {
 	return mp_mainStream;
 }
 
-const cudaStream_t* GCOperatorProjectorDevice::getAuxStream() const
+const cudaStream_t* OperatorProjectorDevice::getAuxStream() const
 {
 	return mp_auxStream;
 }
 
-void GCOperatorProjectorDevice::setBatchSize(size_t newBatchSize)
+void OperatorProjectorDevice::setBatchSize(size_t newBatchSize)
 {
 	m_batchSize = newBatchSize;
 	m_launchParams = Util::initiateDeviceParameters(m_batchSize);
 }
 
 ProjectionDataDeviceOwned&
-    GCOperatorProjectorDevice::getIntermediaryProjData()
+    OperatorProjectorDevice::getIntermediaryProjData()
 {
 	ASSERT_MSG(mp_intermediaryProjData != nullptr,
 	           "Projection-space GPU Intermediary buffer not initialized");
 	return *mp_intermediaryProjData;
 }
 
-const ImageDevice& GCOperatorProjectorDevice::getAttImageDevice() const
+const ImageDevice& OperatorProjectorDevice::getAttImageDevice() const
 {
 	ASSERT_MSG(mp_attImageDevice != nullptr,
 	           "Device attenuation image not initialized");
@@ -175,21 +175,21 @@ const ImageDevice& GCOperatorProjectorDevice::getAttImageDevice() const
 }
 
 const ImageDevice&
-    GCOperatorProjectorDevice::getAttImageForBackprojectionDevice() const
+    OperatorProjectorDevice::getAttImageForBackprojectionDevice() const
 {
 	ASSERT_MSG(mp_attImageForBackprojectionDevice != nullptr,
 	           "Device attenuation image for backprojection not initialized");
 	return *mp_attImageForBackprojectionDevice;
 }
 
-size_t GCOperatorProjectorDevice::getBatchSize() const
+size_t OperatorProjectorDevice::getBatchSize() const
 {
 	return m_batchSize;
 }
 
-void GCOperatorProjectorDevice::setAttImage(const Image* attImage)
+void OperatorProjectorDevice::setAttImage(const Image* attImage)
 {
-	GCOperatorProjectorBase::setAttImage(attImage);
+	OperatorProjectorBase::setAttImage(attImage);
 
 	mp_attImageDevice = std::make_unique<ImageDeviceOwned>(
 	    attImage->getParams(), getAuxStream());
@@ -197,10 +197,10 @@ void GCOperatorProjectorDevice::setAttImage(const Image* attImage)
 	mp_attImageDevice->transferToDeviceMemory(attImage, false);
 }
 
-void GCOperatorProjectorDevice::setAttImageForBackprojection(
+void OperatorProjectorDevice::setAttImageForBackprojection(
     const Image* attImage)
 {
-	GCOperatorProjectorBase::setAttImageForBackprojection(attImage);
+	OperatorProjectorBase::setAttImageForBackprojection(attImage);
 
 	mp_attImageForBackprojectionDevice = std::make_unique<ImageDeviceOwned>(
 	    attImage->getParams(), getAuxStream());
@@ -208,18 +208,18 @@ void GCOperatorProjectorDevice::setAttImageForBackprojection(
 	mp_attImageForBackprojectionDevice->transferToDeviceMemory(attImage, false);
 }
 
-void GCOperatorProjectorDevice::setAddHisto(const Histogram* p_addHisto)
+void OperatorProjectorDevice::setAddHisto(const Histogram* p_addHisto)
 {
-	GCOperatorProjectorBase::setAddHisto(p_addHisto);
+	OperatorProjectorBase::setAddHisto(p_addHisto);
 }
 
-void GCOperatorProjectorDevice::setupTOFHelper(float tofWidth_ps, int tofNumStd)
+void OperatorProjectorDevice::setupTOFHelper(float tofWidth_ps, int tofNumStd)
 {
-	mp_tofHelper = std::make_unique<GCDeviceObject<GCTimeOfFlightHelper>>(
+	mp_tofHelper = std::make_unique<GCDeviceObject<TimeOfFlightHelper>>(
 	    tofWidth_ps, tofNumStd);
 }
 
-bool GCOperatorProjectorDevice::requiresIntermediaryProjData() const
+bool OperatorProjectorDevice::requiresIntermediaryProjData() const
 {
 	// We need an intermediary projectorParam if we'll need to do attenuation
 	// correction or additive correction (scatter/randoms)
@@ -227,7 +227,7 @@ bool GCOperatorProjectorDevice::requiresIntermediaryProjData() const
 	       addHisto != nullptr;
 }
 
-void GCOperatorProjectorDevice::prepareIntermediaryBufferIfNeeded(
+void OperatorProjectorDevice::prepareIntermediaryBufferIfNeeded(
     const ProjectionDataDevice* orig)
 {
 	if (requiresIntermediaryProjData())
@@ -236,7 +236,7 @@ void GCOperatorProjectorDevice::prepareIntermediaryBufferIfNeeded(
 	}
 }
 
-void GCOperatorProjectorDevice::prepareIntermediaryBuffer(
+void OperatorProjectorDevice::prepareIntermediaryBuffer(
     const ProjectionDataDevice* orig)
 {
 	if (mp_intermediaryProjData == nullptr)
@@ -247,8 +247,8 @@ void GCOperatorProjectorDevice::prepareIntermediaryBuffer(
 	mp_intermediaryProjData->allocateForProjValues(getAuxStream());
 }
 
-const GCTimeOfFlightHelper*
-	GCOperatorProjectorDevice::getTOFHelperDevicePointer() const
+const TimeOfFlightHelper*
+	OperatorProjectorDevice::getTOFHelperDevicePointer() const
 {
 	if(mp_tofHelper != nullptr)
 	{

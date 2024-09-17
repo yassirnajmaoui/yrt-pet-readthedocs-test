@@ -142,7 +142,7 @@ def test_post_recon_mc_wobble():
 def test_psf():
     img_params = gc.ImageParams(50, 50, 25, 50, 50, 25, 0.0, 0.0, 0.0)
     image_in = gc.ImageOwned(img_params, dataset_paths['test_psf'][0])
-    oper_psf = gc.GCOperatorPsf(img_params, dataset_paths['test_psf'][1])
+    oper_psf = gc.OperatorPsf(img_params, dataset_paths['test_psf'][1])
     image_ref = gc.ImageOwned(img_params, ref_paths['test_psf'])
     image_out = gc.ImageOwned(img_params)
     image_out.allocate()
@@ -175,10 +175,10 @@ def test_psf_adjoint():
 
     img_X_a = rng.random([nz, ny, nx]) * 10 - 5
     img_Y_a = rng.random([nz, ny, nx]) * 10 - 5
-    img_X.Bind(img_X_a)
-    img_Y.Bind(img_Y_a)
+    img_X.bind(img_X_a)
+    img_Y.bind(img_Y_a)
 
-    oper_psf = gc.GCOperatorPsf(img_params, dataset_paths['test_psf'][1])
+    oper_psf = gc.OperatorPsf(img_params, dataset_paths['test_psf'][1])
 
     Ax = gc.ImageOwned(img_params)
     Aty = gc.ImageOwned(img_params)

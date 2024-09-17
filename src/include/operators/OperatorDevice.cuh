@@ -8,8 +8,8 @@
 #include "datastruct/image/ImageBase.hpp"
 #include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/ProjectionDataDevice.cuh"
-#include "operators/GCOperator.hpp"
-#include "operators/GCOperatorProjector.hpp"
+#include "operators/Operator.hpp"
+#include "operators/OperatorProjector.hpp"
 #include "recon/GCCUParameters.hpp"
 #include "utils/GCDeviceObject.cuh"
 #include "utils/GCGPUTypes.cuh"
@@ -26,7 +26,7 @@ namespace Util
 	GCGPULaunchParams initiateDeviceParameters(size_t batchSize);
 }  // namespace Util
 
-class GCOperatorDevice : public GCOperator
+class OperatorDevice : public Operator
 {
 	// Nothing here for now...
 
@@ -35,14 +35,14 @@ public:
 	static GCCUImageParams getCUImageParams(const ImageParams& imgParams);
 
 protected:
-	GCOperatorDevice() = default;
+	OperatorDevice() = default;
 };
 
-class GCOperatorProjectorDevice : public GCOperatorProjectorBase,
-                                  public GCOperatorDevice
+class OperatorProjectorDevice : public OperatorProjectorBase,
+                                  public OperatorDevice
 {
 public:
-	GCOperatorProjectorDevice() = delete;
+	OperatorProjectorDevice() = delete;
 
 	size_t getBatchSize() const;
 
@@ -58,7 +58,7 @@ public:
 	void setupTOFHelper(float tofWidth_ps, int tofNumStd = -1);
 
 protected:
-	GCOperatorProjectorDevice(const GCOperatorProjectorParams& projParams,
+	OperatorProjectorDevice(const OperatorProjectorParams& projParams,
 	                          bool p_synchronized = true,
 	                          const cudaStream_t* pp_mainStream = nullptr,
 	                          const cudaStream_t* pp_auxStream = nullptr);
@@ -74,7 +74,7 @@ protected:
 	void prepareIntermediaryBuffer(const ProjectionDataDevice* orig);
 	void prepareIntermediaryBufferIfNeeded(const ProjectionDataDevice* orig);
 
-	const GCTimeOfFlightHelper* getTOFHelperDevicePointer() const;
+	const TimeOfFlightHelper* getTOFHelperDevicePointer() const;
 
 private:
 	size_t m_batchSize;
@@ -83,7 +83,7 @@ private:
 	const cudaStream_t* mp_auxStream;
 	bool m_synchonized;
 
-	std::unique_ptr<GCDeviceObject<GCTimeOfFlightHelper>> mp_tofHelper;
+	std::unique_ptr<GCDeviceObject<TimeOfFlightHelper>> mp_tofHelper;
 
 	// For attenuation correction
 	std::unique_ptr<ImageDeviceOwned> mp_attImageDevice;

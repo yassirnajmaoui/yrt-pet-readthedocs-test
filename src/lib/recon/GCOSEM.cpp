@@ -13,12 +13,12 @@
 #include "datastruct/projection/ProjectionData.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "motion/ImageWarperMatrix.hpp"
-#include "operators/GCOperatorProjector.hpp"
-#include "operators/GCOperatorProjectorDD.hpp"
-#include "operators/GCOperatorProjectorSiddon.hpp"
-#include "operators/GCOperatorPsf.hpp"
+#include "operators/OperatorProjector.hpp"
+#include "operators/OperatorProjectorDD.hpp"
+#include "operators/OperatorProjectorSiddon.hpp"
+#include "operators/OperatorPsf.hpp"
 #include "utils/GCAssert.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 #include "utils/GCTools.hpp"
 
@@ -100,7 +100,7 @@ GCOSEM::GCOSEM(const Scanner* p_scanner)
       num_OSEM_subsets(1),
       hardThreshold(DEFAULT_HARD_THRESHOLD),
       numRays(1),
-      projectorType(GCOperatorProjector::SIDDON),
+      projectorType(OperatorProjector::SIDDON),
       scanner(p_scanner),
       maskImage(nullptr),
       attenuationImage(nullptr),
@@ -335,7 +335,7 @@ void GCOSEM::addProjPSF(const std::string& p_projSpacePsf_fname)
 	flagProjPSF = !projSpacePsf_fname.empty();
 }
 
-void GCOSEM::addImagePSF(GCOperatorPsf* p_imageSpacePsf)
+void GCOSEM::addImagePSF(OperatorPsf* p_imageSpacePsf)
 {
 	imageSpacePsf = p_imageSpacePsf;
 	flagImagePSF = imageSpacePsf != nullptr;
@@ -538,7 +538,7 @@ void GCOSEM::reconstructWithWarperMotion()
 		}
 	}
 	warper->setRefImage(outImage);
-	GCOperatorWarpRefImage warpImg(0);
+	OperatorWarpRefImage warpImg(0);
 	constexpr double UpdateEMThreshold = 1e-8;
 
 	const int numFrames = warper->getNumberOfFrame();
@@ -554,18 +554,18 @@ void GCOSEM::reconstructWithWarperMotion()
 	}
 
 	// Create ProjectorParams object
-	GCOperatorProjectorParams projParams(
+	OperatorProjectorParams projParams(
 	    nullptr /* Will be set later at each subset loading */, scanner,
 	    flagProjTOF ? tofWidth_ps : 0.f, flagProjTOF ? tofNumStd : 0,
 	    flagProjPSF ? projSpacePsf_fname : "", numRays);
 
-	if (projectorType == GCOperatorProjector::SIDDON)
+	if (projectorType == OperatorProjector::SIDDON)
 	{
-		mp_projector = std::make_unique<GCOperatorProjectorSiddon>(projParams);
+		mp_projector = std::make_unique<OperatorProjectorSiddon>(projParams);
 	}
-	else if (projectorType == GCOperatorProjector::DD)
+	else if (projectorType == OperatorProjector::DD)
 	{
-		mp_projector = std::make_unique<GCOperatorProjectorDD>(projParams);
+		mp_projector = std::make_unique<OperatorProjectorDD>(projParams);
 	}
 	else
 	{
@@ -629,20 +629,20 @@ void GCOSEM::summary() const
 	std::cout << "Number of iterations: " << num_MLEM_iterations << std::endl;
 	std::cout << "Number of subsets: " << num_OSEM_subsets << std::endl;
 	std::cout << "Hard threshold: " << hardThreshold << std::endl;
-	if (projectorType == GCOperatorProjector::SIDDON)
+	if (projectorType == OperatorProjector::SIDDON)
 	{
 		std::cout << "Projector type: Siddon" << std::endl;
 		std::cout << "Number of Siddon rays: " << numRays << std::endl;
 	}
-	else if (projectorType == GCOperatorProjector::DD)
+	else if (projectorType == OperatorProjector::DD)
 	{
 		std::cout << "Projector type: Distance-Driven" << std::endl;
 	}
-	else if (projectorType == GCOperatorProjector::DD_GPU)
+	else if (projectorType == OperatorProjector::DD_GPU)
 	{
 		std::cout << "Projector type: GPU Distance-Driven" << std::endl;
 	}
-	std::cout << "Number of threads used: " << GCGlobals::get_num_threads()
+	std::cout << "Number of threads used: " << Globals::get_num_threads()
 	          << std::endl;
 	std::cout << "Scanner name: " << scanner->scannerName << std::endl;
 

@@ -24,7 +24,7 @@ osem.num_OSEM_subsets = 5 # Number of OSEM subsets
 osem.setSensDataInput(...) # Dataset to use as input for the sensitivity image generation. Takes, as input, a GCProjectionData object.
 osem.addTOF(<TOF width in picoseconds>, <Number of STD deviations>) # To enable Time-of-flight
 osem.addProjPSF("<path to the PSF's CSV file>") # To add Projection-space PSF
-osem.addImagePSF(...) # To add Image-space PSF. Takes, as input, a GCOperatorPsf object
+osem.addImagePSF(...) # To add Image-space PSF. Takes, as input, a OperatorPsf object
 osem.setListModeEnabled(<True/False>) # To enable if the dataset to use for reconstruction will be in ListMode format. This is important as it changes the way sensitivity images are generated.
 osem.attenuationImage = ... # To add an attenuation image (Image object)
 osem.addHis = ... # To add an additive histogram (GCHistogram format) for example for Scatter and Randoms correction.
@@ -43,7 +43,7 @@ osem.registerSensitivityImages(...) # Takes, as input, a python list of Image ob
 
 # Prepare the output image to be filled
 outImg = gc.ImageOwned(imgParams)
-outImg.Allocate()
+outImg.allocate()
 osem.outImage = outImg
 
 osem.setDataInput(dataset) # Dataset to use as input for the reconstruction.

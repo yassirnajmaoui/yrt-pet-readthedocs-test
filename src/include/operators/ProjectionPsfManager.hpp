@@ -8,10 +8,10 @@
 #include "geometry/StraightLineParam.hpp"
 #include "utils/Array.hpp"
 
-class GCProjectionPsfManager
+class ProjectionPsfManager
 {
 public:
-	GCProjectionPsfManager(const std::string& psfFilename);
+	explicit ProjectionPsfManager(const std::string& psfFilename);
 	void readFromFile(const std::string& psfFilename);
 	float getHalfWidth_mm() const;
 	float getWeight(const float* kernel, float x0, float x1) const;

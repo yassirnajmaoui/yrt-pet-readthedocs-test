@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "operators/GCTimeOfFlight.hpp"
+#include "operators/TimeOfFlight.hpp"
 
 #include "utils/GCTools.hpp"
 
@@ -11,19 +11,19 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gctimeofflight(py::module& m)
+void py_setup_timeofflight(py::module& m)
 {
-	auto c = py::class_<GCTimeOfFlightHelper>(m, "GCTimeOfFlightHelper");
+	auto c = py::class_<TimeOfFlightHelper>(m, "TimeOfFlightHelper");
 	c.def(py::init<float, int>());
-	c.def("getAlphaRange", &GCTimeOfFlightHelper::getAlphaRange);
-	c.def("getWeight", &GCTimeOfFlightHelper::getWeight);
-	c.def("getSigma", &GCTimeOfFlightHelper::getSigma);
-	c.def("getTruncWidth", &GCTimeOfFlightHelper::getTruncWidth);
-	c.def("getNorm", &GCTimeOfFlightHelper::getNorm);
+	c.def("getAlphaRange", &TimeOfFlightHelper::getAlphaRange);
+	c.def("getWeight", &TimeOfFlightHelper::getWeight);
+	c.def("getSigma", &TimeOfFlightHelper::getSigma);
+	c.def("getTruncWidth", &TimeOfFlightHelper::getTruncWidth);
+	c.def("getNorm", &TimeOfFlightHelper::getNorm);
 }
 #endif
 
-GCTimeOfFlightHelper::GCTimeOfFlightHelper(float tof_width_ps, int tof_n_std)
+TimeOfFlightHelper::TimeOfFlightHelper(float tof_width_ps, int tof_n_std)
 {
 	const double tof_width_mm = tof_width_ps * SPEED_OF_LIGHT_MM_PS * 0.5;
 	// FWHM = sigma 2 sqrt(2 ln 2)
@@ -39,17 +39,17 @@ GCTimeOfFlightHelper::GCTimeOfFlightHelper(float tof_width_ps, int tof_n_std)
 	m_norm = 1 / (std::sqrt(2 * PI) * m_sigma);
 }
 
-float GCTimeOfFlightHelper::getSigma() const
+float TimeOfFlightHelper::getSigma() const
 {
 	return m_sigma;
 }
 
-float GCTimeOfFlightHelper::getTruncWidth() const
+float TimeOfFlightHelper::getTruncWidth() const
 {
 	return m_truncWidth_mm;
 }
 
-float GCTimeOfFlightHelper::getNorm() const
+float TimeOfFlightHelper::getNorm() const
 {
 	return m_norm;
 }

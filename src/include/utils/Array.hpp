@@ -532,7 +532,7 @@ public:
 	{
 		bind(array);
 	}
-	Array2DAlias(const Array2DBase<T>* array) { Bind(*array); }
+	Array2DAlias(const Array2DBase<T>* array) { bind(*array); }
 	Array2DAlias(const Array2D<T>& array) { bind(array); }
 
 protected:

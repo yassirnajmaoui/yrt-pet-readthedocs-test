@@ -9,9 +9,9 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "geometry/Constants.hpp"
-#include "operators/GCOperatorProjectorSiddon.hpp"
+#include "operators/OperatorProjectorSiddon.hpp"
 #include "utils/GCAssert.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 #include "utils/GCTools.hpp"
 
@@ -221,7 +221,7 @@ namespace Scatter
 		const size_t progress_max = num_i_z * num_i_phi * num_i_r;
 		size_t last_progress_print = 0;
 
-		int num_threads = GCGlobals::get_num_threads();
+		int num_threads = Globals::get_num_threads();
 #pragma omp parallel for schedule(static, 1) collapse(3) \
     num_threads(num_threads)
 		for (size_t z_i = 0; z_i < num_i_z; z_i++)
@@ -385,12 +385,12 @@ namespace Scatter
 			dsigcompdomega = GetKleinNishina(cosa);
 
 			// compute I1 and I2:
-			att_s_1_511 = GCOperatorProjectorSiddon::singleForwardProjection(
+			att_s_1_511 = OperatorProjectorSiddon::singleForwardProjection(
 				              &mr_mu, lor_1_s) /
 			              10.0;
 
 			att_s_1 = att_s_1_511 * mu_scaling_factor;
-			lamb_s_1 = GCOperatorProjectorSiddon::singleForwardProjection(
+			lamb_s_1 = OperatorProjectorSiddon::singleForwardProjection(
 				&mr_lambda, lor_1_s);
 			delta_1 = getIntersectionLengthLORCrystal(lor_1_s);
 			if (delta_1 > 10 * m_crystalDepth)
@@ -403,12 +403,12 @@ namespace Scatter
 				exit(-1);
 			}
 
-			att_s_2_511 = GCOperatorProjectorSiddon::singleForwardProjection(
+			att_s_2_511 = OperatorProjectorSiddon::singleForwardProjection(
 				              &mr_mu, lor_2_s) /
 			              10.0;
 
 			att_s_2 = att_s_2_511 * mu_scaling_factor;
-			lamb_s_2 = GCOperatorProjectorSiddon::singleForwardProjection(
+			lamb_s_2 = OperatorProjectorSiddon::singleForwardProjection(
 				&mr_lambda, lor_2_s);
 			delta_2 = getIntersectionLengthLORCrystal(lor_2_s);
 

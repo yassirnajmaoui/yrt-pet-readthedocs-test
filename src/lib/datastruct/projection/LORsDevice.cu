@@ -6,7 +6,7 @@
 #include "datastruct/projection/LORsDevice.cuh"
 
 #include "datastruct/projection/ProjectionData.hpp"
-#include "operators/GCOperatorDevice.cuh"
+#include "operators/OperatorDevice.cuh"
 #include "utils/GCPageLockedBuffer.cuh"
 #include "utils/GCReconstructionUtils.hpp"
 

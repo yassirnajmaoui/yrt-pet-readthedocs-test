@@ -6,8 +6,8 @@
 #pragma once
 
 #include "datastruct/image/Image.hpp"
-#include "operators/GCOperatorProjector.hpp"
-#include "operators/GCOperatorPsf.hpp"
+#include "operators/OperatorProjector.hpp"
+#include "operators/OperatorPsf.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>
@@ -58,7 +58,7 @@ public:
 	void setDataInput(ProjectionData* p_dataInput);
 	void addTOF(float p_tofWidth_ps, int p_tofNumStd);
 	void addProjPSF(const std::string& p_projSpacePsf_fname);
-	void addImagePSF(GCOperatorPsf* p_imageSpacePsf);
+	void addImagePSF(OperatorPsf* p_imageSpacePsf);
 	void setSaveSteps(int p_saveSteps, const std::string& p_saveStepsPath);
 	void setListModeEnabled(bool enabled);
 	void setProjector(const std::string& projectorName); // Helper
@@ -69,7 +69,7 @@ public:
 	int num_OSEM_subsets;
 	float hardThreshold;
 	int numRays;  // For Siddon only
-	GCOperatorProjector::ProjectorType projectorType;
+	OperatorProjector::ProjectorType projectorType;
 	ImageParams imageParams;
 	const Scanner* scanner;
 	const Image* maskImage;
@@ -95,7 +95,7 @@ protected:
 
 	// ---------- Protected members ----------
 	bool flagImagePSF;
-	GCOperatorPsf* imageSpacePsf;
+	OperatorPsf* imageSpacePsf;
 	bool flagProjPSF;
 	std::string projSpacePsf_fname;
 	bool flagProjTOF;
@@ -104,7 +104,7 @@ protected:
 	int saveSteps;
 	std::string saveStepsPath;
 	bool usingListModeInput;  // true => ListMode, false => Histogram
-	std::unique_ptr<GCOperatorProjectorBase> mp_projector;
+	std::unique_ptr<OperatorProjectorBase> mp_projector;
 
 	// ---------- Virtual pure functions ----------
 

@@ -35,7 +35,7 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
     osem.num_OSEM_subsets = num_OSEM_subsets
     osem.hardThreshold = hard_threshold
     osem.numRays = num_rays
-    gc.GCGlobals.set_num_threads(num_threads)
+    gc.Globals.set_num_threads(num_threads)
     osem.setDataInput(dataset)
     if tof_width_ps is not None and tof_n_std is not None:
         osem.addTOF(tof_width_ps, tof_n_std)
@@ -65,7 +65,7 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
 
 def _test_subsets(scanner: gc.Scanner, img_params: gc.ImageParams,
                   projData: gc.ProjectionData, **args):
-    k = gc.GCProjectionOper(scanner, img_params, projData, **args)
+    k = gc.ProjectionOper(scanner, img_params, projData, **args)
 
     x = np.random.random([img_params.nz, img_params.ny, img_params.nx])
     y = np.random.random(projData.count())
@@ -75,7 +75,7 @@ def _test_subsets(scanner: gc.Scanner, img_params: gc.ImageParams,
     num_subsets = 4
     Ax_sub = np.zeros_like(Ax)
     for subset in range(num_subsets):
-        k_sub = gc.GCProjectionOper(
+        k_sub = gc.ProjectionOper(
             scanner,
             img_params, projData,
             idx_subset=subset, num_subsets=num_subsets,
@@ -93,7 +93,7 @@ def _test_subsets(scanner: gc.Scanner, img_params: gc.ImageParams,
 
 def _test_adjoint(scanner: gc.Scanner, img_params: gc.ImageParams,
                   projData: gc.ProjectionData, **args):
-    k = gc.GCProjectionOper(scanner, img_params, projData, **args)
+    k = gc.ProjectionOper(scanner, img_params, projData, **args)
 
     x = np.random.random([img_params.nz, img_params.ny, img_params.nx])
     y = np.random.random(projData.count())

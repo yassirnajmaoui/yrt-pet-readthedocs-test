@@ -4,7 +4,7 @@
  */
 
 #include "datastruct/image/Image.hpp"
-#include "operators/GCOperatorProjectorSiddon.hpp"
+#include "operators/OperatorProjectorSiddon.hpp"
 
 #include "catch.hpp"
 #include <cmath>
@@ -21,7 +21,7 @@ double bp_dot(StraightLineParam& lor, Image* img_bp, Image* img,
               double proj_val)
 {
 	img_bp->setValue(0.0);
-	GCOperatorProjectorSiddon::singleBackProjection(img_bp, lor, proj_val);
+	OperatorProjectorSiddon::singleBackProjection(img_bp, lor, proj_val);
 	return img->dot_product(img_bp);
 }
 
@@ -29,7 +29,7 @@ double bp_dot_slow(StraightLineParam& lor, Image* img_bp, Image* img,
                    double proj_val)
 {
 	img_bp->setValue(0.0);
-	GCOperatorProjectorSiddon::project_helper<false, false, false>(img_bp, lor,
+	OperatorProjectorSiddon::project_helper<false, false, false>(img_bp, lor,
 	                                                               proj_val);
 	return img->dot_product(img_bp);
 }
@@ -71,7 +71,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			StraightLineParam lor(p1, p2);
 			INFO(rseed_str + " i=" + std::to_string(i));
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx(2 * fov_radius));
 
@@ -83,7 +83,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -107,7 +107,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			StraightLineParam lor(p1, p2);
 			INFO(rseed_str + " i=" + std::to_string(i));
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx((p1 - p2).getNorm()));
 
@@ -119,7 +119,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -142,7 +142,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			    2 * sqrtf(std::max(0.0, fov_radius * fov_radius - y0 * y0));
 			INFO(rseed_str + " i=" + std::to_string(i));
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx(integral_ref));
 			// Adjoint
@@ -153,7 +153,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -170,7 +170,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			Vector3D p2(2 * sx, p1.y, p1.z);
 			StraightLineParam lor(p1, p2);
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx(0.f));
 			// Adjoint
@@ -181,7 +181,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -193,7 +193,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			Vector3D p2(2 * sx, sy, p1.z);
 			StraightLineParam lor(p1, p2);
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx(0.f));
 			// Adjoint
@@ -204,7 +204,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -218,7 +218,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			Vector3D p2(sx, 0, p1.z + delta_z);
 			StraightLineParam lor(p1, p2);
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx(0.f));
 			// Adjoint
@@ -229,7 +229,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -253,7 +253,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			    sqrtf(4.f * fov_radius * fov_radius + (z2 - z1) * (z2 - z1));
 			INFO(rseed_str + " i=" + std::to_string(i));
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx(integral_ref));
 			// Adjoint
@@ -264,7 +264,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -318,7 +318,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			StraightLineParam lor(p1, p2);
 			INFO("axis i=" + std::to_string(i));
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			REQUIRE(proj_val == Approx(l_ref));
 			// Adjoint
@@ -329,7 +329,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -398,7 +398,7 @@ TEST_CASE("Siddon-random", "[siddon]")
 
 			// Use Siddon implementation to compute projection
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			// Compute reference
 			double proj_ref = 0.0;
@@ -482,7 +482,7 @@ TEST_CASE("Siddon-random", "[siddon]")
 
 			// Slow version of ray tracing
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 			double dot_x_Aty_slow =
@@ -516,7 +516,7 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 		Vector3D p2(0, 0, -26.4292);
 		StraightLineParam lor(p1, p2);
 		double proj_val =
-		    GCOperatorProjectorSiddon::singleForwardProjection(img.get(), lor);
+		    OperatorProjectorSiddon::singleForwardProjection(img.get(), lor);
 		REQUIRE(proj_val == Approx(v * sz));
 	}
 
@@ -542,11 +542,11 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 		Vector3D p2(19.74, 0.0, 13.200009);
 		StraightLineParam lor(p1, p2);
 		double proj_val =
-		    GCOperatorProjectorSiddon::singleForwardProjection(img.get(), lor);
+		    OperatorProjectorSiddon::singleForwardProjection(img.get(), lor);
 		REQUIRE(proj_val > 0.0f);
 
 		double proj_val_slow;
-		GCOperatorProjectorSiddon::project_helper<true, false, false>(
+		OperatorProjectorSiddon::project_helper<true, false, false>(
 		    img.get(), lor, proj_val_slow);
 		REQUIRE(proj_val == Approx(proj_val_slow));
 	}
@@ -585,10 +585,10 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 			Vector3D p2(2.0, 1.0, 0.0);
 			StraightLineParam lor(p1, p2);
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 		}
@@ -599,10 +599,10 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 			Vector3D p2(2.0, 0.0, 1.0);
 			StraightLineParam lor(p1, p2);
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 		}
@@ -613,10 +613,10 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 			Vector3D p2(0.0, 2.0, 1.0);
 			StraightLineParam lor(p1, p2);
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 		}
@@ -627,10 +627,10 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 			Vector3D p2(2.0, 2.0, 2.0);
 			StraightLineParam lor(p1, p2);
 			double proj_val =
-			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
+			    OperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
 			double proj_val_slow;
-			GCOperatorProjectorSiddon::project_helper<true, false, false>(
+			OperatorProjectorSiddon::project_helper<true, false, false>(
 			    img.get(), lor, proj_val_slow);
 			REQUIRE(proj_val == Approx(proj_val_slow));
 		}

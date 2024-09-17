@@ -7,13 +7,13 @@ scanner = gc.ScannerOwned("<path to the scanner's json file>")
 
 # Prepare an empty histogram
 outHis = gc.Histogram3DOwned(scanner)
-outHis.Allocate()
+outHis.allocate()
 
 # Read an image to Forward-project
 imgParams = gc.ImageParams("<path to the image parameters file>")
 inputImage = gc.ImageOwned(imgParams, "<path to input image>")
 
-projectorType = gc.GCOperatorProjector.ProjectorType.DD_GPU
+projectorType = gc.OperatorProjector.ProjectorType.DD_GPU
 # Available projectors: SIDDON, DD, DD_GPU
 gc.forwProject(scanner, inputImage, outHis, projectorType)
 

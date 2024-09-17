@@ -7,9 +7,9 @@
 #include "datastruct/projection/ProjectionSpaceKernels.cuh"
 #include "datastruct/projection/UniformHistogram.hpp"
 #include "datastruct/projection/ListMode.hpp"
-#include "operators/GCOperatorDevice.cuh"
+#include "operators/OperatorDevice.cuh"
 #include "utils/GCAssert.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 
 #include "omp.h"
 #include <utility>
@@ -182,8 +182,8 @@ void ProjectionDataDevice::createBatchSetups(float shareOfMemoryToUse)
 
 	const size_t possibleEventsPerBatch =
 	    memAvailable /
-	    (GCGlobalsCuda::threadsPerBlockData * MemoryUsagePerEvent) *
-	    GCGlobalsCuda::threadsPerBlockData;
+	    (GlobalsCuda::ThreadsPerBlockData * MemoryUsagePerEvent) *
+	    GlobalsCuda::ThreadsPerBlockData;
 
 	const size_t numSubsets = mp_binIteratorList.size();
 	m_batchSetups.reserve(numSubsets);

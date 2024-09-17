@@ -5,7 +5,7 @@
 
 #include "datastruct/projection/ProjectionData.hpp"
 
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 
 #include <stdexcept>
 
@@ -71,7 +71,7 @@ void ProjectionData::operationOnEachBin(
 void ProjectionData::operationOnEachBinParallel(
     const std::function<float(bin_t)>& func)
 {
-	int num_threads = GCGlobals::get_num_threads();
+	int num_threads = Globals::get_num_threads();
 	bin_t i;
 #pragma omp parallel for num_threads(num_threads) default(none) private(i), \
     firstprivate(func)
@@ -163,7 +163,7 @@ void ProjectionData::clearProjections(float value)
 void ProjectionData::divideMeasurements(const ProjectionData* measurements,
                                          const BinIterator* binIter)
 {
-	int num_threads = GCGlobals::get_num_threads();
+	int num_threads = Globals::get_num_threads();
 #pragma omp parallel for num_threads(num_threads)
 	for (size_t binIdx = 0; binIdx < binIter->size(); binIdx++)
 	{

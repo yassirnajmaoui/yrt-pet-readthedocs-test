@@ -7,7 +7,7 @@
 
 #include "datastruct/PluginFramework.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
-#include "operators/GCOperatorProjector.hpp"
+#include "operators/OperatorProjector.hpp"
 
 #include <memory>
 #include <string>
@@ -25,8 +25,8 @@ namespace IO
 	bool isFormatListMode(const std::string& format);
 
 	// Projector-related
-	GCOperatorProjector::ProjectorType
+	OperatorProjector::ProjectorType
 	    getProjector(const std::string& projectorName);
-	bool requiresGPU(GCOperatorProjector::ProjectorType projector);
+	bool requiresGPU(OperatorProjector::ProjectorType projector);
 
 }  // namespace IO

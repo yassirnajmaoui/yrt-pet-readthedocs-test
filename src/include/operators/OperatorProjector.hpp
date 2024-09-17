@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "operators/GCOperator.hpp"
-#include "operators/GCProjectionPsfManager.hpp"
-#include "operators/GCTimeOfFlight.hpp"
+#include "operators/Operator.hpp"
+#include "operators/ProjectionPsfManager.hpp"
+#include "operators/TimeOfFlight.hpp"
 #include "utils/GCTypes.hpp"
 
 class BinIterator;
@@ -16,10 +16,10 @@ class Scanner;
 class ProjectionData;
 class Histogram;
 
-class GCOperatorProjectorParams
+class OperatorProjectorParams
 {
 public:
-	GCOperatorProjectorParams(const BinIterator* p_binIter,
+	OperatorProjectorParams(const BinIterator* p_binIter,
 	                          const Scanner* p_scanner,
 	                          float p_tofWidth_ps = 0.f, int p_tofNumStd = 0,
 	                          std::string p_psfProjFilename = "",
@@ -40,7 +40,7 @@ public:
 };
 
 // Device-agnostic virtual class
-class GCOperatorProjectorBase : public GCOperator
+class OperatorProjectorBase : public Operator
 {
 public:
 	struct ProjectionProperties
@@ -52,7 +52,7 @@ public:
 		Vector3D det2Orient;
 	};
 
-	GCOperatorProjectorBase(const GCOperatorProjectorParams& p_projParams);
+	OperatorProjectorBase(const OperatorProjectorParams& p_projParams);
 
 	const Scanner* getScanner() const;
 	const BinIterator* getBinIter() const;
@@ -82,7 +82,7 @@ protected:
 	const Histogram* addHisto;
 };
 
-class GCOperatorProjector : public GCOperatorProjectorBase
+class OperatorProjector : public OperatorProjectorBase
 {
 public:
 	enum ProjectorType
@@ -92,7 +92,7 @@ public:
 		DD_GPU
 	};
 
-	GCOperatorProjector(const GCOperatorProjectorParams& p_projParams);
+	OperatorProjector(const OperatorProjectorParams& p_projParams);
 
 	// Virtual functions
 	virtual double forwardProjection(const Image* in_image,
@@ -106,16 +106,16 @@ public:
 	void setupTOFHelper(float tofWidth_ps, int tofNumStd = -1);
 	void setupProjPsfManager(const std::string& psfFilename);
 
-	const GCTimeOfFlightHelper* getTOFHelper() const;
-	const GCProjectionPsfManager* getProjectionPsfManager() const;
+	const TimeOfFlightHelper* getTOFHelper() const;
+	const ProjectionPsfManager* getProjectionPsfManager() const;
 
 	static void get_alpha(double r0, double r1, double p1, double p2,
 	                      double inv_p12, double& amin, double& amax);
 
 protected:
 	// Time of flight
-	std::unique_ptr<GCTimeOfFlightHelper> mp_tofHelper;
+	std::unique_ptr<TimeOfFlightHelper> mp_tofHelper;
 
 	// Projection-domain PSF
-	std::unique_ptr<GCProjectionPsfManager> mp_projPsfManager;
+	std::unique_ptr<ProjectionPsfManager> mp_projPsfManager;
 };

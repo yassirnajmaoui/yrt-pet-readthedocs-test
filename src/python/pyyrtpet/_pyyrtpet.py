@@ -79,7 +79,7 @@ class DataFileRawd:
 
 
 # Wrapper for Siddon operator
-class GCProjectionOper:
+class ProjectionOper:
     def __init__(self, scanner: gc.Scanner, img_params: gc.ImageParams,
                  projData: gc.ProjectionData, projector='Siddon',
                  idx_subset=0, num_subsets=1,
@@ -92,8 +92,8 @@ class GCProjectionOper:
         self._num_subsets = num_subsets
         self._binIter = self._projData.getBinIter(self._num_subsets,
                                                   self._idx_subset)
-        proj_f = getattr(gc, 'GCOperatorProjector{}'.format(projector))
-        self._proj_params = gc.GCOperatorProjectorParams(
+        proj_f = getattr(gc, 'OperatorProjector{}'.format(projector))
+        self._proj_params = gc.OperatorProjectorParams(
             self._binIter, self._scanner,
             tof_width_ps or np.float32(0), tof_n_std or np.int32(0),
             proj_psf_fname or '', num_rays)
@@ -112,10 +112,10 @@ class GCProjectionOper:
         if xx.ndim == 2:
             xx = xx[None, ...]
         img = gc.ImageAlias(self._img_params)
-        img.Bind(xx)
+        img.bind(xx)
         self._y[:] = 0
         projlist = gc.ProjectionListAlias(self._projData)
-        projlist.Bind(self._y)
+        projlist.bind(self._y)
         self._oper.applyA(img, projlist)
         return self._y
 
@@ -123,9 +123,9 @@ class GCProjectionOper:
         """Backprojection"""
         yy = np.require(y, dtype=np.float32)
         projlist = gc.ProjectionListAlias(self._projData)
-        projlist.Bind(yy)
+        projlist.bind(yy)
         self._x[:] = 0
         img = gc.ImageAlias(self._img_params)
-        img.Bind(self._x)
+        img.bind(self._x)
         self._oper.applyAH(projlist, img)
         return self._x

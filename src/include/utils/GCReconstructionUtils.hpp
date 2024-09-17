@@ -24,7 +24,7 @@ namespace Util
 	                          Histogram3D& histoOut);
 
 	// Helper function to unify LOR loading
-	GCOperatorProjectorBase::ProjectionProperties
+	OperatorProjectorBase::ProjectionProperties
 	    getProjectionProperties(const Scanner& scanner,
 	                            const ProjectionData& dat, bin_t bin);
 
@@ -42,42 +42,42 @@ namespace Util
 	// Forward projection
 	void forwProject(const Scanner* scanner, const Image* img,
 	                 ProjectionData* projData,
-	                 GCOperatorProjector::ProjectorType projectorType =
-	                     GCOperatorProjector::SIDDON,
+	                 OperatorProjector::ProjectorType projectorType =
+	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
 	void forwProject(const Scanner* scanner, const Image* img,
 	                 ProjectionData* projData,
 	                 const BinIterator& binIterator,
-	                 GCOperatorProjector::ProjectorType projectorType =
-	                     GCOperatorProjector::SIDDON,
+	                 OperatorProjector::ProjectorType projectorType =
+	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
 	void forwProject(const Image* img, ProjectionData* projData,
-	                 const GCOperatorProjectorParams& projParams,
-	                 GCOperatorProjector::ProjectorType projectorType =
-	                     GCOperatorProjector::SIDDON,
+	                 const OperatorProjectorParams& projParams,
+	                 OperatorProjector::ProjectorType projectorType =
+	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
 
 	// Back projection
 	void backProject(const Scanner* scanner, Image* img,
 	                 const ProjectionData* projData,
-	                 GCOperatorProjector::ProjectorType projectorType =
-	                     GCOperatorProjector::SIDDON,
+	                 OperatorProjector::ProjectorType projectorType =
+	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
 	void backProject(const Scanner* scanner, Image* img,
 	                 const ProjectionData* projData,
 	                 const BinIterator& binIterator,
-	                 GCOperatorProjector::ProjectorType projectorType =
-	                     GCOperatorProjector::SIDDON,
+	                 OperatorProjector::ProjectorType projectorType =
+	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
 	void backProject(Image* img, const ProjectionData* projData,
-	                 const GCOperatorProjectorParams& projParams,
-	                 GCOperatorProjector::ProjectorType projectorType =
-	                     GCOperatorProjector::SIDDON,
+	                 const OperatorProjectorParams& projParams,
+	                 OperatorProjector::ProjectorType projectorType =
+	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
 

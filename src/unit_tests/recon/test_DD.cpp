@@ -9,8 +9,8 @@
 #include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/projection/ListMode.hpp"
 #include "datastruct/scanner/DetRegular.hpp"
-#include "operators/GCOperatorProjectorDD.hpp"
-#include "operators/GCOperatorProjectorSiddon.hpp"
+#include "operators/OperatorProjectorDD.hpp"
+#include "operators/OperatorProjectorSiddon.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
 #include <algorithm>
@@ -49,11 +49,11 @@ void dd(const Scanner* scanner, ListMode* proj,
 	osem->setSensDataInput(proj);
 	if (flag_cuda)
 	{
-		osem->projectorType = GCOperatorProjector::DD_GPU;
+		osem->projectorType = OperatorProjector::DD_GPU;
 	}
 	else
 	{
-		osem->projectorType = GCOperatorProjector::DD;
+		osem->projectorType = OperatorProjector::DD;
 	}
 	std::vector<std::unique_ptr<Image>> sensImages;
 	osem->generateSensitivityImages(sensImages, "");
@@ -64,18 +64,18 @@ TEST_CASE("DD-simple", "[dd]")
 {
 	SECTION("get_overlap")
 	{
-		CHECK(GCOperatorProjectorDD::get_overlap(1.1, 4.1, 2.1, 3.1) ==
+		CHECK(OperatorProjectorDD::get_overlap(1.1, 4.1, 2.1, 3.1) ==
 		      Approx(1.0));
-		CHECK(GCOperatorProjectorDD::get_overlap(4, 1, 2, 3) == Approx(0.0));
-		CHECK(GCOperatorProjectorDD::get_overlap(4.5, 2.3, 1.6, 3.2) ==
+		CHECK(OperatorProjectorDD::get_overlap(4, 1, 2, 3) == Approx(0.0));
+		CHECK(OperatorProjectorDD::get_overlap(4.5, 2.3, 1.6, 3.2) ==
 		      Approx(0.0));
-		CHECK(GCOperatorProjectorDD::get_overlap(1.1, 1.2, 1.3, 1.4) ==
+		CHECK(OperatorProjectorDD::get_overlap(1.1, 1.2, 1.3, 1.4) ==
 		      Approx(0.0));
-		CHECK(GCOperatorProjectorDD::get_overlap(1.4, 1.3, 1.1, 1.2) ==
+		CHECK(OperatorProjectorDD::get_overlap(1.4, 1.3, 1.1, 1.2) ==
 		      Approx(0.0));
-		CHECK(GCOperatorProjectorDD::get_overlap(9.2, 10.9, 8.3, 10.0) ==
+		CHECK(OperatorProjectorDD::get_overlap(9.2, 10.9, 8.3, 10.0) ==
 		      Approx(10.0 - 9.2));
-		CHECK(GCOperatorProjectorDD::get_overlap(9.2, 9.9, 8.3, 10.0) ==
+		CHECK(OperatorProjectorDD::get_overlap(9.2, 9.9, 8.3, 10.0) ==
 		      Approx(9.9 - 9.2));
 	}
 }

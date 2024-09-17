@@ -9,7 +9,7 @@
 #include "datastruct/projection/SparseHistogram.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCAssert.hpp"
-#include "utils/GCGlobals.hpp"
+#include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
 #include <cxxopts.hpp>
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	GCGlobals::set_num_threads(numThreads);
+	Globals::set_num_threads(numThreads);
 
 	auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
 
