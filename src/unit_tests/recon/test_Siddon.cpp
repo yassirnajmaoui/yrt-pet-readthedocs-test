@@ -17,7 +17,7 @@
  * Compute the backprojection of the line of response into img_bp, and return
  * the dot product between img and img_bp.
  */
-double bp_dot(GCStraightLineParam& lor, Image* img_bp, Image* img,
+double bp_dot(StraightLineParam& lor, Image* img_bp, Image* img,
               double proj_val)
 {
 	img_bp->setValue(0.0);
@@ -25,7 +25,7 @@ double bp_dot(GCStraightLineParam& lor, Image* img_bp, Image* img,
 	return img->dot_product(img_bp);
 }
 
-double bp_dot_slow(GCStraightLineParam& lor, Image* img_bp, Image* img,
+double bp_dot_slow(StraightLineParam& lor, Image* img_bp, Image* img,
                    double proj_val)
 {
 	img_bp->setValue(0.0);
@@ -66,9 +66,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 		{
 			double beta = 2 * M_PI * i / (double)(num_tests - 1);
 			// Single line of response (through isocenter)
-			GCVector p1(-sx * cosf(beta), -sx * sinf(beta), oz);
-			GCVector p2(sx * cosf(beta), sx * sinf(beta), oz);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(-sx * cosf(beta), -sx * sinf(beta), oz);
+			Vector3D p2(sx * cosf(beta), sx * sinf(beta), oz);
+			StraightLineParam lor(p1, p2);
 			INFO(rseed_str + " i=" + std::to_string(i));
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
@@ -102,9 +102,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			double rad_1 = rand() / (double)RAND_MAX * 0.8 * fov_radius;
 			double rad_2 = rand() / (double)RAND_MAX * 0.8 * fov_radius;
 			// Single line of response (through isocenter)
-			GCVector p1(rad_1 * cosf(beta_1), rad_1 * sinf(beta_1), oz);
-			GCVector p2(rad_2 * cosf(beta_2), rad_2 * sinf(beta_2), oz);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(rad_1 * cosf(beta_1), rad_1 * sinf(beta_1), oz);
+			Vector3D p2(rad_2 * cosf(beta_2), rad_2 * sinf(beta_2), oz);
+			StraightLineParam lor(p1, p2);
 			INFO(rseed_str + " i=" + std::to_string(i));
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
@@ -135,9 +135,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 		{
 			double y0 = sy * i / (double)(num_tests - 1) - sy / 2;
 			// Single line of response (parallel to y-axis)
-			GCVector p1(-sx, y0, oz);
-			GCVector p2(sx, y0, p1.z);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(-sx, y0, oz);
+			Vector3D p2(sx, y0, p1.z);
+			StraightLineParam lor(p1, p2);
 			double integral_ref =
 			    2 * sqrtf(std::max(0.0, fov_radius * fov_radius - y0 * y0));
 			INFO(rseed_str + " i=" + std::to_string(i));
@@ -166,9 +166,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 	{
 		// Lines of response outside of the field of view
 		{
-			GCVector p1(sx, oy, oz);
-			GCVector p2(2 * sx, p1.y, p1.z);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(sx, oy, oz);
+			Vector3D p2(2 * sx, p1.y, p1.z);
+			StraightLineParam lor(p1, p2);
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
@@ -189,9 +189,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			REQUIRE(dot_x_Aty == Approx(dot_x_Aty_slow));
 		}
 		{
-			GCVector p1(2 * sx, oy, oz);
-			GCVector p2(2 * sx, sy, p1.z);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(2 * sx, oy, oz);
+			Vector3D p2(2 * sx, sy, p1.z);
+			StraightLineParam lor(p1, p2);
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
@@ -214,9 +214,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 		for (int i = 0; i < 2; i++)
 		{
 			double delta_z = (i == 0) ? 0 : rand() / (double)RAND_MAX * 0.00001;
-			GCVector p1(-sx, 0, 1.0001 * sz / 2);
-			GCVector p2(sx, 0, p1.z + delta_z);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(-sx, 0, 1.0001 * sz / 2);
+			Vector3D p2(sx, 0, p1.z + delta_z);
+			StraightLineParam lor(p1, p2);
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
@@ -246,9 +246,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 			// Line of response along diameter of FOV (varying z)
 			double z1 = rand() / (double)RAND_MAX * sz - sz / 2;
 			double z2 = rand() / (double)RAND_MAX * sz - sz / 2;
-			GCVector p1(0, -fov_radius, z1);
-			GCVector p2(0, fov_radius, z2);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(0, -fov_radius, z1);
+			Vector3D p2(0, fov_radius, z2);
+			StraightLineParam lor(p1, p2);
 			double integral_ref =
 			    sqrtf(4.f * fov_radius * fov_radius + (z2 - z1) * (z2 - z1));
 			INFO(rseed_str + " i=" + std::to_string(i));
@@ -273,8 +273,8 @@ TEST_CASE("Siddon-simple", "[siddon]")
 		}
 		for (int i = 0; i < 4; i++)
 		{
-			GCVector p1;
-			GCVector p2;
+			Vector3D p1;
+			Vector3D p2;
 			double l_ref;
 			switch (i)
 			{
@@ -315,7 +315,7 @@ TEST_CASE("Siddon-simple", "[siddon]")
 				l_ref = 2 * fov_radius;
 				break;
 			}
-			GCStraightLineParam lor(p1, p2);
+			StraightLineParam lor(p1, p2);
 			INFO("axis i=" + std::to_string(i));
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
@@ -392,9 +392,9 @@ TEST_CASE("Siddon-random", "[siddon]")
 			double z1 = rand() / (double)RAND_MAX * 2.0 * sz - sz;
 			double z2 = rand() / (double)RAND_MAX * 2.0 * sz - sz;
 
-			GCVector p1(x1, y1, z1);
-			GCVector p2(x2, y2, z2);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(x1, y1, z1);
+			Vector3D p2(x2, y2, z2);
+			StraightLineParam lor(p1, p2);
 
 			// Use Siddon implementation to compute projection
 			double proj_val =
@@ -512,9 +512,9 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 		double v = rand() / (double)RAND_MAX * 1000.0;
 		img->setValue(v);
 
-		GCVector p1(0, 0, 26.4843);
-		GCVector p2(0, 0, -26.4292);
-		GCStraightLineParam lor(p1, p2);
+		Vector3D p1(0, 0, 26.4843);
+		Vector3D p2(0, 0, -26.4292);
+		StraightLineParam lor(p1, p2);
 		double proj_val =
 		    GCOperatorProjectorSiddon::singleForwardProjection(img.get(), lor);
 		REQUIRE(proj_val == Approx(v * sz));
@@ -538,9 +538,9 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 		double v = rand() / (double)RAND_MAX * 1000.0;
 		img->setValue(v);
 
-		GCVector p1(-15.998346, -11.563760, 10.800007);
-		GCVector p2(19.74, 0.0, 13.200009);
-		GCStraightLineParam lor(p1, p2);
+		Vector3D p1(-15.998346, -11.563760, 10.800007);
+		Vector3D p2(19.74, 0.0, 13.200009);
+		StraightLineParam lor(p1, p2);
 		double proj_val =
 		    GCOperatorProjectorSiddon::singleForwardProjection(img.get(), lor);
 		REQUIRE(proj_val > 0.0f);
@@ -581,9 +581,9 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 
 		// xy
 		{
-			GCVector p1(-2.0, -1.0, 0.0);
-			GCVector p2(2.0, 1.0, 0.0);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(-2.0, -1.0, 0.0);
+			Vector3D p2(2.0, 1.0, 0.0);
+			StraightLineParam lor(p1, p2);
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
@@ -595,9 +595,9 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 
 		// xz
 		{
-			GCVector p1(-2.0, 0.0, -1.0);
-			GCVector p2(2.0, 0.0, 1.0);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(-2.0, 0.0, -1.0);
+			Vector3D p2(2.0, 0.0, 1.0);
+			StraightLineParam lor(p1, p2);
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
@@ -609,9 +609,9 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 
 		// yz
 		{
-			GCVector p1(0.0, -2.0, -1.0);
-			GCVector p2(0.0, 2.0, 1.0);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(0.0, -2.0, -1.0);
+			Vector3D p2(0.0, 2.0, 1.0);
+			StraightLineParam lor(p1, p2);
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);
@@ -623,9 +623,9 @@ TEST_CASE("Siddon-bugs", "[siddon]")
 
 		// xyz
 		{
-			GCVector p1(-2.0, -2.0, -2.0);
-			GCVector p2(2.0, 2.0, 2.0);
-			GCStraightLineParam lor(p1, p2);
+			Vector3D p1(-2.0, -2.0, -2.0);
+			Vector3D p2(2.0, 2.0, 2.0);
+			StraightLineParam lor(p1, p2);
 			double proj_val =
 			    GCOperatorProjectorSiddon::singleForwardProjection(img.get(),
 			                                                       lor);

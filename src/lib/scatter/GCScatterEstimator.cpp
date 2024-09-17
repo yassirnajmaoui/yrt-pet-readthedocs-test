@@ -7,7 +7,7 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 #include "scatter/GCCrystal.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 

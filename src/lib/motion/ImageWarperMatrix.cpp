@@ -13,7 +13,7 @@ namespace py = pybind11;
 void py_setup_imagewarpermatrix(py::module& m)
 {
 	auto c = py::class_<ImageWarperMatrix, ImageWarperTemplate>(
-	    m, "ImageWarperMatrix");
+		m, "ImageWarperMatrix");
 	c.def(py::init<>());
 }
 #endif
@@ -49,7 +49,8 @@ void ImageWarperMatrix::Reset()
  *		quaternion [qw, qx, qy, qz] followed by a translation [tx, ty, tz].
  * *************************************************************************************/
 void ImageWarperMatrix::setFrameWarpParameters(int frameId,
-                                               const std::vector<double>& warpParam)
+                                               const std::vector<double>&
+                                               warpParam)
 {
 	// Invert the rotation.
 	std::vector<double> invQuaternion;
@@ -81,7 +82,7 @@ void ImageWarperMatrix::warp(Image* _image, int _frameId) const
 {
 	std::vector<double> voxPos;
 	voxPos.resize(3);
-	GCVector movVoxPos = GCVector(0.0, 0.0, 0.0);
+	Vector3D movVoxPos{0.0, 0.0, 0.0};
 	Array3DAlias<double> data = _image->getArray();
 	Array2DAlias<double> slice;
 
@@ -122,7 +123,7 @@ void ImageWarperMatrix::inverseWarp(Image* _image, int _frameId) const
 
 	std::vector<double> voxPos;
 	voxPos.resize(3);
-	GCVector movVoxPos = GCVector(0.0, 0.0, 0.0);
+	Vector3D movVoxPos{0.0, 0.0, 0.0};
 
 	std::vector<std::vector<int>> voxCompIndex;
 	voxCompIndex.resize(8);
@@ -166,8 +167,8 @@ void ImageWarperMatrix::inverseWarp(Image* _image, int _frameId) const
 					for (size_t l = 0; l < voxCompIndex.size(); l++)
 					{
 						double* cur_img_ptr =
-						    raw_img_ptr + voxCompIndex[l][2] * num_xy +
-						    voxCompIndex[l][1] * num_x + voxCompIndex[l][0];
+							raw_img_ptr + voxCompIndex[l][2] * num_xy +
+							voxCompIndex[l][1] * num_x + voxCompIndex[l][0];
 						*cur_img_ptr += currVoxelVal * voxCompInterpWeight[l];
 					}
 				}
@@ -202,7 +203,8 @@ void ImageWarperMatrix::initWarpModeSpecificParameters()
  * Def.:  Evaluate the physical position of a voxel in the three dimensions.
  * @voxelId: The voxel Id in each dimension.
  * *************************************************************************************/
-std::vector<double> ImageWarperMatrix::getVoxelPhysPos(const std::vector<int>& voxelId)
+std::vector<double> ImageWarperMatrix::getVoxelPhysPos(
+	const std::vector<int>& voxelId)
 {
 	std::vector<double> voxPos;
 	voxPos.resize(3);
@@ -224,7 +226,7 @@ std::vector<double> ImageWarperMatrix::getVoxelPhysPos(const std::vector<int>& v
 double ImageWarperMatrix::getVoxelPhysPos(int voxelId, int voxelDim) const
 {
 	return ((double)voxelId + 0.5) *
-	           (m_imSize[voxelDim] / (double)m_imNbVoxel[voxelDim]) -
+	       (m_imSize[voxelDim] / (double)m_imNbVoxel[voxelDim]) -
 	       0.5 * m_imSize[voxelDim];
 }
 
@@ -238,7 +240,7 @@ double ImageWarperMatrix::getVoxelPhysPos(int voxelId, int voxelDim) const
  * @frameId: The frame of interest.
  * *************************************************************************************/
 void ImageWarperMatrix::applyTransformation(const std::vector<double>& pos,
-                                            GCVector& result, int frameId) const
+                                            Vector3D& result, int frameId) const
 {
 	result.x = m_rotMatrix[frameId][0] * pos[0] +
 	           m_rotMatrix[frameId][1] * pos[1] +
@@ -265,10 +267,10 @@ void ImageWarperMatrix::applyTransformation(const std::vector<double>& pos,
  * @frameId: The frame of origin.
  * *************************************************************************************/
 void ImageWarperMatrix::applyInvTransformation(const std::vector<double>& pos,
-                                               GCVector& result,
+                                               Vector3D& result,
                                                int frameId) const
 {
-	GCVector result_tmp = GCVector(0.0, 0.0, 0.0);
+	Vector3D result_tmp{0.0, 0.0, 0.0};
 
 	result_tmp.x = pos[0] - m_translation[frameId][0];
 	result_tmp.y = pos[1] - m_translation[frameId][1];
@@ -300,9 +302,11 @@ void ImageWarperMatrix::applyInvTransformation(const std::vector<double>& pos,
  * Note:
  *		- voxIndex and voxValue are filled with the same order.
  * *************************************************************************************/
-bool ImageWarperMatrix::invInterpolComponent(GCVector pt,
-                                             std::vector<std::vector<int>>& voxIndex,
-                                             std::vector<double>& voxValue) const
+bool ImageWarperMatrix::invInterpolComponent(const Vector3D& pt,
+                                             std::vector<std::vector<int>>&
+                                             voxIndex,
+                                             std::vector<double>& voxValue)
+const
 {
 	int ix, iy, iz, ix1, ix2, iy1, iy2, iz1, iz2;
 	double dx, dy, dz, dx1, dy1, dz1, delta_x, delta_y, delta_z;

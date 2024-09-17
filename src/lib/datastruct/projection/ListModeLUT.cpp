@@ -359,7 +359,7 @@ Array1DBase<det_id_t>* ListModeLUT::getDetector2ArrayPtr() const
 	return (mp_detectorId2.get());
 }
 
-GCStraightLineParam ListModeLUT::getNativeLORFromId(bin_t id) const
+StraightLineParam ListModeLUT::getNativeLORFromId(bin_t id) const
 {
 	return Util::getNativeLOR(*mp_scanner, *this, id);
 }

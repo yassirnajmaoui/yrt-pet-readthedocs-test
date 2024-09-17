@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "geometry/GCStraightLineParam.hpp"
+#include "geometry/StraightLineParam.hpp"
 #include "utils/Array.hpp"
 
 class GCProjectionPsfManager
@@ -15,7 +15,7 @@ public:
 	void readFromFile(const std::string& psfFilename);
 	float getHalfWidth_mm() const;
 	float getWeight(const float* kernel, float x0, float x1) const;
-	float* getKernel(const GCStraightLineParam& lor,
+	float* getKernel(const StraightLineParam& lor,
 	                 bool flagFlipped = false) const;
 	int getKernelSize() const;
 

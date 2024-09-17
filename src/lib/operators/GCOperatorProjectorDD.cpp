@@ -23,8 +23,8 @@ void py_setup_gcoperatorprojectordd(py::module& m)
 	c.def(
 	    "forward_projection",
 	    [](const GCOperatorProjectorDD& self, const Image* in_image,
-	       const GCStraightLineParam& lor, const GCVector& n1,
-	       const GCVector& n2, const GCTimeOfFlightHelper* tofHelper,
+	       const StraightLineParam& lor, const Vector3D& n1,
+	       const Vector3D& n2, const GCTimeOfFlightHelper* tofHelper,
 	       float tofValue) -> double
 	    {
 		    return self.forwardProjection(in_image, lor, n1, n2, tofHelper,
@@ -35,8 +35,8 @@ void py_setup_gcoperatorprojectordd(py::module& m)
 	c.def(
 	    "back_projection",
 	    [](const GCOperatorProjectorDD& self, Image* in_image,
-	       const GCStraightLineParam& lor, const GCVector& n1,
-	       const GCVector& n2, double proj_value,
+	       const StraightLineParam& lor, const Vector3D& n1,
+	       const Vector3D& n2, double proj_value,
 	       const GCTimeOfFlightHelper* tofHelper, float tofValue)
 	    {
 		    self.backProjection(in_image, lor, n1, n2, proj_value, tofHelper,
@@ -82,8 +82,8 @@ void GCOperatorProjectorDD::backProjection(Image* img,
 }
 
 double GCOperatorProjectorDD::forwardProjection(
-    const Image* in_image, const GCStraightLineParam& lor, const GCVector& n1,
-    const GCVector& n2, const GCTimeOfFlightHelper* tofHelper, float tofValue,
+    const Image* in_image, const StraightLineParam& lor, const Vector3D& n1,
+    const Vector3D& n2, const GCTimeOfFlightHelper* tofHelper, float tofValue,
     const GCProjectionPsfManager* psfManager) const
 {
 	double v = 0;
@@ -101,8 +101,8 @@ double GCOperatorProjectorDD::forwardProjection(
 }
 
 void GCOperatorProjectorDD::backProjection(
-    Image* in_image, const GCStraightLineParam& lor, const GCVector& n1,
-    const GCVector& n2, double proj_value,
+    Image* in_image, const StraightLineParam& lor, const Vector3D& n1,
+    const Vector3D& n2, double proj_value,
     const GCTimeOfFlightHelper* tofHelper, float tofValue,
     const GCProjectionPsfManager* psfManager) const
 {
@@ -145,8 +145,8 @@ float GCOperatorProjectorDD::get_overlap(
 
 template <bool IS_FWD, bool FLAG_TOF>
 void GCOperatorProjectorDD::dd_project_ref(
-    Image* in_image, const GCStraightLineParam& lor, const GCVector& n1,
-    const GCVector& n2, double& proj_value,
+    Image* in_image, const StraightLineParam& lor, const Vector3D& n1,
+    const Vector3D& n2, double& proj_value,
     const GCTimeOfFlightHelper* tofHelper, float tofValue,
     const GCProjectionPsfManager* psfManager) const
 {
@@ -155,14 +155,14 @@ void GCOperatorProjectorDD::dd_project_ref(
 		proj_value = 0.0;
 	}
 	const ImageParams& params = in_image->getParams();
-	const GCVector offsetVec = {params.off_x, params.off_y, params.off_z};
-	GCStraightLineParam lorWithoffset = lor;
+	const Vector3D offsetVec = {params.off_x, params.off_y, params.off_z};
+	StraightLineParam lorWithoffset = lor;
 	lorWithoffset.point1 = lorWithoffset.point1 - offsetVec;
 	lorWithoffset.point2 = lorWithoffset.point2 - offsetVec;
 
-	const GCVector& d1 = lorWithoffset.point1;
-	const GCVector& d2 = lorWithoffset.point2;
-	const GCVector d1_minus_d2 = d1 - d2;
+	const Vector3D& d1 = lorWithoffset.point1;
+	const Vector3D& d2 = lorWithoffset.point2;
+	const Vector3D d1_minus_d2 = d1 - d2;
 	const bool flag_y = fabs(d1_minus_d2.y) > fabs(d1_minus_d2.x);
 	const double d_norm = d1_minus_d2.getNorm();
 
@@ -436,18 +436,18 @@ void GCOperatorProjectorDD::dd_project_ref(
 }
 
 template void GCOperatorProjectorDD::dd_project_ref<true, false>(
-    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;
 template void GCOperatorProjectorDD::dd_project_ref<false, false>(
-    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;
 template void GCOperatorProjectorDD::dd_project_ref<true, true>(
-    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;
 template void GCOperatorProjectorDD::dd_project_ref<false, true>(
-    Image*, const GCStraightLineParam&, const GCVector&, const GCVector&,
+    Image*, const StraightLineParam&, const Vector3D&, const Vector3D&,
     double&, const GCTimeOfFlightHelper*, float,
     const GCProjectionPsfManager*) const;

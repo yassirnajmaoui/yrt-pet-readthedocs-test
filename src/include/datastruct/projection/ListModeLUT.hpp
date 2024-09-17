@@ -8,7 +8,7 @@
 #include "datastruct/PluginFramework.hpp"
 #include "datastruct/projection/LORMotion.hpp"
 #include "datastruct/projection/ListMode.hpp"
-#include "geometry/GCStraightLineParam.hpp"
+#include "geometry/StraightLineParam.hpp"
 #include "utils/Array.hpp"
 
 #if BUILD_PYBIND11
@@ -27,7 +27,7 @@ public:
 	timestamp_t getTimestamp(bin_t eventId) const override;
 	det_id_t getDetector1(bin_t eventId) const override;
 	det_id_t getDetector2(bin_t eventId) const override;
-	GCStraightLineParam getNativeLORFromId(bin_t id) const;
+	StraightLineParam getNativeLORFromId(bin_t id) const;
 	bool hasTOF() const override;
 	float getTOFValue(bin_t id) const override;
 	size_t count() const override;

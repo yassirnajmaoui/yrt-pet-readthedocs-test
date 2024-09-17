@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/scanner/DetCoord.hpp"
-#include "geometry/GCVector.hpp"
+#include "geometry/Vector3D.hpp"
 
 #include <filesystem>
 #include <string>
@@ -20,8 +20,8 @@ class Scanner
 public:
 	size_t getNumDets() const;
 	size_t getTheoreticalNumDets() const;
-	GCVector getDetectorPos(det_id_t id) const;
-	GCVector getDetectorOrient(det_id_t id) const;
+	Vector3DFloat getDetectorPos(det_id_t id) const;
+	Vector3DFloat getDetectorOrient(det_id_t id) const;
 	const DetectorSetup* getDetectorSetup() const { return mp_detectors; }
 	// Allocate and fill array with detector positions
 	void createLUT(Array2D<float>& lut) const;

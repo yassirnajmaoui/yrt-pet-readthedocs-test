@@ -25,12 +25,12 @@ void py_setup_gcdetectorsetup(pybind11::module& m)
 #endif
 
 
-GCVector DetectorSetup::getPos(det_id_t id) const
+Vector3DFloat DetectorSetup::getPos(det_id_t id) const
 {
 	return {getXpos(id), getYpos(id), getZpos(id)};
 }
 
-GCVector DetectorSetup::getOrient(det_id_t id) const
+Vector3DFloat DetectorSetup::getOrient(det_id_t id) const
 {
 	return {getXorient(id), getYorient(id), getZorient(id)};
 }

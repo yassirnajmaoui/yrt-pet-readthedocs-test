@@ -49,11 +49,11 @@ int GCProjectionPsfManager::getKernelSize() const
 	return m_kernels.getSize(1);
 }
 
-float* GCProjectionPsfManager::getKernel(const GCStraightLineParam& lor,
+float* GCProjectionPsfManager::getKernel(const StraightLineParam& lor,
                                          bool flagFlipped) const
 {
-	const GCVector p1 = lor.point1;
-	const GCVector p2 = lor.point2;
+	const Vector3D p1 = lor.point1;
+	const Vector3D p2 = lor.point2;
 	float n_plane_x = p2.y - p1.y;
 	float n_plane_y = p1.x - p2.x;
 	float n_plane_norm =

@@ -182,20 +182,20 @@ line_t ListModeLUTDOI::getArbitraryLOR(bin_t id) const
 {
 	det_id_t detId1 = getDetector1(id);
 	det_id_t detId2 = getDetector2(id);
-	GCVector p1 = mp_scanner->getDetectorPos(detId1);
-	GCVector p2 = mp_scanner->getDetectorPos(detId2);
-	GCVector n1 = mp_scanner->getDetectorOrient(detId1);
-	GCVector n2 = mp_scanner->getDetectorOrient(detId2);
+	Vector3DFloat p1 = mp_scanner->getDetectorPos(detId1);
+	Vector3DFloat p2 = mp_scanner->getDetectorPos(detId2);
+	Vector3DFloat n1 = mp_scanner->getDetectorOrient(detId1);
+	Vector3DFloat n2 = mp_scanner->getDetectorOrient(detId2);
 	double layerSize = (1 << 8) / (float)m_numLayers;
 	double doi1_t = std::floor((*mp_doi1)[id] / layerSize) *
 	                mp_scanner->crystalDepth / (float)m_numLayers;
 	double doi2_t = std::floor((*mp_doi2)[id] / layerSize) *
 	                mp_scanner->crystalDepth / (float)m_numLayers;
-	const GCVectorFloat p1_doi(
+	const Vector3DFloat p1_doi(
 	    p1.x + (doi1_t - 0.5 * mp_scanner->crystalDepth) * n1.x,
 	    p1.y + (doi1_t - 0.5 * mp_scanner->crystalDepth) * n1.y,
 	    p1.z + (doi1_t - 0.5 * mp_scanner->crystalDepth) * n1.z);
-	const GCVectorFloat p2_doi(
+	const Vector3DFloat p2_doi(
 	    p2.x + (doi2_t - 0.5 * mp_scanner->crystalDepth) * n2.x,
 	    p2.y + (doi2_t - 0.5 * mp_scanner->crystalDepth) * n2.y,
 	    p2.z + (doi2_t - 0.5 * mp_scanner->crystalDepth) * n2.z);

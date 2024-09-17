@@ -80,7 +80,7 @@ void ImageWarperFunction::warp(Image* image, int frameId) const
 {
 	std::vector<double> voxPos;
 	voxPos.resize(3);
-	GCVector movVoxPos = GCVector(0.0, 0.0, 0.0);
+	Vector3D movVoxPos{0.0, 0.0, 0.0};
 	Array3DAlias<double> data = image->getArray();
 	Array2DAlias<double> slice;
 
@@ -119,7 +119,7 @@ void ImageWarperFunction::inverseWarp(Image* image, int frameId) const
 	image->setValue(0.0);
 	std::vector<double> voxPos;
 	voxPos.resize(3);
-	GCVector movVoxPos = GCVector(0.0, 0.0, 0.0);
+	auto movVoxPos = Vector3D{0.0, 0.0, 0.0};
 	Array3DAlias<double> data = image->getArray();
 	Array2DAlias<double> slice;
 
@@ -204,7 +204,7 @@ double ImageWarperFunction::getVoxelPhysPos(int voxelId, int voxelDim) const
  * @frameId: The frame of interest.
  * *************************************************************************************/
 void ImageWarperFunction::applyTransformation(const std::vector<double>& pos,
-                                              GCVector& result,
+                                              Vector3D& result,
                                               int frameId) const
 {
 	result.x = m_rotMatrix[frameId][0] * pos[0] +
@@ -232,10 +232,10 @@ void ImageWarperFunction::applyTransformation(const std::vector<double>& pos,
  * @frameId: The frame of origin.
  * *************************************************************************************/
 void ImageWarperFunction::applyInvTransformation(const std::vector<double>& pos,
-                                                 GCVector& result,
+                                                 Vector3D& result,
                                                  int frameId) const
 {
-	GCVector result_tmp = GCVector(0.0, 0.0, 0.0);
+	auto result_tmp = Vector3D{0.0, 0.0, 0.0};
 
 	result_tmp.x = pos[0] - m_translation[frameId][0];
 	result_tmp.y = pos[1] - m_translation[frameId][1];

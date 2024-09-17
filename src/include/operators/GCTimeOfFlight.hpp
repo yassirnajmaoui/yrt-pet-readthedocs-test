@@ -7,7 +7,7 @@
 
 #include "utils/GCGPUUtils.cuh"
 
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 
 #include <cmath>
 

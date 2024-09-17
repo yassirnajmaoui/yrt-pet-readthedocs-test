@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "geometry/GCVector.hpp"
+#include "geometry/Vector3D.hpp"
 #include "utils/GCTypes.hpp"
 
 #include <string>
@@ -22,6 +22,6 @@ public:
 	virtual float getYorient(det_id_t id) const = 0;
 	virtual float getZorient(det_id_t id) const = 0;
 	virtual void writeToFile(const std::string& detCoord_fname) const = 0;
-	virtual GCVector getPos(det_id_t id) const;
-	virtual GCVector getOrient(det_id_t id) const;
+	virtual Vector3DFloat getPos(det_id_t id) const;
+	virtual Vector3DFloat getOrient(det_id_t id) const;
 };

@@ -27,8 +27,8 @@ void py_setup_gcoperatorprojectorsiddon(py::module& m)
 	c.def(
 	    "forward_projection",
 	    [](const GCOperatorProjectorSiddon& self, const Image* in_image,
-	       const GCStraightLineParam& lor, const GCVector& n1,
-	       const GCVector& n2, const GCTimeOfFlightHelper* tofHelper,
+	       const StraightLineParam& lor, const Vector3D& n1,
+	       const Vector3D& n2, const GCTimeOfFlightHelper* tofHelper,
 	       float tofValue) -> double {
 		    return self.forwardProjection(in_image, lor, n1, n2, tofHelper,
 		                                  tofValue);
@@ -38,8 +38,8 @@ void py_setup_gcoperatorprojectorsiddon(py::module& m)
 	c.def(
 	    "back_projection",
 	    [](const GCOperatorProjectorSiddon& self, Image* in_image,
-	       const GCStraightLineParam& lor, const GCVector& n1,
-	       const GCVector& n2, double proj_value,
+	       const StraightLineParam& lor, const Vector3D& n1,
+	       const Vector3D& n2, double proj_value,
 	       const GCTimeOfFlightHelper* tofHelper, float tofValue) -> void
 	    {
 		    self.backProjection(in_image, lor, n1, n2, proj_value, tofHelper,
@@ -50,7 +50,7 @@ void py_setup_gcoperatorprojectorsiddon(py::module& m)
 	    py::arg("tofValue") = 0.0f);
 	c.def_static(
 	    "single_back_projection",
-	    [](Image* in_image, const GCStraightLineParam& lor, double proj_value,
+	    [](Image* in_image, const StraightLineParam& lor, double proj_value,
 	       const GCTimeOfFlightHelper* tofHelper, float tofValue) -> void
 	    {
 		    GCOperatorProjectorSiddon::singleBackProjection(
@@ -60,7 +60,7 @@ void py_setup_gcoperatorprojectorsiddon(py::module& m)
 	    py::arg("tofHelper") = nullptr, py::arg("tofValue") = 0.0f);
 	c.def_static(
 	    "single_forward_projection",
-	    [](const Image* in_image, const GCStraightLineParam& lor,
+	    [](const Image* in_image, const StraightLineParam& lor,
 	       const GCTimeOfFlightHelper* tofHelper, float tofValue) -> double
 	    {
 		    return GCOperatorProjectorSiddon::singleForwardProjection(
@@ -77,9 +77,9 @@ GCOperatorProjectorSiddon::GCOperatorProjectorSiddon(
 {
 	if (m_numRays > 1)
 	{
-		mp_lineGen = std::make_unique<std::vector<GCMultiRayGenerator>>(
+		mp_lineGen = std::make_unique<std::vector<MultiRayGenerator>>(
 		    GCGlobals::get_num_threads(),
-		    GCMultiRayGenerator(scanner->crystalSize_z,
+		    MultiRayGenerator(scanner->crystalSize_z,
 		                        scanner->crystalSize_trans));
 	}
 }
@@ -117,12 +117,12 @@ void GCOperatorProjectorSiddon::backProjection(Image* img,
 }
 
 double GCOperatorProjectorSiddon::forwardProjection(
-    const Image* img, const GCStraightLineParam& lor, const GCVector& n1,
-    const GCVector& n2, const GCTimeOfFlightHelper* tofHelper,
+    const Image* img, const StraightLineParam& lor, const Vector3D& n1,
+    const Vector3D& n2, const GCTimeOfFlightHelper* tofHelper,
     float tofValue) const
 {
 	const ImageParams& params = img->getParams();
-	const GCVector offsetVec = {params.off_x, params.off_y, params.off_z};
+	const Vector3D offsetVec = {params.off_x, params.off_y, params.off_z};
 
 	double imProj = 0.;
 
@@ -141,7 +141,7 @@ double GCOperatorProjectorSiddon::forwardProjection(
 	for (int i_line = 0; i_line < numRaysToCast; i_line++)
 	{
 		unsigned int seed = 13;
-		GCStraightLineParam randLine =
+		StraightLineParam randLine =
 		    (i_line == 0) ? lor :
 		                    mp_lineGen->at(currThread).getRandomLine(seed);
 		randLine.point1 = randLine.point1 - offsetVec;
@@ -172,12 +172,12 @@ double GCOperatorProjectorSiddon::forwardProjection(
 }
 
 void GCOperatorProjectorSiddon::backProjection(
-    Image* img, const GCStraightLineParam& lor, const GCVector& n1,
-    const GCVector& n2, double projValue, const GCTimeOfFlightHelper* tofHelper,
+    Image* img, const StraightLineParam& lor, const Vector3D& n1,
+    const Vector3D& n2, double projValue, const GCTimeOfFlightHelper* tofHelper,
     float tofValue) const
 {
 	const ImageParams& params = img->getParams();
-	const GCVector offsetVec = {params.off_x, params.off_y, params.off_z};
+	const Vector3D offsetVec = {params.off_x, params.off_y, params.off_z};
 
 
 	int currThread = 0;
@@ -193,7 +193,7 @@ void GCOperatorProjectorSiddon::backProjection(
 	for (int i_line = 0; i_line < m_numRays; i_line++)
 	{
 		unsigned int seed = 13;
-		GCStraightLineParam randLine =
+		StraightLineParam randLine =
 		    (i_line == 0) ? lor :
 		                    mp_lineGen->at(currThread).getRandomLine(seed);
 		randLine.point1 = randLine.point1 - offsetVec;
@@ -212,7 +212,7 @@ void GCOperatorProjectorSiddon::backProjection(
 }
 
 double GCOperatorProjectorSiddon::singleForwardProjection(
-    const Image* img, const GCStraightLineParam& lor,
+    const Image* img, const StraightLineParam& lor,
     const GCTimeOfFlightHelper* tofHelper, float tofValue)
 {
 	double v;
@@ -222,7 +222,7 @@ double GCOperatorProjectorSiddon::singleForwardProjection(
 }
 
 void GCOperatorProjectorSiddon::singleBackProjection(
-    Image* img, const GCStraightLineParam& lor, double projValue,
+    Image* img, const StraightLineParam& lor, double projValue,
     const GCTimeOfFlightHelper* tofHelper, float tofValue)
 {
 	project_helper<false, true, false>(img, lor, projValue, tofHelper,
@@ -245,7 +245,7 @@ enum SIDDON_DIR
 // default.
 template <bool IS_FWD, bool FLAG_INCR, bool FLAG_TOF>
 void GCOperatorProjectorSiddon::project_helper(
-    Image* img, const GCStraightLineParam& lor, double& value,
+    Image* img, const StraightLineParam& lor, double& value,
     const GCTimeOfFlightHelper* tofHelper, float tofValue)
 {
 	if (IS_FWD)
@@ -255,8 +255,8 @@ void GCOperatorProjectorSiddon::project_helper(
 
 	ImageParams params = img->getParams();
 
-	const GCVector& p1 = lor.point1;
-	const GCVector& p2 = lor.point2;
+	const Vector3D& p1 = lor.point1;
+	const Vector3D& p2 = lor.point2;
 	// 1. Intersection with FOV
 	double t0;
 	double t1;
@@ -511,14 +511,14 @@ void GCOperatorProjectorSiddon::project_helper(
 
 // Explicit instantiation of slow version used in tests
 template void GCOperatorProjectorSiddon::project_helper<true, false, true>(
-    Image* img, const GCStraightLineParam&, double&,
+    Image* img, const StraightLineParam&, double&,
     const GCTimeOfFlightHelper*, float);
 template void GCOperatorProjectorSiddon::project_helper<false, false, true>(
-    Image* img, const GCStraightLineParam&, double&,
+    Image* img, const StraightLineParam&, double&,
     const GCTimeOfFlightHelper*, float);
 template void GCOperatorProjectorSiddon::project_helper<true, false, false>(
-    Image* img, const GCStraightLineParam&, double&,
+    Image* img, const StraightLineParam&, double&,
     const GCTimeOfFlightHelper*, float);
 template void GCOperatorProjectorSiddon::project_helper<false, false, false>(
-    Image* img, const GCStraightLineParam&, double&,
+    Image* img, const StraightLineParam&, double&,
     const GCTimeOfFlightHelper*, float);

@@ -45,11 +45,11 @@ class GCOperatorProjectorBase : public GCOperator
 public:
 	struct ProjectionProperties
 	{
-		GCStraightLineParam lor;
+		StraightLineParam lor;
 		float tofValue;
 		float randomsEstimate;
-		GCVector det1Orient;
-		GCVector det2Orient;
+		Vector3D det1Orient;
+		Vector3D det2Orient;
 	};
 
 	GCOperatorProjectorBase(const GCOperatorProjectorParams& p_projParams);

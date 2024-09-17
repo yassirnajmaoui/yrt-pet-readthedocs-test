@@ -63,7 +63,7 @@ void LORsDevice::loadEventLORs(const BinIterator& binIter,
 
 	const size_t offset = batchId * batchSetup.getBatchSize(0);
 	auto* binIter_ptr = &binIter;
-	const GCVector offsetVec = {imgParams.off_x, imgParams.off_y,
+	const Vector3D offsetVec{imgParams.off_x, imgParams.off_y,
 	                            imgParams.off_z};
 	const Scanner* scanner = getScanner();
 	const ProjectionData* reference_ptr = &reference;

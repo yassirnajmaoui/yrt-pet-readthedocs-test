@@ -93,12 +93,12 @@ size_t Scanner::getTheoreticalNumDets() const
 	return num_doi * num_rings * dets_per_ring;
 }
 
-GCVector Scanner::getDetectorPos(det_id_t id) const
+Vector3DFloat Scanner::getDetectorPos(det_id_t id) const
 {
 	return mp_detectors->getPos(id);
 }
 
-GCVector Scanner::getDetectorOrient(det_id_t id) const
+Vector3DFloat Scanner::getDetectorOrient(det_id_t id) const
 {
 	return mp_detectors->getOrient(id);
 }
@@ -108,8 +108,8 @@ void Scanner::createLUT(Array2D<float>& lut) const
 	lut.allocate(this->getNumDets(), 6);
 	for (size_t i = 0; i < this->getNumDets(); i++)
 	{
-		GCVector pos = mp_detectors->getPos(i);
-		GCVector orient = mp_detectors->getOrient(i);
+		const Vector3DFloat pos = mp_detectors->getPos(i);
+		const Vector3DFloat orient = mp_detectors->getOrient(i);
 		lut[i][0] = pos.x;
 		lut[i][1] = pos.y;
 		lut[i][2] = pos.z;

@@ -8,7 +8,7 @@
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/BinIterator.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"

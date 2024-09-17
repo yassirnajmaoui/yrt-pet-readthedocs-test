@@ -5,7 +5,7 @@
 
 #include "datastruct/projection/Histogram3D.hpp"
 
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 
 Histogram3D::Histogram3D(const Scanner* pp_scanner)
     : mp_data(nullptr), mp_scanner(pp_scanner)

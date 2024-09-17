@@ -6,7 +6,7 @@
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 #include "scatter/GCScatterEstimator.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"

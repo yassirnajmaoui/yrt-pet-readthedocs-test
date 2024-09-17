@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "geometry/GCMultiRayGenerator.hpp"
+#include "geometry/MultiRayGenerator.hpp"
 #include "operators/GCOperatorProjector.hpp"
 
 #include "omp.h"
@@ -25,27 +25,27 @@ public:
 
 
 	// Projection
-	double forwardProjection(const Image* img, const GCStraightLineParam& lor,
-	                         const GCVector& n1, const GCVector& n2,
+	double forwardProjection(const Image* img, const StraightLineParam& lor,
+	                         const Vector3D& n1, const Vector3D& n2,
 	                         const GCTimeOfFlightHelper* tofHelper = nullptr,
 	                         float tofValue = 0.f) const;
-	void backProjection(Image* img, const GCStraightLineParam& lor,
-	                    const GCVector& n1, const GCVector& n2,
+	void backProjection(Image* img, const StraightLineParam& lor,
+	                    const Vector3D& n1, const Vector3D& n2,
 	                    double projValue,
 	                    const GCTimeOfFlightHelper* tofHelper = nullptr,
 	                    float tofValue = 0.f) const;
 
 	// Without Multi-ray siddon
 	static double singleForwardProjection(
-	    const Image* img, const GCStraightLineParam& lor,
+	    const Image* img, const StraightLineParam& lor,
 	    const GCTimeOfFlightHelper* tofHelper = nullptr, float tofValue = 0.f);
 	static void singleBackProjection(
-	    Image* img, const GCStraightLineParam& lor, double projValue,
+	    Image* img, const StraightLineParam& lor, double projValue,
 	    const GCTimeOfFlightHelper* tofHelper = nullptr, float tofValue = 0.f);
 
 
 	template <bool IS_FWD, bool FLAG_INCR, bool FLAG_TOF>
-	static void project_helper(Image* img, const GCStraightLineParam& lor,
+	static void project_helper(Image* img, const StraightLineParam& lor,
 	                           double& value,
 	                           const GCTimeOfFlightHelper* tofHelper = nullptr,
 	                           float tofValue = 0.f);
@@ -55,5 +55,5 @@ public:
 
 private:
 	int m_numRays;
-	std::unique_ptr<std::vector<GCMultiRayGenerator>> mp_lineGen;
+	std::unique_ptr<std::vector<MultiRayGenerator>> mp_lineGen;
 };

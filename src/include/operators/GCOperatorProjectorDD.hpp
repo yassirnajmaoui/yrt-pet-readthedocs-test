@@ -20,13 +20,13 @@ public:
 	GCOperatorProjectorDD(const GCOperatorProjectorParams& p_projParams);
 
 	double forwardProjection(
-	    const Image* in_image, const GCStraightLineParam& lor,
-	    const GCVector& n1, const GCVector& n2,
+	    const Image* in_image, const StraightLineParam& lor,
+	    const Vector3D& n1, const Vector3D& n2,
 	    const GCTimeOfFlightHelper* tofHelper = nullptr, float tofValue = 0.0f,
 	    const GCProjectionPsfManager* psfManager = nullptr) const;
 
-	void backProjection(Image* in_image, const GCStraightLineParam& lor,
-	                    const GCVector& n1, const GCVector& n2,
+	void backProjection(Image* in_image, const StraightLineParam& lor,
+	                    const Vector3D& n1, const Vector3D& n2,
 	                    double proj_value,
 	                    const GCTimeOfFlightHelper* tofHelper = nullptr,
 	                    float tofValue = 0.0f,
@@ -49,8 +49,8 @@ public:
 
 private:
 	template <bool IS_FWD, bool FLAG_TOF>
-	void dd_project_ref(Image* in_image, const GCStraightLineParam& lor,
-	                    const GCVector& n1, const GCVector& n2,
+	void dd_project_ref(Image* in_image, const StraightLineParam& lor,
+	                    const Vector3D& n1, const Vector3D& n2,
 	                    double& proj_value,
 	                    const GCTimeOfFlightHelper* tofHelper = nullptr,
 	                    float tofValue = 0.f,

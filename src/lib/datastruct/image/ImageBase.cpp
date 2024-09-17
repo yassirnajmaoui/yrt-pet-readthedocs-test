@@ -4,7 +4,7 @@
  */
 
 #include "datastruct/image/ImageBase.hpp"
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 
 #include "nlohmann/json.hpp"
 #include <fstream>

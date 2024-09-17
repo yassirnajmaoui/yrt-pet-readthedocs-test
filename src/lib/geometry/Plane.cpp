@@ -3,29 +3,29 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "geometry/GCPlane.hpp"
+#include "geometry/Plane.hpp"
 
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <stdio.h>
 
-GCPlane::GCPlane() {}
+Plane::Plane() {}
 
 
-GCPlane::GCPlane(const GCVector& pt1, const GCVector& pt2, const GCVector& pt3)
+Plane::Plane(const Vector3D& pt1, const Vector3D& pt2, const Vector3D& pt3)
     : point1(pt1), point2(pt2), point3(pt3)
 {
-	GCVector vector_pos1, vector_pos2;
+	Vector3D vector_pos1, vector_pos2;
 	// check that these points define a plane:
 	vector_pos1.update(pt3.x - pt1.x, pt3.y - pt1.y, pt3.z - pt1.z);
 	vector_pos2.update(pt3.x - pt2.x, pt3.y - pt2.y, pt3.z - pt2.z);
 	dir = vector_pos1 * vector_pos2;
 	if (dir.getNorm() < DOUBLE_PRECISION)
 	{
-		std::cout << "\nThe 3 points in input of GCPlane::GCPlane() do not "
+		std::cout << "\nThe 3 points in input of Plane::Plane() do not "
 		             "define a plane.\n";
 		std::cout << "point1 = ( " << pt1.x << ", " << pt1.y << ", " << pt1.z
 		          << " )  point2 = ( " << pt2.x << ", " << pt2.y << ", "
@@ -39,21 +39,21 @@ GCPlane::GCPlane(const GCVector& pt1, const GCVector& pt2, const GCVector& pt3)
 
 
 // update function:
-void GCPlane::update(const GCVector& pt1, const GCVector& pt2,
-                     const GCVector& pt3)
+void Plane::update(const Vector3D& pt1, const Vector3D& pt2,
+                     const Vector3D& pt3)
 {
-	GCVector vector_pos1, vector_pos2;
+	Vector3D vector_pos1, vector_pos2;
 	point1.update(pt1.x, pt1.y, pt1.z);
 	point2.update(pt2.x, pt2.y, pt2.z);
 	point3.update(pt3.x, pt3.y, pt3.z);
 	// check that these points define a plane:
 	vector_pos1.update(pt3.x - pt1.x, pt3.y - pt1.y, pt3.z - pt1.z);
 	vector_pos2.update(pt3.x - pt2.x, pt3.y - pt2.y, pt3.z - pt2.z);
-	const GCVector dir_tmp = vector_pos1 * vector_pos2;
+	const Vector3D dir_tmp = vector_pos1 * vector_pos2;
 	dir.update(dir_tmp.x, dir_tmp.y, dir_tmp.z);
 	if (dir.getNorm() < DOUBLE_PRECISION)
 	{
-		std::cout << "\nThe 3 points in input of GCPlane::GCPlane() do not "
+		std::cout << "\nThe 3 points in input of Plane::Plane() do not "
 		             "define a plane.\n";
 		std::cout << "point1 = ( " << pt1.x << ", " << pt1.y << ", " << pt1.z
 		          << " )  point2 = ( " << pt2.x << ", " << pt2.y << ", "
@@ -67,8 +67,8 @@ void GCPlane::update(const GCVector& pt1, const GCVector& pt2,
 }
 
 // update equation of the plane using these 3 points:
-void GCPlane::update_eq(const GCVector& pt1, const GCVector& pt2,
-                        const GCVector& pt3)
+void Plane::update_eq(const Vector3D& pt1, const Vector3D& pt2,
+                        const Vector3D& pt3)
 {
 	// find equation of the plane
 	const double x1 = pt1.x;
@@ -88,10 +88,10 @@ void GCPlane::update_eq(const GCVector& pt1, const GCVector& pt2,
 
 
 // returns true if "point" is in the plane
-bool GCPlane::isCoplanar(const GCVector& pt) const
+bool Plane::isCoplanar(const Vector3D& pt) const
 {
 	bool isCop = false;
-	const GCVector vector_pos = point3 - pt;
+	const Vector3D vector_pos = point3 - pt;
 	const double scalProd = dir.scalProd(vector_pos);
 	if (fabs(scalProd) < DOUBLE_PRECISION)
 	{
@@ -102,7 +102,7 @@ bool GCPlane::isCoplanar(const GCVector& pt) const
 
 
 // returns true if "line" is parrallel to the current plan
-bool GCPlane::isParrallel(const GCStraightLineParam& line) const
+bool Plane::isParrallel(const StraightLineParam& line) const
 {
 	const double test = a * line.a + b * line.c + c * line.e;
 	if (fabs(test) < 10e-8)
@@ -116,11 +116,11 @@ bool GCPlane::isParrallel(const GCStraightLineParam& line) const
 // with a line defined by two points "point1" and "point2".
 // The coords. of the inter point are equal to LARGE_VALUE+1
 // if the line is parrallel to the plane.
-GCVector GCPlane::findInterLine(const GCStraightLineParam& line) const
+Vector3D Plane::findInterLine(const StraightLineParam& line) const
 {
 	const double denom = a * line.a + b * line.c + c * line.e;
 	double t = a * line.b + b * line.d + c * line.f + d;
-	GCVector tmp;
+	Vector3D tmp;
 	if (fabs(denom) < 10e-8)
 	{
 		tmp.update(LARGE_VALUE + 1, LARGE_VALUE + 1, LARGE_VALUE + 1);

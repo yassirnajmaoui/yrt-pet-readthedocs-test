@@ -13,9 +13,9 @@
 namespace py = pybind11;
 
 void py_setup_array(py::module&);
-void py_setup_gcvector(py::module&);
-void py_setup_gcstraightlineparam(py::module&);
-void py_setup_gctubeofresponse(py::module& m);
+void py_setup_vector3dall(py::module&);
+void py_setup_straightlineparam(py::module&);
+void py_setup_tubeofresponse(py::module& m);
 void py_setup_gctimeofflight(py::module& m);
 
 void py_setup_imagebase(py::module&);
@@ -73,9 +73,9 @@ PYBIND11_MODULE(pyyrtpet, m)
 	auto gcvariable = py::class_<GCVariable>(m, "GCVariable");
 
 	py_setup_array(m);
-	py_setup_gcvector(m);
-	py_setup_gcstraightlineparam(m);
-	py_setup_gctubeofresponse(m);
+	py_setup_vector3dall(m);
+	py_setup_straightlineparam(m);
+	py_setup_tubeofresponse(m);
 	py_setup_gctimeofflight(m);
 
 	py_setup_imagebase(m);

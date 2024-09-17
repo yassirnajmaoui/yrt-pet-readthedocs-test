@@ -8,8 +8,8 @@
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "geometry/GCCylinder.hpp"
-#include "geometry/GCPlane.hpp"
+#include "geometry/Cylinder.hpp"
+#include "geometry/Plane.hpp"
 
 #include "omp.h"
 
@@ -26,7 +26,7 @@ public:
 	void readMuDetFile(const std::string& mu_det_file);
 	void run_SSS(size_t numberZ, size_t numberPhi, size_t numberR,
 	             bool printProgress = false);
-	double compute_single_scatter_in_lor(GCStraightLineParam* lor);
+	double compute_single_scatter_in_lor(StraightLineParam* lor);
 
 	Histogram3DOwned* getScatterHistogram() { return mp_scatterHisto.get(); }
 
@@ -34,8 +34,8 @@ protected:
 	double ran1(int* idum);
 	double get_mu_scaling_factor(double energy);
 	double get_klein_nishina(double cosa);
-	double get_intersection_length_lor_crystal(GCStraightLineParam* lor);
-	bool pass_collimator(GCStraightLineParam* lor);
+	double get_intersection_length_lor_crystal(StraightLineParam* lor);
+	bool pass_collimator(StraightLineParam* lor);
 	double get_mu_det(double energy);
 
 public:
@@ -52,8 +52,8 @@ protected:
 	Histogram3D* mp_acfHisto;
 	Image* mp_mu;      // Attenuation image
 	Image* mp_lambda;  // Image from one iteration
-	GCCylinder m_cyl1, m_cyl2;
-	GCPlane m_endPlate1, m_endPlate2;
+	Cylinder m_cyl1, m_cyl2;
+	Plane m_endPlate1, m_endPlate2;
 
 	std::unique_ptr<double[]> mp_muDetTable;
 	bool m_doTailFitting;

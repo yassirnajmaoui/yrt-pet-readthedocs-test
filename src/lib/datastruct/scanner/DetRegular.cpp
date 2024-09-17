@@ -5,7 +5,7 @@
 
 #include "datastruct/scanner/DetRegular.hpp"
 
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 
 #include <cstdlib>
 #include <fstream>

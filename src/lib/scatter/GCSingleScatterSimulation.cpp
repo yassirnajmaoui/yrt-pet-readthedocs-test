@@ -5,8 +5,8 @@
 
 #include "scatter/GCSingleScatterSimulation.hpp"
 
-#include "geometry/GCConstants.hpp"
-#include "geometry/GCVector.hpp"
+#include "geometry/Constants.hpp"
+#include "geometry/Vector3D.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -40,17 +40,17 @@ GCSingleScatterSimulation::GCSingleScatterSimulation(
 	afovdet = mp_scanner->axialFOV;        // YP Axial FOV
 	rcoll = mp_scanner->collimatorRadius;  // YP no need?
 
-	GCVector c(0, 0, 0);
+	Vector3D c(0, 0, 0);
 	// YP: creates 2 cylinders of axial extent "afov" in millimiters xs
-	m_cyl1 = GCCylinder(c, afovdet, rdet);
-	m_cyl2 = GCCylinder(c, afovdet, rdet + thickdet);
+	m_cyl1 = Cylinder(c, afovdet, rdet);
+	m_cyl2 = Cylinder(c, afovdet, rdet + thickdet);
 	// YP 3 points located in the last ring of the scanner
-	GCVector p1(1.0, 0.0, -afovdet / 2), p2(0.0, 1.0, -afovdet / 2),
+	Vector3D p1(1.0, 0.0, -afovdet / 2), p2(0.0, 1.0, -afovdet / 2),
 	    p3(0.0, 0.0, -afovdet / 2);
 	m_endPlate1 =
-	    GCPlane(p1, p2, p3);  // YP defines a plane according to these 3 points
+	    Plane(p1, p2, p3);  // YP defines a plane according to these 3 points
 	p1.z = p2.z = p3.z = afovdet / 2;
-	m_endPlate2 = GCPlane(
+	m_endPlate2 = Plane(
 	    p1, p2, p3);  // YP other plane located at the first ring of the scanner
 
 	int seed = std::abs(seedi);  // YP random seed
@@ -80,7 +80,7 @@ GCSingleScatterSimulation::GCSingleScatterSimulation(
 	double dysamp = mu_params.length_y / (static_cast<double>(nysamp));
 	double dzsamp = mu_params.length_z / (static_cast<double>(nzsamp));
 	double x, y, z, x2, y2, z2;
-	GCVector p;
+	Vector3D p;
 	xsamp.clear();
 	ysamp.clear();
 	zsamp.clear();
@@ -224,7 +224,7 @@ void GCSingleScatterSimulation::run_SSS(size_t numberZ, size_t numberPhi,
 				// Compute current LOR
 				size_t scatterHistoBinId =
 				    mp_scatterHisto->getBinIdFromCoords(r, phi, z);
-				GCStraightLineParam lor = Util::getNativeLOR(
+				StraightLineParam lor = Util::getNativeLOR(
 				    *mp_scanner, *mp_scatterHisto, scatterHistoBinId);
 
 				float scatterResult =
@@ -304,11 +304,11 @@ void GCSingleScatterSimulation::run_SSS(size_t numberZ, size_t numberPhi,
 
 // YP LOR in which to compute the scatter contribution
 double GCSingleScatterSimulation::compute_single_scatter_in_lor(
-    GCStraightLineParam* lor)
+    StraightLineParam* lor)
 {
-	GCVector n1 = GCVector(lor->point1.x, lor->point1.y, 0.);
+	Vector3D n1 = Vector3D(lor->point1.x, lor->point1.y, 0.);
 	n1.normalize();
-	GCVector n2 = GCVector(lor->point2.x, lor->point2.y, 0.);
+	Vector3D n2 = Vector3D(lor->point2.x, lor->point2.y, 0.);
 	n2.normalize();
 
 	int i;
@@ -317,8 +317,8 @@ double GCSingleScatterSimulation::compute_single_scatter_in_lor(
 	double dsigcompdomega, lamb_s_1, lamb_s_2, sig_s_1, sig_s_2;
 	double eps_s_1_511, eps_s_1, eps_s_2_511, eps_s_2, fac1, fac2;
 	double tmp, tmp511, delta_1, delta_2, mu_det, mu_det_511;
-	GCStraightLineParam lor_1_s, lor_2_s;
-	GCVector ps, p1, p2, u, v;
+	StraightLineParam lor_1_s, lor_2_s;
+	Vector3D ps, p1, p2, u, v;
 
 	p1.update(lor->point1);
 	p2.update(lor->point2);
@@ -440,7 +440,7 @@ double GCSingleScatterSimulation::compute_single_scatter_in_lor(
 	sig_s_1 = fabs(n1.scalProd(u));
 	sig_s_2 = fabs(n2.scalProd(u));
 	eps_s_1_511 = eps_s_2_511 = Util::erfc(tmp511);
-	GCVector mid(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z);
+	Vector3D mid(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z);
 	mid.x /= 2;
 	mid.y /= 2;
 	mid.z /= 2;
@@ -479,13 +479,13 @@ double GCSingleScatterSimulation::get_klein_nishina(double cosa)
 // The first point of lor must be the detector, the second point must be the
 // scatter point.
 double GCSingleScatterSimulation::get_intersection_length_lor_crystal(
-    GCStraightLineParam* lor)
+    StraightLineParam* lor)
 {
-	GCVector c(0.0, 0.0, 0.0), a1, a2, inter1, inter2;
-	GCVector n1 = (lor->point1) - (lor->point2);  // direction of prop.
+	Vector3D c(0.0, 0.0, 0.0), a1, a2, inter1, inter2;
+	Vector3D n1 = (lor->point1) - (lor->point2);  // direction of prop.
 	// Compute entry point:
 	m_cyl1.does_line_inter_cyl(lor, &a1, &a2);
-	GCVector n2 = a1 - (lor->point2);
+	Vector3D n2 = a1 - (lor->point2);
 	if (n2.scalProd(n1) > 0)
 		inter1.update(a1);
 	else
@@ -504,11 +504,11 @@ double GCSingleScatterSimulation::get_intersection_length_lor_crystal(
 
 // Return true if the line lor does not cross the end plates
 // First point is detector, second point is scatter point
-bool GCSingleScatterSimulation::pass_collimator(GCStraightLineParam* lor)
+bool GCSingleScatterSimulation::pass_collimator(StraightLineParam* lor)
 {
 	if (rcoll < 1e-7)
 		return true;
-	GCVector inter;
+	Vector3D inter;
 	double r;
 	if (lor->point2.z < 0)
 		inter = m_endPlate1.findInterLine(lor);

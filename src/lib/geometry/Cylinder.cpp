@@ -3,36 +3,36 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "geometry/GCCylinder.hpp"
+#include "geometry/Cylinder.hpp"
 
-#include "geometry/GCConstants.hpp"
-#include "geometry/GCVector.hpp"
+#include "geometry/Constants.hpp"
+#include "geometry/Vector3D.hpp"
 
 #include <cmath>
 
 // constructors:
-GCCylinder::GCCylinder(GCVector cent, double lz, double r)
+Cylinder::Cylinder(const Vector3D& cent, double lz, double r)
 {
 	center = cent;
 	length_z = lz;
 	radius = r;
 }
 
-GCCylinder::GCCylinder()
+Cylinder::Cylinder()
 {
-	center = GCVector();
+	center = Vector3D{};
 	length_z = 0.0;
 	radius = 0.0;
 }
 
-bool GCCylinder::does_line_inter_cyl(const GCStraightLineParam& l, GCVector* p1,
-                                     GCVector* p2) const
+bool Cylinder::does_line_inter_cyl(const StraightLineParam& l, Vector3D* p1,
+                                     Vector3D* p2) const
 {
 	return does_line_inter_cyl(&l, p1, p2);
 }
 
-bool GCCylinder::does_line_inter_cyl_infinite(const GCStraightLineParam* l,
-                                              GCVector* p1, GCVector* p2) const
+bool Cylinder::does_line_inter_cyl_infinite(const StraightLineParam* l,
+                                              Vector3D* p1, Vector3D* p2) const
 {
 	double a = l->a, b = l->b, c = l->c, d = l->d, e = l->e, f = l->f;
 	double A = a * a + c * c;
@@ -56,8 +56,8 @@ bool GCCylinder::does_line_inter_cyl_infinite(const GCStraightLineParam* l,
 	return true;
 }
 
-bool GCCylinder::does_line_inter_cyl(const GCStraightLineParam* l, GCVector* p1,
-                                     GCVector* p2) const
+bool Cylinder::does_line_inter_cyl(const StraightLineParam* l, Vector3D* p1,
+                                     Vector3D* p2) const
 {
 	bool infinite_ret = does_line_inter_cyl_infinite(l, p1, p2);
 	if (!infinite_ret)
@@ -69,18 +69,18 @@ bool GCCylinder::does_line_inter_cyl(const GCStraightLineParam* l, GCVector* p1,
 		return true;
 }
 
-bool GCCylinder::clip_line(GCStraightLineParam* l) const
+bool Cylinder::clip_line(StraightLineParam* l) const
 {
-	GCVector p1, p2;
+	Vector3D p1, p2;
 	if (!does_line_inter_cyl(l, &p1, &p2))
 		return false;
 	l->update(p1, p2);
 	return true;
 }
 
-bool GCCylinder::clip_line_infinite(GCStraightLineParam* l) const
+bool Cylinder::clip_line_infinite(StraightLineParam* l) const
 {
-	GCVector p1, p2;
+	Vector3D p1, p2;
 	if (!does_line_inter_cyl_infinite(l, &p1, &p2))
 		return false;
 	l->update(p1, p2);

@@ -20,13 +20,13 @@ set(SOURCES
         datastruct/image/ImageBase.cpp
         datastruct/image/Image.cpp
         datastruct/IO.cpp
-        geometry/GCStraightLineParam.cpp
-        geometry/GCMatrix.cpp
-        geometry/GCVector.cpp
-        geometry/GCMultiRayGenerator.cpp
-        geometry/GCTubeOfResponse.cpp
-        geometry/GCCylinder.cpp
-        geometry/GCPlane.cpp
+        geometry/StraightLineParam.cpp
+        geometry/Matrix.cpp
+        geometry/Vector3D.cpp
+        geometry/MultiRayGenerator.cpp
+        geometry/TubeOfResponse.cpp
+        geometry/Cylinder.cpp
+        geometry/Plane.cpp
         kernel/GCKernel.cpp
         kinetic/srtm.cpp
         motion/ImageWarperMatrix.cpp

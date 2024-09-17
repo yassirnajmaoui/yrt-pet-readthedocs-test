@@ -190,9 +190,9 @@ TEST_CASE("histo3d", "[histo]")
 		for (size_t lmEv = 0; lmEv < someListMode->count(); lmEv++)
 		{
 			auto [d1, d2] = someListMode->getDetectorPair(lmEv);
-			GCStraightLineParam lor = Util::getNativeLOR(*scanner, *someListMode, lmEv);
+			StraightLineParam lor = Util::getNativeLOR(*scanner, *someListMode, lmEv);
 			bin_t binId = histo3d->getBinIdFromDetPair(d1, d2);
-			GCStraightLineParam histoLor = Util::getNativeLOR(*scanner, *histo3d, binId);
+			StraightLineParam histoLor = Util::getNativeLOR(*scanner, *histo3d, binId);
 
 			CHECK(((std::abs(histoLor.point1.x - lor.point1.x) < epsilon &&
 			        std::abs(histoLor.point1.y - lor.point1.y) < epsilon &&

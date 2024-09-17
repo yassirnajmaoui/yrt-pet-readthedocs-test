@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "geometry/GCStraightLineParam.hpp"
+#include "geometry/StraightLineParam.hpp"
 #include "operators/GCTimeOfFlight.hpp"
 
 #include "catch.hpp"
@@ -20,10 +20,10 @@ TEST_CASE("TOF", "[tof]")
 	SECTION("width_0")
 	{
 		auto tofHelper = GCTimeOfFlightHelper(0.f, 3);
-		GCStraightLineParam lor(
-		    GCVector(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX,
+		StraightLineParam lor(
+		    Vector3D(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX,
 		             rand() / (float)RAND_MAX),
-		    GCVector(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX,
+		    Vector3D(rand() / (float)RAND_MAX, rand() / (float)RAND_MAX,
 		             rand() / (float)RAND_MAX));
 		double d_norm = (lor.point2 - lor.point1).getNorm();
 		float tof_value_ps = (rand() / (float)RAND_MAX) * 0.5f - 0.5f;
@@ -37,8 +37,8 @@ TEST_CASE("TOF", "[tof]")
 	{
 		float tof_width_ps = 95.f;
 		auto tofHelper = GCTimeOfFlightHelper(tof_width_ps, 3);
-		GCStraightLineParam lor(GCVector(-155.0f, 118.75f, 367.5f),
-		                        GCVector(155.0f, 163.75f, 373.5f));
+		StraightLineParam lor(Vector3D(-155.0, 118.75, 367.5),
+		                        Vector3D(155.0, 163.75, 373.5));
 		double d_norm = (lor.point2 - lor.point1).getNorm();
 		float tof_value_ps = -408.f;
 		float pix_pos_lo = 0.24 * d_norm;

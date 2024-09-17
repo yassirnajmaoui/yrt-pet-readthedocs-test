@@ -20,16 +20,16 @@ namespace py = pybind11;
 void py_setup_image(py::module& m)
 {
 	auto c =
-	    py::class_<Image, ImageBase>(m, "Image", py::buffer_protocol());
+		py::class_<Image, ImageBase>(m, "Image", py::buffer_protocol());
 	c.def("setValue", &Image::setValue);
 	c.def_buffer(
-	    [](Image& img) -> py::buffer_info
-	    {
-		    Array3DBase<double>& d = img.getData();
-		    return py::buffer_info(d.getRawPointer(), sizeof(double),
-		                           py::format_descriptor<double>::format(), 3,
-		                           d.getDims(), d.getStrides());
-	    });
+		[](Image& img) -> py::buffer_info
+		{
+			Array3DBase<double>& d = img.getData();
+			return py::buffer_info(d.getRawPointer(), sizeof(double),
+			                       py::format_descriptor<double>::format(), 3,
+			                       d.getDims(), d.getStrides());
+		});
 	c.def("copyFromImage", &Image::copyFromImage);
 	c.def("multWithScalar", &Image::multWithScalar);
 	c.def("addFirstImageToSecond", &Image::addFirstImageToSecond);
@@ -44,23 +44,23 @@ void py_setup_image(py::module& m)
 	c.def("interpol_image2", &Image::interpol_image2);
 	c.def("nearest_neigh", &Image::nearest_neigh, py::arg("pt"));
 	c.def(
-	    "nearest_neigh2",
-	    [](const Image& img, const GCVector& pt) -> py::tuple
-	    {
-		    int pi, pj, pk;
-		    double val = img.nearest_neigh2(pt, &pi, &pj, &pk);
-		    return py::make_tuple(val, pi, pj, pk);
-	    },
-	    py::arg("pt"));
+		"nearest_neigh2",
+		[](const Image& img, const Vector3D& pt) -> py::tuple
+		{
+			int pi, pj, pk;
+			double val = img.nearest_neigh2(pt, &pi, &pj, &pk);
+			return py::make_tuple(val, pi, pj, pk);
+		},
+		py::arg("pt"));
 	c.def(
-	    "get_nearest_neigh_idx",
-	    [](const Image& img, const GCVector& pt) -> py::tuple
-	    {
-		    int pi, pj, pk;
-		    img.get_nearest_neigh_idx(pt, &pi, &pj, &pk);
-		    return py::make_tuple(pi, pj, pk);
-	    },
-	    py::arg("pt"));
+		"get_nearest_neigh_idx",
+		[](const Image& img, const Vector3D& pt) -> py::tuple
+		{
+			int pi, pj, pk;
+			img.get_nearest_neigh_idx(pt, &pi, &pj, &pk);
+			return py::make_tuple(pi, pj, pk);
+		},
+		py::arg("pt"));
 	c.def("transformImage", &Image::transformImage, py::arg("rotation"),
 	      py::arg("translation"));
 	c.def("update_image_nearest_neigh", &Image::update_image_nearest_neigh);
@@ -74,35 +74,35 @@ void py_setup_image(py::module& m)
 	auto c_alias = py::class_<ImageAlias, Image>(m, "ImageAlias");
 	c_alias.def(py::init<const ImageParams&>());
 	c_alias.def(
-	    "bind",
-	    [](ImageAlias& self, py::buffer& np_data)
-	    {
-		    py::buffer_info buffer = np_data.request();
-		    if (buffer.ndim != 3)
-		    {
-			    throw std::invalid_argument(
-			        "The buffer given has to have 3 dimensions");
-		    }
-		    if (buffer.format != py::format_descriptor<double>::format())
-		    {
-			    throw std::invalid_argument(
-			        "The buffer given has to have a float64 format");
-		    }
-		    std::vector<int> dims = {self.getParams().nz, self.getParams().ny,
-		                             self.getParams().nx};
-		    for (int i = 0; i < 3; i++)
-		    {
-			    if (buffer.shape[i] != dims[i])
-			    {
-				    throw std::invalid_argument(
-				        "The buffer shape does not match with the image "
-				        "parameters");
-			    }
-		    }
-		    static_cast<Array3DAlias<double>&>(self.getData())
-		        .bind(reinterpret_cast<double*>(buffer.ptr), dims[0], dims[1],
-		              dims[2]);
-	    });
+		"bind",
+		[](ImageAlias& self, py::buffer& np_data)
+		{
+			py::buffer_info buffer = np_data.request();
+			if (buffer.ndim != 3)
+			{
+				throw std::invalid_argument(
+					"The buffer given has to have 3 dimensions");
+			}
+			if (buffer.format != py::format_descriptor<double>::format())
+			{
+				throw std::invalid_argument(
+					"The buffer given has to have a float64 format");
+			}
+			std::vector<int> dims = {self.getParams().nz, self.getParams().ny,
+			                         self.getParams().nx};
+			for (int i = 0; i < 3; i++)
+			{
+				if (buffer.shape[i] != dims[i])
+				{
+					throw std::invalid_argument(
+						"The buffer shape does not match with the image "
+						"parameters");
+				}
+			}
+			static_cast<Array3DAlias<double>&>(self.getData())
+				.bind(reinterpret_cast<double*>(buffer.ptr), dims[0], dims[1],
+				      dims[2]);
+		});
 
 	auto c_owned = py::class_<ImageOwned, Image>(m, "ImageOwned");
 	c_owned.def(py::init<const ImageParams&>());
@@ -114,7 +114,8 @@ void py_setup_image(py::module& m)
 #endif  // if BUILD_PYBIND11
 
 
-Image::Image(const ImageParams& img_params) : ImageBase(img_params) {}
+Image::Image(const ImageParams& img_params)
+	: ImageBase(img_params) {}
 
 void Image::setValue(double initValue)
 {
@@ -155,7 +156,7 @@ void Image::multWithScalar(double scalar)
 }
 
 // interpolation operation. It does not account for the offset values.
-double Image::interpol_image(GCVector pt)
+double Image::interpol_image(const Vector3D& pt)
 {
 	double x = pt.x;
 	double y = pt.y;
@@ -265,7 +266,7 @@ double Image::interpol_image(GCVector pt)
 
 // calculate the value of a point on the image matrix
 // using tri-linear interpolation and weighting with image "sens":
-double Image::interpol_image2(GCVector pt, Image* sens)
+double Image::interpol_image2(const Vector3D& pt, Image* sens)
 {
 
 	double x = pt.x;
@@ -385,7 +386,7 @@ double Image::interpol_image2(GCVector pt, Image* sens)
 }
 
 // return the value of the voxel the nearest to "point":
-double Image::nearest_neigh(const GCVector& pt) const
+double Image::nearest_neigh(const Vector3D& pt) const
 {
 	int ix, iy, iz;
 
@@ -399,8 +400,8 @@ double Image::nearest_neigh(const GCVector& pt) const
 }
 
 // return the value of the voxel the nearest to "point":
-double Image::nearest_neigh2(const GCVector& pt, int* pi, int* pj,
-                               int* pk) const
+double Image::nearest_neigh2(const Vector3D& pt, int* pi, int* pj,
+                             int* pk) const
 {
 	if (get_nearest_neigh_idx(pt, pi, pj, pk))
 	{
@@ -413,8 +414,8 @@ double Image::nearest_neigh2(const GCVector& pt, int* pi, int* pj,
 
 
 // update image with "value" using nearest neighbor method:
-void Image::update_image_nearest_neigh(const GCVector& pt, double value,
-                                         bool mult_flag)
+void Image::update_image_nearest_neigh(const Vector3D& pt, double value,
+                                       bool mult_flag)
 {
 	int ix, iy, iz;
 	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
@@ -436,7 +437,7 @@ void Image::update_image_nearest_neigh(const GCVector& pt, double value,
 }
 
 // assign image with "value" using nearest neighbor method:
-void Image::assign_image_nearest_neigh(const GCVector& pt, double value)
+void Image::assign_image_nearest_neigh(const Vector3D& pt, double value)
 {
 	int ix, iy, iz;
 	if (get_nearest_neigh_idx(pt, &ix, &iy, &iz))
@@ -449,8 +450,8 @@ void Image::assign_image_nearest_neigh(const GCVector& pt, double value)
 	}
 }
 
-bool Image::get_nearest_neigh_idx(const GCVector& pt, int* pi, int* pj,
-                                    int* pk) const
+bool Image::get_nearest_neigh_idx(const Vector3D& pt, int* pi, int* pj,
+                                  int* pk) const
 {
 	const double x = pt.x;
 	const double y = pt.y;
@@ -484,7 +485,8 @@ bool Image::get_nearest_neigh_idx(const GCVector& pt, int* pi, int* pj,
 }
 
 // update image with "value" using trilinear interpolation:
-void Image::update_image_inter(GCVector point, double value, bool mult_flag)
+void Image::update_image_inter(const Vector3D& point, double value,
+                               bool mult_flag)
 {
 	double x = point.x;
 	double y = point.y;
@@ -608,7 +610,7 @@ void Image::update_image_inter(GCVector point, double value, bool mult_flag)
 }
 
 // assign image with "value" using trilinear interpolation:
-void Image::assign_image_inter(GCVector point, double value)
+void Image::assign_image_inter(const Vector3D& point, double value)
 {
 	double x = point.x;
 	double y = point.y;
@@ -734,8 +736,8 @@ void ImageOwned::readFromFile(const std::string& image_file_name)
 }
 
 void Image::applyThreshold(const ImageBase* maskImg, double threshold,
-                             double val_le_scale, double val_le_off,
-                             double val_gt_scale, double val_gt_off)
+                           double val_le_scale, double val_le_off,
+                           double val_gt_scale, double val_gt_off)
 {
 	const Image* maskImg_Image = dynamic_cast<const Image*>(maskImg);
 	ASSERT_MSG(maskImg_Image != nullptr, "Input image has the wrong type");
@@ -756,7 +758,7 @@ void Image::applyThreshold(const ImageBase* maskImg, double threshold,
 }
 
 void Image::updateEMThreshold(ImageBase* updateImg,
-                                const ImageBase* normImg, double threshold)
+                              const ImageBase* normImg, double threshold)
 {
 	Image* updateImg_Image = dynamic_cast<Image*>(updateImg);
 	const Image* normImg_Image = dynamic_cast<const Image*>(normImg);
@@ -800,8 +802,8 @@ Array3DAlias<double> Image::getArray() const
 }
 
 std::unique_ptr<Image>
-    Image::transformImage(const GCVector& rotation,
-                            const GCVector& translation) const
+	Image::transformImage(const Vector3D& rotation,
+	                      const Vector3D& translation) const
 {
 	ImageParams params = getParams();
 	const double* rawPtr = getData().getRawPointer();
@@ -844,7 +846,7 @@ std::unique_ptr<Image>
 				newZ += translation.z;
 
 				const double currentValue =
-				    rawPtr[i * num_xy + j * params.nx + k];
+					rawPtr[i * num_xy + j * params.nx + k];
 				newImg->update_image_inter({newX, newY, newZ}, currentValue,
 				                           false);
 			}
@@ -854,14 +856,14 @@ std::unique_ptr<Image>
 }
 
 ImageOwned::ImageOwned(const ImageParams& img_params)
-    : Image(img_params)
+	: Image(img_params)
 {
 	m_dataPtr = std::make_unique<Array3D<double>>();
 }
 
 ImageOwned::ImageOwned(const ImageParams& img_params,
-                           const std::string& filename)
-    : ImageOwned(img_params)
+                       const std::string& filename)
+	: ImageOwned(img_params)
 {
 	readFromFile(filename);
 }
@@ -869,11 +871,11 @@ ImageOwned::ImageOwned(const ImageParams& img_params,
 void ImageOwned::allocate()
 {
 	static_cast<Array3D<double>*>(m_dataPtr.get())
-	    ->allocate(getParams().nz, getParams().ny, getParams().nx);
+		->allocate(getParams().nz, getParams().ny, getParams().nx);
 }
 
 ImageAlias::ImageAlias(const ImageParams& img_params)
-    : Image(img_params)
+	: Image(img_params)
 {
 	m_dataPtr = std::make_unique<Array3DAlias<double>>();
 }

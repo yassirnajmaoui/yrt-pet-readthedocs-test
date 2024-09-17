@@ -28,14 +28,14 @@ namespace Util
 	    getProjectionProperties(const Scanner& scanner,
 	                            const ProjectionData& dat, bin_t bin);
 
-	GCStraightLineParam getNativeLOR(const Scanner& scanner,
+	StraightLineParam getNativeLOR(const Scanner& scanner,
 	                                 const ProjectionData& dat, bin_t binId);
 
 	std::unique_ptr<GCOSEM> createOSEM(const Scanner* scanner,
 	                                   bool useGPU = false);
 
 
-	std::tuple<GCStraightLineParam, GCVector, GCVector>
+	std::tuple<StraightLineParam, Vector3D, Vector3D>
 	    generateTORRandomDOI(const Scanner* scanner, det_id_t d1, det_id_t d2,
 	                         int vmax = 256);
 

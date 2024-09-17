@@ -39,7 +39,7 @@ TEST_CASE("scanner", "[createLUT]")
 	SECTION("lut-det_pos")
 	{
 		size_t bin_id = 100;
-		GCVector pos = scanner->getDetectorPos(bin_id);
+		Vector3DFloat pos = scanner->getDetectorPos(bin_id);
 		REQUIRE(lut[bin_id][0] == pos.x);
 		REQUIRE(lut[bin_id][1] == pos.y);
 		REQUIRE(lut[bin_id][2] == pos.z);

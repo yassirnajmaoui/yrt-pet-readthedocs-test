@@ -3,30 +3,28 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "geometry/GCMatrix.hpp"
+#include "geometry/Matrix.hpp"
 
-#include "geometry/GCConstants.hpp"
+#include "geometry/Constants.hpp"
 
 #include <cmath>
 #include <iostream>
 
 
-GCMatrix::GCMatrix(double a00, double a01, double a02, double a10, double a11,
-                   double a12, double a20, double a21, double a22)
-    : m_a00(a00),
-      m_a01(a01),
-      m_a02(a02),
-      m_a10(a10),
-      m_a11(a11),
-      m_a12(a12),
-      m_a20(a20),
-      m_a21(a21),
-      m_a22(a22)
-{
-}
+Matrix::Matrix(double a00, double a01, double a02, double a10, double a11,
+               double a12, double a20, double a21, double a22)
+	: m_a00(a00),
+	  m_a01(a01),
+	  m_a02(a02),
+	  m_a10(a10),
+	  m_a11(a11),
+	  m_a12(a12),
+	  m_a20(a20),
+	  m_a21(a21),
+	  m_a22(a22) {}
 
 
-GCMatrix::GCMatrix(const GCMatrix& v)
+Matrix::Matrix(const Matrix& v)
 {
 	m_a00 = v.m_a00;
 	m_a01 = v.m_a01;
@@ -40,28 +38,26 @@ GCMatrix::GCMatrix(const GCMatrix& v)
 }
 
 
-GCMatrix::GCMatrix()
-    : m_a00(0.0),
-      m_a01(0.0),
-      m_a02(0.0),
-      m_a10(0.0),
-      m_a11(0.0),
-      m_a12(0.0),
-      m_a20(0.0),
-      m_a21(0.0),
-      m_a22(0.0)
+Matrix::Matrix()
+	: m_a00(0.0),
+	  m_a01(0.0),
+	  m_a02(0.0),
+	  m_a10(0.0),
+	  m_a11(0.0),
+	  m_a12(0.0),
+	  m_a20(0.0),
+	  m_a21(0.0),
+	  m_a22(0.0) {}
+
+Matrix Matrix::identity()
 {
+	return Matrix{1, 0, 0, 0, 1, 0, 0, 0, 1};
 }
 
-GCMatrix GCMatrix::identity()
-{
-	return GCMatrix{1,0,0,0,1,0,0,0,1};
-}
 
-
-void GCMatrix::update(double a00, double a01, double a02, double a10,
-                      double a11, double a12, double a20, double a21,
-                      double a22)
+void Matrix::update(double a00, double a01, double a02, double a10,
+                    double a11, double a12, double a20, double a21,
+                    double a22)
 {
 	m_a00 = a00;
 	m_a01 = a01;
@@ -74,9 +70,9 @@ void GCMatrix::update(double a00, double a01, double a02, double a10,
 	m_a22 = a22;
 }
 
-GCMatrix GCMatrix::operator=(GCMatrix v)
+Matrix Matrix::operator=(Matrix v)
 {
-	GCMatrix vv;
+	Matrix vv;
 
 	vv.m_a00 = v.m_a00;
 	vv.m_a01 = v.m_a01;
@@ -93,7 +89,7 @@ GCMatrix GCMatrix::operator=(GCMatrix v)
 
 
 // update 3:
-void GCMatrix::update(const GCMatrix& v)
+void Matrix::update(const Matrix& v)
 {
 	m_a00 = v.m_a00;
 	m_a01 = v.m_a01;
@@ -106,10 +102,10 @@ void GCMatrix::update(const GCMatrix& v)
 	m_a22 = v.m_a22;
 }
 
-GCMatrix GCMatrix::operator-(GCMatrix v)
+Matrix Matrix::operator-(Matrix v)
 {
 
-	GCMatrix res;
+	Matrix res;
 
 	res.m_a00 = m_a00 - v.m_a00;
 	res.m_a01 = m_a01 - v.m_a01;
@@ -125,10 +121,10 @@ GCMatrix GCMatrix::operator-(GCMatrix v)
 }
 
 
-GCMatrix GCMatrix::operator+(GCMatrix v)
+Matrix Matrix::operator+(Matrix v)
 {
 
-	GCMatrix res;
+	Matrix res;
 
 	res.m_a00 = m_a00 + v.m_a00;
 	res.m_a01 = m_a01 + v.m_a01;
@@ -143,9 +139,9 @@ GCMatrix GCMatrix::operator+(GCMatrix v)
 	return res;
 }
 
-GCMatrix GCMatrix::operator*(GCMatrix matrix)
+Matrix Matrix::operator*(Matrix matrix)
 {
-	GCMatrix res;
+	Matrix res;
 
 	res.m_a00 = m_a00 * matrix.m_a00;
 	res.m_a01 = m_a01 * matrix.m_a01;
@@ -160,9 +156,9 @@ GCMatrix GCMatrix::operator*(GCMatrix matrix)
 	return res;
 }
 
-GCVector GCMatrix::operator*(GCVector vector)
+Vector3D Matrix::operator*(const Vector3D& vector)
 {
-	GCVector res;
+	Vector3D res;
 
 	res.x = m_a00 * vector.x + m_a01 * vector.y + m_a02 * vector.z;
 	res.y = m_a10 * vector.x + m_a11 * vector.y + m_a12 * vector.z;
@@ -172,9 +168,9 @@ GCVector GCMatrix::operator*(GCVector vector)
 }
 
 
-GCMatrix GCMatrix::operator+(double scal)
+Matrix Matrix::operator+(double scal)
 {
-	GCMatrix res;
+	Matrix res;
 
 	res.m_a00 = m_a00 + scal;
 	res.m_a01 = m_a01 + scal;
@@ -190,9 +186,9 @@ GCMatrix GCMatrix::operator+(double scal)
 }
 
 
-GCMatrix GCMatrix::operator-(double scal)
+Matrix Matrix::operator-(double scal)
 {
-	GCMatrix res;
+	Matrix res;
 
 	res.m_a00 = m_a00 - scal;
 	res.m_a01 = m_a01 - scal;
@@ -208,9 +204,9 @@ GCMatrix GCMatrix::operator-(double scal)
 }
 
 
-GCMatrix GCMatrix::operator*(double scal)
+Matrix Matrix::operator*(double scal)
 {
-	GCMatrix res;
+	Matrix res;
 
 	res.m_a00 = m_a00 * scal;
 	res.m_a01 = m_a01 * scal;
@@ -226,9 +222,9 @@ GCMatrix GCMatrix::operator*(double scal)
 }
 
 
-GCMatrix GCMatrix::operator/(double scal)
+Matrix Matrix::operator/(double scal)
 {
-	GCMatrix res;
+	Matrix res;
 
 	if (fabs(scal) > DOUBLE_PRECISION)
 	{
@@ -260,7 +256,7 @@ GCMatrix GCMatrix::operator/(double scal)
 
 
 // return true if matrices are the same:
-bool GCMatrix::operator==(GCMatrix matrix)
+bool Matrix::operator==(Matrix matrix)
 {
 	double sqr_norm = (m_a00 - matrix.m_a00) * (m_a00 - matrix.m_a00) +
 	                  (m_a01 - matrix.m_a01) * (m_a01 - matrix.m_a01) +
@@ -276,11 +272,11 @@ bool GCMatrix::operator==(GCMatrix matrix)
 	return sqrt(sqr_norm) < DOUBLE_PRECISION;
 }
 
-std::ostream& operator<<(std::ostream& oss, const GCMatrix& v)
+std::ostream& operator<<(std::ostream& oss, const Matrix& v)
 {
 	oss << "("
-	    << "(" << v.m_a00 << ", " << v.m_a01 << ", " << v.m_a02 << "), ("
-	    << v.m_a10 << ", " << v.m_a11 << ", " << v.m_a12 << "), (" << v.m_a20
-	    << ", " << v.m_a21 << ", " << v.m_a22 << ")";
+		<< "(" << v.m_a00 << ", " << v.m_a01 << ", " << v.m_a02 << "), ("
+		<< v.m_a10 << ", " << v.m_a11 << ", " << v.m_a12 << "), (" << v.m_a20
+		<< ", " << v.m_a21 << ", " << v.m_a22 << ")";
 	return oss;
 }

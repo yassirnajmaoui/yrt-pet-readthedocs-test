@@ -8,7 +8,7 @@
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/ListModeLUT.hpp"
-#include "geometry/GCMatrix.hpp"
+#include "geometry/Matrix.hpp"
 #include "operators/GCOperatorProjectorDD.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
 #include "recon/GCOSEM_cpu.hpp"
@@ -32,15 +32,19 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 {
 	m.def("histogram3DToListModeLUT", &Util::histogram3DToListModeLUT);
 	m.def(
-	    "convertToHistogram3D",
-	    [](const Histogram& dat, Histogram3D& histoOut)
-	    { Util::convertToHistogram3D<false>(dat, histoOut); },
-	    py::arg("histogramDataInput"), py::arg("histoOut"));
+		"convertToHistogram3D",
+		[](const Histogram& dat, Histogram3D& histoOut)
+		{
+			Util::convertToHistogram3D<false>(dat, histoOut);
+		},
+		py::arg("histogramDataInput"), py::arg("histoOut"));
 	m.def(
-	    "convertToHistogram3D",
-	    [](const ListMode& dat, Histogram3D& histoOut)
-	    { Util::convertToHistogram3D<true>(dat, histoOut); },
-	    py::arg("listmodeDataInput"), py::arg("histoOut"));
+		"convertToHistogram3D",
+		[](const ListMode& dat, Histogram3D& histoOut)
+		{
+			Util::convertToHistogram3D<true>(dat, histoOut);
+		},
+		py::arg("listmodeDataInput"), py::arg("histoOut"));
 	m.def("createOSEM", &Util::createOSEM, py::arg("scanner"),
 	      py::arg("useGPU") = false);
 	m.def("generateTORRandomDOI", &Util::generateTORRandomDOI,
@@ -52,18 +56,18 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	                           GCOperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
 	                           const Histogram* additiveHistogram)>(
-	          &Util::forwProject),
+		      &Util::forwProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("projectorType") = GCOperatorProjector::ProjectorType::SIDDON,
 	      py::arg("attImage") = nullptr,
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("forwProject",
 	      static_cast<void (*)(
-	          const Scanner* scanner, const Image* img,
-	          ProjectionData* projData, const BinIterator& binIterator,
-	          GCOperatorProjector::ProjectorType projectorType,
-	          const Image* attImage, const Histogram* additiveHistogram)>(
-	          &Util::forwProject),
+		      const Scanner* scanner, const Image* img,
+		      ProjectionData* projData, const BinIterator& binIterator,
+		      GCOperatorProjector::ProjectorType projectorType,
+		      const Image* attImage, const Histogram* additiveHistogram)>(
+		      &Util::forwProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("binIterator"),
 	      py::arg("projectorType") = GCOperatorProjector::SIDDON,
@@ -75,7 +79,7 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	                           GCOperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
 	                           const Histogram* additiveHistogram)>(
-	          &Util::forwProject),
+		      &Util::forwProject),
 	      py::arg("img"), py::arg("projData"), py::arg("projParams"),
 	      py::arg("projectorType") = GCOperatorProjector::SIDDON,
 	      py::arg("attImage") = nullptr,
@@ -87,18 +91,18 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	                           GCOperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
 	                           const Histogram* additiveHistogram)>(
-	          &Util::backProject),
+		      &Util::backProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("projectorType") = GCOperatorProjector::ProjectorType::SIDDON,
 	      py::arg("attImage") = nullptr,
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("backProject",
 	      static_cast<void (*)(
-	          const Scanner* scanner, Image* img,
-	          const ProjectionData* projData, const BinIterator& binIterator,
-	          GCOperatorProjector::ProjectorType projectorType,
-	          const Image* attImage, const Histogram* additiveHistogram)>(
-	          &Util::backProject),
+		      const Scanner* scanner, Image* img,
+		      const ProjectionData* projData, const BinIterator& binIterator,
+		      GCOperatorProjector::ProjectorType projectorType,
+		      const Image* attImage, const Histogram* additiveHistogram)>(
+		      &Util::backProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("binIterator"),
 	      py::arg("projectorType") = GCOperatorProjector::SIDDON,
@@ -110,7 +114,7 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	                           GCOperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
 	                           const Histogram* additiveHistogram)>(
-	          &Util::backProject),
+		      &Util::backProject),
 	      py::arg("img"), py::arg("projData"), py::arg("projParams"),
 	      py::arg("projectorType") = GCOperatorProjector::SIDDON,
 	      py::arg("attImage") = nullptr,
@@ -155,7 +159,7 @@ namespace Util
 		if (numThreads > 1)
 		{
 			size_t numBinsPerThread =
-			    std::ceil(double(histo->count()) / (double)numThreads);
+				std::ceil(double(histo->count()) / (double)numThreads);
 			Array1D<size_t> partialSums;
 			partialSums.allocate(numThreads);
 
@@ -169,7 +173,7 @@ namespace Util
 				for (bin_t binId = binStart; binId <= binEnd; binId++)
 				{
 					partialSums[ti] +=
-					    std::lround(dataPtr[binId] / sum * (double)numEvents);
+						std::lround(dataPtr[binId] / sum * (double)numEvents);
 				}
 			}
 
@@ -196,7 +200,7 @@ namespace Util
 					{
 						auto [d1, d2] = histo->getDetectorPair(binId);
 						int numEventsBin = std::lround(dataPtr[binId] / sum *
-						                               (double)numEvents);
+							(double)numEvents);
 						for (int ei = 0; ei < numEventsBin; ei++)
 						{
 							lmOut->setDetectorIdsOfEvent(eventId++, d1, d2);
@@ -214,7 +218,7 @@ namespace Util
 				{
 					auto [d1, d2] = histo->getDetectorPair(binId);
 					int numEventsBin =
-					    std::lround(dataPtr[binId] / sum * (double)numEvents);
+						std::lround(dataPtr[binId] / sum * (double)numEvents);
 					for (int ei = 0; ei < numEventsBin; ei++)
 					{
 						lmOut->setDetectorIdsOfEvent(eventId++, d1, d2);
@@ -260,7 +264,7 @@ namespace Util
 					continue;
 				}
 				const bin_t histoBin =
-				    histoOut_constptr->getBinIdFromDetPair(d1, d2);
+					histoOut_constptr->getBinIdFromDetPair(d1, d2);
 				if constexpr (RequiresAtomicAccumulation)
 				{
 #pragma omp atomic
@@ -273,30 +277,31 @@ namespace Util
 			}
 		}
 	}
+
 	template void convertToHistogram3D<true>(const ProjectionData&,
 	                                         Histogram3D&);
 	template void convertToHistogram3D<false>(const ProjectionData&,
 	                                          Histogram3D&);
 
 	GCOperatorProjectorBase::ProjectionProperties
-	    getProjectionProperties(const Scanner& scanner,
-	                            const ProjectionData& dat, bin_t bin)
+		getProjectionProperties(const Scanner& scanner,
+		                        const ProjectionData& dat, bin_t bin)
 	{
 		auto [d1, d2] = dat.getDetectorPair(bin);
 
-		GCStraightLineParam lor;
+		StraightLineParam lor;
 		if (dat.hasArbitraryLORs())
 		{
 			const line_t lorPts = dat.getArbitraryLOR(bin);
 			lor =
-			    GCStraightLineParam{GCVector{lorPts.x1, lorPts.y1, lorPts.z1},
-			                        GCVector{lorPts.x2, lorPts.y2, lorPts.z2}};
+				StraightLineParam{Vector3D{lorPts.x1, lorPts.y1, lorPts.z1},
+				                  Vector3D{lorPts.x2, lorPts.y2, lorPts.z2}};
 		}
 		else
 		{
-			const GCVector p1 = scanner.getDetectorPos(d1);
-			const GCVector p2 = scanner.getDetectorPos(d2);
-			lor = GCStraightLineParam{p1, p2};
+			const Vector3DFloat p1 = scanner.getDetectorPos(d1);
+			const Vector3DFloat p2 = scanner.getDetectorPos(d2);
+			lor = StraightLineParam{p1, p2};
 		}
 
 		float tofValue = 0.0f;
@@ -309,57 +314,58 @@ namespace Util
 		{
 			frame_t frame = dat.getFrame(bin);
 			transform_t transfo = dat.getTransformOfFrame(frame);
-			GCVector point1 = lor.point1;
-			GCVector point2 = lor.point2;
+			Vector3D point1 = lor.point1;
+			Vector3D point2 = lor.point2;
 
-			GCMatrix MRot(transfo.r00, transfo.r01, transfo.r02, transfo.r10,
-			              transfo.r11, transfo.r12, transfo.r20, transfo.r21,
-			              transfo.r22);
-			GCVector VTrans(transfo.tx, transfo.ty, transfo.tz);
+			Matrix MRot(transfo.r00, transfo.r01, transfo.r02, transfo.r10,
+			            transfo.r11, transfo.r12, transfo.r20, transfo.r21,
+			            transfo.r22);
+			Vector3D VTrans(transfo.tx, transfo.ty, transfo.tz);
 
-			GCVector point1Prim = MRot * point1;
+			Vector3D point1Prim = MRot * point1;
 			point1Prim = point1Prim + VTrans;
 
-			GCVector point2Prim = MRot * point2;
+			Vector3D point2Prim = MRot * point2;
 			point2Prim = point2Prim + VTrans;
 
 			lor.update(point1Prim, point2Prim);
 		}
-		GCVector det1Orient = scanner.getDetectorOrient(d1);
-		GCVector det2Orient = scanner.getDetectorOrient(d2);
+		Vector3DFloat det1Orient = scanner.getDetectorOrient(d1);
+		Vector3DFloat det2Orient = scanner.getDetectorOrient(d2);
 		return GCOperatorProjectorBase::ProjectionProperties{
-		    lor, tofValue, randomsEstimate, det1Orient, det2Orient};
+			lor, tofValue, randomsEstimate, det1Orient.to<double>(),
+			det2Orient.to<double>()};
 	}
 
-	GCStraightLineParam getNativeLOR(const Scanner& scanner,
-	                                 const ProjectionData& dat, bin_t binId)
+	StraightLineParam getNativeLOR(const Scanner& scanner,
+	                               const ProjectionData& dat, bin_t binId)
 	{
 		const auto [d1, d2] = dat.getDetectorPair(binId);
-		const GCVector p1 = scanner.getDetectorPos(d1);
-		const GCVector p2 = scanner.getDetectorPos(d2);
-		return GCStraightLineParam{p1, p2};
+		const Vector3DFloat p1 = scanner.getDetectorPos(d1);
+		const Vector3DFloat p2 = scanner.getDetectorPos(d2);
+		return StraightLineParam{p1, p2};
 	}
 
-	std::tuple<GCStraightLineParam, GCVector, GCVector>
-	    generateTORRandomDOI(const Scanner* scanner, det_id_t d1, det_id_t d2,
-	                         int vmax)
+	std::tuple<StraightLineParam, Vector3D, Vector3D>
+		generateTORRandomDOI(const Scanner* scanner, det_id_t d1, det_id_t d2,
+		                     int vmax)
 	{
-		const GCVector p1 = scanner->getDetectorPos(d1);
-		const GCVector p2 = scanner->getDetectorPos(d2);
-		const GCVector n1 = scanner->getDetectorOrient(d1);
-		const GCVector n2 = scanner->getDetectorOrient(d2);
+		const Vector3DFloat p1 = scanner->getDetectorPos(d1);
+		const Vector3DFloat p2 = scanner->getDetectorPos(d2);
+		const Vector3DFloat n1 = scanner->getDetectorOrient(d1);
+		const Vector3DFloat n2 = scanner->getDetectorOrient(d2);
 		const double doi_1_t = (rand() % vmax) /
 		                       (static_cast<float>(1 << 8) - 1) *
 		                       scanner->crystalDepth;
 		const double doi_2_t = (rand() % vmax) /
 		                       (static_cast<float>(1 << 8) - 1) *
 		                       scanner->crystalDepth;
-		const GCVector p1_doi(p1.x + doi_1_t * n1.x, p1.y + doi_1_t * n1.y,
+		const Vector3D p1_doi(p1.x + doi_1_t * n1.x, p1.y + doi_1_t * n1.y,
 		                      p1.z + doi_1_t * n1.z);
-		const GCVector p2_doi(p2.x + doi_2_t * n2.x, p2.y + doi_2_t * n2.y,
+		const Vector3D p2_doi(p2.x + doi_2_t * n2.x, p2.y + doi_2_t * n2.y,
 		                      p2.z + doi_2_t * n2.z);
-		const GCStraightLineParam lorDOI(p1_doi, p2_doi);
-		return {lorDOI, n1, n2};
+		const StraightLineParam lorDOI(p1_doi, p2_doi);
+		return {lorDOI, n1.to<double>(), n2.to<double>()};
 	}
 
 	std::unique_ptr<GCOSEM> createOSEM(const Scanner* scanner, bool useGPU)
@@ -410,8 +416,8 @@ namespace Util
 		else
 		{
 			throw std::logic_error(
-			    "Error in forwProject: Unknown projector type (Note that the "
-			    "GPU Distance-Driven projector is unsupported for now)");
+				"Error in forwProject: Unknown projector type (Note that the "
+				"GPU Distance-Driven projector is unsupported for now)");
 		}
 
 		if (attImage != nullptr)
@@ -512,4 +518,4 @@ namespace Util
 		               projectorType, attImage, additiveHistogram);
 	}
 
-}  // namespace Util
+} // namespace Util

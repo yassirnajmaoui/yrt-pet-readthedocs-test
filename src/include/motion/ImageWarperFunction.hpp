@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "geometry/GCVector.hpp"
+#include "geometry/Vector3D.hpp"
 #include "motion/ImageWarperTemplate.hpp"
 
 /* **************************************************************************************
@@ -42,8 +42,8 @@ private:
 	// Specific methods used in this class.
 	double getVoxelPhysPos(int voxelId, int voxelDim) const;
 	std::vector<double> getVoxelPhysPos(std::vector<int> voxelId);
-	void applyTransformation(const std::vector<double>& pos, GCVector& result,
+	void applyTransformation(const std::vector<double>& pos, Vector3D& result,
 	                         int frameId) const;
-	void applyInvTransformation(const std::vector<double>& pos, GCVector& result,
+	void applyInvTransformation(const std::vector<double>& pos, Vector3D& result,
 	                            int frameId) const;
 };
