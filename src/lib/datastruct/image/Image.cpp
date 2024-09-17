@@ -5,7 +5,7 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/image/ImageBase.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 
 #include <cmath>
 #include <fstream>

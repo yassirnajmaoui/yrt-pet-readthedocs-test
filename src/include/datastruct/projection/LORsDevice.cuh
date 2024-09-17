@@ -7,7 +7,7 @@
 
 #include "datastruct/projection/BinIterator.hpp"
 #include "datastruct/scanner/ScannerDevice.cuh"
-#include "utils/GCGPUTypes.cuh"
+#include "utils/GPUTypes.cuh"
 
 #include <memory>
 
@@ -23,7 +23,7 @@ public:
 
 	// Load the events' detector ids from a specific subset&batch id
 	void loadEventLORs(const BinIterator& binIter,
-	                   const GCGPUBatchSetup& batchSetup, size_t subsetId,
+	                   const GPUBatchSetup& batchSetup, size_t subsetId,
 	                   size_t batchId, const ProjectionData& reference,
 	                   const ImageParams& imgParams,
 	                   const cudaStream_t* stream = nullptr);
@@ -59,11 +59,11 @@ private:
 
 	std::shared_ptr<ScannerDevice> mp_scannerDevice;
 
-	std::unique_ptr<GCDeviceArray<float4>> mp_lorDet1Pos;
-	std::unique_ptr<GCDeviceArray<float4>> mp_lorDet2Pos;
-	std::unique_ptr<GCDeviceArray<float4>> mp_lorDet1Orient;
-	std::unique_ptr<GCDeviceArray<float4>> mp_lorDet2Orient;
-	std::unique_ptr<GCDeviceArray<float>> mp_lorTOFValue;
+	std::unique_ptr<DeviceArray<float4>> mp_lorDet1Pos;
+	std::unique_ptr<DeviceArray<float4>> mp_lorDet2Pos;
+	std::unique_ptr<DeviceArray<float4>> mp_lorDet1Orient;
+	std::unique_ptr<DeviceArray<float4>> mp_lorDet2Orient;
+	std::unique_ptr<DeviceArray<float>> mp_lorTOFValue;
 	bool m_areLORsGathered;
 	size_t m_loadedBatchSize;
 	size_t m_loadedBatchId;

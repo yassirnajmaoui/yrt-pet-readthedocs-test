@@ -4,7 +4,7 @@
  */
 
 #include "datastruct/projection/LORMotion.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 
 LORMotion::LORMotion(const std::string& filename)
     : m_structure{filename, 1 << 20}

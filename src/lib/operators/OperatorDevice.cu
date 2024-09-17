@@ -7,7 +7,7 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "utils/GCGPUUtils.cuh"
+#include "utils/GPUUtils.cuh"
 #include "utils/Globals.hpp"
 
 #if BUILD_PYBIND11
@@ -23,9 +23,9 @@ void py_setup_operatorprojectordevice(py::module& m)
 
 namespace Util
 {
-	GCGPULaunchParams3D initiateDeviceParameters(const ImageParams& params)
+	GPULaunchParams3D initiateDeviceParameters(const ImageParams& params)
 	{
-		GCGPULaunchParams3D launchParams;
+		GPULaunchParams3D launchParams;
 		if (params.nz > 1)
 		{
 			const size_t threadsPerBlockDimImage =
@@ -69,9 +69,9 @@ namespace Util
 		return launchParams;
 	}
 
-	GCGPULaunchParams initiateDeviceParameters(size_t batchSize)
+	GPULaunchParams initiateDeviceParameters(size_t batchSize)
 	{
-		GCGPULaunchParams launchParams{};
+		GPULaunchParams launchParams{};
 		launchParams.gridSize = static_cast<unsigned int>(
 		    std::ceil(batchSize /
 		              static_cast<float>(GlobalsCuda::ThreadsPerBlockData)));
@@ -215,7 +215,7 @@ void OperatorProjectorDevice::setAddHisto(const Histogram* p_addHisto)
 
 void OperatorProjectorDevice::setupTOFHelper(float tofWidth_ps, int tofNumStd)
 {
-	mp_tofHelper = std::make_unique<GCDeviceObject<TimeOfFlightHelper>>(
+	mp_tofHelper = std::make_unique<DeviceObject<TimeOfFlightHelper>>(
 	    tofWidth_ps, tofNumStd);
 }
 

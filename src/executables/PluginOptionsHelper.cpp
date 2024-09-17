@@ -5,7 +5,7 @@
 
 #include "PluginOptionsHelper.hpp"
 
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 
 #include <cxxopts.hpp>
 

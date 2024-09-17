@@ -9,12 +9,12 @@
 
 namespace Util
 {
-	class GCFileReader
+	class FileReader
 	{
 	public:
 		static constexpr std::streamsize DEFAULT_CACHE_SIZE = 1ull << 30;
-		virtual ~GCFileReader() = default;
-		GCFileReader(std::istream& pr_istream, bool p_useCache = true,
+		virtual ~FileReader() = default;
+		FileReader(std::istream& pr_istream, bool p_useCache = true,
 		             size_t p_cacheSize = DEFAULT_CACHE_SIZE);
 
 		virtual std::streamsize read(std::streamoff startPos,
@@ -38,10 +38,10 @@ namespace Util
 		bool m_useCache;
 	};
 
-	class GCFileReaderContiguous : public GCFileReader
+	class FileReaderContiguous : public FileReader
 	{
 	public:
-		GCFileReaderContiguous(std::istream& pr_istream, bool p_useCache = true,
+		FileReaderContiguous(std::istream& pr_istream, bool p_useCache = true,
 		                       size_t p_cacheSize = DEFAULT_CACHE_SIZE);
 
 		std::streamsize read(char* receivingBuffer,

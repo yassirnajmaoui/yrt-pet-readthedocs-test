@@ -8,8 +8,8 @@
 #include "datastruct/scanner/Scanner.hpp"
 #include "operators/OperatorProjector.hpp"
 #include "utils/Globals.hpp"
-#include "utils/GCReconstructionUtils.hpp"
-#include "utils/GCTools.hpp"
+#include "utils/ReconstructionUtils.hpp"
+#include "utils/Tools.hpp"
 
 #include <cxxopts.hpp>
 #include <iostream>

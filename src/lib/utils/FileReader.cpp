@@ -2,13 +2,13 @@
  * This file is subject to the terms and conditions defined in
  * file 'LICENSE.txt', which is part of this source code package.
  */
-#include "utils/GCFileReader.hpp"
+#include "utils/FileReader.hpp"
 
 #include <algorithm>
 
 namespace Util
 {
-	GCFileReader::GCFileReader(std::istream& pr_istream, bool p_useCache,
+	FileReader::FileReader(std::istream& pr_istream, bool p_useCache,
 	                           size_t p_cacheSize)
 	    : m_cacheStart(-1),
 	      mr_istream(pr_istream),
@@ -22,7 +22,7 @@ namespace Util
 		}
 	}
 
-	std::streamsize GCFileReader::read(std::streamoff startPos,
+	std::streamsize FileReader::read(std::streamoff startPos,
 	                                   char* receivingBuffer,
 	                                   std::streamsize bytesToRead)
 	{
@@ -67,7 +67,7 @@ namespace Util
 		return bytesRead;
 	}
 
-	bool GCFileReader::readStreamToCache(std::streamoff startPos)
+	bool FileReader::readStreamToCache(std::streamoff startPos)
 	{
 		m_cacheStart = startPos;
 		mr_istream.seekg(startPos, std::ios::beg);
@@ -86,40 +86,40 @@ namespace Util
 		return false;
 	}
 
-	bool GCFileReader::foundEof() const
+	bool FileReader::foundEof() const
 	{
 		return m_foundEof;
 	}
 
-	std::streamsize GCFileReader::cacheSize() const
+	std::streamsize FileReader::cacheSize() const
 	{
 		return m_cacheSize;
 	}
 
-	std::streamoff GCFileReader::cacheStart() const
+	std::streamoff FileReader::cacheStart() const
 	{
 		return m_cacheStart;
 	}
 
-	bool GCFileReader::isUsingCache() const
+	bool FileReader::isUsingCache() const
 	{
 		return m_useCache;
 	}
 
-	GCFileReaderContiguous::GCFileReaderContiguous(std::istream& pr_istream,
+	FileReaderContiguous::FileReaderContiguous(std::istream& pr_istream,
 	                                               bool p_useCache,
 	                                               size_t p_cacheSize)
-	    : GCFileReader(pr_istream, p_useCache, p_cacheSize), m_readPos(0ull)
+	    : FileReader(pr_istream, p_useCache, p_cacheSize), m_readPos(0ull)
 	{
 	}
 
-	bool GCFileReaderContiguous::finishedReading() const
+	bool FileReaderContiguous::finishedReading() const
 	{
 		return foundEof() &&
 		       (!isUsingCache() || (m_readPos >= cacheStart() + cacheSize()));
 	}
 
-	std::streamsize GCFileReaderContiguous::read(std::streamoff startPos,
+	std::streamsize FileReaderContiguous::read(std::streamoff startPos,
 	                                             char* receivingBuffer,
 	                                             std::streamsize bytesToRead)
 	{
@@ -130,11 +130,11 @@ namespace Util
 		    "Arbitrary access unsupported on contiguous reading");
 	}
 
-	std::streamsize GCFileReaderContiguous::read(char* receivingBuffer,
+	std::streamsize FileReaderContiguous::read(char* receivingBuffer,
 	                                             std::streamsize bytesToRead)
 	{
 		const std::streamsize bytesRead =
-		    GCFileReader::read(m_readPos, receivingBuffer, bytesToRead);
+		    FileReader::read(m_readPos, receivingBuffer, bytesToRead);
 		m_readPos += bytesRead;
 		return bytesRead;
 	}

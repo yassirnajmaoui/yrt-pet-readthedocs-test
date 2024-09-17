@@ -6,7 +6,7 @@
 #include "datastruct/IO.hpp"
 
 #include "datastruct/projection/ProjectionData.hpp"
-#include "utils/GCUtilities.hpp"
+#include "utils/Utilities.hpp"
 
 
 #if BUILD_PYBIND11

@@ -9,8 +9,8 @@
 #include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "operators/OperatorProjectorDD_GPUKernels.cuh"
-#include "utils/GCAssert.hpp"
-#include "utils/GCGPUUtils.cuh"
+#include "utils/Assert.hpp"
+#include "utils/GPUUtils.cuh"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>

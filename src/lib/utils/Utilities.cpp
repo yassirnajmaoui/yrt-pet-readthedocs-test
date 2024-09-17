@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "utils/GCUtilities.hpp"
+#include "utils/Utilities.hpp"
 
 #include <algorithm>
 #include <cstdint>

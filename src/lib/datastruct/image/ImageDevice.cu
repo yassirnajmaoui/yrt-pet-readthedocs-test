@@ -8,10 +8,10 @@
 #include "datastruct/image/Image.hpp"
 #include "datastruct/image/ImageSpaceKernels.cuh"
 #include "operators/OperatorDevice.cuh"
-#include "utils/GCAssert.hpp"
-#include "utils/GCGPUMemory.cuh"
-#include "utils/GCGPUTypes.cuh"
-#include "utils/GCGPUUtils.cuh"
+#include "utils/Assert.hpp"
+#include "utils/GPUMemory.cuh"
+#include "utils/GPUTypes.cuh"
+#include "utils/GPUUtils.cuh"
 
 #if BUILD_PYBIND11
 #include <pybind11/numpy.h>

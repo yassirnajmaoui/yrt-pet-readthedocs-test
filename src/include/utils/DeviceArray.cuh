@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "utils/GCGPUMemory.cuh"
+#include "utils/GPUMemory.cuh"
 
 // A 1-dimensional array located in device memory
 template <typename T>
-class GCDeviceArray
+class DeviceArray
 {
 public:
-	explicit GCDeviceArray(size_t p_size = 0ull,
+	explicit DeviceArray(size_t p_size = 0ull,
 	                       const cudaStream_t* stream = nullptr)
 	{
 		mpd_data = nullptr;
@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	~GCDeviceArray() { Deallocate(); }
+	~DeviceArray() { Deallocate(); }
 
 	void allocate(size_t p_size, const cudaStream_t* stream = nullptr)
 	{

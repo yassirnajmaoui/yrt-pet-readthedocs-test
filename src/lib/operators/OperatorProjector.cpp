@@ -9,10 +9,10 @@
 #include "datastruct/projection/BinIterator.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
 #include "geometry/Constants.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
-#include "utils/GCReconstructionUtils.hpp"
-#include "utils/GCTools.hpp"
+#include "utils/ReconstructionUtils.hpp"
+#include "utils/Tools.hpp"
 
 #include "omp.h"
 

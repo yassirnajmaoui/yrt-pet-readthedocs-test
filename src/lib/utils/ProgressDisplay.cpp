@@ -3,13 +3,12 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "utils/GCProgressDisplay.hpp"
+#include "utils/ProgressDisplay.hpp"
 #include <iostream>
 
 namespace Util
 {
-
-	GCProgressDisplay::GCProgressDisplay(int64_t p_total, int64_t p_increment)
+	ProgressDisplay::ProgressDisplay(int64_t p_total, int64_t p_increment)
 	    : m_total(p_total),
 	      m_lastDisplayedPercentage(-1),
 	      m_increment(p_increment),
@@ -17,7 +16,7 @@ namespace Util
 	{
 	}
 
-	void GCProgressDisplay::progress(int64_t newProgress)
+	void ProgressDisplay::progress(int64_t newProgress)
 	{
 		if (isEnabled() && m_total > 0)
 		{
@@ -31,27 +30,27 @@ namespace Util
 		}
 	}
 
-	void GCProgressDisplay::setTotal(int64_t p_total)
+	void ProgressDisplay::setTotal(int64_t p_total)
 	{
 		m_total = p_total;
 	}
 
-	void GCProgressDisplay::reset()
+	void ProgressDisplay::reset()
 	{
 		m_lastDisplayedPercentage = -1;
 	}
 
-	bool GCProgressDisplay::isEnabled() const
+	bool ProgressDisplay::isEnabled() const
 	{
 		return m_enabled;
 	}
 
-	void GCProgressDisplay::enable()
+	void ProgressDisplay::enable()
 	{
 		m_enabled = true;
 	}
 
-	void GCProgressDisplay::disable()
+	void ProgressDisplay::disable()
 	{
 		m_enabled = false;
 	}

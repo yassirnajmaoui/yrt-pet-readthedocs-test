@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/fancyarray/trivial_struct_of_arrays.hpp"
-#include "utils/GCTypes.hpp"
+#include "utils/Types.hpp"
 
 class LORMotion
 {

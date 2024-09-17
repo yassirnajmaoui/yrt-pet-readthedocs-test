@@ -9,7 +9,7 @@
 #include "geometry/Constants.hpp"
 #include "scatter/ScatterEstimator.hpp"
 #include "utils/Globals.hpp"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 #include <cxxopts.hpp>
 #include <fstream>

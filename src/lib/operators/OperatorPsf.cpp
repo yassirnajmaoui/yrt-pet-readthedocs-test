@@ -5,8 +5,8 @@
 
 #include "operators/OperatorPsf.hpp"
 
-#include "utils/GCAssert.hpp"
-#include "utils/GCTools.hpp"
+#include "utils/Assert.hpp"
+#include "utils/Tools.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>

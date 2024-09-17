@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "utils/GCDeviceArray.cuh"
+#include "utils/DeviceArray.cuh"
 
 #include <memory>
 
@@ -24,8 +24,8 @@ public:
 	const Scanner* getScanner() const;
 
 private:
-	std::unique_ptr<GCDeviceArray<float4>> mpd_detPos;
-	std::unique_ptr<GCDeviceArray<float4>> mpd_detOrient;
+	std::unique_ptr<DeviceArray<float4>> mpd_detPos;
+	std::unique_ptr<DeviceArray<float4>> mpd_detOrient;
 	const Scanner* mp_scanner;
 	bool isAllocated;
 	bool isLoaded;

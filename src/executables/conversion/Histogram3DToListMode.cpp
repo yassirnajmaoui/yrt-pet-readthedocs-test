@@ -7,7 +7,7 @@
 #include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "utils/Globals.hpp"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 #include <cxxopts.hpp>
 #include <iostream>

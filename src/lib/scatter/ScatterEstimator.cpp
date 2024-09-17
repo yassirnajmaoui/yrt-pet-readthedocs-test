@@ -9,7 +9,7 @@
 #include "datastruct/scanner/Scanner.hpp"
 #include "geometry/Constants.hpp"
 #include "scatter/Crystal.hpp"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>

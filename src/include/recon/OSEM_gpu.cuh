@@ -10,7 +10,7 @@
 #include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "datastruct/projection/ProjectionData.hpp"
 #include "recon/OSEM.hpp"
-#include "utils/GCGPUStream.cuh"
+#include "utils/GPUStream.cuh"
 
 class OSEM_gpu : public OSEM
 {
@@ -57,8 +57,8 @@ private:
 
 	int m_current_OSEM_subset;
 
-	GCGPUStream m_mainStream;
-	// GCGPUStream m_auxStream;
+	GPUStream m_mainStream;
+	// GPUStream m_auxStream;
 
 	// TODO: Potential optimisation: Avoid transferring the Scanner LUT twice
 	//  (once for gensensimg and another for recon)

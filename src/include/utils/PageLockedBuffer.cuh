@@ -13,15 +13,15 @@
 // will rollback to a regular C++ buffer (using the new/delete idiom), which
 // increases memory safety.
 template <typename T>
-class GCPageLockedBuffer
+class PageLockedBuffer
 {
 public:
-	GCPageLockedBuffer();
+	PageLockedBuffer();
 
-	explicit GCPageLockedBuffer(size_t size,
+	explicit PageLockedBuffer(size_t size,
 	                            unsigned int flags = 0u);
 
-	virtual ~GCPageLockedBuffer();
+	virtual ~PageLockedBuffer();
 
 	void allocate(size_t size, unsigned int flags = 0u);
 

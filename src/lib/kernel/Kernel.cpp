@@ -12,8 +12,8 @@
 
 #include "kernel/Kernel.hpp"
 #include "utils/Array.hpp"
-#include "utils/GCTools.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Tools.hpp"
+#include "utils/Assert.hpp"
 
 void Kernel::build_K_neighbors(float* x, float* k, int* k_i, int* k_j,
                                  size_t nz, size_t ny, size_t nx, int W,

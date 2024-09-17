@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "utils/GCGPUUtils.cuh"
+#include "utils/GPUUtils.cuh"
 
 #include "geometry/Constants.hpp"
 

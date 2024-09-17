@@ -10,9 +10,9 @@
 #include "datastruct/projection/ProjectionList.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
 #include "datastruct/scanner/ScannerDevice.cuh"
-#include "utils/GCDeviceArray.cuh"
-#include "utils/GCGPUTypes.cuh"
-#include "utils/GCPageLockedBuffer.cuh"
+#include "utils/DeviceArray.cuh"
+#include "utils/GPUTypes.cuh"
+#include "utils/PageLockedBuffer.cuh"
 
 #include <memory>
 
@@ -98,7 +98,7 @@ public:
 	                        const cudaStream_t* stream);
 	void addProjValues(const ProjectionDataDevice* projValues,
 	                   const cudaStream_t* stream);
-	const GCGPUBatchSetup& getBatchSetup(size_t subsetId) const;
+	const GPUBatchSetup& getBatchSetup(size_t subsetId) const;
 	size_t getNumBatches(size_t subsetId) const;
 	bool areLORsGathered() const;
 
@@ -114,7 +114,7 @@ protected:
 	                                            const cudaStream_t* stream);
 
 	// For Host->Device data transfers
-	mutable GCPageLockedBuffer<float> m_tempBuffer;
+	mutable PageLockedBuffer<float> m_tempBuffer;
 
 	// We need all the BinIterators in order to be able to properly load the
 	// data from Host to device (and vice-verse)
@@ -127,7 +127,7 @@ private:
 	const Scanner* mp_scanner;
 
 	std::shared_ptr<LORsDevice> mp_LORs;
-	std::vector<GCGPUBatchSetup> m_batchSetups;  // One batch setup per subset
+	std::vector<GPUBatchSetup> m_batchSetups;  // One batch setup per subset
 
 	// In case we need to compute our own BinIterators
 	std::vector<std::unique_ptr<BinIterator>> m_binIterators;
@@ -172,7 +172,7 @@ protected:
 	                                    const cudaStream_t* stream) override;
 
 private:
-	std::unique_ptr<GCDeviceArray<float>> mp_projValues;
+	std::unique_ptr<DeviceArray<float>> mp_projValues;
 };
 
 class ProjectionDataDeviceAlias : public ProjectionDataDevice

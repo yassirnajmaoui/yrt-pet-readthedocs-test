@@ -6,8 +6,8 @@
 #pragma once
 
 #include "datastruct/image/ImageBase.hpp"
-#include "utils/GCGPUTypes.cuh"
-#include "utils/GCPageLockedBuffer.cuh"
+#include "utils/GPUTypes.cuh"
+#include "utils/PageLockedBuffer.cuh"
 
 #include <cuda_runtime_api.h>
 
@@ -49,10 +49,10 @@ protected:
 	const cudaStream_t* mp_stream;
 
 private:
-	GCGPULaunchParams3D m_launchParams;
+	GPULaunchParams3D m_launchParams;
 
 	// For Host->Device data transfers
-	mutable GCPageLockedBuffer<float> m_tempBuffer;
+	mutable PageLockedBuffer<float> m_tempBuffer;
 };
 
 class ImageDeviceOwned : public ImageDevice

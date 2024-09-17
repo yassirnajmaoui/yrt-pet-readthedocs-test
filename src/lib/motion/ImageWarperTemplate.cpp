@@ -5,7 +5,7 @@
 
 #include "motion/ImageWarperTemplate.hpp"
 
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>

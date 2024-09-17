@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "utils/GCTypes.hpp"
+#include "utils/Types.hpp"
 
 #include <memory>
 #include <vector>

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "geometry/Vector3D.hpp"
-#include "utils/GCTypes.hpp"
+#include "utils/Types.hpp"
 
 #include <string>
 

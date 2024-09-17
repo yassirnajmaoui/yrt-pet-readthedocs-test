@@ -4,8 +4,8 @@
  */
 
 #include "scatter/Crystal.hpp"
-#include "utils/GCAssert.hpp"
-#include "utils/GCUtilities.hpp"
+#include "utils/Assert.hpp"
+#include "utils/Utilities.hpp"
 
 #include <stdexcept>
 #include <string>

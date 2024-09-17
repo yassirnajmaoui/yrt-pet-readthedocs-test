@@ -5,7 +5,7 @@
 
 #include "operators/TimeOfFlight.hpp"
 
-#include "utils/GCTools.hpp"
+#include "utils/Tools.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>

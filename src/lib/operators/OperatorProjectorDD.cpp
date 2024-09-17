@@ -8,7 +8,7 @@
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 
 #if BUILD_PYBIND11

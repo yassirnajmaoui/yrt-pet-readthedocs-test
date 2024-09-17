@@ -5,7 +5,7 @@
 
 #include "operators/ProjectionPsfManager.hpp"
 
-#include "utils/GCTools.hpp"
+#include "utils/Tools.hpp"
 
 ProjectionPsfManager::ProjectionPsfManager(const std::string& psfFilename)
     : m_sStep(0.f), m_kSpacing(0.f)

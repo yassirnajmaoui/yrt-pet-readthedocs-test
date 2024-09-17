@@ -11,8 +11,8 @@
 #include "operators/Operator.hpp"
 #include "operators/OperatorProjector.hpp"
 #include "recon/CUParameters.hpp"
-#include "utils/GCDeviceObject.cuh"
-#include "utils/GCGPUTypes.cuh"
+#include "utils/DeviceObject.cuh"
+#include "utils/GPUTypes.cuh"
 
 #include <cuda_runtime_api.h>
 
@@ -20,10 +20,10 @@ namespace Util
 {
 	// Takes a reference of an image, and automatically determines
 	// the 3D grid/block parameters.
-	GCGPULaunchParams3D initiateDeviceParameters(const ImageParams& params);
+	GPULaunchParams3D initiateDeviceParameters(const ImageParams& params);
 	// Takes a size of the data to be processed, and automatically determines
 	// the grid/block parameters
-	GCGPULaunchParams initiateDeviceParameters(size_t batchSize);
+	GPULaunchParams initiateDeviceParameters(size_t batchSize);
 }  // namespace Util
 
 class OperatorDevice : public Operator
@@ -78,12 +78,12 @@ protected:
 
 private:
 	size_t m_batchSize;
-	GCGPULaunchParams m_launchParams{};
+	GPULaunchParams m_launchParams{};
 	const cudaStream_t* mp_mainStream;
 	const cudaStream_t* mp_auxStream;
 	bool m_synchonized;
 
-	std::unique_ptr<GCDeviceObject<TimeOfFlightHelper>> mp_tofHelper;
+	std::unique_ptr<DeviceObject<TimeOfFlightHelper>> mp_tofHelper;
 
 	// For attenuation correction
 	std::unique_ptr<ImageDeviceOwned> mp_attImageDevice;

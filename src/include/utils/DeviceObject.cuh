@@ -5,15 +5,15 @@
 
 #pragma once
 
-#include "utils/GCAssert.hpp"
-#include "utils/GCGPUUtils.cuh"
+#include "utils/Assert.hpp"
+#include "utils/GPUUtils.cuh"
 
 template <typename T>
-class GCDeviceObject
+class DeviceObject
 {
 public:
 	template <typename... Args>
-	GCDeviceObject(Args&&... args)
+	DeviceObject(Args&&... args)
 	    : m_hostSideObject(std::forward<Args>(args)...)
 	{
 		// Allocate on device
@@ -26,7 +26,7 @@ public:
 		ASSERT(cudaCheckError());
 	}
 
-	~GCDeviceObject() { cudaFree(mpd_deviceSideObject); }
+	~DeviceObject() { cudaFree(mpd_deviceSideObject); }
 
 	void syncFromHostToDevice(const cudaStream_t* pp_stream = nullptr)
 	{

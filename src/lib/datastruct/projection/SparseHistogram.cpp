@@ -4,7 +4,7 @@
  */
 
 #include "datastruct/projection/SparseHistogram.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 
 #include <cstring>
 

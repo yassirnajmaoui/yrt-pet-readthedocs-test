@@ -8,7 +8,7 @@
 #include "datastruct/projection/UniformHistogram.hpp"
 #include "datastruct/projection/ListMode.hpp"
 #include "operators/OperatorDevice.cuh"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
 
 #include "omp.h"
@@ -481,7 +481,7 @@ void ProjectionDataDevice::addProjValues(
 	cudaCheckError();
 }
 
-const GCGPUBatchSetup&
+const GPUBatchSetup&
     ProjectionDataDevice::getBatchSetup(size_t subsetId) const
 {
 	return m_batchSetups.at(subsetId);
@@ -504,7 +504,7 @@ ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
     : ProjectionDataDevice(pp_scanner, pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse)
 {
-	mp_projValues = std::make_unique<GCDeviceArray<float>>();
+	mp_projValues = std::make_unique<DeviceArray<float>>();
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
@@ -513,7 +513,7 @@ ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
     : ProjectionDataDevice(pp_scanner, pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse)
 {
-	mp_projValues = std::make_unique<GCDeviceArray<float>>();
+	mp_projValues = std::make_unique<DeviceArray<float>>();
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
@@ -523,7 +523,7 @@ ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
     : ProjectionDataDevice(std::move(pp_scannerDevice), pp_reference,
                              num_OSEM_subsets, shareOfMemoryToUse)
 {
-	mp_projValues = std::make_unique<GCDeviceArray<float>>();
+	mp_projValues = std::make_unique<DeviceArray<float>>();
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
@@ -532,7 +532,7 @@ ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
     : ProjectionDataDevice(std::move(pp_LORs), pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse)
 {
-	mp_projValues = std::make_unique<GCDeviceArray<float>>();
+	mp_projValues = std::make_unique<DeviceArray<float>>();
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
@@ -542,14 +542,14 @@ ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
     : ProjectionDataDevice(std::move(pp_LORs), pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse)
 {
-	mp_projValues = std::make_unique<GCDeviceArray<float>>();
+	mp_projValues = std::make_unique<DeviceArray<float>>();
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
     const ProjectionDataDevice* orig)
     : ProjectionDataDevice(orig)
 {
-	mp_projValues = std::make_unique<GCDeviceArray<float>>();
+	mp_projValues = std::make_unique<DeviceArray<float>>();
 }
 
 float* ProjectionDataDeviceOwned::getProjValuesDevicePointer()

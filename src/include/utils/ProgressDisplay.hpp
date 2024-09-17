@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "utils/GCTypes.hpp"
+#include "utils/Types.hpp"
 
 namespace Util
 {
-	class GCProgressDisplay
+	class ProgressDisplay
 	{
 	public:
-		explicit GCProgressDisplay(int64_t p_total = -1,
+		explicit ProgressDisplay(int64_t p_total = -1,
 		                           int64_t p_increment = 20);
 		void progress(int64_t newProgress);
 		void setTotal(int64_t p_total);

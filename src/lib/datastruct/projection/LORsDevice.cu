@@ -7,8 +7,8 @@
 
 #include "datastruct/projection/ProjectionData.hpp"
 #include "operators/OperatorDevice.cuh"
-#include "utils/GCPageLockedBuffer.cuh"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/PageLockedBuffer.cuh"
+#include "utils/ReconstructionUtils.hpp"
 
 #include "omp.h"
 
@@ -34,7 +34,7 @@ LORsDevice::LORsDevice(const Scanner* pp_scanner)
 }
 
 void LORsDevice::loadEventLORs(const BinIterator& binIter,
-                                 const GCGPUBatchSetup& batchSetup,
+                                 const GPUBatchSetup& batchSetup,
                                  size_t subsetId, size_t batchId,
                                  const ProjectionData& reference,
                                  const ImageParams& imgParams,
@@ -45,16 +45,16 @@ void LORsDevice::loadEventLORs(const BinIterator& binIter,
 
 	const size_t batchSize = batchSetup.getBatchSize(batchId);
 
-	GCPageLockedBuffer<float4> tempBufferLorDet1Pos(batchSize);
-	GCPageLockedBuffer<float4> tempBufferLorDet2Pos(batchSize);
-	GCPageLockedBuffer<float4> tempBufferLorDet1Orient(batchSize);
-	GCPageLockedBuffer<float4> tempBufferLorDet2Orient(batchSize);
+	PageLockedBuffer<float4> tempBufferLorDet1Pos(batchSize);
+	PageLockedBuffer<float4> tempBufferLorDet2Pos(batchSize);
+	PageLockedBuffer<float4> tempBufferLorDet1Orient(batchSize);
+	PageLockedBuffer<float4> tempBufferLorDet2Orient(batchSize);
 	float4* tempBufferLorDet1Pos_ptr = tempBufferLorDet1Pos.getPointer();
 	float4* tempBufferLorDet2Pos_ptr = tempBufferLorDet2Pos.getPointer();
 	float4* tempBufferLorDet1Orient_ptr = tempBufferLorDet1Orient.getPointer();
 	float4* tempBufferLorDet2Orient_ptr = tempBufferLorDet2Orient.getPointer();
 
-	GCPageLockedBuffer<float> tempBufferLorTOFValue;
+	PageLockedBuffer<float> tempBufferLorTOFValue;
 	if (hasTOF)
 	{
 		tempBufferLorTOFValue.allocate(batchSize);
@@ -128,11 +128,11 @@ void LORsDevice::loadEventLORs(const BinIterator& binIter,
 
 void LORsDevice::initializeDeviceArrays()
 {
-	mp_lorDet1Pos = std::make_unique<GCDeviceArray<float4>>();
-	mp_lorDet2Pos = std::make_unique<GCDeviceArray<float4>>();
-	mp_lorDet1Orient = std::make_unique<GCDeviceArray<float4>>();
-	mp_lorDet2Orient = std::make_unique<GCDeviceArray<float4>>();
-	mp_lorTOFValue = std::make_unique<GCDeviceArray<float>>();
+	mp_lorDet1Pos = std::make_unique<DeviceArray<float4>>();
+	mp_lorDet2Pos = std::make_unique<DeviceArray<float4>>();
+	mp_lorDet1Orient = std::make_unique<DeviceArray<float4>>();
+	mp_lorDet2Orient = std::make_unique<DeviceArray<float4>>();
+	mp_lorTOFValue = std::make_unique<DeviceArray<float>>();
 }
 
 void LORsDevice::allocateForLORs(bool hasTOF, const cudaStream_t* stream)

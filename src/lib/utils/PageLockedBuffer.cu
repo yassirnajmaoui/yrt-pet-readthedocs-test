@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "utils/GCPageLockedBuffer.cuh"
+#include "utils/PageLockedBuffer.cuh"
 
 #if BUILD_CUDA
 
@@ -11,7 +11,7 @@
 #include <iostream>
 
 template <typename T>
-GCPageLockedBuffer<T>::GCPageLockedBuffer()
+PageLockedBuffer<T>::PageLockedBuffer()
     : mph_dataPointer(nullptr),
       m_size(0ull),
       m_isPageLocked(false),
@@ -20,15 +20,15 @@ GCPageLockedBuffer<T>::GCPageLockedBuffer()
 }
 
 template <typename T>
-GCPageLockedBuffer<T>::GCPageLockedBuffer(const size_t size,
+PageLockedBuffer<T>::PageLockedBuffer(const size_t size,
                                           const unsigned int flags)
-    : GCPageLockedBuffer()
+    : PageLockedBuffer()
 {
 	allocate(size, flags);
 }
 
 template <typename T>
-void GCPageLockedBuffer<T>::allocate(const size_t size,
+void PageLockedBuffer<T>::allocate(const size_t size,
                                      const unsigned int flags)
 {
 	cudaHostAlloc(reinterpret_cast<void**>(&mph_dataPointer), size * sizeof(T),
@@ -50,7 +50,7 @@ void GCPageLockedBuffer<T>::allocate(const size_t size,
 }
 
 template <typename T>
-void GCPageLockedBuffer<T>::reAllocateIfNeeded(const size_t newSize,
+void PageLockedBuffer<T>::reAllocateIfNeeded(const size_t newSize,
                                                const unsigned int flags)
 {
 	if (newSize > m_size || m_currentFlags != flags)
@@ -59,7 +59,7 @@ void GCPageLockedBuffer<T>::reAllocateIfNeeded(const size_t newSize,
 	}
 }
 template <typename T>
-void GCPageLockedBuffer<T>::deallocate()
+void PageLockedBuffer<T>::deallocate()
 {
 	if (m_size > 0ull)
 	{
@@ -86,37 +86,37 @@ void GCPageLockedBuffer<T>::deallocate()
 }
 
 template <typename T>
-GCPageLockedBuffer<T>::~GCPageLockedBuffer()
+PageLockedBuffer<T>::~PageLockedBuffer()
 {
 	deallocate();
 }
 
 template <typename T>
-T* GCPageLockedBuffer<T>::getPointer()
+T* PageLockedBuffer<T>::getPointer()
 {
 	return mph_dataPointer;
 }
 
 template <typename T>
-const T* GCPageLockedBuffer<T>::getPointer() const
+const T* PageLockedBuffer<T>::getPointer() const
 {
 	return mph_dataPointer;
 }
 
 template <typename T>
-size_t GCPageLockedBuffer<T>::getSize() const
+size_t PageLockedBuffer<T>::getSize() const
 {
 	return m_size;
 }
 
-template class GCPageLockedBuffer<float>;
-template class GCPageLockedBuffer<float3>;
-template class GCPageLockedBuffer<float4>;
-template class GCPageLockedBuffer<double>;
-template class GCPageLockedBuffer<long>;
-template class GCPageLockedBuffer<int>;
-template class GCPageLockedBuffer<uint2>;
-template class GCPageLockedBuffer<short>;
-template class GCPageLockedBuffer<char>;
+template class PageLockedBuffer<float>;
+template class PageLockedBuffer<float3>;
+template class PageLockedBuffer<float4>;
+template class PageLockedBuffer<double>;
+template class PageLockedBuffer<long>;
+template class PageLockedBuffer<int>;
+template class PageLockedBuffer<uint2>;
+template class PageLockedBuffer<short>;
+template class PageLockedBuffer<char>;
 
 #endif

@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <fstream>
 
-#include "utils/GCTools.hpp"
+#include "utils/Tools.hpp"
 
 // #define REQUIRE(x) (std::cout << "test-> " << (x) << std::endl);
 

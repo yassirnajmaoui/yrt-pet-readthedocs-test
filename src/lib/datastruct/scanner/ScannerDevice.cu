@@ -6,14 +6,14 @@
 #include "datastruct/scanner/ScannerDevice.cuh"
 
 #include "datastruct/scanner/Scanner.hpp"
-#include "utils/GCPageLockedBuffer.cuh"
+#include "utils/PageLockedBuffer.cuh"
 
 ScannerDevice::ScannerDevice(const Scanner* pp_scanner,
                                  const cudaStream_t* pp_stream)
     : mp_scanner(pp_scanner), isAllocated(false), isLoaded(false)
 {
-	mpd_detPos = std::make_unique<GCDeviceArray<float4>>();
-	mpd_detOrient = std::make_unique<GCDeviceArray<float4>>();
+	mpd_detPos = std::make_unique<DeviceArray<float4>>();
+	mpd_detOrient = std::make_unique<DeviceArray<float4>>();
 	load(pp_stream);
 }
 
@@ -26,7 +26,7 @@ void ScannerDevice::load(const cudaStream_t* stream)
 
 	// We use a single large buffer to store two sets of data
 	const size_t numDets = mp_scanner->getNumDets();
-	GCPageLockedBuffer<float4> tempBuffer(numDets * 2);
+	PageLockedBuffer<float4> tempBuffer(numDets * 2);
 	float4* ph_detPos = tempBuffer.getPointer();
 	float4* ph_detOrient = ph_detPos + numDets;
 

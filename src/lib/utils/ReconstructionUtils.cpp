@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
@@ -12,9 +12,9 @@
 #include "operators/OperatorProjectorDD.hpp"
 #include "operators/OperatorProjectorSiddon.hpp"
 #include "recon/OSEM_cpu.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
-#include "utils/GCProgressDisplay.hpp"
+#include "utils/ProgressDisplay.hpp"
 
 
 #if BUILD_CUDA
@@ -235,7 +235,7 @@ namespace Util
 		float* histoDataPointer = histoOut.getData().getRawPointer();
 		const size_t numDatBins = dat.count();
 
-		GCProgressDisplay progressBar(numDatBins, 1);
+		ProgressDisplay progressBar(numDatBins, 1);
 		int64_t currentProgress = 0;
 
 		const Histogram3D* histoOut_constptr = &histoOut;

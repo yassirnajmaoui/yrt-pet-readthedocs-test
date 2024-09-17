@@ -9,7 +9,7 @@
 #include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "datastruct/projection/ProjectionSpaceKernels.cuh"
 #include "operators/OperatorProjectorDD_GPU.cuh"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 
 OSEM_gpu::OSEM_gpu(const Scanner* p_scanner)
     : OSEM(p_scanner),

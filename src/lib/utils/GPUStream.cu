@@ -3,19 +3,19 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "utils/GCGPUStream.cuh"
+#include "utils/GPUStream.cuh"
 
-GCGPUStream::GCGPUStream(unsigned int flags)
+GPUStream::GPUStream(unsigned int flags)
 {
 	cudaStreamCreateWithFlags(&m_stream, flags);
 }
 
-const cudaStream_t& GCGPUStream::getStream() const
+const cudaStream_t& GPUStream::getStream() const
 {
 	return m_stream;
 }
 
-GCGPUStream::~GCGPUStream()
+GPUStream::~GPUStream()
 {
 	cudaStreamDestroy(m_stream);
 }

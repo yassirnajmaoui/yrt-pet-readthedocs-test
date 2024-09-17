@@ -17,10 +17,10 @@
 #include "operators/OperatorProjectorDD.hpp"
 #include "operators/OperatorProjectorSiddon.hpp"
 #include "operators/OperatorPsf.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
-#include "utils/GCReconstructionUtils.hpp"
-#include "utils/GCTools.hpp"
+#include "utils/ReconstructionUtils.hpp"
+#include "utils/Tools.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/numpy.h>

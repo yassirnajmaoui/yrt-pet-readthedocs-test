@@ -8,7 +8,7 @@
 #include "operators/Operator.hpp"
 #include "operators/ProjectionPsfManager.hpp"
 #include "operators/TimeOfFlight.hpp"
-#include "utils/GCTypes.hpp"
+#include "utils/Types.hpp"
 
 class BinIterator;
 class Image;

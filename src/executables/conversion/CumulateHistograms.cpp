@@ -8,9 +8,9 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/SparseHistogram.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 #include <cxxopts.hpp>
 #include <iostream>

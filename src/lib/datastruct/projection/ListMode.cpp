@@ -4,8 +4,8 @@
  */
 
 #include "datastruct/projection/ListMode.hpp"
-#include "utils/GCAssert.hpp"
-#include "utils/GCTypes.hpp"
+#include "utils/Assert.hpp"
+#include "utils/Types.hpp"
 
 #include <stdexcept>
 

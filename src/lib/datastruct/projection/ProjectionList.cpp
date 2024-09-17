@@ -5,7 +5,7 @@
 
 #include "datastruct/projection/ProjectionList.hpp"
 
-#include "utils/GCAssert.hpp"
+#include "utils/Assert.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/numpy.h>

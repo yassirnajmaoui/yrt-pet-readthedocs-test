@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "utils/GCAssert.hpp"
-#include "utils/GCGPUUtils.cuh"
+#include "utils/Assert.hpp"
+#include "utils/GPUUtils.cuh"
 
 namespace Util
 {

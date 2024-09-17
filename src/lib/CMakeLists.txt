@@ -43,13 +43,13 @@ set(SOURCES
         scatter/ScatterEstimator.cpp
         scatter/SingleScatterSimulator.cpp
         scatter/Crystal.cpp
-        utils/GCAssert.cpp
-        utils/GCUtilities.cpp
-        utils/GCTools.cpp
-        utils/GCProgressDisplay.cpp
-        utils/GCReconstructionUtils.cpp
+        utils/Assert.cpp
+        utils/Utilities.cpp
+        utils/Tools.cpp
+        utils/ProgressDisplay.cpp
+        utils/ReconstructionUtils.cpp
         utils/Array.cpp
-        utils/GCFileReader.cpp
+        utils/FileReader.cpp
         utils/Globals.cpp)
 
 # cuda
@@ -65,9 +65,9 @@ if (USE_CUDA)
             operators/OperatorProjectorDD_GPUKernels.cu
             operators/OperatorProjectorDD_GPU.cu
             recon/OSEM_gpu.cu
-            utils/GCPageLockedBuffer.cu
-            utils/GCGPUStream.cu
-            utils/GCGPUUtils.cu
+            utils/PageLockedBuffer.cu
+            utils/GPUStream.cu
+            utils/GPUUtils.cu
     )
 endif (USE_CUDA)
 

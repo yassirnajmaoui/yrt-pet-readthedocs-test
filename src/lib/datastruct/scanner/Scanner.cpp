@@ -6,7 +6,7 @@
 #include "datastruct/scanner/Scanner.hpp"
 
 #include "datastruct/scanner/DetRegular.hpp"
-#include "utils/GCJSONUtils.hpp"
+#include "utils/JSONUtils.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/numpy.h>

@@ -11,7 +11,7 @@
 #include "datastruct/scanner/DetRegular.hpp"
 #include "operators/OperatorProjectorDD.hpp"
 #include "operators/OperatorProjectorSiddon.hpp"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 #include <algorithm>
 #include <utility>

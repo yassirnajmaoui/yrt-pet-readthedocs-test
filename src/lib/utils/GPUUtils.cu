@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "utils/GCGPUUtils.cuh"
+#include "utils/GPUUtils.cuh"
 
 bool cudaCheckError()
 {

@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include "GCAssert.hpp"
+#include "Assert.hpp"
 
 #include <vector_types.h>
 
-class GCGPUBatchSetup
+class GPUBatchSetup
 {
 public:
-	GCGPUBatchSetup(size_t totalSize, size_t maxBatchSize)
+	GPUBatchSetup(size_t totalSize, size_t maxBatchSize)
 	{
 		ASSERT(maxBatchSize > 0);
 		// Note: totalSize and maxBatchSize must have the same units
@@ -48,13 +48,13 @@ private:
 	size_t numBatches;
 };
 
-struct GCGPULaunchParams
+struct GPULaunchParams
 {
 	unsigned int gridSize;
 	unsigned int blockSize;
 };
 
-struct GCGPULaunchParams3D
+struct GPULaunchParams3D
 {
 	dim3 gridSize;
 	dim3 blockSize;

@@ -7,7 +7,7 @@
 
 #include "datastruct/projection/BinIterator.hpp"
 #include "recon/Variable.hpp"
-#include "utils/GCTypes.hpp"
+#include "utils/Types.hpp"
 
 #include <functional>
 #include <memory>

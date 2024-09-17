@@ -8,7 +8,7 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/scanner/DetRegular.hpp"
-#include "utils/GCReconstructionUtils.hpp"
+#include "utils/ReconstructionUtils.hpp"
 
 bool check_coords(std::array<coord_t, 3> c1, std::array<coord_t, 3> c2)
 {

@@ -5,7 +5,7 @@
 
 #include "catch.hpp"
 
-#include "utils/GCGPUUtils.cuh"
+#include "utils/GPUUtils.cuh"
 #include <iostream>
 #include <memory>
 

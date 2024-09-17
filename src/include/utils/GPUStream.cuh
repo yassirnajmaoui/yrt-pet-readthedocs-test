@@ -7,11 +7,11 @@
 
 #include <cuda_runtime_api.h>
 
-class GCGPUStream
+class GPUStream
 {
 public:
-	GCGPUStream(unsigned int flags=cudaStreamNonBlocking);
-	~GCGPUStream();
+	GPUStream(unsigned int flags=cudaStreamNonBlocking);
+	~GPUStream();
 	const cudaStream_t& getStream() const;
 private:
 	cudaStream_t m_stream;
