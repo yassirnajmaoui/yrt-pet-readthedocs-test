@@ -10,12 +10,12 @@
 #include <queue>
 #include <utility>
 
-#include "kernel/GCKernel.hpp"
+#include "kernel/Kernel.hpp"
 #include "utils/Array.hpp"
 #include "utils/GCTools.hpp"
 #include "utils/GCAssert.hpp"
 
-void GCKernel::build_K_neighbors(float* x, float* k, int* k_i, int* k_j,
+void Kernel::build_K_neighbors(float* x, float* k, int* k_i, int* k_j,
                                  size_t nz, size_t ny, size_t nx, int W,
                                  float sigma2, int numThreads)
 {
@@ -52,7 +52,7 @@ void GCKernel::build_K_neighbors(float* x, float* k, int* k_i, int* k_j,
 	}
 }
 
-void GCKernel::build_K_knn_neighbors(float* x, float* k, int* k_i, int* k_j,
+void Kernel::build_K_knn_neighbors(float* x, float* k, int* k_i, int* k_j,
                                      size_t nz, size_t ny, size_t nx, int W,
                                      int P, int num_k, float sigma2,
                                      int numThreads)
@@ -151,7 +151,7 @@ void GCKernel::build_K_knn_neighbors(float* x, float* k, int* k_i, int* k_j,
 }
 
 
-void GCKernel::build_K_full(float* x, float* k, int* k_i, int* k_j, size_t nz,
+void Kernel::build_K_full(float* x, float* k, int* k_i, int* k_j, size_t nz,
                             size_t ny, size_t nx, int num_k, float sigma2,
                             int numThreads)
 {

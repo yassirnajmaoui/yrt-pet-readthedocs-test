@@ -27,7 +27,7 @@ set(SOURCES
         geometry/TubeOfResponse.cpp
         geometry/Cylinder.cpp
         geometry/Plane.cpp
-        kernel/GCKernel.cpp
+        kernel/Kernel.cpp
         kinetic/srtm.cpp
         motion/ImageWarperMatrix.cpp
         motion/ImageWarperTemplate.cpp

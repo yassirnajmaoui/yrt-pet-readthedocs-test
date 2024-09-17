@@ -7,15 +7,15 @@
 
 #include <cstdio>
 
-namespace GCKernel
+namespace Kernel
 {
 	void build_K_neighbors(float* x, float* k, int* k_i, int* k_j, size_t nz,
 	                       size_t ny, size_t nx, int W, float sigma2,
-	                       int num_threads);
+	                       int numThreads);
 	void build_K_full(float* x, float* k, int* k_i, int* k_j, size_t nz,
 	                  size_t ny, size_t nx, int num_k, float sigma2,
-	                  int num_threads);
+	                  int numThreads);
 	void build_K_knn_neighbors(float* x, float* k, int* k_i, int* k_j,
 	                           size_t nz, size_t ny, size_t nx, int W, int P,
-	                           int num_k, float sigma2, int num_threads);
-}  // namespace GCKernel
+	                           int num_k, float sigma2, int numThreads);
+}  // namespace Kernel

@@ -1,4 +1,4 @@
-#include "kernel/GCKernel.hpp"
+#include "kernel/Kernel.hpp"
 #include "utils/Array.hpp"
 
 #include <cxxopts.hpp>
@@ -94,21 +94,21 @@ int main(int argc, char** argv)
 	// Build K matrix
 	if (mode.compare("full") == 0)
 	{
-		GCKernel::build_K_full(x_in.getRawPointer(), k_out.getRawPointer(),
+		Kernel::build_K_full(x_in.getRawPointer(), k_out.getRawPointer(),
 		                       k_i_out.getRawPointer(), k_j_out.getRawPointer(),
 		                       shape[0], shape[1], shape[2], num_k, sigma2,
 		                       num_threads);
 	}
 	else if (mode.compare("knn") == 0)
 	{
-		GCKernel::build_K_knn_neighbors(
+		Kernel::build_K_knn_neighbors(
 		    x_in.getRawPointer(), k_out.getRawPointer(),
 		    k_i_out.getRawPointer(), k_j_out.getRawPointer(), shape[0],
 		    shape[1], shape[2], W, P, num_k, sigma2, num_threads);
 	}
 	else if (mode.compare("neighbors") == 0)
 	{
-		GCKernel::build_K_neighbors(x_in.getRawPointer(), k_out.getRawPointer(),
+		Kernel::build_K_neighbors(x_in.getRawPointer(), k_out.getRawPointer(),
 		                            k_i_out.getRawPointer(),
 		                            k_j_out.getRawPointer(), shape[0], shape[1],
 		                            shape[2], W, sigma2, num_threads);
