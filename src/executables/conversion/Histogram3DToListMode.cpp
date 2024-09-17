@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 	auto histo =
 	    std::make_unique<Histogram3DOwned>(scanner.get(), input_fname);
 
-	const auto lm = std::make_unique<ListModeLUTOwned>(scanner.get());
+	const auto lm = std::make_unique<ListModeLUTOwned>(*scanner);
 	Util::histogram3DToListModeLUT(histo.get(), lm.get(), numEvents);
 	lm->writeToFile(out_fname);
 

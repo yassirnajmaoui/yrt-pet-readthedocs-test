@@ -119,7 +119,7 @@ TEST_CASE("DD", "[dd]")
 	auto img = std::make_unique<ImageOwned>(img_params);
 	img->allocate();
 
-	auto data = std::make_unique<ListModeLUTOwned>(scanner.get());
+	auto data = std::make_unique<ListModeLUTOwned>(*scanner);
 	const size_t numEvents = 500;
 	data->allocate(numEvents);
 	for (bin_t binId = 0; binId < numEvents; binId++)

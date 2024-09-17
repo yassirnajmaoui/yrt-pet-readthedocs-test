@@ -25,7 +25,7 @@ void py_setup_listmodelutdoi(py::module& m)
 
 	auto c_alias = py::class_<ListModeLUTDOIAlias, ListModeLUTDOI>(
 		m, "ListModeLUTDOIAlias");
-	c_alias.def(py::init<Scanner*, bool, int>(), py::arg("scanner"),
+	c_alias.def(py::init<const Scanner&, bool, int>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
 
 	c_alias.def(
@@ -55,9 +55,9 @@ void py_setup_listmodelutdoi(py::module& m)
 
 	auto c_owned = py::class_<ListModeLUTDOIOwned, ListModeLUTDOI>(
 		m, "ListModeLUTDOIOwned");
-	c_owned.def(py::init<Scanner*, bool, int>(), py::arg("scanner"),
+	c_owned.def(py::init<const Scanner&, bool, int>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
-	c_owned.def(py::init<Scanner*, std::string, bool, int>(),
+	c_owned.def(py::init<const Scanner&, std::string, bool, int>(),
 	            py::arg("scanner"), py::arg("listMode_fname"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
 	c_owned.def("readFromFile", &ListModeLUTDOIOwned::readFromFile);
@@ -67,14 +67,15 @@ void py_setup_listmodelutdoi(py::module& m)
 #endif  // if BUILD_PYBIND11
 
 
-ListModeLUTDOI::ListModeLUTDOI(const Scanner* s, bool p_flagTOF,
+ListModeLUTDOI::ListModeLUTDOI(const Scanner& pr_scanner, bool p_flagTOF,
                                int numLayers)
-	: ListModeLUT(s, p_flagTOF),
+	: ListModeLUT(pr_scanner, p_flagTOF),
 	  m_numLayers(numLayers) {}
 
-ListModeLUTDOIOwned::ListModeLUTDOIOwned(const Scanner* s, bool p_flagTOF,
+ListModeLUTDOIOwned::ListModeLUTDOIOwned(const Scanner& pr_scanner,
+                                         bool p_flagTOF,
                                          int numLayers)
-	: ListModeLUTDOI(s, p_flagTOF, numLayers)
+	: ListModeLUTDOI(pr_scanner, p_flagTOF, numLayers)
 {
 	mp_timestamps = std::make_unique<Array1D<timestamp_t>>();
 	mp_detectorId1 = std::make_unique<Array1D<det_id_t>>();
@@ -87,17 +88,18 @@ ListModeLUTDOIOwned::ListModeLUTDOIOwned(const Scanner* s, bool p_flagTOF,
 	}
 }
 
-ListModeLUTDOIOwned::ListModeLUTDOIOwned(const Scanner* s,
+ListModeLUTDOIOwned::ListModeLUTDOIOwned(const Scanner& pr_scanner,
                                          const std::string& listMode_fname,
                                          bool p_flagTOF, int numLayers)
-	: ListModeLUTDOIOwned(s, p_flagTOF, numLayers)
+	: ListModeLUTDOIOwned(pr_scanner, p_flagTOF, numLayers)
 {
 	readFromFile(listMode_fname);
 }
 
-ListModeLUTDOIAlias::ListModeLUTDOIAlias(const Scanner* s, bool p_flagTOF,
+ListModeLUTDOIAlias::ListModeLUTDOIAlias(const Scanner& pr_scanner,
+                                         bool p_flagTOF,
                                          int numLayers)
-	: ListModeLUTDOI(s, p_flagTOF, numLayers)
+	: ListModeLUTDOI(pr_scanner, p_flagTOF, numLayers)
 {
 	mp_timestamps = std::make_unique<Array1DAlias<timestamp_t>>();
 	mp_detectorId1 = std::make_unique<Array1DAlias<det_id_t>>();
@@ -181,23 +183,23 @@ line_t ListModeLUTDOI::getArbitraryLOR(bin_t id) const
 {
 	det_id_t detId1 = getDetector1(id);
 	det_id_t detId2 = getDetector2(id);
-	Vector3DFloat p1 = mp_scanner->getDetectorPos(detId1);
-	Vector3DFloat p2 = mp_scanner->getDetectorPos(detId2);
-	Vector3DFloat n1 = mp_scanner->getDetectorOrient(detId1);
-	Vector3DFloat n2 = mp_scanner->getDetectorOrient(detId2);
+	Vector3DFloat p1 = mr_scanner.getDetectorPos(detId1);
+	Vector3DFloat p2 = mr_scanner.getDetectorPos(detId2);
+	Vector3DFloat n1 = mr_scanner.getDetectorOrient(detId1);
+	Vector3DFloat n2 = mr_scanner.getDetectorOrient(detId2);
 	double layerSize = (1 << 8) / (float)m_numLayers;
 	double doi1_t = std::floor((*mp_doi1)[id] / layerSize) *
-	                mp_scanner->crystalDepth / (float)m_numLayers;
+	                mr_scanner.crystalDepth / (float)m_numLayers;
 	double doi2_t = std::floor((*mp_doi2)[id] / layerSize) *
-	                mp_scanner->crystalDepth / (float)m_numLayers;
+	                mr_scanner.crystalDepth / (float)m_numLayers;
 	const Vector3DFloat p1_doi(
-		p1.x + (doi1_t - 0.5 * mp_scanner->crystalDepth) * n1.x,
-		p1.y + (doi1_t - 0.5 * mp_scanner->crystalDepth) * n1.y,
-		p1.z + (doi1_t - 0.5 * mp_scanner->crystalDepth) * n1.z);
+		p1.x + (doi1_t - 0.5 * mr_scanner.crystalDepth) * n1.x,
+		p1.y + (doi1_t - 0.5 * mr_scanner.crystalDepth) * n1.y,
+		p1.z + (doi1_t - 0.5 * mr_scanner.crystalDepth) * n1.z);
 	const Vector3DFloat p2_doi(
-		p2.x + (doi2_t - 0.5 * mp_scanner->crystalDepth) * n2.x,
-		p2.y + (doi2_t - 0.5 * mp_scanner->crystalDepth) * n2.y,
-		p2.z + (doi2_t - 0.5 * mp_scanner->crystalDepth) * n2.z);
+		p2.x + (doi2_t - 0.5 * mr_scanner.crystalDepth) * n2.x,
+		p2.y + (doi2_t - 0.5 * mr_scanner.crystalDepth) * n2.y,
+		p2.z + (doi2_t - 0.5 * mr_scanner.crystalDepth) * n2.z);
 	return line_t{p1_doi.x, p1_doi.y, p1_doi.z, p2_doi.x, p2_doi.y, p2_doi.z};
 }
 
@@ -391,13 +393,13 @@ std::unique_ptr<ProjectionData>
 	std::unique_ptr<ListModeLUTDOIOwned> lm;
 	if (numLayers_it == pluginOptions.end())
 	{
-		lm = std::make_unique<ListModeLUTDOIOwned>(&scanner, filename,
+		lm = std::make_unique<ListModeLUTDOIOwned>(scanner, filename,
 		                                           flagTOF);
 	}
 	else
 	{
 		int numLayers = std::stoi(numLayers_it->second);
-		lm = std::make_unique<ListModeLUTDOIOwned>(&scanner, filename,
+		lm = std::make_unique<ListModeLUTDOIOwned>(scanner, filename,
 		                                           flagTOF, numLayers);
 	}
 

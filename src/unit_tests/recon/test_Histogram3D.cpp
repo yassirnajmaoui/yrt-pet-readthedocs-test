@@ -181,7 +181,7 @@ TEST_CASE("histo3d", "[histo]")
 
 	SECTION("histo3d-line-integrity")
 	{
-		auto someListMode = std::make_unique<ListModeLUTOwned>(scanner.get());
+		auto someListMode = std::make_unique<ListModeLUTOwned>(*scanner);
 		double epsilon = 1e-5;
 		someListMode->allocate(3);
 		someListMode->setDetectorIdsOfEvent(0, 15, 105);

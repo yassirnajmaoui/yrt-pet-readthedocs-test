@@ -29,7 +29,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 	SECTION("from-listmode")
 	{
-		auto listMode = std::make_unique<ListModeLUTOwned>(scanner.get());
+		auto listMode = std::make_unique<ListModeLUTOwned>(*scanner);
 		listMode->allocate(10);
 		listMode->setDetectorIdsOfEvent(0, 0, 15);   // 1st
 		listMode->setDetectorIdsOfEvent(1, 10, 15);  // 1st
