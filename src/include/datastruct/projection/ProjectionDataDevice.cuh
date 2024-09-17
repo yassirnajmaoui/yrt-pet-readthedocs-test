@@ -9,7 +9,7 @@
 #include "datastruct/projection/LORsDevice.cuh"
 #include "datastruct/projection/ProjectionList.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
-#include "datastruct/scanner/GCScannerDevice.cuh"
+#include "datastruct/scanner/ScannerDevice.cuh"
 #include "utils/GCDeviceArray.cuh"
 #include "utils/GCGPUTypes.cuh"
 #include "utils/GCPageLockedBuffer.cuh"
@@ -23,19 +23,19 @@ class ProjectionDataDevice : public ProjectionList
 public:
 	// The Scanner LUT has to be loaded to device, but the BinIterators have
 	// already been generated
-	ProjectionDataDevice(const GCScanner* pp_scanner,
+	ProjectionDataDevice(const Scanner* pp_scanner,
 	                       const ProjectionData* pp_reference,
 	                       std::vector<const BinIterator*> pp_binIteratorList,
 	                       float shareOfMemoryToUse = DefaultMemoryShare);
 	// The Scanner LUT has to be loaded to device AND the BinIterators have to
 	// be generated
-	ProjectionDataDevice(const GCScanner* pp_scanner,
+	ProjectionDataDevice(const Scanner* pp_scanner,
 	                       const ProjectionData* pp_reference,
 	                       int num_OSEM_subsets = 1,
 	                       float shareOfMemoryToUse = DefaultMemoryShare);
 	// The Scanner LUT is already in the device, but still need to generate the
 	// BinIterators
-	ProjectionDataDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice,
+	ProjectionDataDevice(std::shared_ptr<ScannerDevice> pp_scannerDevice,
 	                       const ProjectionData* pp_reference,
 	                       int num_OSEM_subsets = 1,
 	                       float shareOfMemoryToUse = DefaultMemoryShare);
@@ -68,8 +68,8 @@ public:
 	void transferProjValuesToHost(ProjectionData* projDataDest,
 	                              const cudaStream_t* stream = nullptr) const;
 
-	std::shared_ptr<GCScannerDevice> getScannerDevice() const;
-	const GCScanner* getScanner() const;
+	std::shared_ptr<ScannerDevice> getScannerDevice() const;
+	const Scanner* getScanner() const;
 
 	// Gets the size of the last-loaded batch
 	size_t getCurrentBatchSize() const;
@@ -124,7 +124,7 @@ private:
 	void createBinIterators(int num_OSEM_subsets);
 	void createBatchSetups(float shareOfMemoryToUse);
 
-	const GCScanner* mp_scanner;
+	const Scanner* mp_scanner;
 
 	std::shared_ptr<LORsDevice> mp_LORs;
 	std::vector<GCGPUBatchSetup> m_batchSetups;  // One batch setup per subset
@@ -137,15 +137,15 @@ class ProjectionDataDeviceOwned : public ProjectionDataDevice
 {
 public:
 	ProjectionDataDeviceOwned(
-	    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+	    const Scanner* pp_scanner, const ProjectionData* pp_reference,
 	    std::vector<const BinIterator*> pp_binIteratorList,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
-	ProjectionDataDeviceOwned(const GCScanner* pp_scanner,
+	ProjectionDataDeviceOwned(const Scanner* pp_scanner,
 	                            const ProjectionData* pp_reference,
 	                            int num_OSEM_subsets = 1,
 	                            float shareOfMemoryToUse = DefaultMemoryShare);
 	ProjectionDataDeviceOwned(
-	    std::shared_ptr<GCScannerDevice> pp_scannerDevice,
+	    std::shared_ptr<ScannerDevice> pp_scannerDevice,
 	    const ProjectionData* pp_reference, int num_OSEM_subsets = 1,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
 	ProjectionDataDeviceOwned(std::shared_ptr<LORsDevice> pp_LORs,
@@ -179,15 +179,15 @@ class ProjectionDataDeviceAlias : public ProjectionDataDevice
 {
 public:
 	ProjectionDataDeviceAlias(
-	    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+	    const Scanner* pp_scanner, const ProjectionData* pp_reference,
 	    std::vector<const BinIterator*> pp_binIteratorList,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
-	ProjectionDataDeviceAlias(const GCScanner* pp_scanner,
+	ProjectionDataDeviceAlias(const Scanner* pp_scanner,
 	                            const ProjectionData* pp_reference,
 	                            int num_OSEM_subsets = 1,
 	                            float shareOfMemoryToUse = DefaultMemoryShare);
 	ProjectionDataDeviceAlias(
-	    std::shared_ptr<GCScannerDevice> pp_scannerDevice,
+	    std::shared_ptr<ScannerDevice> pp_scannerDevice,
 	    const ProjectionData* pp_reference, int num_OSEM_subsets = 1,
 	    float shareOfMemoryToUse = DefaultMemoryShare);
 	ProjectionDataDeviceAlias(std::shared_ptr<LORsDevice> pp_LORs,

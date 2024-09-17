@@ -7,7 +7,7 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "geometry/GCCylinder.hpp"
 #include "geometry/GCPlane.hpp"
 
@@ -16,7 +16,7 @@
 class GCSingleScatterSimulation
 {
 public:
-	GCSingleScatterSimulation(GCScanner* p_scanner, Image* p_lambda,
+	GCSingleScatterSimulation(Scanner* p_scanner, Image* p_lambda,
 	                          Image* p_mu, Histogram3D* p_prompts_histo,
 	                          Histogram3D* p_norm_histo,
 	                          Histogram3D* p_acf_histo,
@@ -46,7 +46,7 @@ public:
 	float rdet, thickdet, afovdet, rcoll;
 
 protected:
-	GCScanner* mp_scanner;
+	Scanner* mp_scanner;
 	Histogram3D* mp_promptsHisto;
 	Histogram3D* mp_normHisto;
 	Histogram3D* mp_acfHisto;

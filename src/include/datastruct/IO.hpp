@@ -12,13 +12,13 @@
 #include <memory>
 #include <string>
 
-class GCScanner;
+class Scanner;
 
 namespace IO
 {
 	std::unique_ptr<ProjectionData> openProjectionData(
 	    const std::string& input_fname, const std::string& input_format,
-	    const GCScanner& scanner, const Plugin::OptionsResult&);
+	    const Scanner& scanner, const Plugin::OptionsResult&);
 
 	std::string possibleFormats(Plugin::InputFormatsChoice choice = Plugin::InputFormatsChoice::ALL);
 

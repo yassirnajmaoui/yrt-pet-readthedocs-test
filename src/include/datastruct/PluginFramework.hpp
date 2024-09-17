@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/projection/ProjectionData.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 
 #include <functional>
 #include <memory>
@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <vector>
 
-class GCScanner;
+class Scanner;
 class ProjectionData;
 
 #if BUILD_PYBIND11
@@ -44,7 +44,7 @@ namespace Plugin
 
 	using ProjectionDataFactory =
 	    std::function<std::unique_ptr<ProjectionData>(
-	        const GCScanner&, const std::string&, const OptionsResult&)>;
+	        const Scanner&, const std::string&, const OptionsResult&)>;
 	using OptionsAdder = std::function<OptionsListPerPlugin()>;
 #if BUILD_PYBIND11
 	using Pybind11ModuleAdder = std::function<void(pybind11::module&)>;
@@ -118,7 +118,7 @@ namespace Plugin
 		}
 
 		std::unique_ptr<ProjectionData> create(const std::string& formatName,
-		                                        const GCScanner& scanner,
+		                                        const Scanner& scanner,
 		                                        const std::string& filename,
 		                                        const OptionsResult& args) const
 		{

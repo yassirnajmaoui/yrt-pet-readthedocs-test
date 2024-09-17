@@ -6,7 +6,7 @@
 #include "operators/GCOperatorProjectorSiddon.hpp"
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"

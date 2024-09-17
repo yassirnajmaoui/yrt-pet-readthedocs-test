@@ -12,7 +12,7 @@
 
 #include <utility>
 
-GCOSEM_cpu::GCOSEM_cpu(const GCScanner* p_scanner)
+GCOSEM_cpu::GCOSEM_cpu(const Scanner* p_scanner)
     : GCOSEM(p_scanner),
       mp_tempSensImageBuffer(nullptr),
       mp_mlemImageTmp(nullptr),

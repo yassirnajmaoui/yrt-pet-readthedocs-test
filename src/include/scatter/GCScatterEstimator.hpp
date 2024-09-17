@@ -9,7 +9,7 @@
 #include "scatter/GCCrystal.hpp"
 #include "scatter/GCSingleScatterSimulator.hpp"
 
-class GCScanner;
+class Scanner;
 class Image;
 
 namespace Scatter
@@ -17,7 +17,7 @@ namespace Scatter
 	class GCScatterEstimator
 	{
 	public:
-		GCScatterEstimator(const GCScanner& pr_scanner,
+		GCScatterEstimator(const Scanner& pr_scanner,
 		                   const Image& pr_lambda, const Image& pr_mu,
 		                   const Histogram3D* pp_promptsHis,
 		                   const Histogram3D* pp_normOrSensHis,
@@ -41,7 +41,7 @@ namespace Scatter
 		void saveScatterTailsMask();
 
 	private:
-		const GCScanner& mr_scanner;
+		const Scanner& mr_scanner;
 		GCSingleScatterSimulator m_sss;
 		const Histogram3D* mp_promptsHis;
 		const Histogram3D* mp_randomsHis;

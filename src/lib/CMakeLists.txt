@@ -13,10 +13,10 @@ set(SOURCES
         datastruct/projection/SparseHistogram.cpp
         datastruct/projection/ProjectionData.cpp
         datastruct/projection/ListMode.cpp
-        datastruct/scanner/GCDetCoord.cpp
-        datastruct/scanner/GCDetRegular.cpp
-        datastruct/scanner/GCDetectorSetup.cpp
-        datastruct/scanner/GCScanner.cpp
+        datastruct/scanner/DetCoord.cpp
+        datastruct/scanner/DetRegular.cpp
+        datastruct/scanner/DetectorSetup.cpp
+        datastruct/scanner/Scanner.cpp
         datastruct/image/ImageBase.cpp
         datastruct/image/Image.cpp
         datastruct/IO.cpp
@@ -55,7 +55,7 @@ set(SOURCES
 # cuda
 if (USE_CUDA)
     set(SOURCES "${SOURCES}"
-            datastruct/scanner/GCScannerDevice.cu
+            datastruct/scanner/ScannerDevice.cu
             datastruct/image/ImageDevice.cu
             datastruct/image/ImageSpaceKernels.cu
             datastruct/projection/LORsDevice.cu

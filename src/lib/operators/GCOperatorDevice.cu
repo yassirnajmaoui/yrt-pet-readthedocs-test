@@ -6,7 +6,7 @@
 #include "operators/GCOperatorDevice.cuh"
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCGPUUtils.cuh"
 #include "utils/GCGlobals.hpp"
 
@@ -80,7 +80,7 @@ namespace Util
 	}
 }  // namespace Util
 
-GCCUScannerParams GCOperatorDevice::getCUScannerParams(const GCScanner& scanner)
+GCCUScannerParams GCOperatorDevice::getCUScannerParams(const Scanner& scanner)
 {
 	GCCUScannerParams params;
 	params.crystalSize_trans = scanner.crystalSize_trans;

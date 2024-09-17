@@ -5,16 +5,16 @@
 
 #pragma once
 
-#include "datastruct/scanner/GCDetectorSetup.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/DetectorSetup.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/Array.hpp"
 
 #include <memory>
 
-class GCDetRegular : public GCDetectorSetup
+class DetRegular : public DetectorSetup
 {
 public:
-	GCDetRegular(GCScanner* pp_scanner);
+	DetRegular(Scanner* pp_scanner);
 	void generateLUT();
 
 	size_t getNumDets() const override;
@@ -41,8 +41,8 @@ public:
 	Array1D<float>* getYorientArrayRef() const { return (mp_Yorient.get()); }
 	Array1D<float>* getZorientArrayRef() const { return (mp_Zorient.get()); }
 
-	GCScanner* getScanner() { return mp_scanner; }
-	virtual ~GCDetRegular() {}
+	Scanner* getScanner() { return mp_scanner; }
+	virtual ~DetRegular() {}
 
 protected:
 	void allocate();
@@ -54,5 +54,5 @@ protected:
 	std::unique_ptr<Array1D<float>> mp_Xorient;
 	std::unique_ptr<Array1D<float>> mp_Yorient;
 	std::unique_ptr<Array1D<float>> mp_Zorient;
-	GCScanner* mp_scanner;
+	Scanner* mp_scanner;
 };

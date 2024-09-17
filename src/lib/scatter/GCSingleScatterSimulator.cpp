@@ -7,7 +7,7 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "geometry/GCConstants.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
 #include "utils/GCAssert.hpp"
@@ -27,7 +27,7 @@ void py_setup_gcsinglescattersimulator(py::module& m)
 {
 	auto c = py::class_<Scatter::GCSingleScatterSimulator>(
 	    m, "GCSingleScatterSimulator");
-	c.def(py::init<const GCScanner&, const Image&, const Image&,
+	c.def(py::init<const Scanner&, const Image&, const Image&,
 	               Scatter::CrystalMaterial, int>(),
 	      "scanner"_a, "attenuation_image"_a, "source_image"_a,
 	      "crystal_material"_a, "seed"_a);
@@ -47,7 +47,7 @@ void py_setup_gcsinglescattersimulator(py::module& m)
 namespace Scatter
 {
 	GCSingleScatterSimulator::GCSingleScatterSimulator(
-	    const GCScanner& pr_scanner, const Image& pr_mu,
+	    const Scanner& pr_scanner, const Image& pr_mu,
 	    const Image& pr_lambda, CrystalMaterial p_crystalMaterial, int seedi)
 	    : mr_scanner(pr_scanner),
 	      mr_mu(pr_mu),

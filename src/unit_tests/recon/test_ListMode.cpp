@@ -12,7 +12,7 @@
 #include <cmath>
 #include <cstdio>
 
-std::unique_ptr<ListModeLUTOwned> getListMode(GCScanner* scanner = nullptr)
+std::unique_ptr<ListModeLUTOwned> getListMode(Scanner* scanner = nullptr)
 {
 	auto listMode = std::make_unique<ListModeLUTOwned>(scanner);
 	listMode->allocate(15);

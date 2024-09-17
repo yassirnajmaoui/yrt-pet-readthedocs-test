@@ -28,7 +28,7 @@ void py_setup_gcio(py::module& m)
 
 std::unique_ptr<ProjectionData> IO::openProjectionData(
     const std::string& input_fname, const std::string& input_format,
-    const GCScanner& scanner, const Plugin::OptionsResult& pluginOptions)
+    const Scanner& scanner, const Plugin::OptionsResult& pluginOptions)
 {
 	return Plugin::PluginRegistry::instance().create(
 	    input_format, scanner, input_fname, pluginOptions);

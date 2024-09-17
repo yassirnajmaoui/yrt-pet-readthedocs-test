@@ -13,7 +13,7 @@
 #include "utils/GCTools.hpp"
 
 GCSingleScatterSimulation::GCSingleScatterSimulation(
-    GCScanner* pp_scanner, Image* pp_lambda, Image* pp_mu,
+    Scanner* pp_scanner, Image* pp_lambda, Image* pp_mu,
     Histogram3D* pp_promptsHisto, Histogram3D* pp_normHisto,
     Histogram3D* pp_acfHisto, const std::string& muDetFile, int seedi,
     bool p_doTailFitting)

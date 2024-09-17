@@ -25,28 +25,28 @@ namespace Util
 
 	// Helper function to unify LOR loading
 	GCOperatorProjectorBase::ProjectionProperties
-	    getProjectionProperties(const GCScanner& scanner,
+	    getProjectionProperties(const Scanner& scanner,
 	                            const ProjectionData& dat, bin_t bin);
 
-	GCStraightLineParam getNativeLOR(const GCScanner& scanner,
+	GCStraightLineParam getNativeLOR(const Scanner& scanner,
 	                                 const ProjectionData& dat, bin_t binId);
 
-	std::unique_ptr<GCOSEM> createOSEM(const GCScanner* scanner,
+	std::unique_ptr<GCOSEM> createOSEM(const Scanner* scanner,
 	                                   bool useGPU = false);
 
 
 	std::tuple<GCStraightLineParam, GCVector, GCVector>
-	    generateTORRandomDOI(const GCScanner* scanner, det_id_t d1, det_id_t d2,
+	    generateTORRandomDOI(const Scanner* scanner, det_id_t d1, det_id_t d2,
 	                         int vmax = 256);
 
 	// Forward projection
-	void forwProject(const GCScanner* scanner, const Image* img,
+	void forwProject(const Scanner* scanner, const Image* img,
 	                 ProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
-	void forwProject(const GCScanner* scanner, const Image* img,
+	void forwProject(const Scanner* scanner, const Image* img,
 	                 ProjectionData* projData,
 	                 const BinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType =
@@ -61,13 +61,13 @@ namespace Util
 	                 const Histogram* additiveHistogram = nullptr);
 
 	// Back projection
-	void backProject(const GCScanner* scanner, Image* img,
+	void backProject(const Scanner* scanner, Image* img,
 	                 const ProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType =
 	                     GCOperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
-	void backProject(const GCScanner* scanner, Image* img,
+	void backProject(const Scanner* scanner, Image* img,
 	                 const ProjectionData* projData,
 	                 const BinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType =

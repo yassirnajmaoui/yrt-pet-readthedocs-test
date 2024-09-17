@@ -9,24 +9,24 @@
 
 #include <memory>
 
-class GCScanner;
+class Scanner;
 
-class GCScannerDevice
+class ScannerDevice
 {
 public:
 	// Loads the scanner into the device
-	explicit GCScannerDevice(const GCScanner* pp_scanner,
+	explicit ScannerDevice(const Scanner* pp_scanner,
 	                         const cudaStream_t* pp_stream = nullptr);
 	void allocate(const cudaStream_t* stream = nullptr);
 	void load(const cudaStream_t* stream = nullptr);
 	const float4* getDetPosDevicePointer() const;
 	const float4* getDetOrientDevicePointer() const;
-	const GCScanner* getScanner() const;
+	const Scanner* getScanner() const;
 
 private:
 	std::unique_ptr<GCDeviceArray<float4>> mpd_detPos;
 	std::unique_ptr<GCDeviceArray<float4>> mpd_detOrient;
-	const GCScanner* mp_scanner;
+	const Scanner* mp_scanner;
 	bool isAllocated;
 	bool isLoaded;
 };

@@ -139,7 +139,7 @@ Here is, as an example, the SAVANT parameters file.
 ```
 The file specified at the `detCoord` field is the Scanner's Look-Up-Table specified below.
 
-### Detector coordinates (`GCDetCoord`)
+### Detector coordinates (`DetCoord`)
 
 The `detCoord` value in the scanner definition allows to provide a Look-Up-Table decribing each detector's coordinates and orientation, ordered by ID.
 The detectors order must follow the following rules:

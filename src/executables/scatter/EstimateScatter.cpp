@@ -5,7 +5,7 @@
 
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "geometry/GCConstants.hpp"
 #include "scatter/GCScatterEstimator.hpp"
 #include "utils/GCGlobals.hpp"
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 	try
 	{
 		GCGlobals::set_num_threads(numThreads);
-		auto scanner = std::make_unique<GCScannerOwned>(scanner_fname);
+		auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
 
 		ImageParams imageParams(imgParams_fname);
 

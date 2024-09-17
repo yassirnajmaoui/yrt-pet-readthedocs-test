@@ -14,7 +14,7 @@
 #include <pybind11/pybind11.h>
 #endif
 
-class GCScanner;
+class Scanner;
 
 class ListModeLUTDOI : public ListModeLUT
 {
@@ -26,7 +26,7 @@ public:
 	void writeToFile(const std::string& listMode_fname) const override;
 
 protected:
-	ListModeLUTDOI(const GCScanner* s, bool p_flagTOF = false,
+	ListModeLUTDOI(const Scanner* s, bool p_flagTOF = false,
 	                 int numLayers = 256);
 	std::unique_ptr<Array1DBase<unsigned char>> mp_doi1;
 	std::unique_ptr<Array1DBase<unsigned char>> mp_doi2;
@@ -37,7 +37,7 @@ protected:
 class ListModeLUTDOIAlias : public ListModeLUTDOI
 {
 public:
-	ListModeLUTDOIAlias(const GCScanner* s, bool p_flagTOF = false,
+	ListModeLUTDOIAlias(const Scanner* s, bool p_flagTOF = false,
 	                      int numLayers = 256);
 	~ListModeLUTDOIAlias() override = default;
 	void Bind(Array1DBase<timestamp_t>* pp_timestamps,
@@ -66,9 +66,9 @@ public:
 class ListModeLUTDOIOwned : public ListModeLUTDOI
 {
 public:
-	ListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF = false,
+	ListModeLUTDOIOwned(const Scanner* s, bool p_flagTOF = false,
 	                      int numLayers = 256);
-	ListModeLUTDOIOwned(const GCScanner* s, const std::string& listMode_fname,
+	ListModeLUTDOIOwned(const Scanner* s, const std::string& listMode_fname,
 	                      bool p_flagTOF = false, int numLayers = 256);
 	~ListModeLUTDOIOwned() override = default;
 
@@ -77,7 +77,7 @@ public:
 
 	// For registering the plugin
 	static std::unique_ptr<ProjectionData>
-	    create(const GCScanner& scanner, const std::string& filename,
+	    create(const Scanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();
 };

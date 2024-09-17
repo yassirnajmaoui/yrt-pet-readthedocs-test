@@ -16,7 +16,7 @@
 #include <pybind11/pybind11.h>
 #endif
 
-class GCScanner;
+class Scanner;
 
 class ListModeLUT : public ListMode
 {
@@ -40,7 +40,7 @@ public:
 	void setDetectorId1OfEvent(bin_t eventId, det_id_t d1);
 	void setDetectorId2OfEvent(bin_t eventId, det_id_t d2);
 	void setDetectorIdsOfEvent(bin_t eventId, det_id_t d1, det_id_t d2);
-	const GCScanner* getScanner() const;
+	const Scanner* getScanner() const;
 
 	Array1DBase<timestamp_t>* getTimestampArrayPtr() const;
 	Array1DBase<det_id_t>* getDetector1ArrayPtr() const;
@@ -51,11 +51,11 @@ public:
 	void addLORMotion(const std::string& lorMotion_fname);
 
 protected:
-	ListModeLUT(const GCScanner* s, bool p_flagTOF = false);
+	ListModeLUT(const Scanner* s, bool p_flagTOF = false);
 
 	// Parameters
 	// The detector Id of the events.
-	const GCScanner* mp_scanner;
+	const Scanner* mp_scanner;
 	// TODO: Replace getTimestamp by getFrame.
 	//  Replace this array by an array of frames
 	//  Repopulate this array with frame ids after lorMotion is added
@@ -73,7 +73,7 @@ protected:
 class ListModeLUTAlias : public ListModeLUT
 {
 public:
-	ListModeLUTAlias(GCScanner* s, bool p_flagTOF = false);
+	ListModeLUTAlias(Scanner* s, bool p_flagTOF = false);
 	~ListModeLUTAlias() override = default;
 	void Bind(ListModeLUT* listMode);
 	void Bind(Array1DBase<timestamp_t>* p_timestamps,
@@ -97,8 +97,8 @@ public:
 class ListModeLUTOwned : public ListModeLUT
 {
 public:
-	ListModeLUTOwned(const GCScanner* s, bool p_flagTOF = false);
-	ListModeLUTOwned(const GCScanner* s, const std::string& listMode_fname,
+	ListModeLUTOwned(const Scanner* s, bool p_flagTOF = false);
+	ListModeLUTOwned(const Scanner* s, const std::string& listMode_fname,
 	                   bool p_flagTOF = false);
 	~ListModeLUTOwned() override = default;
 
@@ -107,7 +107,7 @@ public:
 
 	// For registering the plugin
 	static std::unique_ptr<ProjectionData>
-	    create(const GCScanner& scanner, const std::string& filename,
+	    create(const Scanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();
 };

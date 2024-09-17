@@ -23,7 +23,7 @@ public:
 	static constexpr float DEFAULT_HARD_THRESHOLD = 1.0f;
 	static constexpr float INITIAL_VALUE_MLEM = 0.1f;
 	// ---------- Public methods ----------
-	GCOSEM(const GCScanner* p_scanner);
+	GCOSEM(const Scanner* p_scanner);
 	virtual ~GCOSEM() = default;
 	GCOSEM(const GCOSEM&) = delete;
 	GCOSEM& operator=(const GCOSEM&) = delete;
@@ -71,7 +71,7 @@ public:
 	int numRays;  // For Siddon only
 	GCOperatorProjector::ProjectorType projectorType;
 	ImageParams imageParams;
-	const GCScanner* scanner;
+	const Scanner* scanner;
 	const Image* maskImage;
 	const Image* attenuationImage;
 	const Image* attenuationImageForBackprojection;

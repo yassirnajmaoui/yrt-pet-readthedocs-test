@@ -11,7 +11,7 @@
 #include "datastruct/projection/UniformHistogram.hpp"
 #include "datastruct/projection/ListMode.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "motion/ImageWarperMatrix.hpp"
 #include "operators/GCOperatorProjector.hpp"
 #include "operators/GCOperatorProjectorDD.hpp"
@@ -95,7 +95,7 @@ void py_setup_gcosem(pybind11::module& m)
 }
 #endif
 
-GCOSEM::GCOSEM(const GCScanner* p_scanner)
+GCOSEM::GCOSEM(const Scanner* p_scanner)
     : num_MLEM_iterations(DEFAULT_NUM_ITERATIONS),
       num_OSEM_subsets(1),
       hardThreshold(DEFAULT_HARD_THRESHOLD),

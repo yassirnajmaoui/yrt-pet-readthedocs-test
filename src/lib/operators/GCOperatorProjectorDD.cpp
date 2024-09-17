@@ -7,7 +7,7 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
 

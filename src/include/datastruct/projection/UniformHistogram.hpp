@@ -10,7 +10,7 @@
 class UniformHistogram : public Histogram3D
 {
 public:
-	UniformHistogram(const GCScanner* p_scanner, float p_value = 1.0f);
+	UniformHistogram(const Scanner* p_scanner, float p_value = 1.0f);
 
 	void writeToFile(const std::string& filename) const override;
 	float getProjectionValue(bin_t binId) const override;

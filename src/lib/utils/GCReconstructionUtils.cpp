@@ -47,7 +47,7 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("scanner"), py::arg("d1"), py::arg("d2"), py::arg("vmax"));
 
 	m.def("forwProject",
-	      static_cast<void (*)(const GCScanner* scanner, const Image* img,
+	      static_cast<void (*)(const Scanner* scanner, const Image* img,
 	                           ProjectionData* projData,
 	                           GCOperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
@@ -59,7 +59,7 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("forwProject",
 	      static_cast<void (*)(
-	          const GCScanner* scanner, const Image* img,
+	          const Scanner* scanner, const Image* img,
 	          ProjectionData* projData, const BinIterator& binIterator,
 	          GCOperatorProjector::ProjectorType projectorType,
 	          const Image* attImage, const Histogram* additiveHistogram)>(
@@ -82,7 +82,7 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("additiveHistogram") = nullptr);
 
 	m.def("backProject",
-	      static_cast<void (*)(const GCScanner* scanner, Image* img,
+	      static_cast<void (*)(const Scanner* scanner, Image* img,
 	                           const ProjectionData* projData,
 	                           GCOperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
@@ -94,7 +94,7 @@ void py_setup_gcreconstructionutils(pybind11::module& m)
 	      py::arg("additiveHistogram") = nullptr);
 	m.def("backProject",
 	      static_cast<void (*)(
-	          const GCScanner* scanner, Image* img,
+	          const Scanner* scanner, Image* img,
 	          const ProjectionData* projData, const BinIterator& binIterator,
 	          GCOperatorProjector::ProjectorType projectorType,
 	          const Image* attImage, const Histogram* additiveHistogram)>(
@@ -279,7 +279,7 @@ namespace Util
 	                                          Histogram3D&);
 
 	GCOperatorProjectorBase::ProjectionProperties
-	    getProjectionProperties(const GCScanner& scanner,
+	    getProjectionProperties(const Scanner& scanner,
 	                            const ProjectionData& dat, bin_t bin)
 	{
 		auto [d1, d2] = dat.getDetectorPair(bin);
@@ -331,7 +331,7 @@ namespace Util
 		    lor, tofValue, randomsEstimate, det1Orient, det2Orient};
 	}
 
-	GCStraightLineParam getNativeLOR(const GCScanner& scanner,
+	GCStraightLineParam getNativeLOR(const Scanner& scanner,
 	                                 const ProjectionData& dat, bin_t binId)
 	{
 		const auto [d1, d2] = dat.getDetectorPair(binId);
@@ -341,7 +341,7 @@ namespace Util
 	}
 
 	std::tuple<GCStraightLineParam, GCVector, GCVector>
-	    generateTORRandomDOI(const GCScanner* scanner, det_id_t d1, det_id_t d2,
+	    generateTORRandomDOI(const Scanner* scanner, det_id_t d1, det_id_t d2,
 	                         int vmax)
 	{
 		const GCVector p1 = scanner->getDetectorPos(d1);
@@ -362,7 +362,7 @@ namespace Util
 		return {lorDOI, n1, n2};
 	}
 
-	std::unique_ptr<GCOSEM> createOSEM(const GCScanner* scanner, bool useGPU)
+	std::unique_ptr<GCOSEM> createOSEM(const Scanner* scanner, bool useGPU)
 	{
 		std::unique_ptr<GCOSEM> osem;
 		if (useGPU)
@@ -444,7 +444,7 @@ namespace Util
 		}
 	}
 
-	void forwProject(const GCScanner* scanner, const Image* img,
+	void forwProject(const Scanner* scanner, const Image* img,
 	                 ProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType,
 	                 const Image* attImage,
@@ -456,7 +456,7 @@ namespace Util
 		            additiveHistogram);
 	}
 
-	void forwProject(const GCScanner* scanner, const Image* img,
+	void forwProject(const Scanner* scanner, const Image* img,
 	                 ProjectionData* projData,
 	                 const BinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType,
@@ -478,7 +478,7 @@ namespace Util
 		              projectorType, attImage, additiveHistogram);
 	}
 
-	void backProject(const GCScanner* scanner, Image* img,
+	void backProject(const Scanner* scanner, Image* img,
 	                 const ProjectionData* projData,
 	                 GCOperatorProjector::ProjectorType projectorType,
 	                 const Image* attImage,
@@ -490,7 +490,7 @@ namespace Util
 		            additiveHistogram);
 	}
 
-	void backProject(const GCScanner* scanner, Image* img,
+	void backProject(const Scanner* scanner, Image* img,
 	                 const ProjectionData* projData,
 	                 const BinIterator& binIterator,
 	                 GCOperatorProjector::ProjectorType projectorType,

@@ -7,7 +7,7 @@
 
 #include "datastruct/PluginFramework.hpp"
 #include "datastruct/projection/Histogram.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/Array.hpp"
 
 #include <array>
@@ -33,7 +33,7 @@ typedef std::pair<det_id_t, det_id_t> DetRingPair;  // d1, d2
 class Histogram3D : public Histogram
 {
 public:
-	const GCScanner* getScanner() const { return mp_scanner; }
+	const Scanner* getScanner() const { return mp_scanner; }
 	Array3DBase<float>& getData() { return *mp_data; }
 	const Array3DBase<float>& getData() const { return *mp_data; }
 	virtual void writeToFile(const std::string& filename) const;
@@ -71,7 +71,7 @@ public:
 	void get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const;
 
 protected:
-	Histogram3D(const GCScanner* pp_scanner);
+	Histogram3D(const Scanner* pp_scanner);
 	void getDetPairInSameRing(coord_t r_ring, coord_t phi, det_id_t& d1,
 	                          det_id_t& d2) const;
 	void getCoordsInSameRing(det_id_t d1_ring, det_id_t d2_ring,
@@ -96,7 +96,7 @@ public:
 protected:
 	std::unique_ptr<Array3DBase<float>> mp_data;
 	std::unordered_map<DetRingPair, DetRingCoordinates, hash_pair> m_ringMap;
-	const GCScanner* mp_scanner;
+	const Scanner* mp_scanner;
 	size_t r_cut;
 	size_t num_doi_poss;  // Number of DOI possibilities (ex: 2 doi -> 4 lor
 	                      // possibilities)
@@ -106,21 +106,21 @@ protected:
 class Histogram3DAlias : public Histogram3D
 {
 public:
-	Histogram3DAlias(const GCScanner* p_scanner);
+	Histogram3DAlias(const Scanner* p_scanner);
 	void Bind(Array3DBase<float>& p_data);
 };
 
 class Histogram3DOwned : public Histogram3D
 {
 public:
-	Histogram3DOwned(const GCScanner* p_scanner);
-	Histogram3DOwned(const GCScanner* p_scanner, const std::string& filename);
+	Histogram3DOwned(const Scanner* p_scanner);
+	Histogram3DOwned(const Scanner* p_scanner, const std::string& filename);
 	void allocate();
 	void readFromFile(const std::string& filename);
 
 	// For registering the plugin
 	static std::unique_ptr<ProjectionData>
-	    create(const GCScanner& scanner, const std::string& filename,
+	    create(const Scanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();
 };

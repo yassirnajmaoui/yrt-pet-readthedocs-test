@@ -15,7 +15,7 @@
 class GCOSEM_gpu : public GCOSEM
 {
 public:
-	GCOSEM_gpu(const GCScanner* p_scanner);
+	GCOSEM_gpu(const Scanner* p_scanner);
 	~GCOSEM_gpu() override;
 
 	// Sens Image generator driver

@@ -7,7 +7,7 @@
 
 #include "geometry/GCStraightLineParam.hpp"
 
-class GCScanner;
+class Scanner;
 
 class GCMultiRayGenerator
 {
@@ -17,7 +17,7 @@ public:
 	                    bool isParallel_i = false);
 	GCStraightLineParam getRandomLine(unsigned int& seed) const;
 	void setupGenerator(const GCStraightLineParam& lor, const GCVector& n1,
-	                    const GCVector& n2, const GCScanner& scanner);
+	                    const GCVector& n2, const Scanner& scanner);
 
 protected:
 	double thickness_z, thickness_trans;

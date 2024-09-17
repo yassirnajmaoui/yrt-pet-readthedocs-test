@@ -31,7 +31,7 @@ class GCOperatorDevice : public GCOperator
 	// Nothing here for now...
 
 public:
-	static GCCUScannerParams getCUScannerParams(const GCScanner& scanner);
+	static GCCUScannerParams getCUScannerParams(const Scanner& scanner);
 	static GCCUImageParams getCUImageParams(const ImageParams& imgParams);
 
 protected:

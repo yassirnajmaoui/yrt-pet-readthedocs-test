@@ -3,9 +3,9 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 
-#include "datastruct/scanner/GCDetRegular.hpp"
+#include "datastruct/scanner/DetRegular.hpp"
 #include "utils/GCJSONUtils.hpp"
 
 #if BUILD_PYBIND11
@@ -17,29 +17,29 @@ namespace py = pybind11;
 
 void py_setup_gcscanner(pybind11::module& m)
 {
-	auto c = py::class_<GCScanner>(m, "GCScanner");
-	c.def("getNumDets", &GCScanner::getNumDets);
-	c.def("getTheoreticalNumDets", &GCScanner::getTheoreticalNumDets);
-	c.def("getDetectorPos", &GCScanner::getDetectorPos);
-	c.def("getDetectorOrient", &GCScanner::getDetectorOrient);
-	c.def_readwrite("scannerName", &GCScanner::scannerName);
-	c.def_readwrite("axialFOV", &GCScanner::axialFOV);
-	c.def_readwrite("crystalSize_z", &GCScanner::crystalSize_z);
-	c.def_readwrite("crystalSize_trans", &GCScanner::crystalSize_trans);
-	c.def_readwrite("crystalDepth", &GCScanner::crystalDepth);
-	c.def_readwrite("scannerRadius", &GCScanner::scannerRadius);
-	c.def_readwrite("collimatorRadius", &GCScanner::collimatorRadius);
-	c.def_readwrite("fwhm", &GCScanner::fwhm);
-	c.def_readwrite("energyLLD", &GCScanner::energyLLD);
-	c.def_readwrite("dets_per_ring", &GCScanner::dets_per_ring);
-	c.def_readwrite("fwhm", &GCScanner::fwhm);
-	c.def_readwrite("num_rings", &GCScanner::num_rings);
-	c.def_readwrite("num_doi", &GCScanner::num_doi);
-	c.def_readwrite("max_ring_diff", &GCScanner::max_ring_diff);
-	c.def_readwrite("min_ang_diff", &GCScanner::min_ang_diff);
-	c.def_readwrite("dets_per_block", &GCScanner::dets_per_block);
+	auto c = py::class_<Scanner>(m, "Scanner");
+	c.def("getNumDets", &Scanner::getNumDets);
+	c.def("getTheoreticalNumDets", &Scanner::getTheoreticalNumDets);
+	c.def("getDetectorPos", &Scanner::getDetectorPos);
+	c.def("getDetectorOrient", &Scanner::getDetectorOrient);
+	c.def_readwrite("scannerName", &Scanner::scannerName);
+	c.def_readwrite("axialFOV", &Scanner::axialFOV);
+	c.def_readwrite("crystalSize_z", &Scanner::crystalSize_z);
+	c.def_readwrite("crystalSize_trans", &Scanner::crystalSize_trans);
+	c.def_readwrite("crystalDepth", &Scanner::crystalDepth);
+	c.def_readwrite("scannerRadius", &Scanner::scannerRadius);
+	c.def_readwrite("collimatorRadius", &Scanner::collimatorRadius);
+	c.def_readwrite("fwhm", &Scanner::fwhm);
+	c.def_readwrite("energyLLD", &Scanner::energyLLD);
+	c.def_readwrite("dets_per_ring", &Scanner::dets_per_ring);
+	c.def_readwrite("fwhm", &Scanner::fwhm);
+	c.def_readwrite("num_rings", &Scanner::num_rings);
+	c.def_readwrite("num_doi", &Scanner::num_doi);
+	c.def_readwrite("max_ring_diff", &Scanner::max_ring_diff);
+	c.def_readwrite("min_ang_diff", &Scanner::min_ang_diff);
+	c.def_readwrite("dets_per_block", &Scanner::dets_per_block);
 	c.def("createLUT",
-	      [](const GCScanner& s)
+	      [](const Scanner& s)
 	      {
 		      auto lut = std::make_unique<Array2D<float>>();
 		      s.createLUT(*lut.get());
@@ -49,61 +49,61 @@ void py_setup_gcscanner(pybind11::module& m)
 		      return lut_array;
 	      });
 
-	auto c_alias = py::class_<GCScannerAlias, GCScanner>(m, "GCScannerAlias");
+	auto c_alias = py::class_<ScannerAlias, Scanner>(m, "ScannerAlias");
 	c_alias.def(py::init());
-	c_alias.def("setDetectorSetup", &GCScannerAlias::setDetectorSetup);
+	c_alias.def("setDetectorSetup", &ScannerAlias::setDetectorSetup);
 
-	auto c_owned = py::class_<GCScannerOwned, GCScanner>(m, "GCScannerOwned");
+	auto c_owned = py::class_<ScannerOwned, Scanner>(m, "ScannerOwned");
 	c_owned.def(py::init());
 	c_owned.def(py::init<const std::string&>());
-	c_owned.def("readFromFile", &GCScannerOwned::readFromFile);
-	c_owned.def("readFromString", &GCScannerOwned::readFromString);
+	c_owned.def("readFromFile", &ScannerOwned::readFromFile);
+	c_owned.def("readFromString", &ScannerOwned::readFromString);
 	c_owned.def_property(
 	    "scannerPath",
-	    [](const GCScannerOwned& self) { return self.getScannerPath(); },
-	    [](GCScannerOwned& self, const std::string& str)
+	    [](const ScannerOwned& self) { return self.getScannerPath(); },
+	    [](ScannerOwned& self, const std::string& str)
 	    { self.setScannerPath(str); });
-	c_owned.def(pybind11::pickle([](const GCScannerOwned& s)
+	c_owned.def(pybind11::pickle([](const ScannerOwned& s)
 	                             { return s.getScannerPath(); },
 	                             [](const std::string& t)
 	                             {
-		                             std::unique_ptr<GCScannerOwned> s =
-		                                 std::make_unique<GCScannerOwned>(t);
+		                             std::unique_ptr<ScannerOwned> s =
+		                                 std::make_unique<ScannerOwned>(t);
 		                             return s;
 	                             }));
 }
 #endif
 
-GCScanner::GCScanner() : mp_detectors(nullptr) {}
-GCScannerOwned::GCScannerOwned() : GCScanner() {}
-GCScannerAlias::GCScannerAlias() : GCScanner() {}
-GCScannerOwned::GCScannerOwned(const std::string& p_definitionFile)
-    : GCScannerOwned()
+Scanner::Scanner() : mp_detectors(nullptr) {}
+ScannerOwned::ScannerOwned() : Scanner() {}
+ScannerAlias::ScannerAlias() : Scanner() {}
+ScannerOwned::ScannerOwned(const std::string& p_definitionFile)
+    : ScannerOwned()
 {
 	readFromFile(p_definitionFile);
 }
 
-size_t GCScanner::getNumDets() const
+size_t Scanner::getNumDets() const
 {
 	return mp_detectors->getNumDets();
 }
 
-size_t GCScanner::getTheoreticalNumDets() const
+size_t Scanner::getTheoreticalNumDets() const
 {
 	return num_doi * num_rings * dets_per_ring;
 }
 
-GCVector GCScanner::getDetectorPos(det_id_t id) const
+GCVector Scanner::getDetectorPos(det_id_t id) const
 {
 	return mp_detectors->getPos(id);
 }
 
-GCVector GCScanner::getDetectorOrient(det_id_t id) const
+GCVector Scanner::getDetectorOrient(det_id_t id) const
 {
 	return mp_detectors->getOrient(id);
 }
 
-void GCScanner::createLUT(Array2D<float>& lut) const
+void Scanner::createLUT(Array2D<float>& lut) const
 {
 	lut.allocate(this->getNumDets(), 6);
 	for (size_t i = 0; i < this->getNumDets(); i++)
@@ -119,7 +119,7 @@ void GCScanner::createLUT(Array2D<float>& lut) const
 	}
 }
 
-void GCScannerOwned::readFromString(const std::string& fileContents)
+void ScannerOwned::readFromString(const std::string& fileContents)
 {
 	json j;
 	try
@@ -185,7 +185,7 @@ void GCScannerOwned::readFromString(const std::string& fileContents)
 		fs::path detCoord_path =
 		    m_scannerPath.parent_path() / fs::path(detCoord);
 		mp_detectorsPtr =
-		    std::make_unique<GCDetCoordOwned>(detCoord_path.string());
+		    std::make_unique<DetCoordOwned>(detCoord_path.string());
 		if (mp_detectorsPtr->getNumDets() != getTheoreticalNumDets())
 			throw std::runtime_error(
 			    "The number of detectors given by the LUT file does not match "
@@ -195,28 +195,28 @@ void GCScannerOwned::readFromString(const std::string& fileContents)
 	}
 	else
 	{
-		mp_detectorsPtr = std::make_unique<GCDetRegular>(this);
-		static_cast<GCDetRegular*>(mp_detectorsPtr.get())->generateLUT();
+		mp_detectorsPtr = std::make_unique<DetRegular>(this);
+		static_cast<DetRegular*>(mp_detectorsPtr.get())->generateLUT();
 		this->mp_detectors = mp_detectorsPtr.get();
 	}
 }
 
-std::string GCScannerOwned::getScannerPath() const
+std::string ScannerOwned::getScannerPath() const
 {
 	return m_scannerPath.string();
 }
 
-void GCScannerOwned::setScannerPath(const fs::path& p)
+void ScannerOwned::setScannerPath(const fs::path& p)
 {
 	m_scannerPath = p;
 }
 
-void GCScannerOwned::setScannerPath(const std::string& s)
+void ScannerOwned::setScannerPath(const std::string& s)
 {
 	m_scannerPath = fs::path(s);
 }
 
-void GCScannerOwned::readFromFile(const std::string& p_definitionFile)
+void ScannerOwned::readFromFile(const std::string& p_definitionFile)
 {
 	m_scannerPath = fs::path(p_definitionFile);
 	if (!(fs::exists(m_scannerPath)))

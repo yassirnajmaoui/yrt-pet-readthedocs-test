@@ -18,10 +18,10 @@ namespace py = pybind11;
 void py_setup_sparsehistogram(py::module& m)
 {
 	auto c = py::class_<SparseHistogram, Histogram>(m, "SparseHistogram");
-	c.def(py::init<const GCScanner&>(), "scanner"_a);
-	c.def(py::init<const GCScanner&, const std::string&>(), "scanner"_a,
+	c.def(py::init<const Scanner&>(), "scanner"_a);
+	c.def(py::init<const Scanner&, const std::string&>(), "scanner"_a,
 	      "filename"_a);
-	c.def(py::init<const GCScanner&, const ProjectionData&,
+	c.def(py::init<const Scanner&, const ProjectionData&,
 	               const BinIterator*>(),
 	      "scanner"_a, "projectionData"_a, "binIterator"_a = nullptr);
 	c.def("allocate", &SparseHistogram::allocate, "numBins"_a);
@@ -51,19 +51,19 @@ void py_setup_sparsehistogram(py::module& m)
 }
 #endif
 
-SparseHistogram::SparseHistogram(const GCScanner& pr_scanner)
+SparseHistogram::SparseHistogram(const Scanner& pr_scanner)
     : mr_scanner(pr_scanner)
 {
 }
 
-SparseHistogram::SparseHistogram(const GCScanner& pr_scanner,
+SparseHistogram::SparseHistogram(const Scanner& pr_scanner,
                                      const std::string& filename)
     : SparseHistogram(pr_scanner)
 {
 	readFromFile(filename);
 }
 
-SparseHistogram::SparseHistogram(const GCScanner& pr_scanner,
+SparseHistogram::SparseHistogram(const Scanner& pr_scanner,
                                      const ProjectionData& pr_projData,
                                      const BinIterator* pp_binIter)
     : SparseHistogram(pr_scanner)
@@ -345,7 +345,7 @@ det_pair_t SparseHistogram::SwapDetectorPairIfNeeded(det_pair_t detPair)
 }
 
 std::unique_ptr<ProjectionData>
-    SparseHistogram::create(const GCScanner& scanner,
+    SparseHistogram::create(const Scanner& scanner,
                               const std::string& filename,
                               const Plugin::OptionsResult& pluginOptions)
 {

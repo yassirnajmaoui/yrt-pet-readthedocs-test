@@ -3,12 +3,12 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/scanner/GCScannerDevice.cuh"
+#include "datastruct/scanner/ScannerDevice.cuh"
 
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCPageLockedBuffer.cuh"
 
-GCScannerDevice::GCScannerDevice(const GCScanner* pp_scanner,
+ScannerDevice::ScannerDevice(const Scanner* pp_scanner,
                                  const cudaStream_t* pp_stream)
     : mp_scanner(pp_scanner), isAllocated(false), isLoaded(false)
 {
@@ -17,7 +17,7 @@ GCScannerDevice::GCScannerDevice(const GCScanner* pp_scanner,
 	load(pp_stream);
 }
 
-void GCScannerDevice::load(const cudaStream_t* stream)
+void ScannerDevice::load(const cudaStream_t* stream)
 {
 	if (!isAllocated)
 	{
@@ -30,7 +30,7 @@ void GCScannerDevice::load(const cudaStream_t* stream)
 	float4* ph_detPos = tempBuffer.getPointer();
 	float4* ph_detOrient = ph_detPos + numDets;
 
-	const GCDetectorSetup* detectorSetup = mp_scanner->getDetectorSetup();
+	const DetectorSetup* detectorSetup = mp_scanner->getDetectorSetup();
 
 #pragma omp parallel for default(none) \
     firstprivate(ph_detPos, ph_detOrient, numDets, detectorSetup)
@@ -49,7 +49,7 @@ void GCScannerDevice::load(const cudaStream_t* stream)
 	isLoaded = true;
 }
 
-void GCScannerDevice::allocate(const cudaStream_t* stream)
+void ScannerDevice::allocate(const cudaStream_t* stream)
 {
 	const size_t numDets = mp_scanner->getNumDets();
 	mpd_detPos->allocate(numDets, stream);
@@ -57,16 +57,16 @@ void GCScannerDevice::allocate(const cudaStream_t* stream)
 	isAllocated = true;
 }
 
-const float4* GCScannerDevice::getDetPosDevicePointer() const
+const float4* ScannerDevice::getDetPosDevicePointer() const
 {
 	return mpd_detPos->getDevicePointer();
 }
-const float4* GCScannerDevice::getDetOrientDevicePointer() const
+const float4* ScannerDevice::getDetOrientDevicePointer() const
 {
 	return mpd_detOrient->getDevicePointer();
 }
 
-const GCScanner* GCScannerDevice::getScanner() const
+const Scanner* ScannerDevice::getScanner() const
 {
 	return mp_scanner;
 }

@@ -50,7 +50,7 @@ void py_setup_projectiondatadevice(py::module& m)
 	    py::class_<ProjectionDataDeviceOwned, ProjectionDataDevice>(
 	        m, "ProjectionDataDeviceOwned");
 	c_owned.def(
-	    py::init<const GCScanner*, const ProjectionData*, int, float>(),
+	    py::init<const Scanner*, const ProjectionData*, int, float>(),
 	    "Create a ProjectionDataDevice. This constructor will also store "
 	    "the Scanner LUT in the device",
 	    "scanner"_a, "reference"_a, "num_OSEM_subsets"_a = 1,
@@ -67,7 +67,7 @@ void py_setup_projectiondatadevice(py::module& m)
 	    py::class_<ProjectionDataDeviceAlias, ProjectionDataDevice>(
 	        m, "ProjectionDataDeviceAlias");
 	c_alias.def(
-	    py::init<const GCScanner*, const ProjectionData*, int, float>(),
+	    py::init<const Scanner*, const ProjectionData*, int, float>(),
 	    "Create a ProjectionDataDeviceAlias. This constructor will also "
 	    "store "
 	    "the Scanner LUT in the device",
@@ -107,7 +107,7 @@ ProjectionDataDevice::ProjectionDataDevice(
 }
 
 ProjectionDataDevice::ProjectionDataDevice(
-    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+    const Scanner* pp_scanner, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : ProjectionList(pp_reference),
@@ -141,7 +141,7 @@ ProjectionDataDevice::ProjectionDataDevice(
 }
 
 ProjectionDataDevice::ProjectionDataDevice(
-    std::shared_ptr<GCScannerDevice> pp_scannerDevice,
+    std::shared_ptr<ScannerDevice> pp_scannerDevice,
     const ProjectionData* pp_reference, int num_OSEM_subsets,
     float shareOfMemoryToUse)
     : ProjectionList(pp_reference), mp_scanner(pp_scannerDevice->getScanner())
@@ -152,7 +152,7 @@ ProjectionDataDevice::ProjectionDataDevice(
 }
 
 ProjectionDataDevice::ProjectionDataDevice(
-    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+    const Scanner* pp_scanner, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
     : ProjectionList(pp_reference), mp_scanner(pp_scanner)
 {
@@ -308,13 +308,13 @@ void ProjectionDataDevice::transferProjValuesToHost(
 	}
 }
 
-std::shared_ptr<GCScannerDevice>
+std::shared_ptr<ScannerDevice>
     ProjectionDataDevice::getScannerDevice() const
 {
 	return mp_LORs->getScannerDevice();
 }
 
-const GCScanner* ProjectionDataDevice::getScanner() const
+const Scanner* ProjectionDataDevice::getScanner() const
 {
 	return mp_scanner;
 }
@@ -498,7 +498,7 @@ bool ProjectionDataDevice::areLORsGathered() const
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
-    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+    const Scanner* pp_scanner, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : ProjectionDataDevice(pp_scanner, pp_reference,
@@ -508,7 +508,7 @@ ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
-    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+    const Scanner* pp_scanner, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
     : ProjectionDataDevice(pp_scanner, pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse)
@@ -517,7 +517,7 @@ ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
 }
 
 ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
-    std::shared_ptr<GCScannerDevice> pp_scannerDevice,
+    std::shared_ptr<ScannerDevice> pp_scannerDevice,
     const ProjectionData* pp_reference, int num_OSEM_subsets,
     float shareOfMemoryToUse)
     : ProjectionDataDevice(std::move(pp_scannerDevice), pp_reference,
@@ -580,7 +580,7 @@ void ProjectionDataDeviceOwned::loadProjValuesFromHostInternal(
 }
 
 ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
-    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+    const Scanner* pp_scanner, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
     : ProjectionDataDevice(pp_scanner, pp_reference,
@@ -590,7 +590,7 @@ ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
 }
 
 ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
-    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
+    const Scanner* pp_scanner, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
     : ProjectionDataDevice(pp_scanner, pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse),
@@ -599,7 +599,7 @@ ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
 }
 
 ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
-    std::shared_ptr<GCScannerDevice> pp_scannerDevice,
+    std::shared_ptr<ScannerDevice> pp_scannerDevice,
     const ProjectionData* pp_reference, int num_OSEM_subsets,
     float shareOfMemoryToUse)
     : ProjectionDataDevice(std::move(pp_scannerDevice), pp_reference,

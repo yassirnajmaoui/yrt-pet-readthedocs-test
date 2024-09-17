@@ -11,7 +11,7 @@
 #include "operators/GCOperatorProjectorDD_gpu.cuh"
 #include "utils/GCAssert.hpp"
 
-GCOSEM_gpu::GCOSEM_gpu(const GCScanner* p_scanner)
+GCOSEM_gpu::GCOSEM_gpu(const Scanner* p_scanner)
     : GCOSEM(p_scanner),
       mpd_sensImageBuffer(nullptr),
       mpd_tempSensDataInput(nullptr),

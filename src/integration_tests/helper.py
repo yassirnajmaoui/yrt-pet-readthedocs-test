@@ -63,7 +63,7 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
     assert rmse < 10**-4
 
 
-def _test_subsets(scanner: gc.GCScanner, img_params: gc.ImageParams,
+def _test_subsets(scanner: gc.Scanner, img_params: gc.ImageParams,
                   projData: gc.ProjectionData, **args):
     k = gc.GCProjectionOper(scanner, img_params, projData, **args)
 
@@ -91,7 +91,7 @@ def _test_subsets(scanner: gc.GCScanner, img_params: gc.ImageParams,
     np.testing.assert_allclose(Ax, Ax_sub)
 
 
-def _test_adjoint(scanner: gc.GCScanner, img_params: gc.ImageParams,
+def _test_adjoint(scanner: gc.Scanner, img_params: gc.ImageParams,
                   projData: gc.ProjectionData, **args):
     k = gc.GCProjectionOper(scanner, img_params, projData, **args)
 

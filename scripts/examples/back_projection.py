@@ -3,7 +3,7 @@ import pyyrtpet as gc
 
 # Note: This file is not to be executed, but simply to be used as a documentation
 
-scanner = gc.GCScannerOwned("<path to the scanner's json file>")
+scanner = gc.ScannerOwned("<path to the scanner's json file>")
 
 # Read an histogram
 dataset = gc.Histogram3DOwned(scanner)

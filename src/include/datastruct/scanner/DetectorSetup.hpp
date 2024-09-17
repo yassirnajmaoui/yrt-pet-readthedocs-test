@@ -10,10 +10,10 @@
 
 #include <string>
 
-class GCDetectorSetup
+class DetectorSetup
 {
 public:
-	virtual ~GCDetectorSetup() = default;
+	virtual ~DetectorSetup() = default;
 	virtual size_t getNumDets() const = 0;
 	virtual float getXpos(det_id_t id) const = 0;
 	virtual float getYpos(det_id_t id) const = 0;

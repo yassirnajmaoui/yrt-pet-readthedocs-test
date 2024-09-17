@@ -5,15 +5,15 @@
 
 #pragma once
 
-#include "datastruct/scanner/GCDetectorSetup.hpp"
+#include "datastruct/scanner/DetectorSetup.hpp"
 #include "utils/Array.hpp"
 
 #include <memory>
 
-class GCDetCoord : public GCDetectorSetup
+class DetCoord : public DetectorSetup
 {
 public:
-	~GCDetCoord() override = default;
+	~DetCoord() override = default;
 
 	size_t getNumDets() const override;
 	float getXpos(det_id_t detID) const override;
@@ -47,7 +47,7 @@ public:
 	}
 
 protected:
-	GCDetCoord();
+	DetCoord();
 
 protected:
 	std::unique_ptr<Array1DBase<float>> mp_Xpos;
@@ -59,21 +59,21 @@ protected:
 	// total number of dets in scanner = 258,048 in SAVANT DOI config
 };
 
-class GCDetCoordAlias : public GCDetCoord
+class DetCoordAlias : public DetCoord
 {
 public:
-	GCDetCoordAlias();
-	void Bind(GCDetCoord* p_detCoord);
+	DetCoordAlias();
+	void Bind(DetCoord* p_detCoord);
 	void Bind(Array1DBase<float>* Xpos, Array1DBase<float>* Ypos,
 	          Array1DBase<float>* Zpos, Array1DBase<float>* Xorient,
 	          Array1DBase<float>* Yorient, Array1DBase<float>* Zorient);
 };
 
-class GCDetCoordOwned : public GCDetCoord
+class DetCoordOwned : public DetCoord
 {
 public:
-	GCDetCoordOwned();
-	GCDetCoordOwned(const std::string& filename);
+	DetCoordOwned();
+	DetCoordOwned(const std::string& filename);
 	void allocate(size_t num_dets);
 	void readFromFile(const std::string& filename);
 };

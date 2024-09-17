@@ -5,7 +5,7 @@
 
 #include "geometry/GCMultiRayGenerator.hpp"
 
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "geometry/GCConstants.hpp"
 
 #include <cmath>
@@ -26,7 +26,7 @@ GCMultiRayGenerator::GCMultiRayGenerator(double thickness_z_i,
 
 void GCMultiRayGenerator::setupGenerator(const GCStraightLineParam& lor,
                                          const GCVector& n1, const GCVector& n2,
-                                         const GCScanner& scanner)
+                                         const Scanner& scanner)
 {
 	currentLor = &lor;
 	if (!isSingleRay)

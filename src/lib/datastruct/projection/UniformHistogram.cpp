@@ -13,13 +13,13 @@ void py_setup_uniformhistogram(py::module& m)
 {
 	auto c =
 	    py::class_<UniformHistogram, Histogram3D>(m, "UniformHistogram");
-	c.def(py::init<const GCScanner*, float>(), py::arg("scanner"),
+	c.def(py::init<const Scanner*, float>(), py::arg("scanner"),
 	      py::arg("value") = 1.0f);
 }
 #endif
 
 
-UniformHistogram::UniformHistogram(const GCScanner* p_scanner,
+UniformHistogram::UniformHistogram(const Scanner* p_scanner,
                                        float p_value)
     : Histogram3D(p_scanner), m_value(p_value)
 {

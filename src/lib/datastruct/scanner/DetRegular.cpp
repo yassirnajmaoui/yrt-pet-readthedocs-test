@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/scanner/GCDetRegular.hpp"
+#include "datastruct/scanner/DetRegular.hpp"
 
 #include "geometry/GCConstants.hpp"
 
@@ -16,7 +16,7 @@
 namespace py = pybind11;
 #endif
 
-GCDetRegular::GCDetRegular(GCScanner* pp_scanner) : mp_scanner(pp_scanner)
+DetRegular::DetRegular(Scanner* pp_scanner) : mp_scanner(pp_scanner)
 {
 	mp_Xpos = std::make_unique<Array1D<float>>();
 	mp_Ypos = std::make_unique<Array1D<float>>();
@@ -26,7 +26,7 @@ GCDetRegular::GCDetRegular(GCScanner* pp_scanner) : mp_scanner(pp_scanner)
 	mp_Zorient = std::make_unique<Array1D<float>>();
 }
 
-void GCDetRegular::generateLUT()
+void DetRegular::generateLUT()
 {
 	allocate();
 	size_t num_blocks = mp_scanner->dets_per_ring / mp_scanner->dets_per_block;
@@ -92,7 +92,7 @@ void GCDetRegular::generateLUT()
 	}
 }
 
-void GCDetRegular::allocate()
+void DetRegular::allocate()
 {
 	size_t num_dets = mp_scanner->getTheoreticalNumDets();
 	mp_Xpos->allocate(num_dets);
@@ -103,7 +103,7 @@ void GCDetRegular::allocate()
 	mp_Zorient->allocate(num_dets);
 }
 
-void GCDetRegular::writeToFile(const std::string& detReg_fname) const
+void DetRegular::writeToFile(const std::string& detReg_fname) const
 {
 	std::ofstream file;
 	file.open(detReg_fname.c_str(), std::ios::binary | std::ios::out);
@@ -129,57 +129,57 @@ void GCDetRegular::writeToFile(const std::string& detReg_fname) const
 }
 
 // GETTERS AND SETTERS
-float GCDetRegular::getXpos(det_id_t detID) const
+float DetRegular::getXpos(det_id_t detID) const
 {
 	return (*mp_Xpos)[detID];
 }
-float GCDetRegular::getYpos(det_id_t detID) const
+float DetRegular::getYpos(det_id_t detID) const
 {
 	return (*mp_Ypos)[detID];
 }
-float GCDetRegular::getZpos(det_id_t detID) const
+float DetRegular::getZpos(det_id_t detID) const
 {
 	return (*mp_Zpos)[detID];
 }
-float GCDetRegular::getXorient(det_id_t detID) const
+float DetRegular::getXorient(det_id_t detID) const
 {
 	return (*mp_Xorient)[detID];
 }
-float GCDetRegular::getYorient(det_id_t detID) const
+float DetRegular::getYorient(det_id_t detID) const
 {
 	return (*mp_Yorient)[detID];
 }
-float GCDetRegular::getZorient(det_id_t detID) const
+float DetRegular::getZorient(det_id_t detID) const
 {
 	return (*mp_Zorient)[detID];
 }
 
-void GCDetRegular::setXpos(det_id_t detID, float f)
+void DetRegular::setXpos(det_id_t detID, float f)
 {
 	(*mp_Xpos)[detID] = f;
 }
-void GCDetRegular::setYpos(det_id_t detID, float f)
+void DetRegular::setYpos(det_id_t detID, float f)
 {
 	(*mp_Ypos)[detID] = f;
 }
-void GCDetRegular::setZpos(det_id_t detID, float f)
+void DetRegular::setZpos(det_id_t detID, float f)
 {
 	(*mp_Zpos)[detID] = f;
 }
-void GCDetRegular::setXorient(det_id_t detID, float f)
+void DetRegular::setXorient(det_id_t detID, float f)
 {
 	(*mp_Xorient)[detID] = f;
 }
-void GCDetRegular::setYorient(det_id_t detID, float f)
+void DetRegular::setYorient(det_id_t detID, float f)
 {
 	(*mp_Yorient)[detID] = f;
 }
-void GCDetRegular::setZorient(det_id_t detID, float f)
+void DetRegular::setZorient(det_id_t detID, float f)
 {
 	(*mp_Zorient)[detID] = f;
 }
 
-size_t GCDetRegular::getNumDets() const
+size_t DetRegular::getNumDets() const
 {
 	return this->mp_Xpos->getSize(0);
 }
@@ -188,20 +188,20 @@ size_t GCDetRegular::getNumDets() const
 #if BUILD_PYBIND11
 void py_setup_gcdetregular(py::module& m)
 {
-	auto c = pybind11::class_<GCDetRegular, GCDetectorSetup>(m, "GCDetRegular");
-	c.def(py::init<GCScanner*>());
+	auto c = pybind11::class_<DetRegular, DetectorSetup>(m, "DetRegular");
+	c.def(py::init<Scanner*>());
 
-	c.def("generateLUT", &GCDetRegular::generateLUT);
-	c.def("setXpos", &GCDetRegular::setXpos);
-	c.def("setYpos", &GCDetRegular::setYpos);
-	c.def("setZpos", &GCDetRegular::setZpos);
-	c.def("setXorient", &GCDetRegular::setXorient);
-	c.def("setYorient", &GCDetRegular::setYorient);
-	c.def("setZorient", &GCDetRegular::setZorient);
-	c.def("getScanner", &GCDetRegular::getScanner);
+	c.def("generateLUT", &DetRegular::generateLUT);
+	c.def("setXpos", &DetRegular::setXpos);
+	c.def("setYpos", &DetRegular::setYpos);
+	c.def("setZpos", &DetRegular::setZpos);
+	c.def("setXorient", &DetRegular::setXorient);
+	c.def("setYorient", &DetRegular::setYorient);
+	c.def("setZorient", &DetRegular::setZorient);
+	c.def("getScanner", &DetRegular::getScanner);
 
 	c.def("getXposArray",
-	      [](const GCDetRegular& self) -> py::array_t<float>
+	      [](const DetRegular& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* posArr = self.getXposArrayRef();
 		      auto buf_info =
@@ -211,7 +211,7 @@ void py_setup_gcdetregular(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getYposArray",
-	      [](const GCDetRegular& self) -> py::array_t<float>
+	      [](const DetRegular& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* posArr = self.getYposArrayRef();
 		      auto buf_info =
@@ -221,7 +221,7 @@ void py_setup_gcdetregular(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getZposArray",
-	      [](const GCDetRegular& self) -> py::array_t<float>
+	      [](const DetRegular& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* posArr = self.getZposArrayRef();
 		      auto buf_info =
@@ -231,7 +231,7 @@ void py_setup_gcdetregular(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getXorientArray",
-	      [](const GCDetRegular& self) -> py::array_t<float>
+	      [](const DetRegular& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* orientArr = self.getXorientArrayRef();
 		      auto buf_info =
@@ -241,7 +241,7 @@ void py_setup_gcdetregular(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getYorientArray",
-	      [](const GCDetRegular& self) -> py::array_t<float>
+	      [](const DetRegular& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* orientArr = self.getYorientArrayRef();
 		      auto buf_info =
@@ -251,7 +251,7 @@ void py_setup_gcdetregular(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getZorientArray",
-	      [](const GCDetRegular& self) -> py::array_t<float>
+	      [](const DetRegular& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* orientArr = self.getZorientArrayRef();
 		      auto buf_info =

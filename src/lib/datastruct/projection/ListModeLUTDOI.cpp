@@ -5,7 +5,7 @@
 
 #include "datastruct/projection/ListModeLUTDOI.hpp"
 
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCGlobals.hpp"
 
 #include <cmath>
@@ -25,7 +25,7 @@ void py_setup_listmodelutdoi(py::module& m)
 
 	auto c_alias = py::class_<ListModeLUTDOIAlias, ListModeLUTDOI>(
 	    m, "ListModeLUTDOIAlias");
-	c_alias.def(py::init<GCScanner*, bool, int>(), py::arg("scanner"),
+	c_alias.def(py::init<Scanner*, bool, int>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
 
 	c_alias.def(
@@ -55,9 +55,9 @@ void py_setup_listmodelutdoi(py::module& m)
 
 	auto c_owned = py::class_<ListModeLUTDOIOwned, ListModeLUTDOI>(
 	    m, "ListModeLUTDOIOwned");
-	c_owned.def(py::init<GCScanner*, bool, int>(), py::arg("scanner"),
+	c_owned.def(py::init<Scanner*, bool, int>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
-	c_owned.def(py::init<GCScanner*, std::string, bool, int>(),
+	c_owned.def(py::init<Scanner*, std::string, bool, int>(),
 	            py::arg("scanner"), py::arg("listMode_fname"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
 	c_owned.def("readFromFile", &ListModeLUTDOIOwned::readFromFile);
@@ -67,13 +67,13 @@ void py_setup_listmodelutdoi(py::module& m)
 #endif  // if BUILD_PYBIND11
 
 
-ListModeLUTDOI::ListModeLUTDOI(const GCScanner* s, bool p_flagTOF,
+ListModeLUTDOI::ListModeLUTDOI(const Scanner* s, bool p_flagTOF,
                                    int numLayers)
     : ListModeLUT(s, p_flagTOF), m_numLayers(numLayers)
 {
 }
 
-ListModeLUTDOIOwned::ListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF,
+ListModeLUTDOIOwned::ListModeLUTDOIOwned(const Scanner* s, bool p_flagTOF,
                                              int numLayers)
     : ListModeLUTDOI(s, p_flagTOF, numLayers)
 {
@@ -88,7 +88,7 @@ ListModeLUTDOIOwned::ListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF,
 	}
 }
 
-ListModeLUTDOIOwned::ListModeLUTDOIOwned(const GCScanner* s,
+ListModeLUTDOIOwned::ListModeLUTDOIOwned(const Scanner* s,
                                              const std::string& listMode_fname,
                                              bool p_flagTOF, int numLayers)
     : ListModeLUTDOIOwned(s, p_flagTOF, numLayers)
@@ -96,7 +96,7 @@ ListModeLUTDOIOwned::ListModeLUTDOIOwned(const GCScanner* s,
 	readFromFile(listMode_fname);
 }
 
-ListModeLUTDOIAlias::ListModeLUTDOIAlias(const GCScanner* s, bool p_flagTOF,
+ListModeLUTDOIAlias::ListModeLUTDOIAlias(const Scanner* s, bool p_flagTOF,
                                              int numLayers)
     : ListModeLUTDOI(s, p_flagTOF, numLayers)
 {
@@ -382,7 +382,7 @@ void ListModeLUTDOIAlias::Bind(
 
 
 std::unique_ptr<ProjectionData>
-    ListModeLUTDOIOwned::create(const GCScanner& scanner,
+    ListModeLUTDOIOwned::create(const Scanner& scanner,
                                   const std::string& filename,
                                   const Plugin::OptionsResult& pluginOptions)
 {

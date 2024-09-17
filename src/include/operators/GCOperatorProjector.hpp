@@ -12,7 +12,7 @@
 
 class BinIterator;
 class Image;
-class GCScanner;
+class Scanner;
 class ProjectionData;
 class Histogram;
 
@@ -20,13 +20,13 @@ class GCOperatorProjectorParams
 {
 public:
 	GCOperatorProjectorParams(const BinIterator* p_binIter,
-	                          const GCScanner* p_scanner,
+	                          const Scanner* p_scanner,
 	                          float p_tofWidth_ps = 0.f, int p_tofNumStd = 0,
 	                          std::string p_psfProjFilename = "",
 	                          int p_num_rays = 1);
 
 	const BinIterator* binIter;
-	const GCScanner* scanner;
+	const Scanner* scanner;
 
 	// Time of Flight
 	float tofWidth_ps;
@@ -54,7 +54,7 @@ public:
 
 	GCOperatorProjectorBase(const GCOperatorProjectorParams& p_projParams);
 
-	const GCScanner* getScanner() const;
+	const Scanner* getScanner() const;
 	const BinIterator* getBinIter() const;
 
 	virtual void setAttImage(const Image* p_attImage);  // alias
@@ -72,7 +72,7 @@ protected:
 	const BinIterator* binIter;
 
 	// To take scanner properties into account
-	const GCScanner* scanner;
+	const Scanner* scanner;
 
 	// Attenuation image for forward projection (when there is motion)
 	const Image* attImage;

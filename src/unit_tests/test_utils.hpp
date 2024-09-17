@@ -3,11 +3,11 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/scanner/GCScanner.hpp"
-#include "datastruct/scanner/GCDetRegular.hpp"
+#include "datastruct/scanner/Scanner.hpp"
+#include "datastruct/scanner/DetRegular.hpp"
 
 namespace TestUtils
 {
-	std::pair<std::unique_ptr<GCScannerAlias>,
-	          std::unique_ptr<GCDetRegular>> makeScanner();
+	std::pair<std::unique_ptr<ScannerAlias>,
+	          std::unique_ptr<DetRegular>> makeScanner();
 }

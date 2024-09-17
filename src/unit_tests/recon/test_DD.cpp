@@ -8,7 +8,7 @@
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/projection/ListMode.hpp"
-#include "datastruct/scanner/GCDetRegular.hpp"
+#include "datastruct/scanner/DetRegular.hpp"
 #include "operators/GCOperatorProjectorDD.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -40,7 +40,7 @@ double get_rmse(const Image* img_ref, const Image* img)
 	return rmse;
 }
 
-void dd(const GCScanner* scanner, ListMode* proj,
+void dd(const Scanner* scanner, ListMode* proj,
         std::unique_ptr<Image>& out, const bool flag_cuda)
 {
 	const auto osem = Util::createOSEM(scanner, flag_cuda);
@@ -86,7 +86,7 @@ TEST_CASE("DD", "[dd]")
 	srand(13);
 
 	// Create Scanner
-	auto scanner = std::make_unique<GCScannerAlias>();
+	auto scanner = std::make_unique<ScannerAlias>();
 	scanner->scannerRadius = 200;
 	scanner->axialFOV = 100;
 	scanner->dets_per_ring = 64;
@@ -98,7 +98,7 @@ TEST_CASE("DD", "[dd]")
 	scanner->crystalDepth = 0.5;
 	scanner->crystalSize_trans = 0.15;
 	scanner->crystalSize_z = 0.15;
-	auto detRegular = std::make_unique<GCDetRegular>(scanner.get());
+	auto detRegular = std::make_unique<DetRegular>(scanner.get());
 	detRegular->generateLUT();
 	scanner->setDetectorSetup(detRegular.get());
 	size_t numDets =

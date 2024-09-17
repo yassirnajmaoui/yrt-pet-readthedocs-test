@@ -6,7 +6,7 @@
 #include "datastruct/projection/ListModeLUT.hpp"
 
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -65,7 +65,7 @@ void py_setup_listmodelut(py::module& m)
 
 	auto c_alias =
 	    py::class_<ListModeLUTAlias, ListModeLUT>(m, "ListModeLUTAlias");
-	c_alias.def(py::init<GCScanner*, bool>(), py::arg("scanner"),
+	c_alias.def(py::init<Scanner*, bool>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false);
 
 	c_alias.def("Bind",
@@ -89,9 +89,9 @@ void py_setup_listmodelut(py::module& m)
 
 	auto c_owned =
 	    py::class_<ListModeLUTOwned, ListModeLUT>(m, "ListModeLUTOwned");
-	c_owned.def(py::init<GCScanner*, bool>(), py::arg("scanner"),
+	c_owned.def(py::init<Scanner*, bool>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false);
-	c_owned.def(py::init<GCScanner*, const std::string&, bool>(),
+	c_owned.def(py::init<Scanner*, const std::string&, bool>(),
 	            py::arg("scanner"), py::arg("listMode_fname"),
 	            py::arg("flag_tof") = false);
 	c_owned.def("readFromFile", &ListModeLUTOwned::readFromFile);
@@ -105,12 +105,12 @@ void py_setup_listmodelut(py::module& m)
 #endif  // if BUILD_PYBIND11
 
 
-ListModeLUT::ListModeLUT(const GCScanner* s, bool p_flagTOF)
+ListModeLUT::ListModeLUT(const Scanner* s, bool p_flagTOF)
     : ListMode(), mp_scanner(s), m_flagTOF(p_flagTOF)
 {
 }
 
-ListModeLUTOwned::ListModeLUTOwned(const GCScanner* s, bool p_flagTOF)
+ListModeLUTOwned::ListModeLUTOwned(const Scanner* s, bool p_flagTOF)
     : ListModeLUT(s, p_flagTOF)
 {
 	mp_timestamps = std::make_unique<Array1D<timestamp_t>>();
@@ -122,7 +122,7 @@ ListModeLUTOwned::ListModeLUTOwned(const GCScanner* s, bool p_flagTOF)
 	}
 }
 
-ListModeLUTOwned::ListModeLUTOwned(const GCScanner* s,
+ListModeLUTOwned::ListModeLUTOwned(const Scanner* s,
                                        const std::string& listMode_fname,
                                        bool p_flagTOF)
     : ListModeLUTOwned(s, p_flagTOF)
@@ -130,7 +130,7 @@ ListModeLUTOwned::ListModeLUTOwned(const GCScanner* s,
 	ListModeLUTOwned::readFromFile(listMode_fname);
 }
 
-ListModeLUTAlias::ListModeLUTAlias(GCScanner* s, bool p_flagTOF)
+ListModeLUTAlias::ListModeLUTAlias(Scanner* s, bool p_flagTOF)
     : ListModeLUT(s, p_flagTOF)
 {
 	mp_timestamps = std::make_unique<Array1DAlias<timestamp_t>>();
@@ -339,7 +339,7 @@ void ListModeLUT::setDetectorIdsOfEvent(bin_t eventId, det_id_t d1,
 	(*mp_detectorId2)[eventId] = d2;
 }
 
-const GCScanner* ListModeLUT::getScanner() const
+const Scanner* ListModeLUT::getScanner() const
 {
 	return mp_scanner;
 }
@@ -489,7 +489,7 @@ void ListModeLUTAlias::Bind(
 #endif
 
 std::unique_ptr<ProjectionData>
-    ListModeLUTOwned::create(const GCScanner& scanner,
+    ListModeLUTOwned::create(const Scanner& scanner,
                                const std::string& filename,
                                const Plugin::OptionsResult& pluginOptions)
 {

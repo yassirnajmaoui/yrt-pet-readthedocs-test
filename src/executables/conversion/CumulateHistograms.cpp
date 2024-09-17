@@ -7,7 +7,7 @@
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/SparseHistogram.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 
 	GCGlobals::set_num_threads(numThreads);
 
-	auto scanner = std::make_unique<GCScannerOwned>(scanner_fname);
+	auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
 
 	std::unique_ptr<Histogram> histoOut;
 	if (toSparseHistogram)

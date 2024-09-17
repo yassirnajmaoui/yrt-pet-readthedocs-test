@@ -7,7 +7,7 @@
 
 #include "geometry/GCConstants.hpp"
 
-Histogram3D::Histogram3D(const GCScanner* pp_scanner)
+Histogram3D::Histogram3D(const Scanner* pp_scanner)
     : mp_data(nullptr), mp_scanner(pp_scanner)
 {
 	r_cut = mp_scanner->min_ang_diff / 2;
@@ -31,20 +31,20 @@ Histogram3D::Histogram3D(const GCScanner* pp_scanner)
 
 Histogram3D::~Histogram3D() {}
 
-Histogram3DOwned::Histogram3DOwned(const GCScanner* pp_scanner)
+Histogram3DOwned::Histogram3DOwned(const Scanner* pp_scanner)
     : Histogram3D(pp_scanner)
 {
 	mp_data = std::make_unique<Array3D<float>>();
 }
 
-Histogram3DOwned::Histogram3DOwned(const GCScanner* p_scanner,
+Histogram3DOwned::Histogram3DOwned(const Scanner* p_scanner,
                                        const std::string& filename)
     : Histogram3DOwned(p_scanner)
 {
 	readFromFile(filename);
 }
 
-Histogram3DAlias::Histogram3DAlias(const GCScanner* p_scanner)
+Histogram3DAlias::Histogram3DAlias(const Scanner* p_scanner)
     : Histogram3D(p_scanner)
 {
 	mp_data = std::make_unique<Array3DAlias<float>>();
@@ -499,14 +499,14 @@ void py_setup_histogram3d(pybind11::module& m)
 
 	auto c_owned =
 	    py::class_<Histogram3DOwned, Histogram3D>(m, "Histogram3DOwned");
-	c_owned.def(py::init<GCScanner*>());
-	c_owned.def(py::init<GCScanner*, std::string>());
+	c_owned.def(py::init<Scanner*>());
+	c_owned.def(py::init<Scanner*, std::string>());
 	c_owned.def("readFromFile", &Histogram3DOwned::readFromFile);
 	c_owned.def("allocate", &Histogram3DOwned::allocate);
 
 	auto c_alias =
 	    py::class_<Histogram3DAlias, Histogram3D>(m, "Histogram3DAlias");
-	c_alias.def(py::init<GCScanner*>());
+	c_alias.def(py::init<Scanner*>());
 	c_alias.def("Bind", &Histogram3DAlias::Bind);
 	c_alias.def(
 	    "Bind",
@@ -542,7 +542,7 @@ void py_setup_histogram3d(pybind11::module& m)
 #endif
 
 std::unique_ptr<ProjectionData>
-    Histogram3DOwned::create(const GCScanner& scanner,
+    Histogram3DOwned::create(const Scanner& scanner,
                                const std::string& filename,
                                const Plugin::OptionsResult& pluginOptions)
 {

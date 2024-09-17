@@ -32,7 +32,7 @@ void py_setup_gcoperatorprojectorparams(py::module& m)
 {
 	auto c =
 	    py::class_<GCOperatorProjectorParams>(m, "GCOperatorProjectorParams");
-	c.def(py::init<BinIterator*, GCScanner*, float, int, const std::string&,
+	c.def(py::init<BinIterator*, Scanner*, float, int, const std::string&,
 	               int>(),
 	      py::arg("binIter"), py::arg("scanner"), py::arg("tofWidth_ps") = 0.f,
 	      py::arg("tofNumStd") = 0, py::arg("psfProjFilename") = "",
@@ -85,7 +85,7 @@ void py_setup_gcoperatorprojector(py::module& m)
 #endif
 
 GCOperatorProjectorParams::GCOperatorProjectorParams(
-    const BinIterator* p_binIter, const GCScanner* p_scanner,
+    const BinIterator* p_binIter, const Scanner* p_scanner,
     float p_tofWidth_ps, int p_tofNumStd, std::string p_psfProjFilename,
     int p_num_rays)
     : binIter(p_binIter),
@@ -144,7 +144,7 @@ const BinIterator* GCOperatorProjectorBase::getBinIter() const
 	return binIter;
 }
 
-const GCScanner* GCOperatorProjectorBase::getScanner() const
+const Scanner* GCOperatorProjectorBase::getScanner() const
 {
 	return scanner;
 }

@@ -13,7 +13,7 @@
 #include "omp.h"
 
 
-LORsDevice::LORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice)
+LORsDevice::LORsDevice(std::shared_ptr<ScannerDevice> pp_scannerDevice)
     : mp_scannerDevice(std::move(pp_scannerDevice)),
       m_areLORsGathered(false),
       m_loadedBatchSize(0ull),
@@ -23,13 +23,13 @@ LORsDevice::LORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice)
 	initializeDeviceArrays();
 }
 
-LORsDevice::LORsDevice(const GCScanner* pp_scanner)
+LORsDevice::LORsDevice(const Scanner* pp_scanner)
     : m_areLORsGathered(false),
       m_loadedBatchSize(0ull),
       m_loadedBatchId(0ull),
       m_loadedSubsetId(0ull)
 {
-	mp_scannerDevice = std::make_shared<GCScannerDevice>(pp_scanner);
+	mp_scannerDevice = std::make_shared<ScannerDevice>(pp_scanner);
 	initializeDeviceArrays();
 }
 
@@ -65,7 +65,7 @@ void LORsDevice::loadEventLORs(const BinIterator& binIter,
 	auto* binIter_ptr = &binIter;
 	const GCVector offsetVec = {imgParams.off_x, imgParams.off_y,
 	                            imgParams.off_z};
-	const GCScanner* scanner = getScanner();
+	const Scanner* scanner = getScanner();
 	const ProjectionData* reference_ptr = &reference;
 
 	bin_t binId;
@@ -148,12 +148,12 @@ void LORsDevice::allocateForLORs(bool hasTOF, const cudaStream_t* stream)
 	}
 }
 
-std::shared_ptr<GCScannerDevice> LORsDevice::getScannerDevice() const
+std::shared_ptr<ScannerDevice> LORsDevice::getScannerDevice() const
 {
 	return mp_scannerDevice;
 }
 
-const GCScanner* LORsDevice::getScanner() const
+const Scanner* LORsDevice::getScanner() const
 {
 	return mp_scannerDevice->getScanner();
 }

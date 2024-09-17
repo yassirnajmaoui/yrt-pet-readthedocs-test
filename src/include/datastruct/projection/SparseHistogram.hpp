@@ -7,16 +7,16 @@
 
 #include "datastruct/PluginFramework.hpp"
 #include "datastruct/projection/Histogram.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 
 #include <unordered_map>
 
 class SparseHistogram : public Histogram
 {
 public:
-	SparseHistogram(const GCScanner& pr_scanner);
-	SparseHistogram(const GCScanner& pr_scanner, const std::string& filename);
-	SparseHistogram(const GCScanner& pr_scanner,
+	SparseHistogram(const Scanner& pr_scanner);
+	SparseHistogram(const Scanner& pr_scanner, const std::string& filename);
+	SparseHistogram(const Scanner& pr_scanner,
 	                  const ProjectionData& pr_projData,
 	                  const BinIterator* pp_binIter = nullptr);
 
@@ -52,7 +52,7 @@ public:
 	const det_pair_t* getDetectorPairBuffer() const;
 
 	static std::unique_ptr<ProjectionData>
-	    create(const GCScanner& scanner, const std::string& filename,
+	    create(const Scanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();
 
@@ -81,5 +81,5 @@ private:
 	    m_detectorMap;
 	std::vector<det_pair_t> m_detPairs;
 	std::vector<float> m_projValues;
-	const GCScanner& mr_scanner;
+	const Scanner& mr_scanner;
 };

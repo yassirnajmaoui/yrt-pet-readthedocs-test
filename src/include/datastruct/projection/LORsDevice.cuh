@@ -6,20 +6,20 @@
 #pragma once
 
 #include "datastruct/projection/BinIterator.hpp"
-#include "datastruct/scanner/GCScannerDevice.cuh"
+#include "datastruct/scanner/ScannerDevice.cuh"
 #include "utils/GCGPUTypes.cuh"
 
 #include <memory>
 
 class ProjectionData;
-class GCScanner;
+class Scanner;
 class ImageParams;
 
 class LORsDevice
 {
 public:
-	LORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice);
-	LORsDevice(const GCScanner* pp_scanner);
+	LORsDevice(std::shared_ptr<ScannerDevice> pp_scannerDevice);
+	LORsDevice(const Scanner* pp_scanner);
 
 	// Load the events' detector ids from a specific subset&batch id
 	void loadEventLORs(const BinIterator& binIter,
@@ -28,8 +28,8 @@ public:
 	                   const ImageParams& imgParams,
 	                   const cudaStream_t* stream = nullptr);
 
-	std::shared_ptr<GCScannerDevice> getScannerDevice() const;
-	const GCScanner* getScanner() const;
+	std::shared_ptr<ScannerDevice> getScannerDevice() const;
+	const Scanner* getScanner() const;
 
 	// Gets the size of the last-loaded batch
 	size_t getLoadedBatchSize() const;
@@ -57,7 +57,7 @@ private:
 	void initializeDeviceArrays();
 	void allocateForLORs(bool hasTOF, const cudaStream_t* stream = nullptr);
 
-	std::shared_ptr<GCScannerDevice> mp_scannerDevice;
+	std::shared_ptr<ScannerDevice> mp_scannerDevice;
 
 	std::unique_ptr<GCDeviceArray<float4>> mp_lorDet1Pos;
 	std::unique_ptr<GCDeviceArray<float4>> mp_lorDet2Pos;

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/scanner/GCDetCoord.hpp"
+#include "datastruct/scanner/DetCoord.hpp"
 #include "geometry/GCVector.hpp"
 
 #include <filesystem>
@@ -15,19 +15,19 @@
 
 namespace fs = std::filesystem;
 
-class GCScanner
+class Scanner
 {
 public:
 	size_t getNumDets() const;
 	size_t getTheoreticalNumDets() const;
 	GCVector getDetectorPos(det_id_t id) const;
 	GCVector getDetectorOrient(det_id_t id) const;
-	const GCDetectorSetup* getDetectorSetup() const { return mp_detectors; }
+	const DetectorSetup* getDetectorSetup() const { return mp_detectors; }
 	// Allocate and fill array with detector positions
 	void createLUT(Array2D<float>& lut) const;
 
 protected:
-	GCScanner();
+	Scanner();
 
 public:
 	std::string scannerName;
@@ -46,15 +46,15 @@ public:
 protected:
 	// Base class that encapsulates the calculations for both a regular and a
 	// LUT based scanner
-	GCDetectorSetup* mp_detectors;
+	DetectorSetup* mp_detectors;
 };
 
 // Owned class for when the detector setup is of the right ownership
-class GCScannerOwned : public GCScanner
+class ScannerOwned : public Scanner
 {
 public:
-	GCScannerOwned();
-	GCScannerOwned(const std::string& p_definitionFile);
+	ScannerOwned();
+	ScannerOwned(const std::string& p_definitionFile);
 	void readFromFile(const std::string& p_definitionFile);
 	void readFromString(const std::string& fileContents);
 	std::string getScannerPath() const;
@@ -63,13 +63,13 @@ public:
 
 protected:
 	fs::path m_scannerPath;
-	std::unique_ptr<GCDetectorSetup> mp_detectorsPtr;
+	std::unique_ptr<DetectorSetup> mp_detectorsPtr;
 };
 
 // Alias scanner class for when the detector setup is outside the scope
-class GCScannerAlias : public GCScanner
+class ScannerAlias : public Scanner
 {
 public:
-	GCScannerAlias();
-	void setDetectorSetup(GCDetectorSetup* d) { this->mp_detectors = d; }
+	ScannerAlias();
+	void setDetectorSetup(DetectorSetup* d) { this->mp_detectors = d; }
 };

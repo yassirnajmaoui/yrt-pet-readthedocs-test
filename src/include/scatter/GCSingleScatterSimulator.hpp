@@ -10,7 +10,7 @@
 #include "scatter/GCCrystal.hpp"
 
 class Histogram3D;
-class GCScanner;
+class Scanner;
 class Image;
 
 namespace Scatter
@@ -18,7 +18,7 @@ namespace Scatter
 	class GCSingleScatterSimulator
 	{
 	public:
-		GCSingleScatterSimulator(const GCScanner& pr_scanner,
+		GCSingleScatterSimulator(const Scanner& pr_scanner,
 		                         const Image& pr_mu, const Image& pr_lambda,
 		                         CrystalMaterial p_crystalMaterial, int seedi);
 
@@ -47,7 +47,7 @@ namespace Scatter
 
 		float m_energyLLD, m_sigmaEnergy;
 		float m_scannerRadius, m_crystalDepth, m_axialFOV, m_collimatorRadius;
-		const GCScanner& mr_scanner;
+		const Scanner& mr_scanner;
 		const Image& mr_mu;      // Attenuation image
 		const Image& mr_lambda;  // Image from 2 MLEM iterations
 		CrystalMaterial m_crystalMaterial;

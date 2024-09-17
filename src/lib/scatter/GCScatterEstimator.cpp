@@ -6,7 +6,7 @@
 #include "scatter/GCScatterEstimator.hpp"
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/scanner/GCScanner.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 #include "geometry/GCConstants.hpp"
 #include "scatter/GCCrystal.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -21,7 +21,7 @@ void py_setup_gcscatterestimator(py::module& m)
 {
 	auto c = py::class_<Scatter::GCScatterEstimator>(m, "GCScatterEstimator");
 	c.def(
-	    py::init<const GCScanner&, const Image&, const Image&,
+	    py::init<const Scanner&, const Image&, const Image&,
 	             const Histogram3D*, const Histogram3D*,
 	             const Histogram3D*, const Histogram3D*,
 	             Scatter::CrystalMaterial, int, bool, bool, int, float, bool>(),
@@ -39,7 +39,7 @@ void py_setup_gcscatterestimator(py::module& m)
 namespace Scatter
 {
 	GCScatterEstimator::GCScatterEstimator(
-	    const GCScanner& pr_scanner, const Image& pr_lambda,
+	    const Scanner& pr_scanner, const Image& pr_lambda,
 	    const Image& pr_mu, const Histogram3D* pp_promptsHis,
 	    const Histogram3D* pp_normOrSensHis,
 	    const Histogram3D* pp_randomsHis, const Histogram3D* pp_acfHis,

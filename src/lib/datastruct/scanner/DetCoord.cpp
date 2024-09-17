@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/scanner/GCDetCoord.hpp"
+#include "datastruct/scanner/DetCoord.hpp"
 
 #include "utils/Array.hpp"
 
@@ -15,8 +15,8 @@ namespace py = pybind11;
 
 #include <fstream>
 
-GCDetCoord::GCDetCoord() {}
-GCDetCoordOwned::GCDetCoordOwned() : GCDetCoord()
+DetCoord::DetCoord() {}
+DetCoordOwned::DetCoordOwned() : DetCoord()
 {
 	mp_Xpos = std::make_unique<Array1D<float>>();
 	mp_Ypos = std::make_unique<Array1D<float>>();
@@ -25,12 +25,12 @@ GCDetCoordOwned::GCDetCoordOwned() : GCDetCoord()
 	mp_Yorient = std::make_unique<Array1D<float>>();
 	mp_Zorient = std::make_unique<Array1D<float>>();
 }
-GCDetCoordOwned::GCDetCoordOwned(const std::string& filename)
-    : GCDetCoordOwned()
+DetCoordOwned::DetCoordOwned(const std::string& filename)
+    : DetCoordOwned()
 {
 	readFromFile(filename);
 }
-GCDetCoordAlias::GCDetCoordAlias() : GCDetCoord()
+DetCoordAlias::DetCoordAlias() : DetCoord()
 {
 	mp_Xpos = std::make_unique<Array1DAlias<float>>();
 	mp_Ypos = std::make_unique<Array1DAlias<float>>();
@@ -41,7 +41,7 @@ GCDetCoordAlias::GCDetCoordAlias() : GCDetCoord()
 }
 
 
-void GCDetCoordOwned::allocate(size_t num_dets)
+void DetCoordOwned::allocate(size_t num_dets)
 {
 	static_cast<Array1D<float>*>(mp_Xpos.get())->allocate(num_dets);
 	static_cast<Array1D<float>*>(mp_Ypos.get())->allocate(num_dets);
@@ -51,7 +51,7 @@ void GCDetCoordOwned::allocate(size_t num_dets)
 	static_cast<Array1D<float>*>(mp_Zorient.get())->allocate(num_dets);
 }
 
-void GCDetCoord::writeToFile(const std::string& detCoord_fname) const
+void DetCoord::writeToFile(const std::string& detCoord_fname) const
 {
 	std::ofstream file;
 	file.open(detCoord_fname.c_str(), std::ios::binary | std::ios::out);
@@ -76,7 +76,7 @@ void GCDetCoord::writeToFile(const std::string& detCoord_fname) const
 	}
 }
 
-void GCDetCoordOwned::readFromFile(const std::string& filename)
+void DetCoordOwned::readFromFile(const std::string& filename)
 {
 	// File format:
 	// <float><float><float><float><float><float>
@@ -87,7 +87,7 @@ void GCDetCoordOwned::readFromFile(const std::string& filename)
 	if (!fin.good())
 	{
 		throw std::runtime_error("Error reading input file " + filename +
-		                         " GCDetCoord::readDetCoords.");
+		                         " DetCoord::readDetCoords.");
 	}
 
 	// first check that file has the right size:
@@ -124,14 +124,14 @@ void GCDetCoordOwned::readFromFile(const std::string& filename)
 	fin.close();
 }
 
-void GCDetCoordAlias::Bind(GCDetCoord* p_detCoord)
+void DetCoordAlias::Bind(DetCoord* p_detCoord)
 {
 	Bind(p_detCoord->getXposArrayRef(), p_detCoord->getYposArrayRef(),
 	     p_detCoord->getZposArrayRef(), p_detCoord->getXorientArrayRef(),
 	     p_detCoord->getYorientArrayRef(), p_detCoord->getZorientArrayRef());
 }
 
-void GCDetCoordAlias::Bind(Array1DBase<float>* p_Xpos,
+void DetCoordAlias::Bind(Array1DBase<float>* p_Xpos,
                            Array1DBase<float>* p_Ypos,
                            Array1DBase<float>* p_Zpos,
                            Array1DBase<float>* p_Xorient,
@@ -156,62 +156,62 @@ void GCDetCoordAlias::Bind(Array1DBase<float>* p_Xpos,
 	if (!isNotNull)
 	{
 		throw std::runtime_error(
-		    "An error occured during the binding of the GCDetCoord");
+		    "An error occured during the binding of the DetCoord");
 	}
 }
 
 // GETTERS AND SETTERS
-float GCDetCoord::getXpos(det_id_t detID) const
+float DetCoord::getXpos(det_id_t detID) const
 {
 	return (*mp_Xpos)[detID];
 }
-float GCDetCoord::getYpos(det_id_t detID) const
+float DetCoord::getYpos(det_id_t detID) const
 {
 	return (*mp_Ypos)[detID];
 }
-float GCDetCoord::getZpos(det_id_t detID) const
+float DetCoord::getZpos(det_id_t detID) const
 {
 	return (*mp_Zpos)[detID];
 }
-float GCDetCoord::getXorient(det_id_t detID) const
+float DetCoord::getXorient(det_id_t detID) const
 {
 	return (*mp_Xorient)[detID];
 }
-float GCDetCoord::getYorient(det_id_t detID) const
+float DetCoord::getYorient(det_id_t detID) const
 {
 	return (*mp_Yorient)[detID];
 }
-float GCDetCoord::getZorient(det_id_t detID) const
+float DetCoord::getZorient(det_id_t detID) const
 {
 	return (*mp_Zorient)[detID];
 }
 
-void GCDetCoord::setXpos(det_id_t detID, float f)
+void DetCoord::setXpos(det_id_t detID, float f)
 {
 	(*mp_Xpos)[detID] = f;
 }
-void GCDetCoord::setYpos(det_id_t detID, float f)
+void DetCoord::setYpos(det_id_t detID, float f)
 {
 	(*mp_Ypos)[detID] = f;
 }
-void GCDetCoord::setZpos(det_id_t detID, float f)
+void DetCoord::setZpos(det_id_t detID, float f)
 {
 	(*mp_Zpos)[detID] = f;
 }
-void GCDetCoord::setXorient(det_id_t detID, float f)
+void DetCoord::setXorient(det_id_t detID, float f)
 {
 	(*mp_Xorient)[detID] = f;
 }
-void GCDetCoord::setYorient(det_id_t detID, float f)
+void DetCoord::setYorient(det_id_t detID, float f)
 {
 	(*mp_Yorient)[detID] = f;
 }
-void GCDetCoord::setZorient(det_id_t detID, float f)
+void DetCoord::setZorient(det_id_t detID, float f)
 {
 	(*mp_Zorient)[detID] = f;
 }
 
-size_t GCDetCoord::getNumDets() const
+size_t DetCoord::getNumDets() const
 {
 	return this->mp_Xpos->getSize(0);
 }
@@ -219,16 +219,16 @@ size_t GCDetCoord::getNumDets() const
 #if BUILD_PYBIND11
 void py_setup_gcdetcoord(py::module& m)
 {
-	auto c = pybind11::class_<GCDetCoord, GCDetectorSetup>(m, "GCDetCoord");
-	c.def("setXpos", &GCDetCoord::setXpos);
-	c.def("setYpos", &GCDetCoord::setYpos);
-	c.def("setZpos", &GCDetCoord::setZpos);
-	c.def("setXorient", &GCDetCoord::setXorient);
-	c.def("setYorient", &GCDetCoord::setYorient);
-	c.def("setZorient", &GCDetCoord::setZorient);
+	auto c = pybind11::class_<DetCoord, DetectorSetup>(m, "DetCoord");
+	c.def("setXpos", &DetCoord::setXpos);
+	c.def("setYpos", &DetCoord::setYpos);
+	c.def("setZpos", &DetCoord::setZpos);
+	c.def("setXorient", &DetCoord::setXorient);
+	c.def("setYorient", &DetCoord::setYorient);
+	c.def("setZorient", &DetCoord::setZorient);
 
 	c.def("getXposArray",
-	      [](const GCDetCoord& self) -> py::array_t<float>
+	      [](const DetCoord& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* posArr = self.getXposArrayRef();
 		      auto buf_info =
@@ -238,7 +238,7 @@ void py_setup_gcdetcoord(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getYposArray",
-	      [](const GCDetCoord& self) -> py::array_t<float>
+	      [](const DetCoord& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* posArr = self.getYposArrayRef();
 		      auto buf_info =
@@ -248,7 +248,7 @@ void py_setup_gcdetcoord(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getZposArray",
-	      [](const GCDetCoord& self) -> py::array_t<float>
+	      [](const DetCoord& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* posArr = self.getZposArrayRef();
 		      auto buf_info =
@@ -258,7 +258,7 @@ void py_setup_gcdetcoord(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getXorientArray",
-	      [](const GCDetCoord& self) -> py::array_t<float>
+	      [](const DetCoord& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* orientArr = self.getXorientArrayRef();
 		      auto buf_info =
@@ -268,7 +268,7 @@ void py_setup_gcdetcoord(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getYorientArray",
-	      [](const GCDetCoord& self) -> py::array_t<float>
+	      [](const DetCoord& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* orientArr = self.getYorientArrayRef();
 		      auto buf_info =
@@ -278,7 +278,7 @@ void py_setup_gcdetcoord(py::module& m)
 		      return py::array_t<float>(buf_info);
 	      });
 	c.def("getZorientArray",
-	      [](const GCDetCoord& self) -> py::array_t<float>
+	      [](const DetCoord& self) -> py::array_t<float>
 	      {
 		      Array1DBase<float>* orientArr = self.getZorientArrayRef();
 		      auto buf_info =
@@ -290,18 +290,18 @@ void py_setup_gcdetcoord(py::module& m)
 
 
 	auto c_owned =
-	    pybind11::class_<GCDetCoordOwned, GCDetCoord>(m, "GCDetCoordOwned");
+	    pybind11::class_<DetCoordOwned, DetCoord>(m, "DetCoordOwned");
 	c_owned.def(py::init<>());
 	c_owned.def(py::init<const std::string&>());
-	c_owned.def("readFromFile", &GCDetCoordOwned::readFromFile);
-	c_owned.def("allocate", &GCDetCoordOwned::allocate);
+	c_owned.def("readFromFile", &DetCoordOwned::readFromFile);
+	c_owned.def("allocate", &DetCoordOwned::allocate);
 
 	auto c_alias =
-	    pybind11::class_<GCDetCoordAlias, GCDetCoord>(m, "GCDetCoordAlias");
+	    pybind11::class_<DetCoordAlias, DetCoord>(m, "DetCoordAlias");
 	c_alias.def(py::init<>());
 	c_alias.def(
 	    "Bind",
-	    [](GCDetCoordAlias& self, py::buffer& xpos, py::buffer& ypos,
+	    [](DetCoordAlias& self, py::buffer& xpos, py::buffer& ypos,
 	       py::buffer& zpos, py::buffer& xorient, py::buffer& yorient,
 	       py::buffer& zorient)
 	    {
