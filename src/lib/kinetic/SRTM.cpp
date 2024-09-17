@@ -3,8 +3,10 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "kinetic/srtm.hpp"
+#include "kinetic/SRTM.hpp"
+
 #include "omp.h"
+
 #include <limits>
 #include <memory>
 
@@ -94,7 +96,7 @@ pybind11::array_t<double> fit_srtm_basis(
 		ptr_Lambda = static_cast<double*>(buf_Lambda.ptr);
 	}
 
-	solve_srtm_basis(ptr_tac_all, ptr_kin_out, ptr_kin_p, ptr_A_all, ptr_B_all,
+	solveSRTMBasis(ptr_tac_all, ptr_kin_out, ptr_kin_p, ptr_A_all, ptr_B_all,
 	                 ptr_Rinv_Qt_all, ptr_W, ptr_Lambda, alpha, ptr_kappa_list,
 	                 num_kappa, num_pix, num_frames, num_threads);
 
@@ -181,7 +183,7 @@ pybind11::array_t<double> fit_srtm_basis_joint(
 		ptr_Lambda = static_cast<double*>(buf_Lambda.ptr);
 	}
 
-	solve_srtm_basis_joint(ptr_tac_all, ptr_kin_out, ptr_kin_p, ptr_A_all,
+	solveSRTMBasisJoint(ptr_tac_all, ptr_kin_out, ptr_kin_p, ptr_A_all,
 	                       ptr_B_all, ptr_Rinv_Qt_all, ptr_W, ptr_Lambda, alpha,
 	                       ptr_kappa_list, num_kappa, num_pix, num_frames,
 	                       num_threads);
@@ -199,7 +201,7 @@ void py_setup_srtm(pybind11::module& m)
 #endif  // if BUILD_PYBIND11
 
 template <typename T>
-void solve_srtm_basis(const T* tac_all, T* kin_out, const T* kin_p,
+void solveSRTMBasis(const T* tac_all, T* kin_out, const T* kin_p,
                       const T* A_all, const T* B_all, const T* Rinv_Qt_all,
                       const T* W, const T* Lambda, const T alpha,
                       const T* kappa_list, const int num_kappa,
@@ -292,14 +294,14 @@ void solve_srtm_basis(const T* tac_all, T* kin_out, const T* kin_p,
 	}
 }
 
-template void solve_srtm_basis(const float* tac_all, float* kin_out,
+template void solveSRTMBasis(const float* tac_all, float* kin_out,
                                const float* kin_p, const float* A_all,
                                const float* B_all, const float* Rinv_Qt_all,
                                const float* W, const float* Lambda,
                                const float alpha, const float* kappa_list,
                                const int num_kappa, const size_t num_pix,
                                const int num_frames, const int num_threads);
-template void solve_srtm_basis(const double* tac_all, double* kin_out,
+template void solveSRTMBasis(const double* tac_all, double* kin_out,
                                const double* kin_p, const double* A_all,
                                const double* B_all, const double* Rinv_Qt_all,
                                const double* W, const double* Lambda,
@@ -308,7 +310,7 @@ template void solve_srtm_basis(const double* tac_all, double* kin_out,
                                const int num_frames, const int num_threads);
 
 template <typename T>
-void solve_srtm_basis_joint(const T* tac_all, T* kin_out, const T* kin_p,
+void solveSRTMBasisJoint(const T* tac_all, T* kin_out, const T* kin_p,
                             const T* A_all, const T* B_all,
                             const T* Rinv_Qt_all, const T* W, const T* Lambda,
                             const T alpha, const T* kappa_list,
@@ -459,13 +461,13 @@ void solve_srtm_basis_joint(const T* tac_all, T* kin_out, const T* kin_p,
 	}
 }
 
-template void solve_srtm_basis_joint(
+template void solveSRTMBasisJoint(
     const float* tac_all, float* kin_out, const float* kin_p,
     const float* A_all, const float* B_all, const float* Rinv_Qt_all,
     const float* W, const float* Lambda, const float alpha,
     const float* kappa_list, const int num_kappa, const size_t num_pix,
     const int num_frames, const int num_threads);
-template void solve_srtm_basis_joint(
+template void solveSRTMBasisJoint(
     const double* tac_all, double* kin_out, const double* kin_p,
     const double* A_all, const double* B_all, const double* Rinv_Qt_all,
     const double* W, const double* Lambda, const double alpha,

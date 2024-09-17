@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "geometry/Vector3D.hpp"
 #include "motion/ImageWarperTemplate.hpp"
 
 /* **************************************************************************************

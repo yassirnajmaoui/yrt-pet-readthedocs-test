@@ -28,7 +28,7 @@ set(SOURCES
         geometry/Cylinder.cpp
         geometry/Plane.cpp
         kernel/Kernel.cpp
-        kinetic/srtm.cpp
+        kinetic/SRTM.cpp
         motion/ImageWarperMatrix.cpp
         motion/ImageWarperTemplate.cpp
         motion/ImageWarperFunction.cpp

@@ -5,9 +5,7 @@
 
 #pragma once
 
-#include "geometry/Vector3D.hpp"
 #include "motion/ImageWarperTemplate.hpp"
-
 
 /* **************************************************************************************
  * Def : Class that implement the warping tool for image motion correction in
