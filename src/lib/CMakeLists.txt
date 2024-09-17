@@ -40,9 +40,9 @@ set(SOURCES
         operators/TimeOfFlight.cpp
         recon/OSEM.cpp
         recon/OSEM_cpu.cpp
-        scatter/GCScatterEstimator.cpp
-        scatter/GCSingleScatterSimulator.cpp
-        scatter/GCCrystal.cpp
+        scatter/ScatterEstimator.cpp
+        scatter/SingleScatterSimulator.cpp
+        scatter/Crystal.cpp
         utils/GCAssert.cpp
         utils/GCUtilities.cpp
         utils/GCTools.cpp

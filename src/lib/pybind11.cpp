@@ -55,8 +55,8 @@ void py_setup_operatorprojectordd(py::module& m);
 
 void py_setup_Globals(py::module& m);
 
-void py_setup_gccrystal(py::module& m);
-void py_setup_gcsinglescattersimulator(py::module& m);
+void py_setup_crystal(py::module& m);
+void py_setup_singlescattersimulator(py::module& m);
 void py_setup_gcscatterestimator(py::module& m);
 
 #ifdef BUILD_CUDA
@@ -115,8 +115,8 @@ PYBIND11_MODULE(pyyrtpet, m)
 
 	py_setup_Globals(m);
 
-	py_setup_gccrystal(m);
-	py_setup_gcsinglescattersimulator(m);
+	py_setup_crystal(m);
+	py_setup_singlescattersimulator(m);
 	py_setup_gcscatterestimator(m);
 
 #ifdef BUILD_CUDA

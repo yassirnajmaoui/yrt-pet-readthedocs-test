@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "scatter/GCSingleScatterSimulator.hpp"
+#include "scatter/SingleScatterSimulator.hpp"
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
@@ -23,30 +23,30 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-void py_setup_gcsinglescattersimulator(py::module& m)
+void py_setup_singlescattersimulator(py::module& m)
 {
-	auto c = py::class_<Scatter::GCSingleScatterSimulator>(
-		m, "GCSingleScatterSimulator");
+	auto c = py::class_<Scatter::SingleScatterSimulator>(
+		m, "SingleScatterSimulator");
 	c.def(py::init<const Scanner&, const Image&, const Image&,
 	               Scatter::CrystalMaterial, int>(),
 	      "scanner"_a, "attenuation_image"_a, "source_image"_a,
 	      "crystal_material"_a, "seed"_a);
-	c.def("runSSS", &Scatter::GCSingleScatterSimulator::runSSS, "num_z"_a,
+	c.def("runSSS", &Scatter::SingleScatterSimulator::runSSS, "num_z"_a,
 	      "num_phi"_a, "num_r"_a, "scatter_histo"_a, "print_progress"_a = true);
 	c.def("computeSingleScatterInLOR",
-	      &Scatter::GCSingleScatterSimulator::computeSingleScatterInLOR,
+	      &Scatter::SingleScatterSimulator::computeSingleScatterInLOR,
 	      "lor"_a);
-	c.def("getSamplePoint", &Scatter::GCSingleScatterSimulator::getSamplePoint,
+	c.def("getSamplePoint", &Scatter::SingleScatterSimulator::getSamplePoint,
 	      "i"_a);
-	c.def("getNumSamples", &Scatter::GCSingleScatterSimulator::getNumSamples);
-	c.def("passCollimator", &Scatter::GCSingleScatterSimulator::passCollimator,
+	c.def("getNumSamples", &Scatter::SingleScatterSimulator::getNumSamples);
+	c.def("passCollimator", &Scatter::SingleScatterSimulator::passCollimator,
 	      "lor"_a);
 }
 #endif
 
 namespace Scatter
 {
-	GCSingleScatterSimulator::GCSingleScatterSimulator(
+	SingleScatterSimulator::SingleScatterSimulator(
 		const Scanner& pr_scanner, const Image& pr_mu,
 		const Image& pr_lambda, CrystalMaterial p_crystalMaterial, int seedi)
 		: mr_scanner(pr_scanner),
@@ -159,7 +159,7 @@ namespace Scatter
 		}
 	}
 
-	void GCSingleScatterSimulator::runSSS(size_t numberZ, size_t numberPhi,
+	void SingleScatterSimulator::runSSS(size_t numberZ, size_t numberPhi,
 	                                      size_t numberR,
 	                                      Histogram3D& scatterHisto,
 	                                      bool printProgress)
@@ -318,7 +318,7 @@ namespace Scatter
 	}
 
 	// YP LOR in which to compute the scatter contribution
-	double GCSingleScatterSimulator::computeSingleScatterInLOR(
+	double SingleScatterSimulator::computeSingleScatterInLOR(
 		const StraightLineParam& lor) const
 	{
 		auto n1 = Vector3D{lor.point1.x, lor.point1.y, 0.};
@@ -472,18 +472,18 @@ namespace Scatter
 		return res;
 	}
 
-	Vector3D GCSingleScatterSimulator::getSamplePoint(int i) const
+	Vector3D SingleScatterSimulator::getSamplePoint(int i) const
 	{
 		ASSERT(i < m_numSamples);
 		return Vector3D{m_xSamples[i], m_ySamples[i], m_zSamples[i]};
 	}
 
-	int GCSingleScatterSimulator::getNumSamples() const
+	int SingleScatterSimulator::getNumSamples() const
 	{
 		return m_numSamples;
 	}
 
-	double GCSingleScatterSimulator::Ran1(int* idum)
+	double SingleScatterSimulator::Ran1(int* idum)
 	{
 		int j, k;
 		static int iy = 0;
@@ -521,7 +521,7 @@ namespace Scatter
 	}
 
 	// This is the integrated KN formula up to a proportionaity constant:
-	double GCSingleScatterSimulator::GetMuScalingFactor(double energy)
+	double SingleScatterSimulator::GetMuScalingFactor(double energy)
 	{
 		double a = energy / 511.0;
 		double res = (1 + a) / (a * a);
@@ -534,7 +534,7 @@ namespace Scatter
 
 	// The first point of lor must be the detector, the second point must be the
 	// scatter point.
-	double GCSingleScatterSimulator::getIntersectionLengthLORCrystal(
+	double SingleScatterSimulator::getIntersectionLengthLORCrystal(
 		const StraightLineParam& lor) const
 	{
 		Vector3D c{0.0, 0.0, 0.0}, a1, a2, inter1, inter2;
@@ -561,7 +561,7 @@ namespace Scatter
 
 	// Return true if the line lor does not cross the end plates
 	// First point is detector, second point is scatter point
-	bool GCSingleScatterSimulator::passCollimator(
+	bool SingleScatterSimulator::passCollimator(
 		const StraightLineParam& lor) const
 	{
 		if (m_collimatorRadius < 1e-7)
@@ -581,7 +581,7 @@ namespace Scatter
 
 	// This is the differential KN formula up to a proportionality constant for
 	// Ep=511keV.
-	double GCSingleScatterSimulator::GetKleinNishina(double cosa)
+	double SingleScatterSimulator::GetKleinNishina(double cosa)
 	{
 		double res = (1 + cosa * cosa) / 2;
 		res /= (2 - cosa) * (2 - cosa);

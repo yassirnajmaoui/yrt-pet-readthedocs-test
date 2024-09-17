@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "scatter/GCCrystal.hpp"
+#include "scatter/Crystal.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCUtilities.hpp"
 
@@ -14,7 +14,7 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gccrystal(py::module& m)
+void py_setup_crystal(py::module& m)
 {
 	py::enum_<Scatter::CrystalMaterial>(m, "CrystalMaterial")
 	    .value("LSO", Scatter::CrystalMaterial::LSO)

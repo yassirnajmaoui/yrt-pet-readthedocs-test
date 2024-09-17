@@ -7,7 +7,7 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "geometry/Constants.hpp"
-#include "scatter/GCScatterEstimator.hpp"
+#include "scatter/ScatterEstimator.hpp"
 #include "utils/Globals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
@@ -266,7 +266,7 @@ int main(int argc, char** argv)
 			    std::make_unique<ImageOwned>(imageParams, sourceImage_fname);
 		}
 
-		Scatter::GCScatterEstimator sss(
+		Scatter::ScatterEstimator sss(
 		    *scanner, *sourceImg, *attImg, promptsHis.get(),
 		    normOrSensHis.get(), randomsHis.get(), acfHis.get(),
 		    crystalMaterial, 13, !noTailFitting, isNorm, maskWidth,

@@ -7,7 +7,7 @@
 
 #include "geometry/Cylinder.hpp"
 #include "geometry/Plane.hpp"
-#include "scatter/GCCrystal.hpp"
+#include "scatter/Crystal.hpp"
 
 class Histogram3D;
 class Scanner;
@@ -15,10 +15,10 @@ class Image;
 
 namespace Scatter
 {
-    class GCSingleScatterSimulator
+    class SingleScatterSimulator
     {
     public:
-        GCSingleScatterSimulator(const Scanner& pr_scanner,
+        SingleScatterSimulator(const Scanner& pr_scanner,
                                  const Image& pr_mu, const Image& pr_lambda,
                                  CrystalMaterial p_crystalMaterial, int seedi);
 

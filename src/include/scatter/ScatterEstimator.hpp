@@ -6,18 +6,18 @@
 #pragma once
 
 #include "datastruct/projection/Histogram3D.hpp"
-#include "scatter/GCCrystal.hpp"
-#include "scatter/GCSingleScatterSimulator.hpp"
+#include "scatter/Crystal.hpp"
+#include "scatter/SingleScatterSimulator.hpp"
 
 class Scanner;
 class Image;
 
 namespace Scatter
 {
-	class GCScatterEstimator
+	class ScatterEstimator
 	{
 	public:
-		GCScatterEstimator(const Scanner& pr_scanner,
+		ScatterEstimator(const Scanner& pr_scanner,
 		                   const Image& pr_lambda, const Image& pr_mu,
 		                   const Histogram3D* pp_promptsHis,
 		                   const Histogram3D* pp_normOrSensHis,
@@ -42,7 +42,7 @@ namespace Scatter
 
 	private:
 		const Scanner& mr_scanner;
-		GCSingleScatterSimulator m_sss;
+		SingleScatterSimulator m_sss;
 		const Histogram3D* mp_promptsHis;
 		const Histogram3D* mp_randomsHis;
 		const Histogram3D* mp_normOrSensHis;

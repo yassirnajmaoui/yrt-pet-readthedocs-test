@@ -3,12 +3,12 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "scatter/GCScatterEstimator.hpp"
+#include "scatter/ScatterEstimator.hpp"
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "geometry/Constants.hpp"
-#include "scatter/GCCrystal.hpp"
+#include "scatter/Crystal.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
 #if BUILD_PYBIND11
@@ -19,7 +19,7 @@ using namespace pybind11::literals;
 
 void py_setup_gcscatterestimator(py::module& m)
 {
-	auto c = py::class_<Scatter::GCScatterEstimator>(m, "GCScatterEstimator");
+	auto c = py::class_<Scatter::ScatterEstimator>(m, "ScatterEstimator");
 	c.def(
 	    py::init<const Scanner&, const Image&, const Image&,
 	             const Histogram3D*, const Histogram3D*,
@@ -29,16 +29,16 @@ void py_setup_gcscatterestimator(py::module& m)
 	    "norm_or_sens_his"_a, "randoms_his"_a, "acf_his"_a,
 	    "crystal_material"_a, "seed"_a, "do_tail_fitting"_a, "is_norm"_a,
 	    "mask_width"_a, "mask_threshold"_a, "save_intermediary"_a);
-	c.def("estimateScatter", &Scatter::GCScatterEstimator::estimateScatter,
+	c.def("estimateScatter", &Scatter::ScatterEstimator::estimateScatter,
 	      "num_z"_a, "num_phi"_a, "num_r"_a, "print_progress"_a = false);
 	c.def("getScatterHistogram",
-	      &Scatter::GCScatterEstimator::getScatterHistogram);
+	      &Scatter::ScatterEstimator::getScatterHistogram);
 }
 #endif
 
 namespace Scatter
 {
-	GCScatterEstimator::GCScatterEstimator(
+	ScatterEstimator::ScatterEstimator(
 	    const Scanner& pr_scanner, const Image& pr_lambda,
 	    const Image& pr_mu, const Histogram3D* pp_promptsHis,
 	    const Histogram3D* pp_normOrSensHis,
@@ -71,7 +71,7 @@ namespace Scatter
 		mp_scatterHisto->clearProjections();
 	}
 
-	void GCScatterEstimator::estimateScatter(size_t numberZ, size_t numberPhi,
+	void ScatterEstimator::estimateScatter(size_t numberZ, size_t numberPhi,
 	                                         size_t numberR, bool printProgress)
 	{
 		m_sss.runSSS(numberZ, numberPhi, numberR, *mp_scatterHisto,
@@ -126,12 +126,12 @@ namespace Scatter
 	}
 
 
-	const Histogram3DOwned* GCScatterEstimator::getScatterHistogram() const
+	const Histogram3DOwned* ScatterEstimator::getScatterHistogram() const
 	{
 		return mp_scatterHisto.get();
 	}
 
-	void GCScatterEstimator::saveScatterTailsMask()
+	void ScatterEstimator::saveScatterTailsMask()
 	{
 		const auto tmpHisto = std::make_unique<Histogram3DOwned>(&mr_scanner);
 		tmpHisto->allocate();
@@ -142,7 +142,7 @@ namespace Scatter
 	}
 
 
-	void GCScatterEstimator::generateScatterTailsMask(
+	void ScatterEstimator::generateScatterTailsMask(
 	    const Histogram3D& acfHis, std::vector<bool>& mask, size_t maskWidth,
 	    float maskThreshold)
 	{
