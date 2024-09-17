@@ -21,7 +21,7 @@ bool test_iter(BinIterator* iter, size_t begin, size_t second, size_t end_t)
 	       iter->end() == end_t;
 }
 
-TEST_CASE("gcbiniterator_range", "[iterator]")
+TEST_CASE("biniterator_range", "[iterator]")
 {
 	SECTION("range-basic")
 	{
@@ -64,7 +64,7 @@ TEST_CASE("gcbiniterator_range", "[iterator]")
 	}
 }
 
-TEST_CASE("gcbiniterator_vector", "[iterator]")
+TEST_CASE("biniterator_vector", "[iterator]")
 {
 	SECTION("vector-basic")
 	{
@@ -76,7 +76,7 @@ TEST_CASE("gcbiniterator_vector", "[iterator]")
 	}
 }
 
-TEST_CASE("gcbiniterator_chronological", "[iterator]")
+TEST_CASE("biniterator_chronological", "[iterator]")
 {
 	size_t numSubsets = 3;
 	size_t numEvents = 13;

@@ -10,7 +10,7 @@ import numpy as np
 
 fold_py = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(fold_py))
-import pyyrtpet as gc
+import pyyrtpet as yrt
 
 import helper as _helper
 
@@ -25,10 +25,10 @@ fold_bin = _helper.fold_bin
 # %% Tests
 
 def test_mlem_simple():
-    img_params = gc.ImageParams(util_paths['img_params_500'])
-    scanner = gc.ScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.ListModeLUTOwned(scanner, dataset_paths['test_mlem_simple'])
-    sens_img = gc.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
+    img_params = yrt.ImageParams(util_paths['img_params_500'])
+    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    dataset = yrt.ListModeLUTOwned(scanner, dataset_paths['test_mlem_simple'])
+    sens_img = yrt.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
     _helper._test_reconstruction(
         img_params, scanner, dataset, sens_img,
         out_paths['test_mlem_simple'], ref_paths['test_mlem_simple'],
@@ -38,12 +38,12 @@ def test_mlem_simple():
 def _test_mlem_helper(dset):
     """Helper function for motion MLEM tests"""
     test_name = 'test_mlem_{}'.format(dset)
-    img_params = gc.ImageParams(util_paths['img_params_500'])
-    scanner = gc.ScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.ListModeLUTOwned(scanner, dataset_paths[test_name][0])
-    sens_img = gc.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
+    img_params = yrt.ImageParams(util_paths['img_params_500'])
+    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    dataset = yrt.ListModeLUTOwned(scanner, dataset_paths[test_name][0])
+    sens_img = yrt.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
 
-    warper = gc.ImageWarperMatrix()
+    warper = yrt.ImageWarperMatrix()
     warper.setImageHyperParam(img_params)
     warper.setFramesParamFromFile(dataset_paths[test_name][1])
     _helper._test_reconstruction(
@@ -65,31 +65,31 @@ def test_mlem_yesMan():
 
 
 def test_bwd():
-    img_params = gc.ImageParams(util_paths['img_params_500'])
-    scanner = gc.ScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.ListModeLUTOwned(scanner, dataset_paths['test_bwd'])
+    img_params = yrt.ImageParams(util_paths['img_params_500'])
+    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    dataset = yrt.ListModeLUTOwned(scanner, dataset_paths['test_bwd'])
 
-    out_img = gc.ImageOwned(img_params)
+    out_img = yrt.ImageOwned(img_params)
     out_img.allocate()
     out_img.setValue(0.0)
 
-    gc.backProject(scanner, out_img, dataset)
+    yrt.backProject(scanner, out_img, dataset)
     out_img.applyThreshold(out_img, 1, 0, 0, 1, 0)
 
     out_img.writeToFile(out_paths['test_bwd'])
 
-    ref_img = gc.ImageOwned(img_params, ref_paths['test_bwd'])
+    ref_img = yrt.ImageOwned(img_params, ref_paths['test_bwd'])
     rmse = _helper.get_rmse(np.array(out_img, copy=False),
                             np.array(ref_img, copy=False))
     assert rmse < 10**-4
 
 
 def test_sens():
-    img_params = gc.ImageParams(util_paths['img_params_500'])
-    scanner = gc.ScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.UniformHistogram(scanner)
+    img_params = yrt.ImageParams(util_paths['img_params_500'])
+    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    dataset = yrt.UniformHistogram(scanner)
 
-    osem = gc.createOSEM(scanner)
+    osem = yrt.createOSEM(scanner)
     osem.imageParams = img_params
     osem.setDataInput(dataset)
     out_imgs = osem.generateSensitivityImages()
@@ -97,26 +97,26 @@ def test_sens():
     out_img = out_imgs[0]
     out_img.writeToFile(out_paths['test_sens'])
 
-    ref_img = gc.ImageOwned(img_params, ref_paths['test_sens'])
+    ref_img = yrt.ImageOwned(img_params, ref_paths['test_sens'])
     rmse = _helper.get_rmse(np.array(out_img, copy=False),
                             np.array(ref_img, copy=False))
     assert rmse < 10**-4
 
 
 def _test_savant_motion_post_mc(test_name: str):
-    img_params = gc.ImageParams(util_paths['img_params_500'])
+    img_params = yrt.ImageParams(util_paths['img_params_500'])
     file_list = dataset_paths[test_name]
     image_list = []
     for fname in file_list[:-1]:
-        image_list.append(gc.ImageOwned(img_params, fname))
+        image_list.append(yrt.ImageOwned(img_params, fname))
 
-    warper = gc.ImageWarperFunction()
+    warper = yrt.ImageWarperFunction()
     warper.setImageHyperParam([img_params.nx, img_params.ny, img_params.nz],
                               [img_params.length_x, img_params.length_y,
                                img_params.length_z])
     warper.setFramesParamFromFile(dataset_paths[test_name][len(file_list) - 1])
 
-    out_img = gc.ImageOwned(img_params)
+    out_img = yrt.ImageOwned(img_params)
     out_img.allocate()
     out_img.setValue(0.0)
     for i, image in enumerate(image_list):
@@ -125,7 +125,7 @@ def _test_savant_motion_post_mc(test_name: str):
 
     out_img.writeToFile(out_paths[test_name])
 
-    ref_img = gc.ImageOwned(img_params, ref_paths[test_name])
+    ref_img = yrt.ImageOwned(img_params, ref_paths[test_name])
     rmse = _helper.get_rmse(np.array(out_img, copy=False),
                             np.array(ref_img, copy=False))
     assert rmse < 10**-4
@@ -140,11 +140,11 @@ def test_post_recon_mc_wobble():
 
 
 def test_psf():
-    img_params = gc.ImageParams(50, 50, 25, 50, 50, 25, 0.0, 0.0, 0.0)
-    image_in = gc.ImageOwned(img_params, dataset_paths['test_psf'][0])
-    oper_psf = gc.OperatorPsf(img_params, dataset_paths['test_psf'][1])
-    image_ref = gc.ImageOwned(img_params, ref_paths['test_psf'])
-    image_out = gc.ImageOwned(img_params)
+    img_params = yrt.ImageParams(50, 50, 25, 50, 50, 25, 0.0, 0.0, 0.0)
+    image_in = yrt.ImageOwned(img_params, dataset_paths['test_psf'][0])
+    oper_psf = yrt.OperatorPsf(img_params, dataset_paths['test_psf'][1])
+    image_ref = yrt.ImageOwned(img_params, ref_paths['test_psf'])
+    image_out = yrt.ImageOwned(img_params)
     image_out.allocate()
     image_out.setValue(0.0)
 
@@ -168,20 +168,20 @@ def test_psf_adjoint():
     ox = 0.0
     oy = 0.0
     oz = 0.0
-    img_params = gc.ImageParams(nx, ny, nz, sx, sy, sz, ox, oy, oz)
+    img_params = yrt.ImageParams(nx, ny, nz, sx, sy, sz, ox, oy, oz)
 
-    img_X = gc.ImageAlias(img_params)
-    img_Y = gc.ImageAlias(img_params)
+    img_X = yrt.ImageAlias(img_params)
+    img_Y = yrt.ImageAlias(img_params)
 
     img_X_a = rng.random([nz, ny, nx]) * 10 - 5
     img_Y_a = rng.random([nz, ny, nx]) * 10 - 5
     img_X.bind(img_X_a)
     img_Y.bind(img_Y_a)
 
-    oper_psf = gc.OperatorPsf(img_params, dataset_paths['test_psf'][1])
+    oper_psf = yrt.OperatorPsf(img_params, dataset_paths['test_psf'][1])
 
-    Ax = gc.ImageOwned(img_params)
-    Aty = gc.ImageOwned(img_params)
+    Ax = yrt.ImageOwned(img_params)
+    Aty = yrt.ImageOwned(img_params)
     Ax.allocate()
     Ax.setValue(0.0)
     Aty.allocate()
@@ -197,12 +197,12 @@ def test_psf_adjoint():
 
 
 def test_flat_panel_mlem_tof():
-    img_params = gc.ImageParams(util_paths['img_params_3.0'])
-    scanner = gc.ScannerOwned(
+    img_params = yrt.ImageParams(util_paths['img_params_3.0'])
+    scanner = yrt.ScannerOwned(
         util_paths['Geometry_2panels_large_3x3x20mm_rot_gc_json'])
-    dataset = gc.ListModeLUTDOIOwned(
+    dataset = yrt.ListModeLUTDOIOwned(
         scanner, dataset_paths['test_flat_panel_mlem_tof'][0], True)
-    sens_img = gc.ImageOwned(img_params,
+    sens_img = yrt.ImageOwned(img_params,
                                dataset_paths['test_flat_panel_mlem_tof'][1])
 
     _helper._test_reconstruction(
@@ -227,10 +227,10 @@ def test_flat_panel_mlem_tof_exec():
     ret = os.system(exec_str)
     assert ret == 0
 
-    img_params = gc.ImageParams(util_paths['img_params_3.0'])
-    ref_img = gc.ImageOwned(img_params,
+    img_params = yrt.ImageParams(util_paths['img_params_3.0'])
+    ref_img = yrt.ImageOwned(img_params,
                               ref_paths['test_flat_panel_mlem_tof'][1])
-    out_img = gc.ImageOwned(img_params,
+    out_img = yrt.ImageOwned(img_params,
                               out_paths['test_flat_panel_mlem_tof_exec'])
     np.testing.assert_allclose(np.array(ref_img, copy=False),
                                np.array(out_img, copy=False),
@@ -238,38 +238,38 @@ def test_flat_panel_mlem_tof_exec():
 
 
 def test_subsets_savant_siddon():
-    scanner = gc.ScannerOwned(util_paths["SAVANT_json"])
-    img_params = gc.ImageParams(util_paths["img_params_500"])
-    lm = gc.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
+    scanner = yrt.ScannerOwned(util_paths["SAVANT_json"])
+    img_params = yrt.ImageParams(util_paths["img_params_500"])
+    lm = yrt.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
     _helper._test_subsets(scanner, img_params, lm, projector='Siddon')
 
 
 def test_subsets_savant_dd():
-    scanner = gc.ScannerOwned(util_paths["SAVANT_json"])
-    img_params = gc.ImageParams(util_paths["img_params_500"])
-    lm = gc.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
+    scanner = yrt.ScannerOwned(util_paths["SAVANT_json"])
+    img_params = yrt.ImageParams(util_paths["img_params_500"])
+    lm = yrt.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
     _helper._test_subsets(scanner, img_params, lm, projector='DD')
 
 
 def test_adjoint_uhr2d_siddon():
-    scanner = gc.ScannerOwned(util_paths["UHR2D_json"])
-    img_params = gc.ImageParams(util_paths["img_params_2d"])
-    his = gc.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
+    scanner = yrt.ScannerOwned(util_paths["UHR2D_json"])
+    img_params = yrt.ImageParams(util_paths["img_params_2d"])
+    his = yrt.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='Siddon')
 
 
 def test_adjoint_uhr2d_multi_ray_siddon():
-    scanner = gc.ScannerOwned(util_paths["UHR2D_json"])
-    img_params = gc.ImageParams(util_paths["img_params_2d"])
-    his = gc.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
+    scanner = yrt.ScannerOwned(util_paths["UHR2D_json"])
+    img_params = yrt.ImageParams(util_paths["img_params_2d"])
+    his = yrt.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='Siddon',
                           num_rays=4)
 
 
 def test_adjoint_uhr2d_dd():
-    scanner = gc.ScannerOwned(util_paths["UHR2D_json"])
-    img_params = gc.ImageParams(util_paths["img_params_2d"])
-    his = gc.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
+    scanner = yrt.ScannerOwned(util_paths["UHR2D_json"])
+    img_params = yrt.ImageParams(util_paths["img_params_2d"])
+    his = yrt.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='DD')
 
 
@@ -286,19 +286,19 @@ def test_osem_his_2d():
     print("Running: " + recon_exec_str)
     os.system(recon_exec_str)
 
-    img_params = gc.ImageParams(util_paths['img_params_2d'])
+    img_params = yrt.ImageParams(util_paths['img_params_2d'])
     for i in range(5):
-        ref_gensensimg = gc.ImageOwned(img_params,
+        ref_gensensimg = yrt.ImageOwned(img_params,
                                          ref_paths['test_osem_his_2d'][1][i])
-        out_gensensimg = gc.ImageOwned(img_params,
+        out_gensensimg = yrt.ImageOwned(img_params,
                                          out_paths['test_osem_his_2d'][2][i])
         rmse = _helper.get_rmse(np.array(ref_gensensimg, copy=False),
                                 np.array(out_gensensimg, copy=False))
         assert rmse < 10**-4
 
-    ref_gensensimg = gc.ImageOwned(img_params,
+    ref_gensensimg = yrt.ImageOwned(img_params,
                                      ref_paths['test_osem_his_2d'][0])
-    out_gensensimg = gc.ImageOwned(img_params,
+    out_gensensimg = yrt.ImageOwned(img_params,
                                      out_paths['test_osem_his_2d'][0])
     rmse = _helper.get_rmse(np.array(ref_gensensimg, copy=False),
                             np.array(out_gensensimg, copy=False))
@@ -307,11 +307,11 @@ def test_osem_his_2d():
 
 def test_osem_siddon_multi_ray():
     num_siddon_rays = 6
-    img_params = gc.ImageParams(util_paths['img_params_500'])
-    scanner = gc.ScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.ListModeLUTOwned(
+    img_params = yrt.ImageParams(util_paths['img_params_500'])
+    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    dataset = yrt.ListModeLUTOwned(
         scanner, dataset_paths['test_osem_siddon_multi_ray'])
-    sens_img = gc.ImageOwned(
+    sens_img = yrt.ImageOwned(
         img_params, util_paths['sens_SAVANT_multi_ray_500'])
 
     _helper._test_reconstruction(

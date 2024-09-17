@@ -1,24 +1,24 @@
 #!/usr/bin/env python
-import pyyrtpet as gc
+import pyyrtpet as yrt
 
 # Note: This file is not to be executed, but simply to be used as a documentation
 
-scanner = gc.ScannerOwned("<path to the scanner's json file>")
+scanner = yrt.ScannerOwned("<path to the scanner's json file>")
 
 # Read an histogram
-dataset = gc.Histogram3DOwned(scanner)
+dataset = yrt.Histogram3DOwned(scanner)
 dataset.readFromFile("<path to an histogram to be backprojected>")
 # or, alternatively, read a ListMode file
-dataset = gc.ListModeLUTOwned(scanner)
+dataset = yrt.ListModeLUTOwned(scanner)
 dataset.readFromFile("<path to a listmode to be backprojected>")
 
 # Prepare an image
-imgParams = gc.ImageParams("<path to the image parameters file>")
-outImage = gc.ImageOwned(imgParams)
+imgParams = yrt.ImageParams("<path to the image parameters file>")
+outImage = yrt.ImageOwned(imgParams)
 outImage.allocate()
 
-projectorType = gc.OperatorProjector.ProjectorType.DD_GPU
+projectorType = yrt.OperatorProjector.ProjectorType.DD_GPU
 # Available projectors: SIDDON, DD, DD_GPU
-gc.backProject(scanner, outImage, dataset, projectorType)
+yrt.backProject(scanner, outImage, dataset, projectorType)
 
 outImage.writeToFile("<path where to save the output image>")

@@ -121,8 +121,17 @@ namespace Scatter
 		}
 
 		std::cout << "Dividing by the ACF..." << std::endl;
-		mp_scatterHisto->getData() /= mp_acfHis->getData();
-		std::cout << "Done." << std::endl;
+		mp_scatterHisto->operationOnEachBin(
+			[this](bin_t bin) -> float
+			{
+				const float acf = mp_acfHis->getProjectionValue(bin);
+				if (acf > 0.0f)
+				{
+					return mp_scatterHisto->getProjectionValue(bin) / acf;
+				}
+				return 0.0f;
+			});
+		std::cout << "Done with scatter estimate." << std::endl;
 	}
 
 

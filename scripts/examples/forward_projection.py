@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-import pyyrtpet as gc
+import pyyrtpet as yrt
 
 # Note: This file is not to be executed, but simply to be used as a documentation
 
-scanner = gc.ScannerOwned("<path to the scanner's json file>")
+scanner = yrt.ScannerOwned("<path to the scanner's json file>")
 
 # Prepare an empty histogram
-outHis = gc.Histogram3DOwned(scanner)
+outHis = yrt.Histogram3DOwned(scanner)
 outHis.allocate()
 
 # Read an image to Forward-project
-imgParams = gc.ImageParams("<path to the image parameters file>")
-inputImage = gc.ImageOwned(imgParams, "<path to input image>")
+imgParams = yrt.ImageParams("<path to the image parameters file>")
+inputImage = yrt.ImageOwned(imgParams, "<path to input image>")
 
-projectorType = gc.OperatorProjector.ProjectorType.DD_GPU
+projectorType = yrt.OperatorProjector.ProjectorType.DD_GPU
 # Available projectors: SIDDON, DD, DD_GPU
-gc.forwProject(scanner, inputImage, outHis, projectorType)
+yrt.forwProject(scanner, inputImage, outHis, projectorType)
 
 outHis.writeToFile("<path to save output histogram>")

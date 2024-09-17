@@ -1,7 +1,7 @@
 This repository contains reconstruction code developed for high resolution PET.
 
 Setup instructions and general information on the tools used by the project can
-be found in the [wiki](https://gitlab.partners.org/gcmisavant/highrespetrecon/wikis/Home).
+be found in the Wiki.
 
 # Use the program
 
@@ -169,7 +169,7 @@ Images are stored in YRT-PET raw data format (i.e. with the header described
 `float64` although this is likely to change in the future.
 The file extension used is `.img`.
 
-### Listmode (``GCListmodeLUT``)
+### Listmode (``ListmodeLUT``)
 
 The listmode file is a record of all the events to be considered for the reconstruction. It is similar to the Histogram as it has all the same fields, except for the Value (which is considered to be 1.0 in all listmode events)
 

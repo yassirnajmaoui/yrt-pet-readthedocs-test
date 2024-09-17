@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 import argparse
-import pyyrtpet as gc
+import pyyrtpet as yrt
 
 mpl.use("Qt5Agg")
 
@@ -82,7 +82,7 @@ if(__name__ == "__main__"):
 
         for i_img_fname in tqdm(range(num_files)):
             img_fname = args.image[i_img_fname]
-            gc_img = gc.Array3Ddouble()
+            gc_img = yrt.Array3Ddouble()
             gc_img.readFromFile(img_fname)
             img = np.array(gc_img, copy=False)
             img_z_averaged = np.mean(img[slice_list],axis=0)
@@ -109,7 +109,7 @@ if(__name__ == "__main__"):
 
     for i_img_fname in tqdm(range(num_files)):
         img_fname = args.image[i_img_fname]
-        gc_img = gc.Array3Ddouble()
+        gc_img = yrt.Array3Ddouble()
         gc_img.readFromFile(img_fname)
         img = np.array(gc_img, copy=False)
         img_z_averaged = np.mean(img[slice_list],axis=0)

@@ -171,12 +171,12 @@ void ScannerOwned::readFromString(const std::string& fileContents)
 	Util::getParam<size_t>(&j, &dets_per_block, "dets_per_block", 1, false);
 
 	// Check for errors
-	if (scannerFileVersion != GCSCANNER_FILE_VERSION)
+	if (scannerFileVersion != SCANNER_FILE_VERSION)
 	{
 		throw std::invalid_argument(
 		    "Wrong file version for Scanner JSON file, the "
 		    "current version is " +
-		    std::to_string(GCSCANNER_FILE_VERSION));
+		    std::to_string(SCANNER_FILE_VERSION));
 	}
 
 	// Join paths for DetCoord

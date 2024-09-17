@@ -11,7 +11,7 @@
 #include <filesystem>
 #include <string>
 
-#define GCSCANNER_FILE_VERSION 3.0
+#define SCANNER_FILE_VERSION 3.0
 
 namespace fs = std::filesystem;
 

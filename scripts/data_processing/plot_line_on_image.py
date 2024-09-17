@@ -5,7 +5,7 @@ import matplotlib as mpl
 mpl.use("TkAgg")
 import matplotlib.pyplot as plt
 import argparse
-import pyyrtpet as gc
+import pyyrtpet as yrt
 
 if(__name__ == "__main__"):
     parser = argparse.ArgumentParser(description='Generate profile plot of image')
@@ -16,7 +16,7 @@ if(__name__ == "__main__"):
     parser.add_argument('--out', type=str, required=False, help='Output figure to save')
     args = parser.parse_args()
 
-    gc_img = gc.Array3Ddouble()
+    gc_img = yrt.Array3Ddouble()
     gc_img.readFromFile(args.image)
     img = np.array(gc_img,copy=False)[args.slice]
 

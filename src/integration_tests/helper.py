@@ -5,7 +5,7 @@ import numpy as np
 
 fold_py = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(fold_py))
-import pyyrtpet as gc
+import pyyrtpet as yrt
 
 
 # %% Test folders
@@ -25,17 +25,17 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
                          hard_threshold=1.0, num_threads=-1,
                          tof_width_ps=None, tof_n_std=None,
                          proj_psf_fname=None, num_rays=1):
-    out_img = gc.ImageOwned(img_params)
+    out_img = yrt.ImageOwned(img_params)
     out_img.allocate()
     out_img.setValue(0.0)
 
-    osem = gc.createOSEM(scanner)
+    osem = yrt.createOSEM(scanner)
     osem.imageParams = img_params
     osem.num_MLEM_iterations = num_MLEM_iterations
     osem.num_OSEM_subsets = num_OSEM_subsets
     osem.hardThreshold = hard_threshold
     osem.numRays = num_rays
-    gc.Globals.set_num_threads(num_threads)
+    yrt.Globals.set_num_threads(num_threads)
     osem.setDataInput(dataset)
     if tof_width_ps is not None and tof_n_std is not None:
         osem.addTOF(tof_width_ps, tof_n_std)
@@ -57,15 +57,15 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
         osem.reconstructWithWarperMotion()
     out_img.writeToFile(out_img_file)
 
-    ref_img = gc.ImageOwned(img_params, ref_img_file)
+    ref_img = yrt.ImageOwned(img_params, ref_img_file)
     rmse = get_rmse(np.array(out_img, copy=False),
                     np.array(ref_img, copy=False))
     assert rmse < 10**-4
 
 
-def _test_subsets(scanner: gc.Scanner, img_params: gc.ImageParams,
-                  projData: gc.ProjectionData, **args):
-    k = gc.ProjectionOper(scanner, img_params, projData, **args)
+def _test_subsets(scanner: yrt.Scanner, img_params: yrt.ImageParams,
+                  projData: yrt.ProjectionData, **args):
+    k = yrt.ProjectionOper(scanner, img_params, projData, **args)
 
     x = np.random.random([img_params.nz, img_params.ny, img_params.nx])
     y = np.random.random(projData.count())
@@ -75,7 +75,7 @@ def _test_subsets(scanner: gc.Scanner, img_params: gc.ImageParams,
     num_subsets = 4
     Ax_sub = np.zeros_like(Ax)
     for subset in range(num_subsets):
-        k_sub = gc.ProjectionOper(
+        k_sub = yrt.ProjectionOper(
             scanner,
             img_params, projData,
             idx_subset=subset, num_subsets=num_subsets,
@@ -91,9 +91,9 @@ def _test_subsets(scanner: gc.Scanner, img_params: gc.ImageParams,
     np.testing.assert_allclose(Ax, Ax_sub)
 
 
-def _test_adjoint(scanner: gc.Scanner, img_params: gc.ImageParams,
-                  projData: gc.ProjectionData, **args):
-    k = gc.ProjectionOper(scanner, img_params, projData, **args)
+def _test_adjoint(scanner: yrt.Scanner, img_params: yrt.ImageParams,
+                  projData: yrt.ProjectionData, **args):
+    k = yrt.ProjectionOper(scanner, img_params, projData, **args)
 
     x = np.random.random([img_params.nz, img_params.ny, img_params.nx])
     y = np.random.random(projData.count())

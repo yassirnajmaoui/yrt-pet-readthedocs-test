@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from . import pyyrtpet as gc
+from . import pyyrtpet as yrt
 
 # %% Raw-data file interface
 
@@ -80,8 +80,8 @@ class DataFileRawd:
 
 # Wrapper for Siddon operator
 class ProjectionOper:
-    def __init__(self, scanner: gc.Scanner, img_params: gc.ImageParams,
-                 projData: gc.ProjectionData, projector='Siddon',
+    def __init__(self, scanner: yrt.Scanner, img_params: yrt.ImageParams,
+                 projData: yrt.ProjectionData, projector='Siddon',
                  idx_subset=0, num_subsets=1,
                  tof_width_ps=None, tof_n_std=0,
                  proj_psf_fname=None, num_rays=1):
@@ -92,8 +92,8 @@ class ProjectionOper:
         self._num_subsets = num_subsets
         self._binIter = self._projData.getBinIter(self._num_subsets,
                                                   self._idx_subset)
-        proj_f = getattr(gc, 'OperatorProjector{}'.format(projector))
-        self._proj_params = gc.OperatorProjectorParams(
+        proj_f = getattr(yrt, 'OperatorProjector{}'.format(projector))
+        self._proj_params = yrt.OperatorProjectorParams(
             self._binIter, self._scanner,
             tof_width_ps or np.float32(0), tof_n_std or np.int32(0),
             proj_psf_fname or '', num_rays)
@@ -111,10 +111,10 @@ class ProjectionOper:
         xx = np.require(x, dtype=np.float64)
         if xx.ndim == 2:
             xx = xx[None, ...]
-        img = gc.ImageAlias(self._img_params)
+        img = yrt.ImageAlias(self._img_params)
         img.bind(xx)
         self._y[:] = 0
-        projlist = gc.ProjectionListAlias(self._projData)
+        projlist = yrt.ProjectionListAlias(self._projData)
         projlist.bind(self._y)
         self._oper.applyA(img, projlist)
         return self._y
@@ -122,10 +122,10 @@ class ProjectionOper:
     def At(self, y):
         """Backprojection"""
         yy = np.require(y, dtype=np.float32)
-        projlist = gc.ProjectionListAlias(self._projData)
+        projlist = yrt.ProjectionListAlias(self._projData)
         projlist.bind(yy)
         self._x[:] = 0
-        img = gc.ImageAlias(self._img_params)
+        img = yrt.ImageAlias(self._img_params)
         img.bind(self._x)
         self._oper.applyAH(projlist, img)
         return self._x

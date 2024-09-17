@@ -10,7 +10,7 @@ import numpy as np
 
 fold_py = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(fold_py))
-import pyyrtpet as gc
+import pyyrtpet as yrt
 
 import helper as _helper
 
@@ -26,7 +26,7 @@ fold_bin = _helper.fold_bin
 
 
 def test_scanner_lookup_table():
-    scanner = gc.ScannerOwned(
+    scanner = yrt.ScannerOwned(
         util_paths['Geometry_2panels_large_3x3x20mm_rot_gc_json'])
     lut = scanner.createLUT()
     bin_id = 10
@@ -41,21 +41,21 @@ def test_scanner_lookup_table():
 def test_image_transform():
     # Simple translation
     x = np.random.random([12, 13, 14])
-    img_params = gc.ImageParams(14, 13, 12, 28.0, 26.0, 24.0)
-    img = gc.ImageAlias(img_params)
+    img_params = yrt.ImageParams(14, 13, 12, 28.0, 26.0, 24.0)
+    img = yrt.ImageAlias(img_params)
     img.bind(x)
-    v_rot = gc.Vector3D(0.0, 0.0, 0.0)
-    v_tr = gc.Vector3D(2.0, 0.0, 0.0)
+    v_rot = yrt.Vector3D(0.0, 0.0, 0.0)
+    v_tr = yrt.Vector3D(2.0, 0.0, 0.0)
     img_t = img.transformImage(v_rot, v_tr)
     x_t = np.array(img_t, copy=False)
     np.testing.assert_allclose(x[..., :-1], x_t[..., 1:])
     # Simple rotation
     x = np.random.random([14, 12, 12])
-    img_params = gc.ImageParams(12, 12, 14, 26.0, 26.0, 28.0)
-    img = gc.ImageAlias(img_params)
+    img_params = yrt.ImageParams(12, 12, 14, 26.0, 26.0, 28.0)
+    img = yrt.ImageAlias(img_params)
     img.bind(x)
-    v_rot = gc.Vector3D(0.0, 0.0, np.pi / 2)
-    v_tr = gc.Vector3D(0.0, 0.0, 0.0)
+    v_rot = yrt.Vector3D(0.0, 0.0, np.pi / 2)
+    v_tr = yrt.Vector3D(0.0, 0.0, 0.0)
     img_t = img.transformImage(v_rot, v_tr)
     x_t = np.array(img_t, copy=False)
     np.testing.assert_allclose(np.moveaxis(x, 1, 2)[..., ::-1], x_t)
