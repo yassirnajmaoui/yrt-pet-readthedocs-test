@@ -6,8 +6,8 @@
 #include "catch.hpp"
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/projection/GCListModeLUT.hpp"
-#include "datastruct/projection/IListMode.hpp"
+#include "datastruct/projection/ListModeLUT.hpp"
+#include "datastruct/projection/ListMode.hpp"
 #include "datastruct/scanner/GCDetRegular.hpp"
 #include "operators/GCOperatorProjectorDD.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
@@ -40,7 +40,7 @@ double get_rmse(const Image* img_ref, const Image* img)
 	return rmse;
 }
 
-void dd(const GCScanner* scanner, IListMode* proj,
+void dd(const GCScanner* scanner, ListMode* proj,
         std::unique_ptr<Image>& out, const bool flag_cuda)
 {
 	const auto osem = Util::createOSEM(scanner, flag_cuda);
@@ -119,7 +119,7 @@ TEST_CASE("DD", "[dd]")
 	auto img = std::make_unique<ImageOwned>(img_params);
 	img->allocate();
 
-	auto data = std::make_unique<GCListModeLUTOwned>(scanner.get());
+	auto data = std::make_unique<ListModeLUTOwned>(scanner.get());
 	const size_t numEvents = 500;
 	data->allocate(numEvents);
 	for (bin_t binId = 0; binId < numEvents; binId++)

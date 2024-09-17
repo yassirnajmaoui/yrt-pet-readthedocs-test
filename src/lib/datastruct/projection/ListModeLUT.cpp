@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCListModeLUT.hpp"
+#include "datastruct/projection/ListModeLUT.hpp"
 
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
@@ -21,15 +21,15 @@
 
 namespace py = pybind11;
 
-void py_setup_gclistmodelut(py::module& m)
+void py_setup_listmodelut(py::module& m)
 {
-	auto c = py::class_<GCListModeLUT, IListMode>(m, "GCListModeLUT");
-	c.def("setDetectorId1OfEvent", &GCListModeLUT::setDetectorId1OfEvent);
-	c.def("setDetectorId2OfEvent", &GCListModeLUT::setDetectorId2OfEvent);
-	c.def("setDetectorIdsOfEvent", &GCListModeLUT::setDetectorIdsOfEvent);
+	auto c = py::class_<ListModeLUT, ListMode>(m, "ListModeLUT");
+	c.def("setDetectorId1OfEvent", &ListModeLUT::setDetectorId1OfEvent);
+	c.def("setDetectorId2OfEvent", &ListModeLUT::setDetectorId2OfEvent);
+	c.def("setDetectorIdsOfEvent", &ListModeLUT::setDetectorIdsOfEvent);
 
 	c.def("getTimestampArray",
-	      [](const GCListModeLUT& self) -> py::array_t<timestamp_t>
+	      [](const ListModeLUT& self) -> py::array_t<timestamp_t>
 	      {
 		      Array1DBase<timestamp_t>* arr = self.getTimestampArrayPtr();
 		      auto buf_info = py::buffer_info(
@@ -39,7 +39,7 @@ void py_setup_gclistmodelut(py::module& m)
 		      return py::array_t<timestamp_t>(buf_info);
 	      });
 	c.def("getDetector1Array",
-	      [](const GCListModeLUT& self) -> py::array_t<det_id_t>
+	      [](const ListModeLUT& self) -> py::array_t<det_id_t>
 	      {
 		      Array1DBase<det_id_t>* arr = self.getDetector1ArrayPtr();
 		      auto buf_info =
@@ -49,7 +49,7 @@ void py_setup_gclistmodelut(py::module& m)
 		      return py::array_t<det_id_t>(buf_info);
 	      });
 	c.def("getDetector2Array",
-	      [](const GCListModeLUT& self) -> py::array_t<det_id_t>
+	      [](const ListModeLUT& self) -> py::array_t<det_id_t>
 	      {
 		      Array1DBase<det_id_t>* arr = self.getDetector2ArrayPtr();
 		      auto buf_info =
@@ -58,46 +58,46 @@ void py_setup_gclistmodelut(py::module& m)
 		                          {arr->getSizeTotal()}, {sizeof(det_id_t)});
 		      return py::array_t<det_id_t>(buf_info);
 	      });
-	c.def("addLORMotion", &GCListModeLUT::addLORMotion);
+	c.def("addLORMotion", &ListModeLUT::addLORMotion);
 
-	c.def("writeToFile", &GCListModeLUT::writeToFile);
-	c.def("getNativeLORFromId", &GCListModeLUT::getNativeLORFromId);
+	c.def("writeToFile", &ListModeLUT::writeToFile);
+	c.def("getNativeLORFromId", &ListModeLUT::getNativeLORFromId);
 
 	auto c_alias =
-	    py::class_<GCListModeLUTAlias, GCListModeLUT>(m, "GCListModeLUTAlias");
+	    py::class_<ListModeLUTAlias, ListModeLUT>(m, "ListModeLUTAlias");
 	c_alias.def(py::init<GCScanner*, bool>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false);
 
 	c_alias.def("Bind",
-	            static_cast<void (GCListModeLUTAlias::*)(
+	            static_cast<void (ListModeLUTAlias::*)(
 	                pybind11::array_t<timestamp_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&)>(
-	                &GCListModeLUTAlias::Bind),
+	                &ListModeLUTAlias::Bind),
 	            py::arg("timestamps"), py::arg("detector_ids1"),
 	            py::arg("detector_ids2"));
 	c_alias.def("Bind",
-	            static_cast<void (GCListModeLUTAlias::*)(
+	            static_cast<void (ListModeLUTAlias::*)(
 	                pybind11::array_t<timestamp_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<float, pybind11::array::c_style>&)>(
-	                &GCListModeLUTAlias::Bind),
+	                &ListModeLUTAlias::Bind),
 	            py::arg("timestamps"), py::arg("detector_ids1"),
 	            py::arg("detector_ids2"), py::arg("tof_ps"));
 
 
 	auto c_owned =
-	    py::class_<GCListModeLUTOwned, GCListModeLUT>(m, "GCListModeLUTOwned");
+	    py::class_<ListModeLUTOwned, ListModeLUT>(m, "ListModeLUTOwned");
 	c_owned.def(py::init<GCScanner*, bool>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false);
 	c_owned.def(py::init<GCScanner*, const std::string&, bool>(),
 	            py::arg("scanner"), py::arg("listMode_fname"),
 	            py::arg("flag_tof") = false);
-	c_owned.def("readFromFile", &GCListModeLUTOwned::readFromFile);
-	c_owned.def("allocate", &GCListModeLUTOwned::allocate);
+	c_owned.def("readFromFile", &ListModeLUTOwned::readFromFile);
+	c_owned.def("allocate", &ListModeLUTOwned::allocate);
 	c_owned.def("createFromHistogram3D",
-	            [](GCListModeLUTOwned* self, const Histogram3D* histo,
+	            [](ListModeLUTOwned* self, const Histogram3D* histo,
 	               size_t num_events)
 	            { Util::histogram3DToListModeLUT(histo, self, num_events); });
 }
@@ -105,13 +105,13 @@ void py_setup_gclistmodelut(py::module& m)
 #endif  // if BUILD_PYBIND11
 
 
-GCListModeLUT::GCListModeLUT(const GCScanner* s, bool p_flagTOF)
-    : IListMode(), mp_scanner(s), m_flagTOF(p_flagTOF)
+ListModeLUT::ListModeLUT(const GCScanner* s, bool p_flagTOF)
+    : ListMode(), mp_scanner(s), m_flagTOF(p_flagTOF)
 {
 }
 
-GCListModeLUTOwned::GCListModeLUTOwned(const GCScanner* s, bool p_flagTOF)
-    : GCListModeLUT(s, p_flagTOF)
+ListModeLUTOwned::ListModeLUTOwned(const GCScanner* s, bool p_flagTOF)
+    : ListModeLUT(s, p_flagTOF)
 {
 	mp_timestamps = std::make_unique<Array1D<timestamp_t>>();
 	mp_detectorId1 = std::make_unique<Array1D<det_id_t>>();
@@ -122,16 +122,16 @@ GCListModeLUTOwned::GCListModeLUTOwned(const GCScanner* s, bool p_flagTOF)
 	}
 }
 
-GCListModeLUTOwned::GCListModeLUTOwned(const GCScanner* s,
+ListModeLUTOwned::ListModeLUTOwned(const GCScanner* s,
                                        const std::string& listMode_fname,
                                        bool p_flagTOF)
-    : GCListModeLUTOwned(s, p_flagTOF)
+    : ListModeLUTOwned(s, p_flagTOF)
 {
-	GCListModeLUTOwned::readFromFile(listMode_fname);
+	ListModeLUTOwned::readFromFile(listMode_fname);
 }
 
-GCListModeLUTAlias::GCListModeLUTAlias(GCScanner* s, bool p_flagTOF)
-    : GCListModeLUT(s, p_flagTOF)
+ListModeLUTAlias::ListModeLUTAlias(GCScanner* s, bool p_flagTOF)
+    : ListModeLUT(s, p_flagTOF)
 {
 	mp_timestamps = std::make_unique<Array1DAlias<timestamp_t>>();
 	mp_detectorId1 = std::make_unique<Array1DAlias<det_id_t>>();
@@ -142,14 +142,14 @@ GCListModeLUTAlias::GCListModeLUTAlias(GCScanner* s, bool p_flagTOF)
 	}
 }
 
-void GCListModeLUTOwned::readFromFile(const std::string& listMode_fname)
+void ListModeLUTOwned::readFromFile(const std::string& listMode_fname)
 {
 	std::ifstream fin(listMode_fname, std::ios::in | std::ios::binary);
 
 	if (!fin.good())
 	{
 		throw std::runtime_error("Error reading input file " + listMode_fname +
-		                         "GCListModeLUTOwned::readFromFile.");
+		                         "ListModeLUTOwned::readFromFile.");
 	}
 
 	// first check that file has the right size:
@@ -163,7 +163,7 @@ void GCListModeLUTOwned::readFromFile(const std::string& listMode_fname)
 	if (file_size <= 0 || (file_size % sizeOfAnEvent) != 0)
 	{
 		throw std::runtime_error("Error: Input file has incorrect size in "
-		                         "GCListModeLUTOwned::readFromFile.");
+		                         "ListModeLUTOwned::readFromFile.");
 	}
 
 	// Allocate the memory
@@ -199,7 +199,7 @@ void GCListModeLUTOwned::readFromFile(const std::string& listMode_fname)
 	}
 }
 
-void GCListModeLUT::writeToFile(const std::string& listMode_fname) const
+void ListModeLUT::writeToFile(const std::string& listMode_fname) const
 {
 	int num_fields = m_flagTOF ? 4 : 3;
 	size_t numEvents = count();
@@ -234,9 +234,9 @@ void GCListModeLUT::writeToFile(const std::string& listMode_fname) const
 	file.close();
 }
 
-void GCListModeLUT::addLORMotion(const std::string& lorMotion_fname)
+void ListModeLUT::addLORMotion(const std::string& lorMotion_fname)
 {
-	mp_lorMotion = std::make_unique<GCLORMotion>(lorMotion_fname);
+	mp_lorMotion = std::make_unique<LORMotion>(lorMotion_fname);
 	mp_frames = std::make_unique<Array1D<frame_t>>();
 	const size_t numEvents = count();
 	mp_frames->allocate(numEvents);
@@ -274,45 +274,45 @@ void GCListModeLUT::addLORMotion(const std::string& lorMotion_fname)
 	}
 }
 
-timestamp_t GCListModeLUT::getTimestamp(bin_t eventId) const
+timestamp_t ListModeLUT::getTimestamp(bin_t eventId) const
 {
 	return (*mp_timestamps)[eventId];
 }
 
-size_t GCListModeLUT::count() const
+size_t ListModeLUT::count() const
 {
 	return mp_timestamps->getSize(0);
 }
 
-bool GCListModeLUT::isUniform() const
+bool ListModeLUT::isUniform() const
 {
 	return true;
 }
 
-bool GCListModeLUT::hasMotion() const
+bool ListModeLUT::hasMotion() const
 {
 	return mp_lorMotion != nullptr;
 }
 
-frame_t GCListModeLUT::getFrame(bin_t id) const
+frame_t ListModeLUT::getFrame(bin_t id) const
 {
 	if (mp_lorMotion != nullptr)
 	{
 		return mp_frames->get_flat(id);
 	}
-	return IProjectionData::getFrame(id);
+	return ProjectionData::getFrame(id);
 }
 
-size_t GCListModeLUT::getNumFrames() const
+size_t ListModeLUT::getNumFrames() const
 {
 	if (mp_lorMotion != nullptr)
 	{
 		return mp_lorMotion->getNumFrames();
 	}
-	return IProjectionData::getNumFrames();
+	return ProjectionData::getNumFrames();
 }
 
-transform_t GCListModeLUT::getTransformOfFrame(frame_t frame) const
+transform_t ListModeLUT::getTransformOfFrame(frame_t frame) const
 {
 	ASSERT(mp_lorMotion != nullptr);
 	if (frame >= 0)
@@ -320,56 +320,56 @@ transform_t GCListModeLUT::getTransformOfFrame(frame_t frame) const
 		return mp_lorMotion->getTransform(frame);
 	}
 	// For the events before the beginning of the frame
-	return IProjectionData::getTransformOfFrame(frame);
+	return ProjectionData::getTransformOfFrame(frame);
 }
 
-void GCListModeLUT::setDetectorId1OfEvent(bin_t eventId, det_id_t d1)
+void ListModeLUT::setDetectorId1OfEvent(bin_t eventId, det_id_t d1)
 {
 	(*mp_detectorId1)[eventId] = d1;
 }
-void GCListModeLUT::setDetectorId2OfEvent(bin_t eventId, det_id_t d2)
+void ListModeLUT::setDetectorId2OfEvent(bin_t eventId, det_id_t d2)
 {
 	(*mp_detectorId2)[eventId] = d2;
 }
 
-void GCListModeLUT::setDetectorIdsOfEvent(bin_t eventId, det_id_t d1,
+void ListModeLUT::setDetectorIdsOfEvent(bin_t eventId, det_id_t d1,
                                           det_id_t d2)
 {
 	(*mp_detectorId1)[eventId] = d1;
 	(*mp_detectorId2)[eventId] = d2;
 }
 
-const GCScanner* GCListModeLUT::getScanner() const
+const GCScanner* ListModeLUT::getScanner() const
 {
 	return mp_scanner;
 }
 
-Array1DBase<timestamp_t>* GCListModeLUT::getTimestampArrayPtr() const
+Array1DBase<timestamp_t>* ListModeLUT::getTimestampArrayPtr() const
 {
 	return (mp_timestamps.get());
 }
 
-Array1DBase<det_id_t>* GCListModeLUT::getDetector1ArrayPtr() const
+Array1DBase<det_id_t>* ListModeLUT::getDetector1ArrayPtr() const
 {
 	return (mp_detectorId1.get());
 }
 
-Array1DBase<det_id_t>* GCListModeLUT::getDetector2ArrayPtr() const
+Array1DBase<det_id_t>* ListModeLUT::getDetector2ArrayPtr() const
 {
 	return (mp_detectorId2.get());
 }
 
-GCStraightLineParam GCListModeLUT::getNativeLORFromId(bin_t id) const
+GCStraightLineParam ListModeLUT::getNativeLORFromId(bin_t id) const
 {
 	return Util::getNativeLOR(*mp_scanner, *this, id);
 }
 
-bool GCListModeLUT::hasTOF() const
+bool ListModeLUT::hasTOF() const
 {
 	return m_flagTOF;
 }
 
-void GCListModeLUTOwned::allocate(size_t numEvents)
+void ListModeLUTOwned::allocate(size_t numEvents)
 {
 	static_cast<Array1D<timestamp_t>*>(mp_timestamps.get())
 	    ->allocate(numEvents);
@@ -381,17 +381,17 @@ void GCListModeLUTOwned::allocate(size_t numEvents)
 	}
 }
 
-det_id_t GCListModeLUT::getDetector1(bin_t eventId) const
+det_id_t ListModeLUT::getDetector1(bin_t eventId) const
 {
 	return (*mp_detectorId1)[eventId];
 }
 
-det_id_t GCListModeLUT::getDetector2(bin_t eventId) const
+det_id_t ListModeLUT::getDetector2(bin_t eventId) const
 {
 	return (*mp_detectorId2)[eventId];
 }
 
-float GCListModeLUT::getTOFValue(bin_t eventId) const
+float ListModeLUT::getTOFValue(bin_t eventId) const
 {
 	if (m_flagTOF)
 		return (*mp_tof_ps)[eventId];
@@ -400,13 +400,13 @@ float GCListModeLUT::getTOFValue(bin_t eventId) const
 		    "The given ListMode does not have any TOF values");
 }
 
-void GCListModeLUTAlias::Bind(GCListModeLUT* listMode)
+void ListModeLUTAlias::Bind(ListModeLUT* listMode)
 {
 	Bind(listMode->getTimestampArrayPtr(), listMode->getDetector1ArrayPtr(),
 	     listMode->getDetector2ArrayPtr());
 }
 
-void GCListModeLUTAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
+void ListModeLUTAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
                               Array1DBase<det_id_t>* pp_detectorIds1,
                               Array1DBase<det_id_t>* pp_detectorIds2,
                               Array1DBase<float>* pp_tof_ps)
@@ -435,7 +435,7 @@ void GCListModeLUTAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
 }
 
 #if BUILD_PYBIND11
-void GCListModeLUTAlias::Bind(
+void ListModeLUTAlias::Bind(
     pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detectorIds1,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detectorIds2)
@@ -468,7 +468,7 @@ void GCListModeLUTAlias::Bind(
 	    ->bind(reinterpret_cast<det_id_t*>(buffer3.ptr), buffer3.shape[0]);
 }
 
-void GCListModeLUTAlias::Bind(
+void ListModeLUTAlias::Bind(
     pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2,
@@ -488,14 +488,14 @@ void GCListModeLUTAlias::Bind(
 }
 #endif
 
-std::unique_ptr<IProjectionData>
-    GCListModeLUTOwned::create(const GCScanner& scanner,
+std::unique_ptr<ProjectionData>
+    ListModeLUTOwned::create(const GCScanner& scanner,
                                const std::string& filename,
                                const Plugin::OptionsResult& pluginOptions)
 {
 	const auto flagTOF_it = pluginOptions.find("flag_tof");
 	bool flagTOF = flagTOF_it != pluginOptions.end();
-	auto lm = std::make_unique<GCListModeLUTOwned>(&scanner, filename, flagTOF);
+	auto lm = std::make_unique<ListModeLUTOwned>(&scanner, filename, flagTOF);
 
 	if (pluginOptions.count("lor_motion"))
 	{
@@ -504,11 +504,11 @@ std::unique_ptr<IProjectionData>
 	return lm;
 }
 
-Plugin::OptionsListPerPlugin GCListModeLUTOwned::getOptions()
+Plugin::OptionsListPerPlugin ListModeLUTOwned::getOptions()
 {
 	return {{"flag_tof", {"Flag for reading TOF column", true}},
 	        {"lor_motion", {"LOR motion file for motion correction", false}}};
 }
 
-REGISTER_PROJDATA_PLUGIN("LM", GCListModeLUTOwned, GCListModeLUTOwned::create,
-                         GCListModeLUTOwned::getOptions)
+REGISTER_PROJDATA_PLUGIN("LM", ListModeLUTOwned, ListModeLUTOwned::create,
+                         ListModeLUTOwned::getOptions)

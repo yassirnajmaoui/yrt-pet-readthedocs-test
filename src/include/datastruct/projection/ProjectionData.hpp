@@ -12,10 +12,10 @@
 #include <functional>
 #include <memory>
 
-class IProjectionData : public GCVariable
+class ProjectionData : public GCVariable
 {
 public:
-	~IProjectionData() override = default;
+	~ProjectionData() override = default;
 
 	// Mandatory methods
 	virtual size_t count() const = 0;
@@ -46,7 +46,7 @@ public:
 
 	// Helper functions
 	virtual void clearProjections(float value);
-	virtual void divideMeasurements(const IProjectionData* measurements,
+	virtual void divideMeasurements(const ProjectionData* measurements,
 	                                const BinIterator* binIter);
 
 	virtual void operationOnEachBin(const std::function<float(bin_t)>& func);

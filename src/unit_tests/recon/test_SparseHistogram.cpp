@@ -6,8 +6,8 @@
 #include "catch.hpp"
 
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/projection/GCListModeLUT.hpp"
-#include "datastruct/projection/GCSparseHistogram.hpp"
+#include "datastruct/projection/ListModeLUT.hpp"
+#include "datastruct/projection/SparseHistogram.hpp"
 #include "datastruct/scanner/GCDetRegular.hpp"
 
 
@@ -29,7 +29,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 	SECTION("from-listmode")
 	{
-		auto listMode = std::make_unique<GCListModeLUTOwned>(scanner.get());
+		auto listMode = std::make_unique<ListModeLUTOwned>(scanner.get());
 		listMode->allocate(10);
 		listMode->setDetectorIdsOfEvent(0, 0, 15);   // 1st
 		listMode->setDetectorIdsOfEvent(1, 10, 15);  // 1st
@@ -42,7 +42,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 		listMode->setDetectorIdsOfEvent(8, 10, 13);  // 1st
 		listMode->setDetectorIdsOfEvent(9, 20, 0);   // 2nd
 		auto sparseHisto =
-		    std::make_unique<GCSparseHistogram>(*scanner, *listMode);
+		    std::make_unique<SparseHistogram>(*scanner, *listMode);
 		CHECK(sparseHisto->getProjectionValueFromDetPair({0, 20}) == 2.0f);
 		CHECK(sparseHisto->getProjectionValueFromDetPair({10, 13}) == 1.0f);
 		CHECK(sparseHisto->getProjectionValueFromDetPair({0, 15}) == 3.0f);
@@ -58,7 +58,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 		histo->clearProjections(1.0f);
 
 		auto sparseHisto =
-		    std::make_unique<GCSparseHistogram>(*scanner, *histo);
+		    std::make_unique<SparseHistogram>(*scanner, *histo);
 		// Because Histogram3D also only has "unique" LORs
 		REQUIRE(sparseHisto->count() == histo->count());
 
@@ -82,7 +82,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 			histo->setProjectionValue(binId, static_cast<float>(rand() % 100));
 		}
 
-		auto sparseHisto = std::make_unique<GCSparseHistogram>(*scanner, *histo,
+		auto sparseHisto = std::make_unique<SparseHistogram>(*scanner, *histo,
 		                                                       binIter.get());
 		// Because Histogram3D also only has "unique" LORs
 		REQUIRE(sparseHisto->count() == binIter->size());
@@ -101,7 +101,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 		srand(random_seed);
 		const det_id_t numDets = static_cast<det_id_t>(scanner->getNumDets());
 
-		auto sparseHisto = std::make_unique<GCSparseHistogram>(*scanner);
+		auto sparseHisto = std::make_unique<SparseHistogram>(*scanner);
 		constexpr size_t NumBins = 100;
 		sparseHisto->allocate(NumBins);
 		// Generate sparse histo with random data
@@ -115,7 +115,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 		sparseHisto->writeToFile(filename);
 		auto sparseHistoFromFile =
-		    std::make_unique<GCSparseHistogram>(*scanner, filename);
+		    std::make_unique<SparseHistogram>(*scanner, filename);
 
 		REQUIRE(sparseHistoFromFile->count() == sparseHisto->count());
 		for (bin_t i = 0; i < sparseHisto->count(); i++)

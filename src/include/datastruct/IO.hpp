@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/PluginFramework.hpp"
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 #include "operators/GCOperatorProjector.hpp"
 
 #include <memory>
@@ -16,7 +16,7 @@ class GCScanner;
 
 namespace IO
 {
-	std::unique_ptr<IProjectionData> openProjectionData(
+	std::unique_ptr<ProjectionData> openProjectionData(
 	    const std::string& input_fname, const std::string& input_format,
 	    const GCScanner& scanner, const Plugin::OptionsResult&);
 

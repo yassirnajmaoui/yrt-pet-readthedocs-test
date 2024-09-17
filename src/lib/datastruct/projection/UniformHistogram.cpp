@@ -3,29 +3,29 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCUniformHistogram.hpp"
+#include "datastruct/projection/UniformHistogram.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gcuniformhistogram(py::module& m)
+void py_setup_uniformhistogram(py::module& m)
 {
 	auto c =
-	    py::class_<GCUniformHistogram, Histogram3D>(m, "GCUniformHistogram");
+	    py::class_<UniformHistogram, Histogram3D>(m, "UniformHistogram");
 	c.def(py::init<const GCScanner*, float>(), py::arg("scanner"),
 	      py::arg("value") = 1.0f);
 }
 #endif
 
 
-GCUniformHistogram::GCUniformHistogram(const GCScanner* p_scanner,
+UniformHistogram::UniformHistogram(const GCScanner* p_scanner,
                                        float p_value)
     : Histogram3D(p_scanner), m_value(p_value)
 {
 }
 
-void GCUniformHistogram::writeToFile(const std::string& filename) const
+void UniformHistogram::writeToFile(const std::string& filename) const
 {
 	std::ofstream file;
 	file.open(filename.c_str(), std::ios::binary | std::ios::out);
@@ -49,35 +49,35 @@ void GCUniformHistogram::writeToFile(const std::string& filename) const
 	}
 }
 
-float GCUniformHistogram::getProjectionValue(bin_t binId) const
+float UniformHistogram::getProjectionValue(bin_t binId) const
 {
 	(void)binId;
 	return m_value;
 }
 
-void GCUniformHistogram::setProjectionValue(bin_t binId, float val)
+void UniformHistogram::setProjectionValue(bin_t binId, float val)
 {
 	(void)binId;
 	(void)val;
 }
 
-void GCUniformHistogram::incrementProjection(bin_t binId, float val)
+void UniformHistogram::incrementProjection(bin_t binId, float val)
 {
 	(void)binId;
 	(void)val;
 }
 
-void GCUniformHistogram::clearProjections(float p_value)
+void UniformHistogram::clearProjections(float p_value)
 {
 	setValue(p_value);
 }
 
-void GCUniformHistogram::setValue(float p_value)
+void UniformHistogram::setValue(float p_value)
 {
 	m_value = p_value;
 }
 
-bool GCUniformHistogram::isUniform() const
+bool UniformHistogram::isUniform() const
 {
 	return true;
 }

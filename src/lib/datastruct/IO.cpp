@@ -5,7 +5,7 @@
 
 #include "datastruct/IO.hpp"
 
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 #include "utils/GCUtilities.hpp"
 
 
@@ -26,7 +26,7 @@ void py_setup_gcio(py::module& m)
 }
 #endif
 
-std::unique_ptr<IProjectionData> IO::openProjectionData(
+std::unique_ptr<ProjectionData> IO::openProjectionData(
     const std::string& input_fname, const std::string& input_format,
     const GCScanner& scanner, const Plugin::OptionsResult& pluginOptions)
 {

@@ -4,7 +4,7 @@
  */
 
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/projection/GCListModeLUT.hpp"
+#include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 	auto histo =
 	    std::make_unique<Histogram3DOwned>(scanner.get(), input_fname);
 
-	const auto lm = std::make_unique<GCListModeLUTOwned>(scanner.get());
+	const auto lm = std::make_unique<ListModeLUTOwned>(scanner.get());
 	Util::histogram3DToListModeLUT(histo.get(), lm.get(), numEvents);
 	lm->writeToFile(out_fname);
 

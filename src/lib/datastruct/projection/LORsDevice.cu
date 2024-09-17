@@ -3,9 +3,9 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCLORsDevice.cuh"
+#include "datastruct/projection/LORsDevice.cuh"
 
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 #include "operators/GCOperatorDevice.cuh"
 #include "utils/GCPageLockedBuffer.cuh"
 #include "utils/GCReconstructionUtils.hpp"
@@ -13,7 +13,7 @@
 #include "omp.h"
 
 
-GCLORsDevice::GCLORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice)
+LORsDevice::LORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice)
     : mp_scannerDevice(std::move(pp_scannerDevice)),
       m_areLORsGathered(false),
       m_loadedBatchSize(0ull),
@@ -23,7 +23,7 @@ GCLORsDevice::GCLORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice)
 	initializeDeviceArrays();
 }
 
-GCLORsDevice::GCLORsDevice(const GCScanner* pp_scanner)
+LORsDevice::LORsDevice(const GCScanner* pp_scanner)
     : m_areLORsGathered(false),
       m_loadedBatchSize(0ull),
       m_loadedBatchId(0ull),
@@ -33,10 +33,10 @@ GCLORsDevice::GCLORsDevice(const GCScanner* pp_scanner)
 	initializeDeviceArrays();
 }
 
-void GCLORsDevice::loadEventLORs(const BinIterator& binIter,
+void LORsDevice::loadEventLORs(const BinIterator& binIter,
                                  const GCGPUBatchSetup& batchSetup,
                                  size_t subsetId, size_t batchId,
-                                 const IProjectionData& reference,
+                                 const ProjectionData& reference,
                                  const ImageParams& imgParams,
                                  const cudaStream_t* stream)
 {
@@ -66,7 +66,7 @@ void GCLORsDevice::loadEventLORs(const BinIterator& binIter,
 	const GCVector offsetVec = {imgParams.off_x, imgParams.off_y,
 	                            imgParams.off_z};
 	const GCScanner* scanner = getScanner();
-	const IProjectionData* reference_ptr = &reference;
+	const ProjectionData* reference_ptr = &reference;
 
 	bin_t binId;
 	size_t binIdx;
@@ -126,7 +126,7 @@ void GCLORsDevice::loadEventLORs(const BinIterator& binIter,
 	m_areLORsGathered = true;
 }
 
-void GCLORsDevice::initializeDeviceArrays()
+void LORsDevice::initializeDeviceArrays()
 {
 	mp_lorDet1Pos = std::make_unique<GCDeviceArray<float4>>();
 	mp_lorDet2Pos = std::make_unique<GCDeviceArray<float4>>();
@@ -135,7 +135,7 @@ void GCLORsDevice::initializeDeviceArrays()
 	mp_lorTOFValue = std::make_unique<GCDeviceArray<float>>();
 }
 
-void GCLORsDevice::allocateForLORs(bool hasTOF, const cudaStream_t* stream)
+void LORsDevice::allocateForLORs(bool hasTOF, const cudaStream_t* stream)
 {
 	ASSERT_MSG(m_loadedBatchSize > 0, "No batch loaded");
 	mp_lorDet1Pos->allocate(m_loadedBatchSize, stream);
@@ -148,82 +148,82 @@ void GCLORsDevice::allocateForLORs(bool hasTOF, const cudaStream_t* stream)
 	}
 }
 
-std::shared_ptr<GCScannerDevice> GCLORsDevice::getScannerDevice() const
+std::shared_ptr<GCScannerDevice> LORsDevice::getScannerDevice() const
 {
 	return mp_scannerDevice;
 }
 
-const GCScanner* GCLORsDevice::getScanner() const
+const GCScanner* LORsDevice::getScanner() const
 {
 	return mp_scannerDevice->getScanner();
 }
 
-const float4* GCLORsDevice::getLorDet1PosDevicePointer() const
+const float4* LORsDevice::getLorDet1PosDevicePointer() const
 {
 	return mp_lorDet1Pos->getDevicePointer();
 }
 
-const float4* GCLORsDevice::getLorDet1OrientDevicePointer() const
+const float4* LORsDevice::getLorDet1OrientDevicePointer() const
 {
 	return mp_lorDet1Orient->getDevicePointer();
 }
 
-const float4* GCLORsDevice::getLorDet2PosDevicePointer() const
+const float4* LORsDevice::getLorDet2PosDevicePointer() const
 {
 	return mp_lorDet2Pos->getDevicePointer();
 }
 
-const float4* GCLORsDevice::getLorDet2OrientDevicePointer() const
+const float4* LORsDevice::getLorDet2OrientDevicePointer() const
 {
 	return mp_lorDet2Orient->getDevicePointer();
 }
 
-float4* GCLORsDevice::getLorDet1PosDevicePointer()
+float4* LORsDevice::getLorDet1PosDevicePointer()
 {
 	return mp_lorDet1Pos->getDevicePointer();
 }
 
-float4* GCLORsDevice::getLorDet1OrientDevicePointer()
+float4* LORsDevice::getLorDet1OrientDevicePointer()
 {
 	return mp_lorDet1Orient->getDevicePointer();
 }
 
-float4* GCLORsDevice::getLorDet2PosDevicePointer()
+float4* LORsDevice::getLorDet2PosDevicePointer()
 {
 	return mp_lorDet2Pos->getDevicePointer();
 }
 
-float4* GCLORsDevice::getLorDet2OrientDevicePointer()
+float4* LORsDevice::getLorDet2OrientDevicePointer()
 {
 	return mp_lorDet2Orient->getDevicePointer();
 }
 
-const float* GCLORsDevice::getLorTOFValueDevicePointer() const
+const float* LORsDevice::getLorTOFValueDevicePointer() const
 {
 	return mp_lorTOFValue->getDevicePointer();
 }
 
-float* GCLORsDevice::getLorTOFValueDevicePointer()
+float* LORsDevice::getLorTOFValueDevicePointer()
 {
 	return mp_lorTOFValue->getDevicePointer();
 }
 
-bool GCLORsDevice::areLORsGathered() const
+bool LORsDevice::areLORsGathered() const
 {
 	return m_areLORsGathered;
 }
 
-size_t GCLORsDevice::getLoadedBatchSize() const
+size_t LORsDevice::getLoadedBatchSize() const
 {
 	return m_loadedBatchSize;
 }
 
-size_t GCLORsDevice::getLoadedBatchId() const
+size_t LORsDevice::getLoadedBatchId() const
 {
 	return m_loadedBatchId;
 }
 
-size_t GCLORsDevice::getLoadedSubsetId() const
+size_t LORsDevice::getLoadedSubsetId() const
 {
 	return m_loadedSubsetId;
 }

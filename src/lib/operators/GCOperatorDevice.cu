@@ -159,7 +159,7 @@ void GCOperatorProjectorDevice::setBatchSize(size_t newBatchSize)
 	m_launchParams = Util::initiateDeviceParameters(m_batchSize);
 }
 
-GCProjectionDataDeviceOwned&
+ProjectionDataDeviceOwned&
     GCOperatorProjectorDevice::getIntermediaryProjData()
 {
 	ASSERT_MSG(mp_intermediaryProjData != nullptr,
@@ -208,7 +208,7 @@ void GCOperatorProjectorDevice::setAttImageForBackprojection(
 	mp_attImageForBackprojectionDevice->transferToDeviceMemory(attImage, false);
 }
 
-void GCOperatorProjectorDevice::setAddHisto(const IHistogram* p_addHisto)
+void GCOperatorProjectorDevice::setAddHisto(const Histogram* p_addHisto)
 {
 	GCOperatorProjectorBase::setAddHisto(p_addHisto);
 }
@@ -228,7 +228,7 @@ bool GCOperatorProjectorDevice::requiresIntermediaryProjData() const
 }
 
 void GCOperatorProjectorDevice::prepareIntermediaryBufferIfNeeded(
-    const GCProjectionDataDevice* orig)
+    const ProjectionDataDevice* orig)
 {
 	if (requiresIntermediaryProjData())
 	{
@@ -237,12 +237,12 @@ void GCOperatorProjectorDevice::prepareIntermediaryBufferIfNeeded(
 }
 
 void GCOperatorProjectorDevice::prepareIntermediaryBuffer(
-    const GCProjectionDataDevice* orig)
+    const ProjectionDataDevice* orig)
 {
 	if (mp_intermediaryProjData == nullptr)
 	{
 		mp_intermediaryProjData =
-		    std::make_unique<GCProjectionDataDeviceOwned>(orig);
+		    std::make_unique<ProjectionDataDeviceOwned>(orig);
 	}
 	mp_intermediaryProjData->allocateForProjValues(getAuxStream());
 }

@@ -5,8 +5,8 @@
 
 #include "recon/GCOSEM_cpu.hpp"
 
-#include "datastruct/projection/GCProjectionList.hpp"
-#include "datastruct/projection/IListMode.hpp"
+#include "datastruct/projection/ProjectionList.hpp"
+#include "datastruct/projection/ListMode.hpp"
 #include "operators/GCOperatorProjectorDD.hpp"
 #include "operators/GCOperatorProjectorSiddon.hpp"
 
@@ -96,7 +96,7 @@ ImageBase* GCOSEM_cpu::GetSensImageBuffer()
 	return getSensitivityImage(usingListModeInput ? 0 : m_current_OSEM_subset);
 }
 
-IProjectionData* GCOSEM_cpu::GetSensDataInputBuffer()
+ProjectionData* GCOSEM_cpu::GetSensDataInputBuffer()
 {
 	// Since in the CPU version, the projection data is unchanged from the
 	// original and stays in the Host.
@@ -112,12 +112,12 @@ ImageBase* GCOSEM_cpu::GetMLEMImageTmpBuffer()
 	return mp_mlemImageTmp.get();
 }
 
-IProjectionData* GCOSEM_cpu::GetMLEMDataBuffer()
+ProjectionData* GCOSEM_cpu::GetMLEMDataBuffer()
 {
 	return getDataInput();
 }
 
-IProjectionData* GCOSEM_cpu::GetMLEMDataTmpBuffer()
+ProjectionData* GCOSEM_cpu::GetMLEMDataTmpBuffer()
 {
 	return mp_datTmp.get();
 }
@@ -161,8 +161,8 @@ void GCOSEM_cpu::SetupOperatorsForRecon()
 void GCOSEM_cpu::allocateForRecon()
 {
 	// Allocate for projection-space buffers
-	mp_datTmp = std::make_unique<GCProjectionListOwned>(getDataInput());
-	reinterpret_cast<GCProjectionListOwned*>(mp_datTmp.get())->allocate();
+	mp_datTmp = std::make_unique<ProjectionListOwned>(getDataInput());
+	reinterpret_cast<ProjectionListOwned*>(mp_datTmp.get())->allocate();
 
 	// Allocate for image-space buffers
 	mp_mlemImageTmp = std::make_unique<ImageOwned>(getImageParams());

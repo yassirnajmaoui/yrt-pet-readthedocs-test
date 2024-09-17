@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCListModeLUTDOI.hpp"
+#include "datastruct/projection/ListModeLUTDOI.hpp"
 
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCGlobals.hpp"
@@ -17,65 +17,65 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
 
-void py_setup_gclistmodelutdoi(py::module& m)
+void py_setup_listmodelutdoi(py::module& m)
 {
-	auto c = py::class_<GCListModeLUTDOI, GCListModeLUT>(m, "GCListModeLUTDOI");
+	auto c = py::class_<ListModeLUTDOI, ListModeLUT>(m, "ListModeLUTDOI");
 
-	c.def("writeToFile", &GCListModeLUTDOI::writeToFile);
+	c.def("writeToFile", &ListModeLUTDOI::writeToFile);
 
-	auto c_alias = py::class_<GCListModeLUTDOIAlias, GCListModeLUTDOI>(
-	    m, "GCListModeLUTDOIAlias");
+	auto c_alias = py::class_<ListModeLUTDOIAlias, ListModeLUTDOI>(
+	    m, "ListModeLUTDOIAlias");
 	c_alias.def(py::init<GCScanner*, bool, int>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
 
 	c_alias.def(
 	    "Bind",
-	    static_cast<void (GCListModeLUTDOIAlias::*)(
+	    static_cast<void (ListModeLUTDOIAlias::*)(
 	        pybind11::array_t<timestamp_t, pybind11::array::c_style>&,
 	        pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	        pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	        pybind11::array_t<unsigned char, pybind11::array::c_style>&,
 	        pybind11::array_t<unsigned char, pybind11::array::c_style>&)>(
-	        &GCListModeLUTDOIAlias::Bind),
+	        &ListModeLUTDOIAlias::Bind),
 	    py::arg("timestamps"), py::arg("detector_ids1"),
 	    py::arg("detector_ids2"), py::arg("doi1"), py::arg("doi2"));
 	c_alias.def("Bind",
-	            static_cast<void (GCListModeLUTDOIAlias::*)(
+	            static_cast<void (ListModeLUTDOIAlias::*)(
 	                pybind11::array_t<timestamp_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<det_id_t, pybind11::array::c_style>&,
 	                pybind11::array_t<unsigned char, pybind11::array::c_style>&,
 	                pybind11::array_t<unsigned char, pybind11::array::c_style>&,
 	                pybind11::array_t<float, pybind11::array::c_style>&)>(
-	                &GCListModeLUTDOIAlias::Bind),
+	                &ListModeLUTDOIAlias::Bind),
 	            py::arg("timestamps"), py::arg("detector_ids1"),
 	            py::arg("detector_ids2"), py::arg("doi1"), py::arg("doi2"),
 	            py::arg("tof_ps"));
 
 
-	auto c_owned = py::class_<GCListModeLUTDOIOwned, GCListModeLUTDOI>(
-	    m, "GCListModeLUTDOIOwned");
+	auto c_owned = py::class_<ListModeLUTDOIOwned, ListModeLUTDOI>(
+	    m, "ListModeLUTDOIOwned");
 	c_owned.def(py::init<GCScanner*, bool, int>(), py::arg("scanner"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
 	c_owned.def(py::init<GCScanner*, std::string, bool, int>(),
 	            py::arg("scanner"), py::arg("listMode_fname"),
 	            py::arg("flag_tof") = false, py::arg("numLayers") = 256);
-	c_owned.def("readFromFile", &GCListModeLUTDOIOwned::readFromFile);
-	c_owned.def("allocate", &GCListModeLUTDOIOwned::allocate);
+	c_owned.def("readFromFile", &ListModeLUTDOIOwned::readFromFile);
+	c_owned.def("allocate", &ListModeLUTDOIOwned::allocate);
 }
 
 #endif  // if BUILD_PYBIND11
 
 
-GCListModeLUTDOI::GCListModeLUTDOI(const GCScanner* s, bool p_flagTOF,
+ListModeLUTDOI::ListModeLUTDOI(const GCScanner* s, bool p_flagTOF,
                                    int numLayers)
-    : GCListModeLUT(s, p_flagTOF), m_numLayers(numLayers)
+    : ListModeLUT(s, p_flagTOF), m_numLayers(numLayers)
 {
 }
 
-GCListModeLUTDOIOwned::GCListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF,
+ListModeLUTDOIOwned::ListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF,
                                              int numLayers)
-    : GCListModeLUTDOI(s, p_flagTOF, numLayers)
+    : ListModeLUTDOI(s, p_flagTOF, numLayers)
 {
 	mp_timestamps = std::make_unique<Array1D<timestamp_t>>();
 	mp_detectorId1 = std::make_unique<Array1D<det_id_t>>();
@@ -88,17 +88,17 @@ GCListModeLUTDOIOwned::GCListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF,
 	}
 }
 
-GCListModeLUTDOIOwned::GCListModeLUTDOIOwned(const GCScanner* s,
+ListModeLUTDOIOwned::ListModeLUTDOIOwned(const GCScanner* s,
                                              const std::string& listMode_fname,
                                              bool p_flagTOF, int numLayers)
-    : GCListModeLUTDOIOwned(s, p_flagTOF, numLayers)
+    : ListModeLUTDOIOwned(s, p_flagTOF, numLayers)
 {
 	readFromFile(listMode_fname);
 }
 
-GCListModeLUTDOIAlias::GCListModeLUTDOIAlias(const GCScanner* s, bool p_flagTOF,
+ListModeLUTDOIAlias::ListModeLUTDOIAlias(const GCScanner* s, bool p_flagTOF,
                                              int numLayers)
-    : GCListModeLUTDOI(s, p_flagTOF, numLayers)
+    : ListModeLUTDOI(s, p_flagTOF, numLayers)
 {
 	mp_timestamps = std::make_unique<Array1DAlias<timestamp_t>>();
 	mp_detectorId1 = std::make_unique<Array1DAlias<det_id_t>>();
@@ -111,13 +111,13 @@ GCListModeLUTDOIAlias::GCListModeLUTDOIAlias(const GCScanner* s, bool p_flagTOF,
 	}
 }
 
-void GCListModeLUTDOIOwned::readFromFile(const std::string& listMode_fname)
+void ListModeLUTDOIOwned::readFromFile(const std::string& listMode_fname)
 {
 	std::ifstream fin(listMode_fname, std::ios::in | std::ios::binary);
 	if (!fin.good())
 	{
 		throw std::runtime_error("Error reading input file " + listMode_fname +
-		                         "GCListModeLUTDOIOwned::readFromFile.");
+		                         "ListModeLUTDOIOwned::readFromFile.");
 	}
 
 	// first check that file has the right size:
@@ -132,7 +132,7 @@ void GCListModeLUTDOIOwned::readFromFile(const std::string& listMode_fname)
 	if (fileSize <= 0 || (fileSize % sizeOfAnEvent) != 0)
 	{
 		throw std::runtime_error("Error: Input file has incorrect size in "
-		                         "GCListModeLUTDOIOwned::readFromFile.");
+		                         "ListModeLUTDOIOwned::readFromFile.");
 	}
 
 	// Allocate the memory
@@ -173,12 +173,12 @@ void GCListModeLUTDOIOwned::readFromFile(const std::string& listMode_fname)
 	}
 }
 
-bool GCListModeLUTDOI::hasArbitraryLORs() const
+bool ListModeLUTDOI::hasArbitraryLORs() const
 {
 	return true;
 }
 
-line_t GCListModeLUTDOI::getArbitraryLOR(bin_t id) const
+line_t ListModeLUTDOI::getArbitraryLOR(bin_t id) const
 {
 	det_id_t detId1 = getDetector1(id);
 	det_id_t detId2 = getDetector2(id);
@@ -202,7 +202,7 @@ line_t GCListModeLUTDOI::getArbitraryLOR(bin_t id) const
 	return line_t{p1_doi.x, p1_doi.y, p1_doi.z, p2_doi.x, p2_doi.y, p2_doi.z};
 }
 
-void GCListModeLUTDOI::writeToFile(const std::string& listMode_fname) const
+void ListModeLUTDOI::writeToFile(const std::string& listMode_fname) const
 {
 	int num_fields = m_flagTOF ? 6 : 5;
 	size_t numEvents = count();
@@ -246,7 +246,7 @@ void GCListModeLUTDOI::writeToFile(const std::string& listMode_fname) const
 	file.close();
 }
 
-void GCListModeLUTDOIOwned::allocate(size_t num_events)
+void ListModeLUTDOIOwned::allocate(size_t num_events)
 {
 	static_cast<Array1D<timestamp_t>*>(mp_timestamps.get())
 	    ->allocate(num_events);
@@ -260,7 +260,7 @@ void GCListModeLUTDOIOwned::allocate(size_t num_events)
 	}
 }
 
-void GCListModeLUTDOIAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
+void ListModeLUTDOIAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
                                  Array1DBase<det_id_t>* pp_detector_ids1,
                                  Array1DBase<det_id_t>* pp_detector_ids2,
                                  Array1DBase<unsigned char>* pp_doi1,
@@ -308,7 +308,7 @@ void GCListModeLUTDOIAlias::Bind(Array1DBase<timestamp_t>* pp_timestamps,
 }
 
 #if BUILD_PYBIND11
-void GCListModeLUTDOIAlias::Bind(
+void ListModeLUTDOIAlias::Bind(
     pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2,
@@ -358,7 +358,7 @@ void GCListModeLUTDOIAlias::Bind(
 	    ->bind(reinterpret_cast<unsigned char*>(buffer5.ptr), buffer5.shape[0]);
 }
 
-void GCListModeLUTDOIAlias::Bind(
+void ListModeLUTDOIAlias::Bind(
     pybind11::array_t<timestamp_t, pybind11::array::c_style>& p_timestamps,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids1,
     pybind11::array_t<det_id_t, pybind11::array::c_style>& p_detector_ids2,
@@ -381,24 +381,24 @@ void GCListModeLUTDOIAlias::Bind(
 #endif
 
 
-std::unique_ptr<IProjectionData>
-    GCListModeLUTDOIOwned::create(const GCScanner& scanner,
+std::unique_ptr<ProjectionData>
+    ListModeLUTDOIOwned::create(const GCScanner& scanner,
                                   const std::string& filename,
                                   const Plugin::OptionsResult& pluginOptions)
 {
 	bool flagTOF = pluginOptions.find("flag_tof") != pluginOptions.end();
 
 	const auto numLayers_it = pluginOptions.find("num_layers");
-	std::unique_ptr<GCListModeLUTDOIOwned> lm;
+	std::unique_ptr<ListModeLUTDOIOwned> lm;
 	if (numLayers_it == pluginOptions.end())
 	{
-		lm = std::make_unique<GCListModeLUTDOIOwned>(&scanner, filename,
+		lm = std::make_unique<ListModeLUTDOIOwned>(&scanner, filename,
 		                                             flagTOF);
 	}
 	else
 	{
 		int numLayers = std::stoi(numLayers_it->second);
-		lm = std::make_unique<GCListModeLUTDOIOwned>(&scanner, filename,
+		lm = std::make_unique<ListModeLUTDOIOwned>(&scanner, filename,
 		                                             flagTOF, numLayers);
 	}
 
@@ -409,13 +409,13 @@ std::unique_ptr<IProjectionData>
 	return lm;
 }
 
-Plugin::OptionsListPerPlugin GCListModeLUTDOIOwned::getOptions()
+Plugin::OptionsListPerPlugin ListModeLUTDOIOwned::getOptions()
 {
 	return {{"flag_tof", {"Flag for reading TOF column", true}},
 	        {"num_layers", {"Number of layers", false}},
 	        {"lor_motion", {"LOR motion file for motion correction", false}}};
 }
 
-REGISTER_PROJDATA_PLUGIN("LM-DOI", GCListModeLUTDOIOwned,
-                         GCListModeLUTDOIOwned::create,
-                         GCListModeLUTDOIOwned::getOptions)
+REGISTER_PROJDATA_PLUGIN("LM-DOI", ListModeLUTDOIOwned,
+                         ListModeLUTDOIOwned::create,
+                         ListModeLUTDOIOwned::getOptions)

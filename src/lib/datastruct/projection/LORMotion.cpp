@@ -3,10 +3,10 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCLORMotion.hpp"
+#include "datastruct/projection/LORMotion.hpp"
 #include "utils/GCAssert.hpp"
 
-GCLORMotion::GCLORMotion(const std::string& filename)
+LORMotion::LORMotion(const std::string& filename)
     : m_structure{filename, 1 << 20}
 {
 	ASSERT_MSG(getNumFrames() > 0, "There has to be at least one frame");
@@ -14,17 +14,17 @@ GCLORMotion::GCLORMotion(const std::string& filename)
 	mp_transforms = m_structure.get_pointer<1>();
 }
 
-transform_t GCLORMotion::getTransform(frame_t frame) const
+transform_t LORMotion::getTransform(frame_t frame) const
 {
 	return mp_transforms[frame];
 }
 
-timestamp_t GCLORMotion::getStartingTimestamp(frame_t frame) const
+timestamp_t LORMotion::getStartingTimestamp(frame_t frame) const
 {
 	return mp_startingTimestamps[frame];
 }
 
-size_t GCLORMotion::getNumFrames() const
+size_t LORMotion::getNumFrames() const
 {
 	return m_structure.get_num_columns();
 }

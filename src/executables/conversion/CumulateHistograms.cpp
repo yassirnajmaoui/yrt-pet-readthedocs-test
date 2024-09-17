@@ -6,7 +6,7 @@
 #include "../PluginOptionsHelper.hpp"
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/projection/GCSparseHistogram.hpp"
+#include "datastruct/projection/SparseHistogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
@@ -86,10 +86,10 @@ int main(int argc, char** argv)
 
 	auto scanner = std::make_unique<GCScannerOwned>(scanner_fname);
 
-	std::unique_ptr<IHistogram> histoOut;
+	std::unique_ptr<Histogram> histoOut;
 	if (toSparseHistogram)
 	{
-		histoOut = std::make_unique<GCSparseHistogram>(*scanner);
+		histoOut = std::make_unique<SparseHistogram>(*scanner);
 	}
 	else
 	{
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 	{
 		std::cout << "Reading input data..." << std::endl;
 
-		std::unique_ptr<IProjectionData> dataInput = IO::openProjectionData(
+		std::unique_ptr<ProjectionData> dataInput = IO::openProjectionData(
 		    input_fname, input_format, *scanner, pluginOptionsResults);
 
 		std::cout << "Done reading input data." << std::endl;
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
 		if (toSparseHistogram)
 		{
 			auto* sparseHisto =
-			    reinterpret_cast<GCSparseHistogram*>(histoOut.get());
+			    reinterpret_cast<SparseHistogram*>(histoOut.get());
 			std::cout << "Accumulating into sparse histogram..." << std::endl;
 			sparseHisto->allocate(sparseHisto->count() + dataInput->count());
 			sparseHisto->accumulate<true>(*dataInput);
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 	if (toSparseHistogram)
 	{
 		const auto* sparseHisto =
-		    reinterpret_cast<const GCSparseHistogram*>(histoOut.get());
+		    reinterpret_cast<const SparseHistogram*>(histoOut.get());
 		std::cout << "Saving output sparse histogram..." << std::endl;
 		sparseHisto->writeToFile(out_fname);
 	}

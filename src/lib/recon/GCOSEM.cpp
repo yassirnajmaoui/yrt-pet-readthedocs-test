@@ -8,9 +8,9 @@
 #include "datastruct/IO.hpp"
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/projection/GCUniformHistogram.hpp"
-#include "datastruct/projection/IListMode.hpp"
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/UniformHistogram.hpp"
+#include "datastruct/projection/ListMode.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "motion/ImageWarperMatrix.hpp"
 #include "operators/GCOperatorProjector.hpp"
@@ -65,11 +65,11 @@ void py_setup_gcosem(pybind11::module& m)
 	c.def("reconstructWithWarperMotion", &GCOSEM::reconstructWithWarperMotion);
 	c.def("summary", &GCOSEM::summary);
 
-	c.def("getSensDataInput", static_cast<IProjectionData* (GCOSEM::*)()>(
+	c.def("getSensDataInput", static_cast<ProjectionData* (GCOSEM::*)()>(
 	                              &GCOSEM::getSensDataInput));
 	c.def("setSensDataInput", &GCOSEM::setSensDataInput);
 	c.def("getDataInput",
-	      static_cast<IProjectionData* (GCOSEM::*)()>(&GCOSEM::getDataInput));
+	      static_cast<ProjectionData* (GCOSEM::*)()>(&GCOSEM::getDataInput));
 	c.def("setDataInput", &GCOSEM::setDataInput);
 	c.def("addTOF", &GCOSEM::addTOF);
 	c.def("addProjPSF", &GCOSEM::addProjPSF);
@@ -172,11 +172,11 @@ void GCOSEM::GenerateSensitivityImagesCore(
 	ASSERT_MSG(imageParams.isValid(), "Image parameters not valid/set");
 
 	// In case the user didn't specify a sensitivity data input
-	std::unique_ptr<GCUniformHistogram> uniformHis = nullptr;
+	std::unique_ptr<UniformHistogram> uniformHis = nullptr;
 	const bool sensDataInputUnspecified = getSensDataInput() == nullptr;
 	if (sensDataInputUnspecified)
 	{
-		uniformHis = std::make_unique<GCUniformHistogram>(scanner);
+		uniformHis = std::make_unique<UniformHistogram>(scanner);
 		setSensDataInput(uniformHis.get());
 	}
 
@@ -304,15 +304,15 @@ void GCOSEM::InitializeForRecon()
 	allocateForRecon();
 }
 
-void GCOSEM::setSensDataInput(IProjectionData* p_sensDataInput)
+void GCOSEM::setSensDataInput(ProjectionData* p_sensDataInput)
 {
 	sensDataInput = p_sensDataInput;
 }
 
-void GCOSEM::setDataInput(IProjectionData* p_dataInput)
+void GCOSEM::setDataInput(ProjectionData* p_dataInput)
 {
 	dataInput = p_dataInput;
-	if (dynamic_cast<const IListMode*>(dataInput))
+	if (dynamic_cast<const ListMode*>(dataInput))
 	{
 		usingListModeInput = true;
 	}

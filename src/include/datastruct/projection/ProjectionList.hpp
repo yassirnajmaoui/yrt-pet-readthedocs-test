@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 #include "utils/Array.hpp"
 
 #include <memory>
@@ -17,11 +17,11 @@
 // Useful for temporary projections where you don't want to necessarily
 // copy all the detector coordinates in your list-mode/histogram.
 
-class GCProjectionList : public IProjectionData
+class ProjectionList : public ProjectionData
 {
 public:
-	GCProjectionList(const IProjectionData* r);
-	~GCProjectionList() override = default;
+	ProjectionList(const ProjectionData* r);
+	~ProjectionList() override = default;
 
 	size_t count() const override;
 	float getProjectionValue(bin_t id) const override;
@@ -44,28 +44,28 @@ public:
 	bool hasArbitraryLORs() const override;
 	line_t getArbitraryLOR(bin_t id) const override;
 
-	const IProjectionData* getReference() const { return mp_reference; }
+	const ProjectionData* getReference() const { return mp_reference; }
 
 	void clearProjections(float value) override;
 	Array1DBase<float>* getProjectionsArrayRef() const;
 
 protected:
-	const IProjectionData* mp_reference;
+	const ProjectionData* mp_reference;
 	std::unique_ptr<Array1DBase<float>> mp_projs;
 };
 
-class GCProjectionListAlias : public GCProjectionList
+class ProjectionListAlias : public ProjectionList
 {
 public:
-	GCProjectionListAlias(IProjectionData* p);
-	~GCProjectionListAlias() override = default;
+	ProjectionListAlias(ProjectionData* p);
+	~ProjectionListAlias() override = default;
 	void Bind(Array1DBase<float>* projs_in);
 };
 
-class GCProjectionListOwned : public GCProjectionList
+class ProjectionListOwned : public ProjectionList
 {
 public:
-	GCProjectionListOwned(IProjectionData* p);
-	~GCProjectionListOwned() override = default;
+	ProjectionListOwned(ProjectionData* p);
+	~ProjectionListOwned() override = default;
 	void allocate();
 };

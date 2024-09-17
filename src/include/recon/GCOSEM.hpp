@@ -50,12 +50,12 @@ public:
 	void summary() const;
 
 	// ---------- Getters and setters ----------
-	IProjectionData* getSensDataInput() { return sensDataInput; }
-	const IProjectionData* getSensDataInput() const { return sensDataInput; }
-	void setSensDataInput(IProjectionData* p_sensDataInput);
-	IProjectionData* getDataInput() { return dataInput; }
-	const IProjectionData* getDataInput() const { return dataInput; }
-	void setDataInput(IProjectionData* p_dataInput);
+	ProjectionData* getSensDataInput() { return sensDataInput; }
+	const ProjectionData* getSensDataInput() const { return sensDataInput; }
+	void setSensDataInput(ProjectionData* p_sensDataInput);
+	ProjectionData* getDataInput() { return dataInput; }
+	const ProjectionData* getDataInput() const { return dataInput; }
+	void setDataInput(ProjectionData* p_dataInput);
 	void addTOF(float p_tofWidth_ps, int p_tofNumStd);
 	void addProjPSF(const std::string& p_projSpacePsf_fname);
 	void addImagePSF(GCOperatorPsf* p_imageSpacePsf);
@@ -75,7 +75,7 @@ public:
 	const Image* maskImage;
 	const Image* attenuationImage;
 	const Image* attenuationImageForBackprojection;
-	const IHistogram* addHis;
+	const Histogram* addHis;
 	ImageWarperTemplate* warper; // For MLEM with Warper only
 	// TODO: Maybe make it so a buffer is automatically created in Initialize
 	Image* outImage;  // Buffer to for recon fill (Note: This is a host image)
@@ -122,11 +122,11 @@ protected:
 
 	// Abstract Getters
 	virtual ImageBase* GetSensImageBuffer() = 0;
-	virtual IProjectionData* GetSensDataInputBuffer() = 0;
+	virtual ProjectionData* GetSensDataInputBuffer() = 0;
 	virtual ImageBase* GetMLEMImageBuffer() = 0;
 	virtual ImageBase* GetMLEMImageTmpBuffer() = 0;
-	virtual IProjectionData* GetMLEMDataBuffer() = 0;
-	virtual IProjectionData* GetMLEMDataTmpBuffer() = 0;
+	virtual ProjectionData* GetMLEMDataBuffer() = 0;
+	virtual ProjectionData* GetMLEMDataTmpBuffer() = 0;
 	virtual int GetNumBatches(int subsetId, bool forRecon) const;
 
 	// Common methods
@@ -144,8 +144,8 @@ private:
 
 	std::vector<std::unique_ptr<BinIterator>> m_binIterators;
 
-	IProjectionData* sensDataInput;
-	IProjectionData* dataInput;
+	ProjectionData* sensDataInput;
+	ProjectionData* dataInput;
 
 	std::vector<Image*> sensitivityImages;
 };

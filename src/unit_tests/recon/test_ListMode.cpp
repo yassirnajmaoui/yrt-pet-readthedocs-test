@@ -5,16 +5,16 @@
 
 #include "catch.hpp"
 
-#include "datastruct/projection/GCListModeLUT.hpp"
+#include "datastruct/projection/ListModeLUT.hpp"
 #include "test_utils.hpp"
 #include "utils/Array.hpp"
 
 #include <cmath>
 #include <cstdio>
 
-std::unique_ptr<GCListModeLUTOwned> getListMode(GCScanner* scanner = nullptr)
+std::unique_ptr<ListModeLUTOwned> getListMode(GCScanner* scanner = nullptr)
 {
-	auto listMode = std::make_unique<GCListModeLUTOwned>(scanner);
+	auto listMode = std::make_unique<ListModeLUTOwned>(scanner);
 	listMode->allocate(15);
 	listMode->setDetectorIdsOfEvent(0, 25, 36);
 	listMode->setDetectorIdsOfEvent(13, 1, 60);
@@ -35,7 +35,7 @@ TEST_CASE("listmode", "[list-mode]")
 
 	SECTION("listmode-binding")
 	{
-		GCListModeLUTAlias listMode_alias(nullptr);
+		ListModeLUTAlias listMode_alias(nullptr);
 		listMode_alias.Bind(listMode.get());
 		CHECK(listMode->getTimestamp(0) == listMode_alias.getTimestamp(0));
 		CHECK(listMode->getTimestamp(13) == listMode_alias.getTimestamp(13));
@@ -49,7 +49,7 @@ TEST_CASE("listmode", "[list-mode]")
 	{
 		listMode->writeToFile("listmode1");
 
-		auto listMode2 = std::make_unique<GCListModeLUTOwned>(nullptr);
+		auto listMode2 = std::make_unique<ListModeLUTOwned>(nullptr);
 		listMode2->readFromFile("listmode1");
 
 		CHECK(listMode->getTimestamp(0) == listMode2->getTimestamp(0));

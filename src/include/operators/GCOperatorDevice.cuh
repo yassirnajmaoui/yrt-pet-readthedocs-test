@@ -7,7 +7,7 @@
 
 #include "datastruct/image/ImageBase.hpp"
 #include "datastruct/image/ImageDevice.cuh"
-#include "datastruct/projection/GCProjectionDataDevice.cuh"
+#include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "operators/GCOperator.hpp"
 #include "operators/GCOperatorProjector.hpp"
 #include "recon/GCCUParameters.hpp"
@@ -54,7 +54,7 @@ public:
 
 	void setAttImage(const Image* attImage) override;
 	void setAttImageForBackprojection(const Image* attImage) override;
-	void setAddHisto(const IHistogram *p_addHisto) override;
+	void setAddHisto(const Histogram *p_addHisto) override;
 	void setupTOFHelper(float tofWidth_ps, int tofNumStd = -1);
 
 protected:
@@ -68,11 +68,11 @@ protected:
 
 	void setBatchSize(size_t newBatchSize);
 
-	GCProjectionDataDeviceOwned& getIntermediaryProjData();
+	ProjectionDataDeviceOwned& getIntermediaryProjData();
 	const ImageDevice& getAttImageDevice() const;
 	const ImageDevice& getAttImageForBackprojectionDevice() const;
-	void prepareIntermediaryBuffer(const GCProjectionDataDevice* orig);
-	void prepareIntermediaryBufferIfNeeded(const GCProjectionDataDevice* orig);
+	void prepareIntermediaryBuffer(const ProjectionDataDevice* orig);
+	void prepareIntermediaryBufferIfNeeded(const ProjectionDataDevice* orig);
 
 	const GCTimeOfFlightHelper* getTOFHelperDevicePointer() const;
 
@@ -90,5 +90,5 @@ private:
 	// For attenuation correction
 	std::unique_ptr<ImageDeviceOwned> mp_attImageForBackprojectionDevice;
 	// For Attenuation correction or Additive correction
-	std::unique_ptr<GCProjectionDataDeviceOwned> mp_intermediaryProjData;
+	std::unique_ptr<ProjectionDataDeviceOwned> mp_intermediaryProjData;
 };

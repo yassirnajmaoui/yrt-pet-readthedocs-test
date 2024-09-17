@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/PluginFramework.hpp"
-#include "datastruct/projection/GCListModeLUT.hpp"
+#include "datastruct/projection/ListModeLUT.hpp"
 #include "utils/Array.hpp"
 
 #if BUILD_PYBIND11
@@ -16,17 +16,17 @@
 
 class GCScanner;
 
-class GCListModeLUTDOI : public GCListModeLUT
+class ListModeLUTDOI : public ListModeLUT
 {
 public:
-	~GCListModeLUTDOI() override = default;
+	~ListModeLUTDOI() override = default;
 
 	bool hasArbitraryLORs() const override;
 	line_t getArbitraryLOR(bin_t id) const override;
 	void writeToFile(const std::string& listMode_fname) const override;
 
 protected:
-	GCListModeLUTDOI(const GCScanner* s, bool p_flagTOF = false,
+	ListModeLUTDOI(const GCScanner* s, bool p_flagTOF = false,
 	                 int numLayers = 256);
 	std::unique_ptr<Array1DBase<unsigned char>> mp_doi1;
 	std::unique_ptr<Array1DBase<unsigned char>> mp_doi2;
@@ -34,12 +34,12 @@ protected:
 	int m_numLayers;
 };
 
-class GCListModeLUTDOIAlias : public GCListModeLUTDOI
+class ListModeLUTDOIAlias : public ListModeLUTDOI
 {
 public:
-	GCListModeLUTDOIAlias(const GCScanner* s, bool p_flagTOF = false,
+	ListModeLUTDOIAlias(const GCScanner* s, bool p_flagTOF = false,
 	                      int numLayers = 256);
-	~GCListModeLUTDOIAlias() override = default;
+	~ListModeLUTDOIAlias() override = default;
 	void Bind(Array1DBase<timestamp_t>* pp_timestamps,
 	          Array1DBase<det_id_t>* pp_detector_ids1,
 	          Array1DBase<det_id_t>* p_detector_ids2,
@@ -63,20 +63,20 @@ public:
 #endif
 };
 
-class GCListModeLUTDOIOwned : public GCListModeLUTDOI
+class ListModeLUTDOIOwned : public ListModeLUTDOI
 {
 public:
-	GCListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF = false,
+	ListModeLUTDOIOwned(const GCScanner* s, bool p_flagTOF = false,
 	                      int numLayers = 256);
-	GCListModeLUTDOIOwned(const GCScanner* s, const std::string& listMode_fname,
+	ListModeLUTDOIOwned(const GCScanner* s, const std::string& listMode_fname,
 	                      bool p_flagTOF = false, int numLayers = 256);
-	~GCListModeLUTDOIOwned() override = default;
+	~ListModeLUTDOIOwned() override = default;
 
 	void readFromFile(const std::string& listMode_fname);
 	void allocate(size_t num_events);
 
 	// For registering the plugin
-	static std::unique_ptr<IProjectionData>
+	static std::unique_ptr<ProjectionData>
 	    create(const GCScanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();

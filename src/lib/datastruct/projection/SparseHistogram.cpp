@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCSparseHistogram.hpp"
+#include "datastruct/projection/SparseHistogram.hpp"
 #include "utils/GCAssert.hpp"
 
 #include <cstring>
@@ -15,32 +15,32 @@
 using namespace pybind11::literals;
 namespace py = pybind11;
 
-void py_setup_gcsparsehistogram(py::module& m)
+void py_setup_sparsehistogram(py::module& m)
 {
-	auto c = py::class_<GCSparseHistogram, IHistogram>(m, "GCSparseHistogram");
+	auto c = py::class_<SparseHistogram, Histogram>(m, "SparseHistogram");
 	c.def(py::init<const GCScanner&>(), "scanner"_a);
 	c.def(py::init<const GCScanner&, const std::string&>(), "scanner"_a,
 	      "filename"_a);
-	c.def(py::init<const GCScanner&, const IProjectionData&,
+	c.def(py::init<const GCScanner&, const ProjectionData&,
 	               const BinIterator*>(),
 	      "scanner"_a, "projectionData"_a, "binIterator"_a = nullptr);
-	c.def("allocate", &GCSparseHistogram::allocate, "numBins"_a);
+	c.def("allocate", &SparseHistogram::allocate, "numBins"_a);
 	c.def("accumulate",
-	      static_cast<void (GCSparseHistogram::*)(det_pair_t detPair,
+	      static_cast<void (SparseHistogram::*)(det_pair_t detPair,
 	                                              float projValue)>(
-	          &GCSparseHistogram::accumulate),
+	          &SparseHistogram::accumulate),
 	      "detPair"_a, "projValue"_a);
 	c.def("accumulate",
-	      static_cast<void (GCSparseHistogram::*)(
-	          const IProjectionData& projData, const BinIterator* binIter)>(
-	          &GCSparseHistogram::accumulate),
+	      static_cast<void (SparseHistogram::*)(
+	          const ProjectionData& projData, const BinIterator* binIter)>(
+	          &SparseHistogram::accumulate),
 	      "projData"_a, "binIter"_a = nullptr);
 	c.def("getProjectionValueFromDetPair",
-	      &GCSparseHistogram::getProjectionValueFromDetPair, "detPair"_a);
-	c.def("readFromFile", &GCSparseHistogram::readFromFile, "filename"_a);
-	c.def("writeToFile", &GCSparseHistogram::writeToFile, "filename"_a);
+	      &SparseHistogram::getProjectionValueFromDetPair, "detPair"_a);
+	c.def("readFromFile", &SparseHistogram::readFromFile, "filename"_a);
+	c.def("writeToFile", &SparseHistogram::writeToFile, "filename"_a);
 	c.def("getProjValuesArray",
-	      [](GCSparseHistogram& self) -> pybind11::array_t<float>
+	      [](SparseHistogram& self) -> pybind11::array_t<float>
 	      {
 		      const auto buf_info =
 		          py::buffer_info(self.getProjectionValuesBuffer(), sizeof(float),
@@ -51,27 +51,27 @@ void py_setup_gcsparsehistogram(py::module& m)
 }
 #endif
 
-GCSparseHistogram::GCSparseHistogram(const GCScanner& pr_scanner)
+SparseHistogram::SparseHistogram(const GCScanner& pr_scanner)
     : mr_scanner(pr_scanner)
 {
 }
 
-GCSparseHistogram::GCSparseHistogram(const GCScanner& pr_scanner,
+SparseHistogram::SparseHistogram(const GCScanner& pr_scanner,
                                      const std::string& filename)
-    : GCSparseHistogram(pr_scanner)
+    : SparseHistogram(pr_scanner)
 {
 	readFromFile(filename);
 }
 
-GCSparseHistogram::GCSparseHistogram(const GCScanner& pr_scanner,
-                                     const IProjectionData& pr_projData,
+SparseHistogram::SparseHistogram(const GCScanner& pr_scanner,
+                                     const ProjectionData& pr_projData,
                                      const BinIterator* pp_binIter)
-    : GCSparseHistogram(pr_scanner)
+    : SparseHistogram(pr_scanner)
 {
 	accumulate(pr_projData, pp_binIter);
 }
 
-void GCSparseHistogram::allocate(size_t numBins)
+void SparseHistogram::allocate(size_t numBins)
 {
 	m_detectorMap.reserve(numBins);
 	m_projValues.reserve(numBins);
@@ -79,7 +79,7 @@ void GCSparseHistogram::allocate(size_t numBins)
 }
 
 template <bool IgnoreZeros>
-void GCSparseHistogram::accumulate(const IProjectionData& projData,
+void SparseHistogram::accumulate(const ProjectionData& projData,
                                    const BinIterator* binIter)
 {
 	size_t numBins;
@@ -115,13 +115,13 @@ void GCSparseHistogram::accumulate(const IProjectionData& projData,
 	}
 }
 template void
-    GCSparseHistogram::accumulate<true>(const IProjectionData& projData,
+    SparseHistogram::accumulate<true>(const ProjectionData& projData,
                                         const BinIterator* binIter);
 template void
-    GCSparseHistogram::accumulate<false>(const IProjectionData& projData,
+    SparseHistogram::accumulate<false>(const ProjectionData& projData,
                                          const BinIterator* binIter);
 
-void GCSparseHistogram::accumulate(det_pair_t detPair, float projValue)
+void SparseHistogram::accumulate(det_pair_t detPair, float projValue)
 {
 	det_pair_t newPair = SwapDetectorPairIfNeeded(detPair);
 
@@ -145,7 +145,7 @@ void GCSparseHistogram::accumulate(det_pair_t detPair, float projValue)
 	}
 }
 
-float GCSparseHistogram::getProjectionValueFromDetPair(det_pair_t detPair) const
+float SparseHistogram::getProjectionValueFromDetPair(det_pair_t detPair) const
 {
 	const auto detectorMapLocation =
 	    m_detectorMap.find(SwapDetectorPairIfNeeded(detPair));
@@ -159,28 +159,28 @@ float GCSparseHistogram::getProjectionValueFromDetPair(det_pair_t detPair) const
 	return 0.0f;
 }
 
-size_t GCSparseHistogram::count() const
+size_t SparseHistogram::count() const
 {
 	return m_projValues.size();
 }
 
-det_id_t GCSparseHistogram::getDetector1(bin_t id) const
+det_id_t SparseHistogram::getDetector1(bin_t id) const
 {
 	return m_detPairs[id].d1;
 }
 
-det_id_t GCSparseHistogram::getDetector2(bin_t id) const
+det_id_t SparseHistogram::getDetector2(bin_t id) const
 {
 	return m_detPairs[id].d2;
 }
 
-det_pair_t GCSparseHistogram::getDetectorPair(bin_t id) const
+det_pair_t SparseHistogram::getDetectorPair(bin_t id) const
 {
 	return m_detPairs[id];
 }
 
 std::unique_ptr<BinIterator>
-    GCSparseHistogram::getBinIter(int numSubsets, int idxSubset) const
+    SparseHistogram::getBinIter(int numSubsets, int idxSubset) const
 {
 	ASSERT_MSG(idxSubset < numSubsets,
 	           "The subset index has to be smaller than the number of subsets");
@@ -191,17 +191,17 @@ std::unique_ptr<BinIterator>
 	                                                    idxSubset);
 }
 
-float GCSparseHistogram::getProjectionValue(bin_t id) const
+float SparseHistogram::getProjectionValue(bin_t id) const
 {
 	return m_projValues[id];
 }
 
-void GCSparseHistogram::setProjectionValue(bin_t id, float val)
+void SparseHistogram::setProjectionValue(bin_t id, float val)
 {
 	m_projValues[id] = val;
 }
 
-float GCSparseHistogram::getProjectionValueFromHistogramBin(
+float SparseHistogram::getProjectionValueFromHistogramBin(
     histo_bin_t histoBinId) const
 {
 	ASSERT(std::holds_alternative<det_pair_t>(histoBinId));
@@ -209,14 +209,14 @@ float GCSparseHistogram::getProjectionValueFromHistogramBin(
 	return getProjectionValueFromDetPair(detPair);
 }
 
-void GCSparseHistogram::writeToFile(const std::string& filename) const
+void SparseHistogram::writeToFile(const std::string& filename) const
 {
 	std::ofstream ofs{filename.c_str(), std::ios::binary | std::ios::out};
 
 	if (!ofs.good())
 	{
 		throw std::runtime_error("Error opening file " + filename +
-		                         "GCListModeLUTOwned::writeToFile.");
+		                         "ListModeLUTOwned::writeToFile.");
 	}
 
 	constexpr std::streamsize sizeOfAnEvent_bytes =
@@ -255,14 +255,14 @@ void GCSparseHistogram::writeToFile(const std::string& filename) const
 	ofs.close();
 }
 
-void GCSparseHistogram::readFromFile(const std::string& filename)
+void SparseHistogram::readFromFile(const std::string& filename)
 {
 	std::ifstream ifs{filename, std::ios::in | std::ios::binary};
 
 	if (!ifs.good())
 	{
 		throw std::runtime_error("Error reading input file " + filename +
-		                         "GCListModeLUTOwned::readFromFile.");
+		                         "ListModeLUTOwned::readFromFile.");
 	}
 
 	constexpr std::streamsize sizeOfAnEvent_bytes =
@@ -277,7 +277,7 @@ void GCSparseHistogram::readFromFile(const std::string& filename)
 	if (fileSize_bytes <= 0 || (fileSize_bytes % sizeOfAnEvent_bytes) != 0)
 	{
 		throw std::runtime_error("Error: Input file has incorrect size in "
-		                         "GCSparseHistogram::readFromFile.");
+		                         "SparseHistogram::readFromFile.");
 	}
 	// Compute the number of events using its size
 	const std::streamsize numEvents = fileSize_bytes / sizeOfAnEvent_bytes;
@@ -318,45 +318,45 @@ void GCSparseHistogram::readFromFile(const std::string& filename)
 	ifs.close();
 }
 
-float* GCSparseHistogram::getProjectionValuesBuffer()
+float* SparseHistogram::getProjectionValuesBuffer()
 {
 	return m_projValues.data();
 }
 
-det_pair_t* GCSparseHistogram::getDetectorPairBuffer()
+det_pair_t* SparseHistogram::getDetectorPairBuffer()
 {
 	return m_detPairs.data();
 }
 
-const float* GCSparseHistogram::getProjectionValuesBuffer() const
+const float* SparseHistogram::getProjectionValuesBuffer() const
 {
 	return m_projValues.data();
 }
 
-const det_pair_t* GCSparseHistogram::getDetectorPairBuffer() const
+const det_pair_t* SparseHistogram::getDetectorPairBuffer() const
 {
 	return m_detPairs.data();
 }
 
-det_pair_t GCSparseHistogram::SwapDetectorPairIfNeeded(det_pair_t detPair)
+det_pair_t SparseHistogram::SwapDetectorPairIfNeeded(det_pair_t detPair)
 {
 	auto [d1, d2] = std::minmax({detPair.d1, detPair.d2});
 	return det_pair_t{d1, d2};
 }
 
-std::unique_ptr<IProjectionData>
-    GCSparseHistogram::create(const GCScanner& scanner,
+std::unique_ptr<ProjectionData>
+    SparseHistogram::create(const GCScanner& scanner,
                               const std::string& filename,
                               const Plugin::OptionsResult& pluginOptions)
 {
 	(void)pluginOptions;
-	return std::make_unique<GCSparseHistogram>(scanner, filename);
+	return std::make_unique<SparseHistogram>(scanner, filename);
 }
 
-Plugin::OptionsListPerPlugin GCSparseHistogram::getOptions()
+Plugin::OptionsListPerPlugin SparseHistogram::getOptions()
 {
 	return {};
 }
 
-REGISTER_PROJDATA_PLUGIN("SH", GCSparseHistogram, GCSparseHistogram::create,
-                         GCSparseHistogram::getOptions)
+REGISTER_PROJDATA_PLUGIN("SH", SparseHistogram, SparseHistogram::create,
+                         SparseHistogram::getOptions)

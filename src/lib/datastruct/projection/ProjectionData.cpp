@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 
 #include "utils/GCGlobals.hpp"
 
@@ -14,52 +14,52 @@
 #include <pybind11/stl.h>
 namespace py = pybind11;
 
-void py_setup_iprojectiondata(py::module& m)
+void py_setup_projectiondata(py::module& m)
 {
-	auto c = py::class_<IProjectionData, GCVariable>(m, "IProjectionData");
-	c.def("count", &IProjectionData::count);
-	c.def("getProjectionValue", &IProjectionData::getProjectionValue);
-	c.def("setProjectionValue", &IProjectionData::setProjectionValue);
-	c.def("getFrame", &IProjectionData::getFrame);
-	c.def("getDetector1", &IProjectionData::getDetector1);
-	c.def("getDetector2", &IProjectionData::getDetector2);
+	auto c = py::class_<ProjectionData, GCVariable>(m, "ProjectionData");
+	c.def("count", &ProjectionData::count);
+	c.def("getProjectionValue", &ProjectionData::getProjectionValue);
+	c.def("setProjectionValue", &ProjectionData::setProjectionValue);
+	c.def("getFrame", &ProjectionData::getFrame);
+	c.def("getDetector1", &ProjectionData::getDetector1);
+	c.def("getDetector2", &ProjectionData::getDetector2);
 	c.def("getDetectorPair",
-	      [](const IProjectionData& self, bin_t ev)
+	      [](const ProjectionData& self, bin_t ev)
 	      {
 		      auto [d1, d2] = self.getDetectorPair(ev);
 		      return py::make_tuple(d1, d2);
 	      });
-	c.def("getHistogramBin", &IProjectionData::getHistogramBin);
-	c.def("getBinIter", &IProjectionData::getBinIter);
-	c.def("isUniform", &IProjectionData::isUniform);
-	c.def("hasMotion", &IProjectionData::hasMotion);
-	c.def("getNumFrames", &IProjectionData::getNumFrames);
+	c.def("getHistogramBin", &ProjectionData::getHistogramBin);
+	c.def("getBinIter", &ProjectionData::getBinIter);
+	c.def("isUniform", &ProjectionData::isUniform);
+	c.def("hasMotion", &ProjectionData::hasMotion);
+	c.def("getNumFrames", &ProjectionData::getNumFrames);
 	c.def("getTransformOfFrame",
-	      [](const IProjectionData& self, bin_t bin)
+	      [](const ProjectionData& self, bin_t bin)
 	      {
 		      transform_t t = self.getTransformOfFrame(bin);
 		      // Return the raw data
 		      return py::make_tuple(t.r00, t.r01, t.r02, t.r10, t.r11, t.r12,
 		                            t.r20, t.r21, t.r22, t.tx, t.ty, t.tz);
 	      });
-	c.def("hasTOF", &IProjectionData::hasTOF);
-	c.def("getTOFValue", &IProjectionData::getTOFValue);
-	c.def("getRandomsEstimate", &IProjectionData::getRandomsEstimate);
-	c.def("clearProjections", &IProjectionData::clearProjections);
-	c.def("hasArbitraryLORs", &IProjectionData::hasArbitraryLORs);
+	c.def("hasTOF", &ProjectionData::hasTOF);
+	c.def("getTOFValue", &ProjectionData::getTOFValue);
+	c.def("getRandomsEstimate", &ProjectionData::getRandomsEstimate);
+	c.def("clearProjections", &ProjectionData::clearProjections);
+	c.def("hasArbitraryLORs", &ProjectionData::hasArbitraryLORs);
 	c.def("getArbitraryLOR",
-	      [](const IProjectionData& self, bin_t bin)
+	      [](const ProjectionData& self, bin_t bin)
 	      {
 		      line_t l = self.getArbitraryLOR(bin);
 		      // Return the raw data
 		      return py::make_tuple(l.x1, l.y1, l.z1, l.x2, l.y2, l.z2);
 	      });
-	c.def("divideMeasurements", &IProjectionData::divideMeasurements);
+	c.def("divideMeasurements", &ProjectionData::divideMeasurements);
 }
 
 #endif  // if BUILD_PYBIND11
 
-void IProjectionData::operationOnEachBin(
+void ProjectionData::operationOnEachBin(
     const std::function<float(bin_t)>& func)
 {
 	for (bin_t i = 0; i < count(); i++)
@@ -68,7 +68,7 @@ void IProjectionData::operationOnEachBin(
 	}
 }
 
-void IProjectionData::operationOnEachBinParallel(
+void ProjectionData::operationOnEachBinParallel(
     const std::function<float(bin_t)>& func)
 {
 	int num_threads = GCGlobals::get_num_threads();
@@ -81,86 +81,86 @@ void IProjectionData::operationOnEachBinParallel(
 	}
 }
 
-bool IProjectionData::isUniform() const
+bool ProjectionData::isUniform() const
 {
 	return false;
 }
 
-bool IProjectionData::hasMotion() const
+bool ProjectionData::hasMotion() const
 {
 	return false;
 }
 
-size_t IProjectionData::getNumFrames() const
+size_t ProjectionData::getNumFrames() const
 {
 	// By default, only one frame
 	return 1ull;
 }
 
-transform_t IProjectionData::getTransformOfFrame(frame_t frame) const
+transform_t ProjectionData::getTransformOfFrame(frame_t frame) const
 {
 	(void)frame;
 	// Return identity rotation and null translation
 	return {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0};
 }
 
-float IProjectionData::getTOFValue(bin_t id) const
+float ProjectionData::getTOFValue(bin_t id) const
 {
 	(void)id;
 	throw std::logic_error("getTOFValue unimplemented");
 }
 
-float IProjectionData::getRandomsEstimate(bin_t id) const
+float ProjectionData::getRandomsEstimate(bin_t id) const
 {
 	(void)id;
 	return 0.0f;
 }
 
-bool IProjectionData::hasTOF() const
+bool ProjectionData::hasTOF() const
 {
 	return false;
 }
 
-bool IProjectionData::hasArbitraryLORs() const
+bool ProjectionData::hasArbitraryLORs() const
 {
 	return false;
 }
 
-line_t IProjectionData::getArbitraryLOR(bin_t id) const
+line_t ProjectionData::getArbitraryLOR(bin_t id) const
 {
 	(void)id;
 	throw std::logic_error("getArbitraryLOR Unimplemented");
 }
 
-timestamp_t IProjectionData::getTimestamp(bin_t id) const
+timestamp_t ProjectionData::getTimestamp(bin_t id) const
 {
 	(void)id;
 	return 0u;
 }
 
-frame_t IProjectionData::getFrame(bin_t id) const
+frame_t ProjectionData::getFrame(bin_t id) const
 {
 	(void)id;
 	return 0u;
 }
 
-det_pair_t IProjectionData::getDetectorPair(bin_t id) const
+det_pair_t ProjectionData::getDetectorPair(bin_t id) const
 {
 	return {getDetector1(id), getDetector2(id)};
 }
 
-histo_bin_t IProjectionData::getHistogramBin(bin_t bin) const
+histo_bin_t ProjectionData::getHistogramBin(bin_t bin) const
 {
 	return getDetectorPair(bin);
 }
 
-void IProjectionData::clearProjections(float value)
+void ProjectionData::clearProjections(float value)
 {
 	(void)value;
 	throw std::logic_error("clearProjections undefined on this object");
 }
 
-void IProjectionData::divideMeasurements(const IProjectionData* measurements,
+void ProjectionData::divideMeasurements(const ProjectionData* measurements,
                                          const BinIterator* binIter)
 {
 	int num_threads = GCGlobals::get_num_threads();

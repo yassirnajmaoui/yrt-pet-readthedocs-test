@@ -6,7 +6,7 @@
 #include "catch.hpp"
 
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/projection/GCListModeLUT.hpp"
+#include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/scanner/GCDetRegular.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
@@ -181,7 +181,7 @@ TEST_CASE("histo3d", "[histo]")
 
 	SECTION("histo3d-line-integrity")
 	{
-		auto someListMode = std::make_unique<GCListModeLUTOwned>(scanner.get());
+		auto someListMode = std::make_unique<ListModeLUTOwned>(scanner.get());
 		double epsilon = 1e-5;
 		someListMode->allocate(3);
 		someListMode->setDetectorIdsOfEvent(0, 15, 105);

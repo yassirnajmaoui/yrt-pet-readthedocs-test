@@ -95,7 +95,7 @@ void GCOperatorProjectorSiddon::setNumRays(int n)
 }
 
 double GCOperatorProjectorSiddon::forwardProjection(const Image* img,
-                                                    const IProjectionData* dat,
+                                                    const ProjectionData* dat,
                                                     bin_t bin)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =
@@ -107,7 +107,7 @@ double GCOperatorProjectorSiddon::forwardProjection(const Image* img,
 }
 
 void GCOperatorProjectorSiddon::backProjection(Image* img,
-                                               const IProjectionData* dat,
+                                               const ProjectionData* dat,
                                                bin_t bin, double projValue)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =

@@ -5,7 +5,7 @@
 
 #include "../PluginOptionsHelper.hpp"
 #include "datastruct/IO.hpp"
-#include "datastruct/projection/GCUniformHistogram.hpp"
+#include "datastruct/projection/UniformHistogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "motion/ImageWarperMatrix.hpp"
 #include "utils/GCAssert.hpp"
@@ -211,7 +211,7 @@ int main(int argc, char** argv)
 	std::vector<std::unique_ptr<Image>> sensImages;
 	if (sensImg_fnames.empty())
 	{
-		std::unique_ptr<IProjectionData> sensData = nullptr;
+		std::unique_ptr<ProjectionData> sensData = nullptr;
 		if (!sensData_fname.empty())
 		{
 			sensData = IO::openProjectionData(sensData_fname, sensData_format,
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
 	}
 
 	// Projection Data Input file
-	std::unique_ptr<IProjectionData> dataInput;
+	std::unique_ptr<ProjectionData> dataInput;
 	dataInput = IO::openProjectionData(input_fname, input_format, *scanner,
 	                                   pluginOptionsResults);
 	osem->setDataInput(dataInput.get());
@@ -264,15 +264,15 @@ int main(int argc, char** argv)
 	}
 
 	// Additive histogram
-	std::unique_ptr<IProjectionData> addHis;
+	std::unique_ptr<ProjectionData> addHis;
 	if (!addHis_fname.empty())
 	{
 		addHis = IO::openProjectionData(addHis_fname, addHis_format, *scanner,
 		                                pluginOptionsResults);
-		osem->addHis = dynamic_cast<const IHistogram*>(addHis.get());
+		osem->addHis = dynamic_cast<const Histogram*>(addHis.get());
 		ASSERT_MSG(osem->addHis != nullptr,
 		           "The additive histogram provided does not inherit from "
-		           "IHistogram.");
+		           "Histogram.");
 	}
 
 	// Save steps

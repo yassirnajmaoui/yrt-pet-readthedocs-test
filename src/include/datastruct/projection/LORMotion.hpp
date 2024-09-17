@@ -8,10 +8,10 @@
 #include "datastruct/fancyarray/trivial_struct_of_arrays.hpp"
 #include "utils/GCTypes.hpp"
 
-class GCLORMotion
+class LORMotion
 {
 public:
-	GCLORMotion(const std::string& filename);
+	LORMotion(const std::string& filename);
 
 	transform_t getTransform(frame_t frame) const;
 	timestamp_t getStartingTimestamp(frame_t frame) const;

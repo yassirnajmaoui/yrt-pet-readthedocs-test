@@ -6,8 +6,8 @@
 #include "recon/GCOSEM_gpu.cuh"
 
 #include "datastruct/image/ImageDevice.cuh"
-#include "datastruct/projection/GCProjectionDataDevice.cuh"
-#include "datastruct/projection/GCProjectionSpaceKernels.cuh"
+#include "datastruct/projection/ProjectionDataDevice.cuh"
+#include "datastruct/projection/ProjectionSpaceKernels.cuh"
 #include "operators/GCOperatorProjectorDD_gpu.cuh"
 #include "utils/GCAssert.hpp"
 
@@ -67,7 +67,7 @@ void GCOSEM_gpu::allocateForSensImgGen()
 	mpd_sensImageBuffer->allocate(true);
 
 	// Allocate for projection space
-	auto tempSensDataInput = std::make_unique<GCProjectionDataDeviceOwned>(
+	auto tempSensDataInput = std::make_unique<ProjectionDataDeviceOwned>(
 	    scanner, getSensDataInput(), num_OSEM_subsets);
 	mpd_tempSensDataInput = std::move(tempSensDataInput);
 }
@@ -149,9 +149,9 @@ void GCOSEM_gpu::allocateForRecon()
 	for (const auto& subsetBinIter : getBinIterators())
 		binIteratorPtrList.push_back(subsetBinIter.get());
 
-	auto dat = std::make_unique<GCProjectionDataDeviceOwned>(
+	auto dat = std::make_unique<ProjectionDataDeviceOwned>(
 	    scanner, getDataInput(), binIteratorPtrList, 0.4f);
-	auto datTmp = std::make_unique<GCProjectionDataDeviceOwned>(dat.get());
+	auto datTmp = std::make_unique<ProjectionDataDeviceOwned>(dat.get());
 
 	mpd_dat = std::move(dat);
 	mpd_datTmp = std::move(datTmp);
@@ -174,7 +174,7 @@ ImageBase* GCOSEM_gpu::GetSensImageBuffer()
 	return mpd_sensImageBuffer.get();
 }
 
-IProjectionData* GCOSEM_gpu::GetSensDataInputBuffer()
+ProjectionData* GCOSEM_gpu::GetSensDataInputBuffer()
 {
 	return mpd_tempSensDataInput.get();
 }
@@ -189,12 +189,12 @@ ImageBase* GCOSEM_gpu::GetMLEMImageTmpBuffer()
 	return mpd_mlemImageTmp.get();
 }
 
-IProjectionData* GCOSEM_gpu::GetMLEMDataBuffer()
+ProjectionData* GCOSEM_gpu::GetMLEMDataBuffer()
 {
 	return mpd_dat.get();
 }
 
-IProjectionData* GCOSEM_gpu::GetMLEMDataTmpBuffer()
+ProjectionData* GCOSEM_gpu::GetMLEMDataTmpBuffer()
 {
 	return mpd_datTmp.get();
 }

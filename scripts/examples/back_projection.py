@@ -9,7 +9,7 @@ scanner = gc.GCScannerOwned("<path to the scanner's json file>")
 dataset = gc.Histogram3DOwned(scanner)
 dataset.readFromFile("<path to an histogram to be backprojected>")
 # or, alternatively, read a ListMode file
-dataset = gc.GCListModeLUTOwned(scanner)
+dataset = gc.ListModeLUTOwned(scanner)
 dataset.readFromFile("<path to a listmode to be backprojected>")
 
 # Prepare an image

@@ -27,7 +27,7 @@ fold_bin = _helper.fold_bin
 def test_mlem_simple():
     img_params = gc.ImageParams(util_paths['img_params_500'])
     scanner = gc.GCScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.GCListModeLUTOwned(scanner, dataset_paths['test_mlem_simple'])
+    dataset = gc.ListModeLUTOwned(scanner, dataset_paths['test_mlem_simple'])
     sens_img = gc.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
     _helper._test_reconstruction(
         img_params, scanner, dataset, sens_img,
@@ -40,7 +40,7 @@ def _test_mlem_helper(dset):
     test_name = 'test_mlem_{}'.format(dset)
     img_params = gc.ImageParams(util_paths['img_params_500'])
     scanner = gc.GCScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.GCListModeLUTOwned(scanner, dataset_paths[test_name][0])
+    dataset = gc.ListModeLUTOwned(scanner, dataset_paths[test_name][0])
     sens_img = gc.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
 
     warper = gc.ImageWarperMatrix()
@@ -67,7 +67,7 @@ def test_mlem_yesMan():
 def test_bwd():
     img_params = gc.ImageParams(util_paths['img_params_500'])
     scanner = gc.GCScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.GCListModeLUTOwned(scanner, dataset_paths['test_bwd'])
+    dataset = gc.ListModeLUTOwned(scanner, dataset_paths['test_bwd'])
 
     out_img = gc.ImageOwned(img_params)
     out_img.allocate()
@@ -87,7 +87,7 @@ def test_bwd():
 def test_sens():
     img_params = gc.ImageParams(util_paths['img_params_500'])
     scanner = gc.GCScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.GCUniformHistogram(scanner)
+    dataset = gc.UniformHistogram(scanner)
 
     osem = gc.createOSEM(scanner)
     osem.imageParams = img_params
@@ -200,7 +200,7 @@ def test_flat_panel_mlem_tof():
     img_params = gc.ImageParams(util_paths['img_params_3.0'])
     scanner = gc.GCScannerOwned(
         util_paths['Geometry_2panels_large_3x3x20mm_rot_gc_json'])
-    dataset = gc.GCListModeLUTDOIOwned(
+    dataset = gc.ListModeLUTDOIOwned(
         scanner, dataset_paths['test_flat_panel_mlem_tof'][0], True)
     sens_img = gc.ImageOwned(img_params,
                                dataset_paths['test_flat_panel_mlem_tof'][1])
@@ -240,28 +240,28 @@ def test_flat_panel_mlem_tof_exec():
 def test_subsets_savant_siddon():
     scanner = gc.GCScannerOwned(util_paths["SAVANT_json"])
     img_params = gc.ImageParams(util_paths["img_params_500"])
-    lm = gc.GCListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
+    lm = gc.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
     _helper._test_subsets(scanner, img_params, lm, projector='Siddon')
 
 
 def test_subsets_savant_dd():
     scanner = gc.GCScannerOwned(util_paths["SAVANT_json"])
     img_params = gc.ImageParams(util_paths["img_params_500"])
-    lm = gc.GCListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
+    lm = gc.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
     _helper._test_subsets(scanner, img_params, lm, projector='DD')
 
 
 def test_adjoint_uhr2d_siddon():
     scanner = gc.GCScannerOwned(util_paths["UHR2D_json"])
     img_params = gc.ImageParams(util_paths["img_params_2d"])
-    his = gc.GCListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
+    his = gc.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='Siddon')
 
 
 def test_adjoint_uhr2d_multi_ray_siddon():
     scanner = gc.GCScannerOwned(util_paths["UHR2D_json"])
     img_params = gc.ImageParams(util_paths["img_params_2d"])
-    his = gc.GCListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
+    his = gc.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='Siddon',
                           num_rays=4)
 
@@ -269,7 +269,7 @@ def test_adjoint_uhr2d_multi_ray_siddon():
 def test_adjoint_uhr2d_dd():
     scanner = gc.GCScannerOwned(util_paths["UHR2D_json"])
     img_params = gc.ImageParams(util_paths["img_params_2d"])
-    his = gc.GCListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
+    his = gc.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='DD')
 
 
@@ -309,7 +309,7 @@ def test_osem_siddon_multi_ray():
     num_siddon_rays = 6
     img_params = gc.ImageParams(util_paths['img_params_500'])
     scanner = gc.GCScannerOwned(util_paths['SAVANT_json'])
-    dataset = gc.GCListModeLUTOwned(
+    dataset = gc.ListModeLUTOwned(
         scanner, dataset_paths['test_osem_siddon_multi_ray'])
     sens_img = gc.ImageOwned(
         img_params, util_paths['sens_SAVANT_multi_ray_500'])

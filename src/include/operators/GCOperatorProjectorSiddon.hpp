@@ -17,10 +17,10 @@ class GCOperatorProjectorSiddon : public GCOperatorProjector
 public:
 	GCOperatorProjectorSiddon(const GCOperatorProjectorParams& p_projParams);
 
-	double forwardProjection(const Image* img, const IProjectionData* dat,
+	double forwardProjection(const Image* img, const ProjectionData* dat,
 	                         bin_t bin) override;
 
-	void backProjection(Image* img, const IProjectionData* dat, bin_t bin,
+	void backProjection(Image* img, const ProjectionData* dat, bin_t bin,
 	                    double projValue) override;
 
 

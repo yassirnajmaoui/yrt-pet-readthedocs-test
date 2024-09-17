@@ -4,14 +4,14 @@
  */
 #pragma once
 
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 
 #include <memory>
 
-class IListMode : public IProjectionData
+class ListMode : public ProjectionData
 {
 public:
-	~IListMode() override = default;
+	~ListMode() override = default;
 
 	static constexpr bool IsListMode() { return true; }
 

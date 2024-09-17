@@ -412,9 +412,9 @@ float Histogram3D::getProjectionValueFromHistogramBin(
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
-void py_setup_gchistogram3d(pybind11::module& m)
+void py_setup_histogram3d(pybind11::module& m)
 {
-	auto c = py::class_<Histogram3D, IHistogram>(m, "Histogram3D",
+	auto c = py::class_<Histogram3D, Histogram>(m, "Histogram3D",
 	                                               py::buffer_protocol());
 	c.def("getScanner", &Histogram3D::getScanner);
 	c.def_readonly("n_z_bin", &Histogram3D::n_z_bin);
@@ -541,7 +541,7 @@ void py_setup_gchistogram3d(pybind11::module& m)
 }
 #endif
 
-std::unique_ptr<IProjectionData>
+std::unique_ptr<ProjectionData>
     Histogram3DOwned::create(const GCScanner& scanner,
                                const std::string& filename,
                                const Plugin::OptionsResult& pluginOptions)

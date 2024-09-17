@@ -4,9 +4,9 @@
  */
 #pragma once
 
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 
-class IHistogram : public IProjectionData
+class Histogram : public ProjectionData
 {
 public:
 	static constexpr bool IsListMode() { return false; }

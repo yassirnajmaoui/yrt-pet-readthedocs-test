@@ -7,10 +7,10 @@
 
 #include "datastruct/projection/Histogram3D.hpp"
 
-class GCUniformHistogram : public Histogram3D
+class UniformHistogram : public Histogram3D
 {
 public:
-	GCUniformHistogram(const GCScanner* p_scanner, float p_value = 1.0f);
+	UniformHistogram(const GCScanner* p_scanner, float p_value = 1.0f);
 
 	void writeToFile(const std::string& filename) const override;
 	float getProjectionValue(bin_t binId) const override;

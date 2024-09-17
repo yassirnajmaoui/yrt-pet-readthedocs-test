@@ -6,25 +6,25 @@
 #pragma once
 
 #include "datastruct/PluginFramework.hpp"
-#include "datastruct/projection/IHistogram.hpp"
+#include "datastruct/projection/Histogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 
 #include <unordered_map>
 
-class GCSparseHistogram : public IHistogram
+class SparseHistogram : public Histogram
 {
 public:
-	GCSparseHistogram(const GCScanner& pr_scanner);
-	GCSparseHistogram(const GCScanner& pr_scanner, const std::string& filename);
-	GCSparseHistogram(const GCScanner& pr_scanner,
-	                  const IProjectionData& pr_projData,
+	SparseHistogram(const GCScanner& pr_scanner);
+	SparseHistogram(const GCScanner& pr_scanner, const std::string& filename);
+	SparseHistogram(const GCScanner& pr_scanner,
+	                  const ProjectionData& pr_projData,
 	                  const BinIterator* pp_binIter = nullptr);
 
 	void allocate(size_t numBins);
 
 	// Insertion
 	template <bool IgnoreZeros = false>
-	void accumulate(const IProjectionData& projData,
+	void accumulate(const ProjectionData& projData,
 	                const BinIterator* binIter = nullptr);
 	void accumulate(det_pair_t detPair, float projValue);
 
@@ -51,7 +51,7 @@ public:
 	const float* getProjectionValuesBuffer() const;
 	const det_pair_t* getDetectorPairBuffer() const;
 
-	static std::unique_ptr<IProjectionData>
+	static std::unique_ptr<ProjectionData>
 	    create(const GCScanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();

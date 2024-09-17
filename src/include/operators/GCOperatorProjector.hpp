@@ -13,8 +13,8 @@
 class BinIterator;
 class Image;
 class GCScanner;
-class IProjectionData;
-class IHistogram;
+class ProjectionData;
+class Histogram;
 
 class GCOperatorProjectorParams
 {
@@ -60,12 +60,12 @@ public:
 	virtual void setAttImage(const Image* p_attImage);  // alias
 	virtual void setAttImageForBackprojection(const Image* p_attImage);
 	void setAttenuationImage(const Image* p_attImage);
-	virtual void setAddHisto(const IHistogram* p_addHisto);
+	virtual void setAddHisto(const Histogram* p_addHisto);
 	void setBinIter(const BinIterator* p_binIter);
 
 	const Image* getAttImage() const;
 	const Image* getAttImageForBackprojection() const;
-	const IHistogram* getAddHisto() const;
+	const Histogram* getAddHisto() const;
 
 protected:
 	// Bin iterator
@@ -79,7 +79,7 @@ protected:
 	// For generating a sensitivity image with attenuation correction
 	const Image* attImageForBackprojection;
 	// Additive histogram
-	const IHistogram* addHisto;
+	const Histogram* addHisto;
 };
 
 class GCOperatorProjector : public GCOperatorProjectorBase
@@ -96,8 +96,8 @@ public:
 
 	// Virtual functions
 	virtual double forwardProjection(const Image* in_image,
-	                                 const IProjectionData* dat, bin_t bin) = 0;
-	virtual void backProjection(Image* in_image, const IProjectionData* dat,
+	                                 const ProjectionData* dat, bin_t bin) = 0;
+	virtual void backProjection(Image* in_image, const ProjectionData* dat,
 	                            bin_t bin, double projValue) = 0;
 
 	void applyA(const GCVariable* in, GCVariable* out) override;

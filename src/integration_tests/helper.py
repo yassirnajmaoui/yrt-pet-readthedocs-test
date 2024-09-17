@@ -64,7 +64,7 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
 
 
 def _test_subsets(scanner: gc.GCScanner, img_params: gc.ImageParams,
-                  projData: gc.IProjectionData, **args):
+                  projData: gc.ProjectionData, **args):
     k = gc.GCProjectionOper(scanner, img_params, projData, **args)
 
     x = np.random.random([img_params.nz, img_params.ny, img_params.nx])
@@ -92,7 +92,7 @@ def _test_subsets(scanner: gc.GCScanner, img_params: gc.ImageParams,
 
 
 def _test_adjoint(scanner: gc.GCScanner, img_params: gc.ImageParams,
-                  projData: gc.IProjectionData, **args):
+                  projData: gc.ProjectionData, **args):
     k = gc.GCProjectionOper(scanner, img_params, projData, **args)
 
     x = np.random.random([img_params.nz, img_params.ny, img_params.nx])

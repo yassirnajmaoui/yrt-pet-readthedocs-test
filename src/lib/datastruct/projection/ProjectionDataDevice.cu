@@ -3,10 +3,10 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCProjectionDataDevice.cuh"
-#include "datastruct/projection/GCProjectionSpaceKernels.cuh"
-#include "datastruct/projection/GCUniformHistogram.hpp"
-#include "datastruct/projection/IListMode.hpp"
+#include "datastruct/projection/ProjectionDataDevice.cuh"
+#include "datastruct/projection/ProjectionSpaceKernels.cuh"
+#include "datastruct/projection/UniformHistogram.hpp"
+#include "datastruct/projection/ListMode.hpp"
 #include "operators/GCOperatorDevice.cuh"
 #include "utils/GCAssert.hpp"
 #include "utils/GCGlobals.hpp"
@@ -21,81 +21,81 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-void py_setup_gcprojectiondatadevice(py::module& m)
+void py_setup_projectiondatadevice(py::module& m)
 {
-	auto c = py::class_<GCProjectionDataDevice, GCProjectionList>(
-	    m, "GCProjectionDataDevice");
+	auto c = py::class_<ProjectionDataDevice, ProjectionList>(
+	    m, "ProjectionDataDevice");
 	c.def(
 	    "loadEventLORs",
-	    [](GCProjectionDataDevice& self, size_t subsetId, size_t batchId,
+	    [](ProjectionDataDevice& self, size_t subsetId, size_t batchId,
 	       const ImageParams& imgParams)
 	    { self.loadEventLORs(subsetId, batchId, imgParams); },
 	    "Load the LORs of a specific batch in a specific subset", "subsetId"_a,
 	    "batchId"_a, "imgParams"_a);
 	c.def("transferProjValuesToHost",
-	      [](GCProjectionDataDevice& self, IProjectionData* dest)
+	      [](ProjectionDataDevice& self, ProjectionData* dest)
 	      { self.transferProjValuesToHost(dest); });
 	c.def("loadProjValuesFromHost",
-	      [](GCProjectionDataDevice& self, const IProjectionData* src)
+	      [](ProjectionDataDevice& self, const ProjectionData* src)
 	      { self.loadProjValuesFromHost(src, nullptr); });
-	c.def("loadProjValuesFromReference", [](GCProjectionDataDeviceOwned& self)
+	c.def("loadProjValuesFromReference", [](ProjectionDataDeviceOwned& self)
 	      { self.loadProjValuesFromReference(); });
-	c.def("getCurrentBatchSize", &GCProjectionDataDevice::getCurrentBatchSize);
-	c.def("getCurrentBatchId", &GCProjectionDataDevice::getCurrentBatchId);
-	c.def("getCurrentSubsetId", &GCProjectionDataDevice::getCurrentSubsetId);
-	c.def("getNumBatches", &GCProjectionDataDevice::getNumBatches);
-	c.def("areLORsGathered", &GCProjectionDataDevice::areLORsGathered);
+	c.def("getCurrentBatchSize", &ProjectionDataDevice::getCurrentBatchSize);
+	c.def("getCurrentBatchId", &ProjectionDataDevice::getCurrentBatchId);
+	c.def("getCurrentSubsetId", &ProjectionDataDevice::getCurrentSubsetId);
+	c.def("getNumBatches", &ProjectionDataDevice::getNumBatches);
+	c.def("areLORsGathered", &ProjectionDataDevice::areLORsGathered);
 
 	auto c_owned =
-	    py::class_<GCProjectionDataDeviceOwned, GCProjectionDataDevice>(
-	        m, "GCProjectionDataDeviceOwned");
+	    py::class_<ProjectionDataDeviceOwned, ProjectionDataDevice>(
+	        m, "ProjectionDataDeviceOwned");
 	c_owned.def(
-	    py::init<const GCScanner*, const IProjectionData*, int, float>(),
-	    "Create a GCProjectionDataDevice. This constructor will also store "
+	    py::init<const GCScanner*, const ProjectionData*, int, float>(),
+	    "Create a ProjectionDataDevice. This constructor will also store "
 	    "the Scanner LUT in the device",
 	    "scanner"_a, "reference"_a, "num_OSEM_subsets"_a = 1,
-	    "shareOfMemoryToUse"_a = GCProjectionDataDevice::DefaultMemoryShare);
+	    "shareOfMemoryToUse"_a = ProjectionDataDevice::DefaultMemoryShare);
 	c_owned.def(
-	    py::init<const GCProjectionDataDevice*>(),
-	    "Create a GCProjectionDataDevice from an existing one. They will "
+	    py::init<const ProjectionDataDevice*>(),
+	    "Create a ProjectionDataDevice from an existing one. They will "
 	    "share the LORs",
 	    "orig"_a);
-	c_owned.def("allocateForProjValues", [](GCProjectionDataDeviceOwned& self)
+	c_owned.def("allocateForProjValues", [](ProjectionDataDeviceOwned& self)
 	            { self.allocateForProjValues(); });
 
 	auto c_alias =
-	    py::class_<GCProjectionDataDeviceAlias, GCProjectionDataDevice>(
-	        m, "GCProjectionDataDeviceAlias");
+	    py::class_<ProjectionDataDeviceAlias, ProjectionDataDevice>(
+	        m, "ProjectionDataDeviceAlias");
 	c_alias.def(
-	    py::init<const GCScanner*, const IProjectionData*, int, float>(),
-	    "Create a GCProjectionDataDeviceAlias. This constructor will also "
+	    py::init<const GCScanner*, const ProjectionData*, int, float>(),
+	    "Create a ProjectionDataDeviceAlias. This constructor will also "
 	    "store "
 	    "the Scanner LUT in the device",
 	    "scanner"_a, "reference"_a, "num_OSEM_subsets"_a = 1,
-	    "shareOfMemoryToUse"_a = GCProjectionDataDevice::DefaultMemoryShare);
+	    "shareOfMemoryToUse"_a = ProjectionDataDevice::DefaultMemoryShare);
 	c_alias.def(
-	    py::init<const GCProjectionDataDevice*>(),
-	    "Create a GCProjectionDataDeviceAlias from an existing one. They will "
+	    py::init<const ProjectionDataDevice*>(),
+	    "Create a ProjectionDataDeviceAlias from an existing one. They will "
 	    "share the LORs",
 	    "orig"_a);
 	c_alias.def("getProjValuesDevicePointer",
-	            &GCProjectionDataDeviceAlias::getProjValuesDevicePointerInULL);
+	            &ProjectionDataDeviceAlias::getProjValuesDevicePointerInULL);
 	c_alias.def("setProjValuesDevicePointer",
-	            static_cast<void (GCProjectionDataDeviceAlias::*)(size_t)>(
-	                &GCProjectionDataDeviceAlias::setProjValuesDevicePointer),
+	            static_cast<void (ProjectionDataDeviceAlias::*)(size_t)>(
+	                &ProjectionDataDeviceAlias::setProjValuesDevicePointer),
 	            "Set a device address for the projection values array. For "
 	            "usage with PyTorch, use \'myArray.data_ptr()\'",
 	            "data_ptr"_a);
 	c_alias.def("isDevicePointerSet",
-	            &GCProjectionDataDeviceAlias::isDevicePointerSet,
+	            &ProjectionDataDeviceAlias::isDevicePointerSet,
 	            "Returns true if the device pointer is not null");
 }
 
 #endif  // if BUILD_PYBIND11
 
-GCProjectionDataDevice::GCProjectionDataDevice(
-    const GCProjectionDataDevice* orig)
-    : GCProjectionList(orig->mp_reference),
+ProjectionDataDevice::ProjectionDataDevice(
+    const ProjectionDataDevice* orig)
+    : ProjectionList(orig->mp_reference),
       mp_binIteratorList(orig->mp_binIteratorList),
       mp_scanner(orig->mp_scanner),
       mp_LORs(orig->mp_LORs)
@@ -106,23 +106,23 @@ GCProjectionDataDevice::GCProjectionDataDevice(
 	}
 }
 
-GCProjectionDataDevice::GCProjectionDataDevice(
-    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
+ProjectionDataDevice::ProjectionDataDevice(
+    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
-    : GCProjectionList(pp_reference),
+    : ProjectionList(pp_reference),
       mp_binIteratorList(std::move(pp_binIteratorList)),
       mp_scanner(pp_scanner)
 {
-	mp_LORs = std::make_unique<GCLORsDevice>(mp_scanner);
+	mp_LORs = std::make_unique<LORsDevice>(mp_scanner);
 	createBatchSetups(shareOfMemoryToUse);
 }
 
-GCProjectionDataDevice::GCProjectionDataDevice(
-    std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
+ProjectionDataDevice::ProjectionDataDevice(
+    std::shared_ptr<LORsDevice> pp_LORs, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
-    : GCProjectionList(pp_reference),
+    : ProjectionList(pp_reference),
       mp_binIteratorList(std::move(pp_binIteratorList)),
       mp_LORs(std::move(pp_LORs))
 {
@@ -130,39 +130,39 @@ GCProjectionDataDevice::GCProjectionDataDevice(
 	createBatchSetups(shareOfMemoryToUse);
 }
 
-GCProjectionDataDevice::GCProjectionDataDevice(
-    std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
+ProjectionDataDevice::ProjectionDataDevice(
+    std::shared_ptr<LORsDevice> pp_LORs, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
-    : GCProjectionList(pp_reference), mp_LORs(std::move(pp_LORs))
+    : ProjectionList(pp_reference), mp_LORs(std::move(pp_LORs))
 {
 	mp_scanner = mp_LORs->getScanner();
 	createBinIterators(num_OSEM_subsets);
 	createBatchSetups(shareOfMemoryToUse);
 }
 
-GCProjectionDataDevice::GCProjectionDataDevice(
+ProjectionDataDevice::ProjectionDataDevice(
     std::shared_ptr<GCScannerDevice> pp_scannerDevice,
-    const IProjectionData* pp_reference, int num_OSEM_subsets,
+    const ProjectionData* pp_reference, int num_OSEM_subsets,
     float shareOfMemoryToUse)
-    : GCProjectionList(pp_reference), mp_scanner(pp_scannerDevice->getScanner())
+    : ProjectionList(pp_reference), mp_scanner(pp_scannerDevice->getScanner())
 {
 	createBinIterators(num_OSEM_subsets);
 	createBatchSetups(shareOfMemoryToUse);
-	mp_LORs = std::make_unique<GCLORsDevice>(std::move(pp_scannerDevice));
+	mp_LORs = std::make_unique<LORsDevice>(std::move(pp_scannerDevice));
 }
 
-GCProjectionDataDevice::GCProjectionDataDevice(
-    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
+ProjectionDataDevice::ProjectionDataDevice(
+    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
-    : GCProjectionList(pp_reference), mp_scanner(pp_scanner)
+    : ProjectionList(pp_reference), mp_scanner(pp_scanner)
 {
 	createBinIterators(num_OSEM_subsets);
 	createBatchSetups(shareOfMemoryToUse);
 
-	mp_LORs = std::make_unique<GCLORsDevice>(mp_scanner);
+	mp_LORs = std::make_unique<LORsDevice>(mp_scanner);
 }
 
-void GCProjectionDataDevice::createBinIterators(int num_OSEM_subsets)
+void ProjectionDataDevice::createBinIterators(int num_OSEM_subsets)
 {
 	m_binIterators.reserve(num_OSEM_subsets);
 	for (int subsetId = 0; subsetId < num_OSEM_subsets; subsetId++)
@@ -173,7 +173,7 @@ void GCProjectionDataDevice::createBinIterators(int num_OSEM_subsets)
 	}
 }
 
-void GCProjectionDataDevice::createBatchSetups(float shareOfMemoryToUse)
+void ProjectionDataDevice::createBatchSetups(float shareOfMemoryToUse)
 {
 	size_t memAvailable = getDeviceInfo(true);
 	// Shrink memory according to the portion we want to use
@@ -194,7 +194,7 @@ void GCProjectionDataDevice::createBatchSetups(float shareOfMemoryToUse)
 	}
 }
 
-void GCProjectionDataDevice::loadEventLORs(size_t subsetId, size_t batchId,
+void ProjectionDataDevice::loadEventLORs(size_t subsetId, size_t batchId,
                                            const ImageParams& imgParams,
                                            const cudaStream_t* stream)
 {
@@ -203,27 +203,27 @@ void GCProjectionDataDevice::loadEventLORs(size_t subsetId, size_t batchId,
 	                       *mp_reference, imgParams, stream);
 }
 
-void GCProjectionDataDevice::loadProjValuesFromReference(
+void ProjectionDataDevice::loadProjValuesFromReference(
     const cudaStream_t* stream)
 {
 	loadProjValuesFromHostInternal(getReference(), nullptr, stream);
 }
 
-void GCProjectionDataDevice::loadProjValuesFromHost(const IProjectionData* src,
+void ProjectionDataDevice::loadProjValuesFromHost(const ProjectionData* src,
                                                     const cudaStream_t* stream)
 {
 	loadProjValuesFromHostInternal(src, nullptr, stream);
 }
 
-void GCProjectionDataDevice::loadProjValuesFromHost(const IProjectionData* src,
-                                                    const IHistogram* histo,
+void ProjectionDataDevice::loadProjValuesFromHost(const ProjectionData* src,
+                                                    const Histogram* histo,
                                                     const cudaStream_t* stream)
 {
 	loadProjValuesFromHostInternal(src, histo, stream);
 }
 
-void GCProjectionDataDevice::loadProjValuesFromHostInternal(
-    const IProjectionData* src, const IHistogram* histo,
+void ProjectionDataDevice::loadProjValuesFromHostInternal(
+    const ProjectionData* src, const Histogram* histo,
     const cudaStream_t* stream)
 {
 	if (src->isUniform() && histo == nullptr)
@@ -280,8 +280,8 @@ void GCProjectionDataDevice::loadProjValuesFromHostInternal(
 	}
 }
 
-void GCProjectionDataDevice::transferProjValuesToHost(
-    IProjectionData* projDataDest, const cudaStream_t* stream) const
+void ProjectionDataDevice::transferProjValuesToHost(
+    ProjectionData* projDataDest, const cudaStream_t* stream) const
 {
 	const size_t batchSize = getCurrentBatchSize();
 	ASSERT_MSG(batchSize > 0, "The Batch size is 0. You didn't load the LORs "
@@ -309,75 +309,75 @@ void GCProjectionDataDevice::transferProjValuesToHost(
 }
 
 std::shared_ptr<GCScannerDevice>
-    GCProjectionDataDevice::getScannerDevice() const
+    ProjectionDataDevice::getScannerDevice() const
 {
 	return mp_LORs->getScannerDevice();
 }
 
-const GCScanner* GCProjectionDataDevice::getScanner() const
+const GCScanner* ProjectionDataDevice::getScanner() const
 {
 	return mp_scanner;
 }
 
-size_t GCProjectionDataDevice::getCurrentBatchSize() const
+size_t ProjectionDataDevice::getCurrentBatchSize() const
 {
 	return mp_LORs->getLoadedBatchSize();
 }
 
-size_t GCProjectionDataDevice::getCurrentBatchId() const
+size_t ProjectionDataDevice::getCurrentBatchId() const
 {
 	return mp_LORs->getLoadedBatchId();
 }
 
-size_t GCProjectionDataDevice::getCurrentSubsetId() const
+size_t ProjectionDataDevice::getCurrentSubsetId() const
 {
 	return mp_LORs->getLoadedSubsetId();
 }
 
-const float4* GCProjectionDataDevice::getLorDet1PosDevicePointer() const
+const float4* ProjectionDataDevice::getLorDet1PosDevicePointer() const
 {
 	return mp_LORs->getLorDet1PosDevicePointer();
 }
 
-const float4* GCProjectionDataDevice::getLorDet1OrientDevicePointer() const
+const float4* ProjectionDataDevice::getLorDet1OrientDevicePointer() const
 {
 	return mp_LORs->getLorDet1OrientDevicePointer();
 }
 
-const float4* GCProjectionDataDevice::getLorDet2PosDevicePointer() const
+const float4* ProjectionDataDevice::getLorDet2PosDevicePointer() const
 {
 	return mp_LORs->getLorDet2PosDevicePointer();
 }
 
-const float4* GCProjectionDataDevice::getLorDet2OrientDevicePointer() const
+const float4* ProjectionDataDevice::getLorDet2OrientDevicePointer() const
 {
 	return mp_LORs->getLorDet2OrientDevicePointer();
 }
 
-const float* GCProjectionDataDevice::getLorTOFValueDevicePointer() const
+const float* ProjectionDataDevice::getLorTOFValueDevicePointer() const
 {
 	return mp_LORs->getLorTOFValueDevicePointer();
 }
 
-float GCProjectionDataDevice::getProjectionValue(bin_t id) const
+float ProjectionDataDevice::getProjectionValue(bin_t id) const
 {
 	(void)id;
 	throw std::logic_error("Disabled function in Device-side class");
 }
 
-void GCProjectionDataDevice::setProjectionValue(bin_t id, float val)
+void ProjectionDataDevice::setProjectionValue(bin_t id, float val)
 {
 	(void)id;
 	(void)val;
 	throw std::logic_error("Disabled function in Device-side class");
 }
 
-void GCProjectionDataDevice::clearProjections(float value)
+void ProjectionDataDevice::clearProjections(float value)
 {
 	clearProjections(value, nullptr);
 }
 
-void GCProjectionDataDevice::clearProjections(float value,
+void ProjectionDataDevice::clearProjections(float value,
                                               const cudaStream_t* stream)
 {
 	if (value == 0.0f)
@@ -405,7 +405,7 @@ void GCProjectionDataDevice::clearProjections(float value,
 	cudaCheckError();
 }
 
-void GCProjectionDataDevice::clearProjections(const cudaStream_t* stream)
+void ProjectionDataDevice::clearProjections(const cudaStream_t* stream)
 {
 	if (stream != nullptr)
 	{
@@ -422,19 +422,19 @@ void GCProjectionDataDevice::clearProjections(const cudaStream_t* stream)
 	cudaCheckError();
 }
 
-void GCProjectionDataDevice::divideMeasurements(
-    const IProjectionData* measurements, const BinIterator* binIter)
+void ProjectionDataDevice::divideMeasurements(
+    const ProjectionData* measurements, const BinIterator* binIter)
 {
 	divideMeasurements(measurements, binIter, nullptr);
 }
 
-void GCProjectionDataDevice::divideMeasurements(
-    const IProjectionData* measurements, const BinIterator* binIter,
+void ProjectionDataDevice::divideMeasurements(
+    const ProjectionData* measurements, const BinIterator* binIter,
     const cudaStream_t* stream)
 {
 	(void)binIter;  // Not needed as this class has its own BinIterators
 	const auto* measurements_device =
-	    dynamic_cast<const GCProjectionDataDevice*>(measurements);
+	    dynamic_cast<const ProjectionDataDevice*>(measurements);
 	const size_t batchSize = getCurrentBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
 
@@ -457,8 +457,8 @@ void GCProjectionDataDevice::divideMeasurements(
 	cudaCheckError();
 }
 
-void GCProjectionDataDevice::addProjValues(
-    const GCProjectionDataDevice* projValues, const cudaStream_t* stream)
+void ProjectionDataDevice::addProjValues(
+    const ProjectionDataDevice* projValues, const cudaStream_t* stream)
 {
 	const size_t batchSize = getCurrentBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
@@ -482,185 +482,185 @@ void GCProjectionDataDevice::addProjValues(
 }
 
 const GCGPUBatchSetup&
-    GCProjectionDataDevice::getBatchSetup(size_t subsetId) const
+    ProjectionDataDevice::getBatchSetup(size_t subsetId) const
 {
 	return m_batchSetups.at(subsetId);
 }
 
-size_t GCProjectionDataDevice::getNumBatches(size_t subsetId) const
+size_t ProjectionDataDevice::getNumBatches(size_t subsetId) const
 {
 	return m_batchSetups.at(subsetId).getNumBatches();
 }
 
-bool GCProjectionDataDevice::areLORsGathered() const
+bool ProjectionDataDevice::areLORsGathered() const
 {
 	return mp_LORs->areLORsGathered();
 }
 
-GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
-    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
+ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
+    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
-    : GCProjectionDataDevice(pp_scanner, pp_reference,
+    : ProjectionDataDevice(pp_scanner, pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse)
 {
 	mp_projValues = std::make_unique<GCDeviceArray<float>>();
 }
 
-GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
-    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
+ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
+    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
-    : GCProjectionDataDevice(pp_scanner, pp_reference, num_OSEM_subsets,
+    : ProjectionDataDevice(pp_scanner, pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse)
 {
 	mp_projValues = std::make_unique<GCDeviceArray<float>>();
 }
 
-GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
+ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
     std::shared_ptr<GCScannerDevice> pp_scannerDevice,
-    const IProjectionData* pp_reference, int num_OSEM_subsets,
+    const ProjectionData* pp_reference, int num_OSEM_subsets,
     float shareOfMemoryToUse)
-    : GCProjectionDataDevice(std::move(pp_scannerDevice), pp_reference,
+    : ProjectionDataDevice(std::move(pp_scannerDevice), pp_reference,
                              num_OSEM_subsets, shareOfMemoryToUse)
 {
 	mp_projValues = std::make_unique<GCDeviceArray<float>>();
 }
 
-GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
-    std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
+ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
+    std::shared_ptr<LORsDevice> pp_LORs, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
-    : GCProjectionDataDevice(std::move(pp_LORs), pp_reference, num_OSEM_subsets,
+    : ProjectionDataDevice(std::move(pp_LORs), pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse)
 {
 	mp_projValues = std::make_unique<GCDeviceArray<float>>();
 }
 
-GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
-    std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
+ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
+    std::shared_ptr<LORsDevice> pp_LORs, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
-    : GCProjectionDataDevice(std::move(pp_LORs), pp_reference,
+    : ProjectionDataDevice(std::move(pp_LORs), pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse)
 {
 	mp_projValues = std::make_unique<GCDeviceArray<float>>();
 }
 
-GCProjectionDataDeviceOwned::GCProjectionDataDeviceOwned(
-    const GCProjectionDataDevice* orig)
-    : GCProjectionDataDevice(orig)
+ProjectionDataDeviceOwned::ProjectionDataDeviceOwned(
+    const ProjectionDataDevice* orig)
+    : ProjectionDataDevice(orig)
 {
 	mp_projValues = std::make_unique<GCDeviceArray<float>>();
 }
 
-float* GCProjectionDataDeviceOwned::getProjValuesDevicePointer()
+float* ProjectionDataDeviceOwned::getProjValuesDevicePointer()
 {
 	return mp_projValues->getDevicePointer();
 }
 
-const float* GCProjectionDataDeviceOwned::getProjValuesDevicePointer() const
+const float* ProjectionDataDeviceOwned::getProjValuesDevicePointer() const
 {
 	return mp_projValues->getDevicePointer();
 }
 
-void GCProjectionDataDeviceOwned::allocateForProjValues(
+void ProjectionDataDeviceOwned::allocateForProjValues(
     const cudaStream_t* stream)
 {
 	mp_projValues->allocate(getCurrentBatchSize(), stream);
 }
 
-void GCProjectionDataDeviceOwned::loadProjValuesFromHostInternal(
-    const IProjectionData* src, const IHistogram* histo,
+void ProjectionDataDeviceOwned::loadProjValuesFromHostInternal(
+    const ProjectionData* src, const Histogram* histo,
     const cudaStream_t* stream)
 {
 	if (!mp_projValues->isAllocated())
 	{
 		allocateForProjValues(stream);
 	}
-	GCProjectionDataDevice::loadProjValuesFromHostInternal(src, histo, stream);
+	ProjectionDataDevice::loadProjValuesFromHostInternal(src, histo, stream);
 }
 
-GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
-    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
+ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
+    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
-    : GCProjectionDataDevice(pp_scanner, pp_reference,
+    : ProjectionDataDevice(pp_scanner, pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse),
       mpd_devicePointer(nullptr)
 {
 }
 
-GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
-    const GCScanner* pp_scanner, const IProjectionData* pp_reference,
+ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
+    const GCScanner* pp_scanner, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
-    : GCProjectionDataDevice(pp_scanner, pp_reference, num_OSEM_subsets,
+    : ProjectionDataDevice(pp_scanner, pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse),
       mpd_devicePointer(nullptr)
 {
 }
 
-GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
+ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
     std::shared_ptr<GCScannerDevice> pp_scannerDevice,
-    const IProjectionData* pp_reference, int num_OSEM_subsets,
+    const ProjectionData* pp_reference, int num_OSEM_subsets,
     float shareOfMemoryToUse)
-    : GCProjectionDataDevice(std::move(pp_scannerDevice), pp_reference,
+    : ProjectionDataDevice(std::move(pp_scannerDevice), pp_reference,
                              num_OSEM_subsets, shareOfMemoryToUse),
       mpd_devicePointer(nullptr)
 {
 }
 
-GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
-    std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
+ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
+    std::shared_ptr<LORsDevice> pp_LORs, const ProjectionData* pp_reference,
     int num_OSEM_subsets, float shareOfMemoryToUse)
-    : GCProjectionDataDevice(std::move(pp_LORs), pp_reference, num_OSEM_subsets,
+    : ProjectionDataDevice(std::move(pp_LORs), pp_reference, num_OSEM_subsets,
                              shareOfMemoryToUse),
       mpd_devicePointer(nullptr)
 {
 }
 
-GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
-    std::shared_ptr<GCLORsDevice> pp_LORs, const IProjectionData* pp_reference,
+ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
+    std::shared_ptr<LORsDevice> pp_LORs, const ProjectionData* pp_reference,
     std::vector<const BinIterator*> pp_binIteratorList,
     float shareOfMemoryToUse)
-    : GCProjectionDataDevice(std::move(pp_LORs), pp_reference,
+    : ProjectionDataDevice(std::move(pp_LORs), pp_reference,
                              std::move(pp_binIteratorList), shareOfMemoryToUse),
       mpd_devicePointer(nullptr)
 {
 }
 
-GCProjectionDataDeviceAlias::GCProjectionDataDeviceAlias(
-    const GCProjectionDataDevice* orig)
-    : GCProjectionDataDevice(orig), mpd_devicePointer(nullptr)
+ProjectionDataDeviceAlias::ProjectionDataDeviceAlias(
+    const ProjectionDataDevice* orig)
+    : ProjectionDataDevice(orig), mpd_devicePointer(nullptr)
 {
 }
 
-float* GCProjectionDataDeviceAlias::getProjValuesDevicePointer()
-{
-	return mpd_devicePointer;
-}
-
-const float* GCProjectionDataDeviceAlias::getProjValuesDevicePointer() const
+float* ProjectionDataDeviceAlias::getProjValuesDevicePointer()
 {
 	return mpd_devicePointer;
 }
 
-size_t GCProjectionDataDeviceAlias::getProjValuesDevicePointerInULL() const
+const float* ProjectionDataDeviceAlias::getProjValuesDevicePointer() const
+{
+	return mpd_devicePointer;
+}
+
+size_t ProjectionDataDeviceAlias::getProjValuesDevicePointerInULL() const
 {
 	return reinterpret_cast<size_t>(mpd_devicePointer);
 }
 
-void GCProjectionDataDeviceAlias::setProjValuesDevicePointer(
+void ProjectionDataDeviceAlias::setProjValuesDevicePointer(
     float* ppd_devicePointer)
 {
 	mpd_devicePointer = ppd_devicePointer;
 }
 
-void GCProjectionDataDeviceAlias::setProjValuesDevicePointer(
+void ProjectionDataDeviceAlias::setProjValuesDevicePointer(
     size_t ppd_pointerInULL)
 {
 	mpd_devicePointer = reinterpret_cast<float*>(ppd_pointerInULL);
 }
 
-bool GCProjectionDataDeviceAlias::isDevicePointerSet() const
+bool ProjectionDataDeviceAlias::isDevicePointerSet() const
 {
 	return mpd_devicePointer != nullptr;
 }

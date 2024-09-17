@@ -6,7 +6,7 @@
 #include "operators/GCOperatorProjectorDD.hpp"
 
 #include "datastruct/image/Image.hpp"
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionData.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCReconstructionUtils.hpp"
 
@@ -58,7 +58,7 @@ GCOperatorProjectorDD::GCOperatorProjectorDD(
 }
 
 double GCOperatorProjectorDD::forwardProjection(const Image* img,
-                                                const IProjectionData* dat,
+                                                const ProjectionData* dat,
                                                 bin_t bin)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =
@@ -71,7 +71,7 @@ double GCOperatorProjectorDD::forwardProjection(const Image* img,
 }
 
 void GCOperatorProjectorDD::backProjection(Image* img,
-                                           const IProjectionData* dat,
+                                           const ProjectionData* dat,
                                            bin_t bin, double projValue)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =

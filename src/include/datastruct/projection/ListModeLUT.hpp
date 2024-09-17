@@ -6,8 +6,8 @@
 #pragma once
 
 #include "datastruct/PluginFramework.hpp"
-#include "datastruct/projection/GCLORMotion.hpp"
-#include "datastruct/projection/IListMode.hpp"
+#include "datastruct/projection/LORMotion.hpp"
+#include "datastruct/projection/ListMode.hpp"
 #include "geometry/GCStraightLineParam.hpp"
 #include "utils/Array.hpp"
 
@@ -18,11 +18,11 @@
 
 class GCScanner;
 
-class GCListModeLUT : public IListMode
+class ListModeLUT : public ListMode
 {
 public:
 	// Methods
-	~GCListModeLUT() override = default;
+	~ListModeLUT() override = default;
 
 	timestamp_t getTimestamp(bin_t eventId) const override;
 	det_id_t getDetector1(bin_t eventId) const override;
@@ -51,7 +51,7 @@ public:
 	void addLORMotion(const std::string& lorMotion_fname);
 
 protected:
-	GCListModeLUT(const GCScanner* s, bool p_flagTOF = false);
+	ListModeLUT(const GCScanner* s, bool p_flagTOF = false);
 
 	// Parameters
 	// The detector Id of the events.
@@ -65,17 +65,17 @@ protected:
 	bool m_flagTOF;
 	std::unique_ptr<Array1DBase<float>> mp_tof_ps;
 
-	std::unique_ptr<GCLORMotion> mp_lorMotion;
+	std::unique_ptr<LORMotion> mp_lorMotion;
 	std::unique_ptr<Array1D<frame_t>> mp_frames;
 };
 
 
-class GCListModeLUTAlias : public GCListModeLUT
+class ListModeLUTAlias : public ListModeLUT
 {
 public:
-	GCListModeLUTAlias(GCScanner* s, bool p_flagTOF = false);
-	~GCListModeLUTAlias() override = default;
-	void Bind(GCListModeLUT* listMode);
+	ListModeLUTAlias(GCScanner* s, bool p_flagTOF = false);
+	~ListModeLUTAlias() override = default;
+	void Bind(ListModeLUT* listMode);
 	void Bind(Array1DBase<timestamp_t>* p_timestamps,
 	          Array1DBase<det_id_t>* p_detector_ids1,
 	          Array1DBase<det_id_t>* p_detector_ids2,
@@ -94,19 +94,19 @@ public:
 };
 
 
-class GCListModeLUTOwned : public GCListModeLUT
+class ListModeLUTOwned : public ListModeLUT
 {
 public:
-	GCListModeLUTOwned(const GCScanner* s, bool p_flagTOF = false);
-	GCListModeLUTOwned(const GCScanner* s, const std::string& listMode_fname,
+	ListModeLUTOwned(const GCScanner* s, bool p_flagTOF = false);
+	ListModeLUTOwned(const GCScanner* s, const std::string& listMode_fname,
 	                   bool p_flagTOF = false);
-	~GCListModeLUTOwned() override = default;
+	~ListModeLUTOwned() override = default;
 
 	void readFromFile(const std::string& listMode_fname);
 	void allocate(size_t numEvents);
 
 	// For registering the plugin
-	static std::unique_ptr<IProjectionData>
+	static std::unique_ptr<ProjectionData>
 	    create(const GCScanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();

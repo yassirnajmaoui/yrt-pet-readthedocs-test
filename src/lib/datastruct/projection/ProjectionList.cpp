@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCProjectionList.hpp"
+#include "datastruct/projection/ProjectionList.hpp"
 
 #include "utils/GCAssert.hpp"
 
@@ -14,12 +14,12 @@
 
 namespace py = pybind11;
 
-void py_setup_gcprojectionlist(pybind11::module& m)
+void py_setup_projectionlist(pybind11::module& m)
 {
-	auto c = pybind11::class_<GCProjectionList, IProjectionData>(
-	    m, "GCProjectionList", py::buffer_protocol());
+	auto c = pybind11::class_<ProjectionList, ProjectionData>(
+	    m, "ProjectionList", py::buffer_protocol());
 	c.def_buffer(
-	    [](GCProjectionList& self) -> py::buffer_info
+	    [](ProjectionList& self) -> py::buffer_info
 	    {
 		    Array1DBase<float>* d = self.getProjectionsArrayRef();
 		    return py::buffer_info(d->getRawPointer(), sizeof(float),
@@ -27,17 +27,17 @@ void py_setup_gcprojectionlist(pybind11::module& m)
 		                           d->getDims(), d->getStrides());
 	    });
 
-	auto c_owned = pybind11::class_<GCProjectionListOwned, GCProjectionList>(
-	    m, "GCProjectionListOwned");
-	c_owned.def(pybind11::init<IProjectionData*>(), py::arg("projectionData"));
-	c_owned.def("allocate", &GCProjectionListOwned::allocate);
+	auto c_owned = pybind11::class_<ProjectionListOwned, ProjectionList>(
+	    m, "ProjectionListOwned");
+	c_owned.def(pybind11::init<ProjectionData*>(), py::arg("projectionData"));
+	c_owned.def("allocate", &ProjectionListOwned::allocate);
 
-	auto c_alias = pybind11::class_<GCProjectionListAlias, GCProjectionList>(
-	    m, "GCProjectionListAlias");
-	c_alias.def(pybind11::init<IProjectionData*>(), py::arg("projectionData"));
+	auto c_alias = pybind11::class_<ProjectionListAlias, ProjectionList>(
+	    m, "ProjectionListAlias");
+	c_alias.def(pybind11::init<ProjectionData*>(), py::arg("projectionData"));
 	c_alias.def(
 	    "Bind",
-	    [](GCProjectionListAlias& self, pybind11::buffer& projs_in)
+	    [](ProjectionListAlias& self, pybind11::buffer& projs_in)
 	    {
 		    pybind11::buffer_info buffer = projs_in.request();
 		    if (buffer.ndim != 1)
@@ -65,119 +65,119 @@ void py_setup_gcprojectionlist(pybind11::module& m)
 
 #endif  // if BUILD_PYBIND11
 
-GCProjectionList::GCProjectionList(const IProjectionData* r)
-    : IProjectionData(), mp_reference(r)
+ProjectionList::ProjectionList(const ProjectionData* r)
+    : ProjectionData(), mp_reference(r)
 {
 	ASSERT(mp_reference != nullptr);
 }
 
-float GCProjectionList::getProjectionValue(bin_t id) const
+float ProjectionList::getProjectionValue(bin_t id) const
 {
 	return (*mp_projs)[id];
 }
 
-void GCProjectionList::setProjectionValue(bin_t id, float val)
+void ProjectionList::setProjectionValue(bin_t id, float val)
 {
 	(*mp_projs)[id] = val;
 }
 
-void GCProjectionList::clearProjections(float value)
+void ProjectionList::clearProjections(float value)
 {
 	mp_projs->fill(value);
 }
 
-frame_t GCProjectionList::getFrame(bin_t id) const
+frame_t ProjectionList::getFrame(bin_t id) const
 {
 	return mp_reference->getFrame(id);
 }
 
-timestamp_t GCProjectionList::getTimestamp(bin_t id) const
+timestamp_t ProjectionList::getTimestamp(bin_t id) const
 {
 	return mp_reference->getTimestamp(id);
 }
 
-size_t GCProjectionList::getNumFrames() const
+size_t ProjectionList::getNumFrames() const
 {
 	return mp_reference->getNumFrames();
 }
 
-bool GCProjectionList::isUniform() const
+bool ProjectionList::isUniform() const
 {
 	return false;
 }
 
-float GCProjectionList::getRandomsEstimate(bin_t id) const
+float ProjectionList::getRandomsEstimate(bin_t id) const
 {
 	return mp_reference->getRandomsEstimate(id);
 }
 
-det_id_t GCProjectionList::getDetector1(bin_t evId) const
+det_id_t ProjectionList::getDetector1(bin_t evId) const
 {
 	return mp_reference->getDetector1(evId);
 }
 
-det_id_t GCProjectionList::getDetector2(bin_t evId) const
+det_id_t ProjectionList::getDetector2(bin_t evId) const
 {
 	return mp_reference->getDetector2(evId);
 }
 
-det_pair_t GCProjectionList::getDetectorPair(bin_t evId) const
+det_pair_t ProjectionList::getDetectorPair(bin_t evId) const
 {
 	return mp_reference->getDetectorPair(evId);
 }
 
-bool GCProjectionList::hasTOF() const
+bool ProjectionList::hasTOF() const
 {
 	return mp_reference->hasTOF();
 }
 
-float GCProjectionList::getTOFValue(bin_t id) const
+float ProjectionList::getTOFValue(bin_t id) const
 {
 	return mp_reference->getTOFValue(id);
 }
 
-bool GCProjectionList::hasMotion() const
+bool ProjectionList::hasMotion() const
 {
 	return mp_reference->hasMotion();
 }
 
-transform_t GCProjectionList::getTransformOfFrame(frame_t frame) const
+transform_t ProjectionList::getTransformOfFrame(frame_t frame) const
 {
 	return mp_reference->getTransformOfFrame(frame);
 }
 
-bool GCProjectionList::hasArbitraryLORs() const
+bool ProjectionList::hasArbitraryLORs() const
 {
 	return mp_reference->hasArbitraryLORs();
 }
 
-line_t GCProjectionList::getArbitraryLOR(bin_t id) const
+line_t ProjectionList::getArbitraryLOR(bin_t id) const
 {
 	return mp_reference->getArbitraryLOR(id);
 }
 
-Array1DBase<float>* GCProjectionList::getProjectionsArrayRef() const
+Array1DBase<float>* ProjectionList::getProjectionsArrayRef() const
 {
 	return (mp_projs.get());
 }
 
-size_t GCProjectionList::count() const
+size_t ProjectionList::count() const
 {
 	return mp_projs->getSize(0);
 }
 
-histo_bin_t GCProjectionList::getHistogramBin(bin_t id) const
+histo_bin_t ProjectionList::getHistogramBin(bin_t id) const
 {
 	return mp_reference->getHistogramBin(id);
 }
 
-GCProjectionListOwned::GCProjectionListOwned(IProjectionData* r)
-    : GCProjectionList(r)
+ProjectionListOwned::ProjectionListOwned(ProjectionData* r)
+    : ProjectionList(r)
 {
 	mp_projs = std::make_unique<Array1D<float>>();
 }
 
-void GCProjectionListOwned::allocate()
+void ProjectionListOwned::allocate()
 {
 	size_t num_events = mp_reference->count();
 	std::cout << "Allocating projection list memory"
@@ -187,13 +187,13 @@ void GCProjectionListOwned::allocate()
 	          << mp_projs->getSize(0) << std::endl;
 }
 
-GCProjectionListAlias::GCProjectionListAlias(IProjectionData* p)
-    : GCProjectionList(p)
+ProjectionListAlias::ProjectionListAlias(ProjectionData* p)
+    : ProjectionList(p)
 {
 	mp_projs = std::make_unique<Array1DAlias<float>>();
 }
 
-void GCProjectionListAlias::Bind(Array1DBase<float>* projs_in)
+void ProjectionListAlias::Bind(Array1DBase<float>* projs_in)
 {
 	static_cast<Array1DAlias<float>*>(mp_projs.get())->bind(*projs_in);
 	if (mp_projs->getRawPointer() == nullptr)
@@ -203,7 +203,7 @@ void GCProjectionListAlias::Bind(Array1DBase<float>* projs_in)
 	}
 }
 
-std::unique_ptr<BinIterator> GCProjectionList::getBinIter(int numSubsets,
+std::unique_ptr<BinIterator> ProjectionList::getBinIter(int numSubsets,
                                                             int idxSubset) const
 {
 	return mp_reference->getBinIter(numSubsets, idxSubset);

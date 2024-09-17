@@ -6,7 +6,7 @@
 #pragma once
 
 #include "datastruct/PluginFramework.hpp"
-#include "datastruct/projection/IHistogram.hpp"
+#include "datastruct/projection/Histogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/Array.hpp"
 
@@ -30,7 +30,7 @@ typedef std::array<coord_t, 3> DetCoordinates;      // r, phi, z
 typedef std::array<coord_t, 2> DetRingCoordinates;  // r, phi
 typedef std::pair<det_id_t, det_id_t> DetRingPair;  // d1, d2
 
-class Histogram3D : public IHistogram
+class Histogram3D : public Histogram
 {
 public:
 	const GCScanner* getScanner() const { return mp_scanner; }
@@ -119,7 +119,7 @@ public:
 	void readFromFile(const std::string& filename);
 
 	// For registering the plugin
-	static std::unique_ptr<IProjectionData>
+	static std::unique_ptr<ProjectionData>
 	    create(const GCScanner& scanner, const std::string& filename,
 	           const Plugin::OptionsResult& pluginOptions);
 	static Plugin::OptionsListPerPlugin getOptions();

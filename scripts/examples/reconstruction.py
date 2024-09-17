@@ -9,7 +9,7 @@ imgParams = gc.ImageParams("<path to the image parameters file>")
 
 dataset = gc.Histogram3DOwned(scanner, "<path to the histogram file>")
 # or, alternatively, read a ListMode file
-dataset = gc.GCListModeLUTOwned(scanner, "<path to the listmode file>")
+dataset = gc.ListModeLUTOwned(scanner, "<path to the listmode file>")
 
 # --- Reconstruction setup
 

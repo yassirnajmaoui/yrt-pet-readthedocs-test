@@ -28,11 +28,11 @@ protected:
 
 	// Internal getters
 	ImageBase* GetSensImageBuffer() override;
-	IProjectionData* GetSensDataInputBuffer() override;
+	ProjectionData* GetSensDataInputBuffer() override;
 	ImageBase* GetMLEMImageBuffer() override;
 	ImageBase* GetMLEMImageTmpBuffer() override;
-	IProjectionData* GetMLEMDataBuffer() override;
-	IProjectionData* GetMLEMDataTmpBuffer() override;
+	ProjectionData* GetMLEMDataBuffer() override;
+	ProjectionData* GetMLEMDataTmpBuffer() override;
 
 	// Common methods
 	void LoadBatch(int batchId, bool forRecon) override;
@@ -43,7 +43,7 @@ private:
 	std::unique_ptr<Image> mp_tempSensImageBuffer;
 	// For reconstruction
 	std::unique_ptr<Image> mp_mlemImageTmp;
-	std::unique_ptr<IProjectionData> mp_datTmp;
+	std::unique_ptr<ProjectionData> mp_datTmp;
 
 	int m_current_OSEM_subset;
 };

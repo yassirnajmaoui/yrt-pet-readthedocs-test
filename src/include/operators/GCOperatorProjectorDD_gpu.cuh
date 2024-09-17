@@ -9,7 +9,7 @@
 #include "operators/GCOperatorProjector.hpp"
 
 
-class GCProjectionDataDevice;
+class ProjectionDataDevice;
 class ImageDevice;
 
 class GCOperatorProjectorDD_gpu : public GCOperatorProjectorDevice
@@ -25,20 +25,20 @@ public:
 
 private:
 	void applyAttenuationOnLoadedBatchIfNeeded(
-	    const GCProjectionDataDevice* imgProjData, bool duringForward);
+	    const ProjectionDataDevice* imgProjData, bool duringForward);
 	void applyAttenuationOnLoadedBatchIfNeeded(
-	    const GCProjectionDataDevice* imgProjData,
-	    GCProjectionDataDevice* destProjData, bool duringForward);
+	    const ProjectionDataDevice* imgProjData,
+	    ProjectionDataDevice* destProjData, bool duringForward);
 	void
-	    applyAdditiveOnLoadedBatchIfNeeded(GCProjectionDataDevice* imgProjData);
+	    applyAdditiveOnLoadedBatchIfNeeded(ProjectionDataDevice* imgProjData);
 
-	void applyAttenuationFactors(const GCProjectionDataDevice* attImgProj,
-	                             const GCProjectionDataDevice* imgProj,
-	                             GCProjectionDataDevice* destProj,
+	void applyAttenuationFactors(const ProjectionDataDevice* attImgProj,
+	                             const ProjectionDataDevice* imgProj,
+	                             ProjectionDataDevice* destProj,
 	                             float unitFactor);
 
 	template <bool IsForward>
-	void applyOnLoadedBatch(GCProjectionDataDevice* dat, ImageDevice* img);
+	void applyOnLoadedBatch(ProjectionDataDevice* dat, ImageDevice* img);
 
 	template <bool IsForward, bool HasTOF>
 	static void launchKernel(float* pd_projValues, float* pd_image,

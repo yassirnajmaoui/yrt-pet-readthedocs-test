@@ -11,20 +11,20 @@
 
 #include <memory>
 
-class IProjectionData;
+class ProjectionData;
 class GCScanner;
 class ImageParams;
 
-class GCLORsDevice
+class LORsDevice
 {
 public:
-	GCLORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice);
-	GCLORsDevice(const GCScanner* pp_scanner);
+	LORsDevice(std::shared_ptr<GCScannerDevice> pp_scannerDevice);
+	LORsDevice(const GCScanner* pp_scanner);
 
 	// Load the events' detector ids from a specific subset&batch id
 	void loadEventLORs(const BinIterator& binIter,
 	                   const GCGPUBatchSetup& batchSetup, size_t subsetId,
-	                   size_t batchId, const IProjectionData& reference,
+	                   size_t batchId, const ProjectionData& reference,
 	                   const ImageParams& imgParams,
 	                   const cudaStream_t* stream = nullptr);
 

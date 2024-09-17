@@ -7,8 +7,8 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/image/ImageDevice.cuh"
-#include "datastruct/projection/GCProjectionDataDevice.cuh"
-#include "datastruct/projection/IProjectionData.hpp"
+#include "datastruct/projection/ProjectionDataDevice.cuh"
+#include "datastruct/projection/ProjectionData.hpp"
 #include "recon/GCOSEM.hpp"
 #include "utils/GCGPUStream.cuh"
 
@@ -33,11 +33,11 @@ public:
 
 	// Internal getters
 	ImageBase* GetSensImageBuffer() override;
-	IProjectionData* GetSensDataInputBuffer() override;
+	ProjectionData* GetSensDataInputBuffer() override;
 	ImageBase* GetMLEMImageBuffer() override;
 	ImageBase* GetMLEMImageTmpBuffer() override;
-	IProjectionData* GetMLEMDataBuffer() override;
-	IProjectionData* GetMLEMDataTmpBuffer() override;
+	ProjectionData* GetMLEMDataBuffer() override;
+	ProjectionData* GetMLEMDataTmpBuffer() override;
 	int GetNumBatches(int subsetId, bool forRecon) const override;
 
 	// Common methods
@@ -49,11 +49,11 @@ private:
 	const cudaStream_t* getMainStream() const;
 
 	std::unique_ptr<ImageDeviceOwned> mpd_sensImageBuffer;
-	std::unique_ptr<GCProjectionDataDeviceOwned> mpd_tempSensDataInput;
+	std::unique_ptr<ProjectionDataDeviceOwned> mpd_tempSensDataInput;
 	std::unique_ptr<ImageDeviceOwned> mpd_mlemImage;
 	std::unique_ptr<ImageDeviceOwned> mpd_mlemImageTmp;
-	std::unique_ptr<GCProjectionDataDeviceOwned> mpd_dat;
-	std::unique_ptr<GCProjectionDataDeviceOwned> mpd_datTmp;
+	std::unique_ptr<ProjectionDataDeviceOwned> mpd_dat;
+	std::unique_ptr<ProjectionDataDeviceOwned> mpd_datTmp;
 
 	int m_current_OSEM_subset;
 

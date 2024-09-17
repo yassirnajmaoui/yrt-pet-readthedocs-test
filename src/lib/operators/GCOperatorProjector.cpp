@@ -68,11 +68,11 @@ void py_setup_gcoperatorprojector(py::module& m)
 	      &GCOperatorProjector::getProjectionPsfManager);
 	c.def(
 	    "applyA",
-	    [](GCOperatorProjector& self, const Image* img, IProjectionData* proj)
+	    [](GCOperatorProjector& self, const Image* img, ProjectionData* proj)
 	    { self.applyA(img, proj); }, py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyAH",
-	    [](GCOperatorProjector& self, const IProjectionData* proj, Image* img)
+	    [](GCOperatorProjector& self, const ProjectionData* proj, Image* img)
 	    { self.applyAH(proj, img); }, py::arg("proj"), py::arg("img"));
 
 	py::enum_<GCOperatorProjector::ProjectorType>(c, "ProjectorType")
@@ -107,7 +107,7 @@ GCOperatorProjectorBase::GCOperatorProjectorBase(
 {
 }
 
-void GCOperatorProjectorBase::setAddHisto(const IHistogram* p_addHisto)
+void GCOperatorProjectorBase::setAddHisto(const Histogram* p_addHisto)
 {
 	ASSERT_MSG(p_addHisto != nullptr,
 	           "The additive histogram given in "
@@ -159,7 +159,7 @@ const Image* GCOperatorProjectorBase::getAttImageForBackprojection() const
 	return attImageForBackprojection;
 }
 
-const IHistogram* GCOperatorProjectorBase::getAddHisto() const
+const Histogram* GCOperatorProjectorBase::getAddHisto() const
 {
 	return addHisto;
 }
@@ -185,7 +185,7 @@ GCOperatorProjector::GCOperatorProjector(
 
 void GCOperatorProjector::applyA(const GCVariable* in, GCVariable* out)
 {
-	auto* dat = dynamic_cast<IProjectionData*>(out);
+	auto* dat = dynamic_cast<ProjectionData*>(out);
 	auto* img = dynamic_cast<const Image*>(in);
 
 	ASSERT_MSG(dat != nullptr, "Input variable has to be Projection data");
@@ -219,7 +219,7 @@ void GCOperatorProjector::applyA(const GCVariable* in, GCVariable* out)
 
 void GCOperatorProjector::applyAH(const GCVariable* in, GCVariable* out)
 {
-	auto* dat = dynamic_cast<const IProjectionData*>(in);
+	auto* dat = dynamic_cast<const ProjectionData*>(in);
 	auto* img = dynamic_cast<Image*>(out);
 	ASSERT(dat != nullptr && img != nullptr);
 

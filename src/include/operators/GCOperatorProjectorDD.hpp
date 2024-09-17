@@ -12,7 +12,7 @@
 typedef std::vector<int> PositionList;
 
 class Image;
-class IProjectionData;
+class ProjectionData;
 
 class GCOperatorProjectorDD : public GCOperatorProjector
 {
@@ -32,10 +32,10 @@ public:
 	                    float tofValue = 0.0f,
 	                    const GCProjectionPsfManager* psfManager = nullptr) const;
 
-	double forwardProjection(const Image* img, const IProjectionData* dat,
+	double forwardProjection(const Image* img, const ProjectionData* dat,
 	                         bin_t bin) override;
 
-	void backProjection(Image* img, const IProjectionData* dat, bin_t bin,
+	void backProjection(Image* img, const ProjectionData* dat, bin_t bin,
 	                    double projValue) override;
 
 	static float get_overlap_safe(float p0, float p1, float d0, float d1);

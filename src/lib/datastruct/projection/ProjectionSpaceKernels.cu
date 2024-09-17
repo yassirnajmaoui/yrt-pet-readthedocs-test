@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/projection/GCProjectionSpaceKernels.cuh"
+#include "datastruct/projection/ProjectionSpaceKernels.cuh"
 
 __global__ void divideMeasurements_kernel(const float* d_dataIn,
                                           float* d_dataOut,

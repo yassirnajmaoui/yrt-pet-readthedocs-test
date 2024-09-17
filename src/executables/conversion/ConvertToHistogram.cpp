@@ -6,7 +6,7 @@
 #include "../PluginOptionsHelper.hpp"
 #include "datastruct/IO.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/projection/GCSparseHistogram.hpp"
+#include "datastruct/projection/SparseHistogram.hpp"
 #include "datastruct/scanner/GCScanner.hpp"
 #include "utils/GCGlobals.hpp"
 #include "utils/GCReconstructionUtils.hpp"
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 
 	std::cout << "Reading input data..." << std::endl;
 
-	std::unique_ptr<IProjectionData> dataInput = IO::openProjectionData(
+	std::unique_ptr<ProjectionData> dataInput = IO::openProjectionData(
 	    input_fname, input_format, *scanner, pluginOptionsResults);
 
 	std::cout << "Done reading input data." << std::endl;
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 	{
 		std::cout << "Accumulating into sparse histogram..." << std::endl;
 		auto sparseHisto =
-		    std::make_unique<GCSparseHistogram>(*scanner, *dataInput);
+		    std::make_unique<SparseHistogram>(*scanner, *dataInput);
 		std::cout << "Saving sparse histogram..." << std::endl;
 		sparseHisto->writeToFile(out_fname);
 	}

@@ -2,17 +2,17 @@ project(lib)
 
 # List source files explicitly
 set(SOURCES
-        datastruct/projection/IHistogram.cpp
+        datastruct/projection/Histogram.cpp
         datastruct/projection/Histogram3D.cpp
-        datastruct/projection/GCUniformHistogram.cpp
-        datastruct/projection/GCListModeLUT.cpp
-        datastruct/projection/GCListModeLUTDOI.cpp
-        datastruct/projection/GCLORMotion.cpp
+        datastruct/projection/UniformHistogram.cpp
+        datastruct/projection/ListModeLUT.cpp
+        datastruct/projection/ListModeLUTDOI.cpp
+        datastruct/projection/LORMotion.cpp
         datastruct/projection/BinIterator.cpp
-        datastruct/projection/GCProjectionList.cpp
-        datastruct/projection/GCSparseHistogram.cpp
-        datastruct/projection/IProjectionData.cpp
-        datastruct/projection/IListMode.cpp
+        datastruct/projection/ProjectionList.cpp
+        datastruct/projection/SparseHistogram.cpp
+        datastruct/projection/ProjectionData.cpp
+        datastruct/projection/ListMode.cpp
         datastruct/scanner/GCDetCoord.cpp
         datastruct/scanner/GCDetRegular.cpp
         datastruct/scanner/GCDetectorSetup.cpp
@@ -58,9 +58,9 @@ if (USE_CUDA)
             datastruct/scanner/GCScannerDevice.cu
             datastruct/image/ImageDevice.cu
             datastruct/image/ImageSpaceKernels.cu
-            datastruct/projection/GCLORsDevice.cu
-            datastruct/projection/GCProjectionDataDevice.cu
-            datastruct/projection/GCProjectionSpaceKernels.cu
+            datastruct/projection/LORsDevice.cu
+            datastruct/projection/ProjectionDataDevice.cu
+            datastruct/projection/ProjectionSpaceKernels.cu
             operators/GCOperatorDevice.cu
             operators/GCOperatorProjectorDD_kernels.cu
             operators/GCOperatorProjectorDD_gpu.cu
