@@ -7,7 +7,7 @@
 
 #if BUILD_PYBIND11
 
-#include "recon/GCVariable.hpp"
+#include "recon/Variable.hpp"
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;
@@ -69,8 +69,8 @@ void py_setup_operatorprojectordd_gpu(py::module& m);
 
 PYBIND11_MODULE(pyyrtpet, m)
 {
-	// GCVariable is added here because the class is empty
-	auto gcvariable = py::class_<GCVariable>(m, "GCVariable");
+	// Variable is added here because the class is empty
+	auto gcvariable = py::class_<Variable>(m, "Variable");
 
 	py_setup_array(m);
 	py_setup_vector3dall(m);

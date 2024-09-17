@@ -15,7 +15,7 @@
 
 class ImageWarperTemplate;
 
-class GCOSEM
+class OSEM
 {
 public:
 	// ---------- Constants ----------
@@ -23,10 +23,10 @@ public:
 	static constexpr float DEFAULT_HARD_THRESHOLD = 1.0f;
 	static constexpr float INITIAL_VALUE_MLEM = 0.1f;
 	// ---------- Public methods ----------
-	GCOSEM(const Scanner* p_scanner);
-	virtual ~GCOSEM() = default;
-	GCOSEM(const GCOSEM&) = delete;
-	GCOSEM& operator=(const GCOSEM&) = delete;
+	OSEM(const Scanner* p_scanner);
+	virtual ~OSEM() = default;
+	OSEM(const OSEM&) = delete;
+	OSEM& operator=(const OSEM&) = delete;
 
 	// Sensitivity image generation
 	void generateSensitivityImages(const std::string& out_fname);

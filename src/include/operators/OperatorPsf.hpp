@@ -20,8 +20,8 @@ public:
 
 	void readFromFile(const std::string& image_space_psf_filename);
 
-	void applyA(const GCVariable* in, GCVariable* out) override;
-	void applyAH(const GCVariable* in, GCVariable* out) override;
+	void applyA(const Variable* in, Variable* out) override;
+	void applyAH(const Variable* in, Variable* out) override;
 
 	void convolve(const Image* in, Image* out,
 	              const std::vector<float>& KernelX,

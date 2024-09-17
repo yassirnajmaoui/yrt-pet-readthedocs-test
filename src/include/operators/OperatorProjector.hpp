@@ -100,8 +100,8 @@ public:
 	virtual void backProjection(Image* in_image, const ProjectionData* dat,
 	                            bin_t bin, double projValue) = 0;
 
-	void applyA(const GCVariable* in, GCVariable* out) override;
-	void applyAH(const GCVariable* in, GCVariable* out) override;
+	void applyA(const Variable* in, Variable* out) override;
+	void applyAH(const Variable* in, Variable* out) override;
 
 	void setupTOFHelper(float tofWidth_ps, int tofNumStd = -1);
 	void setupProjPsfManager(const std::string& psfFilename);

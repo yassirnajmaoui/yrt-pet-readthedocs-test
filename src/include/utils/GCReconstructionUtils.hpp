@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "recon/GCOSEM.hpp"
+#include "recon/OSEM.hpp"
 
 #include <memory>
 
@@ -31,7 +31,7 @@ namespace Util
 	StraightLineParam getNativeLOR(const Scanner& scanner,
 	                                 const ProjectionData& dat, bin_t binId);
 
-	std::unique_ptr<GCOSEM> createOSEM(const Scanner* scanner,
+	std::unique_ptr<OSEM> createOSEM(const Scanner* scanner,
 	                                   bool useGPU = false);
 
 

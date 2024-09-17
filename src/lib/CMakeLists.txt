@@ -38,8 +38,8 @@ set(SOURCES
         operators/OperatorPsf.cpp
         operators/ProjectionPsfManager.cpp
         operators/TimeOfFlight.cpp
-        recon/GCOSEM.cpp
-        recon/GCOSEM_cpu.cpp
+        recon/OSEM.cpp
+        recon/OSEM_cpu.cpp
         scatter/GCScatterEstimator.cpp
         scatter/GCSingleScatterSimulator.cpp
         scatter/GCCrystal.cpp
@@ -64,7 +64,7 @@ if (USE_CUDA)
             operators/OperatorDevice.cu
             operators/OperatorProjectorDD_GPUKernels.cu
             operators/OperatorProjectorDD_GPU.cu
-            recon/GCOSEM_gpu.cu
+            recon/OSEM_gpu.cu
             utils/GCPageLockedBuffer.cu
             utils/GCGPUStream.cu
             utils/GCGPUUtils.cu

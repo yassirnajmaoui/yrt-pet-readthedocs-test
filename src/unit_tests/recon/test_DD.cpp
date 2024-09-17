@@ -17,7 +17,7 @@
 #include <utility>
 
 #if BUILD_CUDA
-#include "recon/GCOSEM_gpu.cuh"
+#include "recon/OSEM_gpu.cuh"
 #endif
 
 

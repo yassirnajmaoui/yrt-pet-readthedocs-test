@@ -17,7 +17,7 @@ namespace py = pybind11;
 
 void py_setup_imagebase(py::module& m)
 {
-	auto c = py::class_<ImageBase, GCVariable>(m, "ImageBase");
+	auto c = py::class_<ImageBase, Variable>(m, "ImageBase");
 
 	c.def("setValue", &ImageBase::setValue, py::arg("initValue"));
 	c.def("addFirstImageToSecond", &ImageBase::addFirstImageToSecond,

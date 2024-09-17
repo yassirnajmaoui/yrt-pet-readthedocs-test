@@ -74,7 +74,7 @@ __global__ void gatherLORs_kernel(const uint2* pd_lorDetsIds,
                                   float4* pd_lorDet1Pos, float4* pd_lorDet2Pos,
                                   float4* pd_lorDet1Orient,
                                   float4* pd_lorDet2Orient,
-                                  GCCUImageParams imgParams, size_t batchSize)
+                                  CUImageParams imgParams, size_t batchSize)
 {
 	const long eventId = blockIdx.x * blockDim.x + threadIdx.x;
 	if (eventId < batchSize)
@@ -112,8 +112,8 @@ __global__ void OperatorProjectorDDCU_kernel(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
-    GCCUImageParams imgParams, size_t batchSize)
+    const TimeOfFlightHelper* pd_tofHelper, CUScannerParams scannerParams,
+    CUImageParams imgParams, size_t batchSize)
 {
 	const long eventId = blockIdx.x * blockDim.x + threadIdx.x;
 	if (eventId < batchSize)
@@ -441,26 +441,26 @@ template __global__ void OperatorProjectorDDCU_kernel<true, true>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
-    GCCUImageParams imgParams, size_t batchSize);
+    const TimeOfFlightHelper* pd_tofHelper, CUScannerParams scannerParams,
+    CUImageParams imgParams, size_t batchSize);
 template __global__ void OperatorProjectorDDCU_kernel<false, true>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
-    GCCUImageParams imgParams, size_t batchSize);
+    const TimeOfFlightHelper* pd_tofHelper, CUScannerParams scannerParams,
+    CUImageParams imgParams, size_t batchSize);
 template __global__ void OperatorProjectorDDCU_kernel<true, false>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
-    GCCUImageParams imgParams, size_t batchSize);
+    const TimeOfFlightHelper* pd_tofHelper, CUScannerParams scannerParams,
+    CUImageParams imgParams, size_t batchSize);
 template __global__ void OperatorProjectorDDCU_kernel<false, false>(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
-    GCCUImageParams imgParams, size_t batchSize);
+    const TimeOfFlightHelper* pd_tofHelper, CUScannerParams scannerParams,
+    CUImageParams imgParams, size_t batchSize);
 
 
 __global__ void applyAttenuationFactors_kernel(const float* pd_attImgProjData,

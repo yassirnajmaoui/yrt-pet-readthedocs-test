@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "recon/GCVariable.hpp"
+#include "recon/Variable.hpp"
 
 #include "nlohmann/json_fwd.hpp"
 #include <string>
@@ -50,7 +50,7 @@ public:
 	bool isValid() const;
 };
 
-class ImageBase : public GCVariable
+class ImageBase : public Variable
 {
 public:
 	ImageBase(const ImageParams& imgParams);

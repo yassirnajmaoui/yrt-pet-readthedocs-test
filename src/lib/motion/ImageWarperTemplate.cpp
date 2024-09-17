@@ -290,7 +290,7 @@ void ImageWarperTemplate::warpRefImage(Image* image, int frameId) const
 	}
 }
 
-void OperatorWarpRefImage::applyA(const GCVariable* warp, GCVariable* out)
+void OperatorWarpRefImage::applyA(const Variable* warp, Variable* out)
 {
 	const ImageWarperTemplate* warper = dynamic_cast<const ImageWarperTemplate*>(warp);
 	Image* img = dynamic_cast<Image*>(out);
@@ -298,7 +298,7 @@ void OperatorWarpRefImage::applyA(const GCVariable* warp, GCVariable* out)
 	ASSERT(warper != nullptr);
 	warper->warpRefImage(img, m_frameId);
 }
-void OperatorWarpRefImage::applyAH(const GCVariable* warp, GCVariable* out)
+void OperatorWarpRefImage::applyAH(const Variable* warp, Variable* out)
 {
 	const ImageWarperTemplate* warper = dynamic_cast<const ImageWarperTemplate*>(warp);
 	Image* img = dynamic_cast<Image*>(out);

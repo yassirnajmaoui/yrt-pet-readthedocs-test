@@ -183,7 +183,7 @@ OperatorProjector::OperatorProjector(
 	    "Siddon does not support Projection space PSF. It will be ignored.");
 }
 
-void OperatorProjector::applyA(const GCVariable* in, GCVariable* out)
+void OperatorProjector::applyA(const Variable* in, Variable* out)
 {
 	auto* dat = dynamic_cast<ProjectionData*>(out);
 	auto* img = dynamic_cast<const Image*>(in);
@@ -217,7 +217,7 @@ void OperatorProjector::applyA(const GCVariable* in, GCVariable* out)
 	}
 }
 
-void OperatorProjector::applyAH(const GCVariable* in, GCVariable* out)
+void OperatorProjector::applyAH(const Variable* in, Variable* out)
 {
 	auto* dat = dynamic_cast<const ProjectionData*>(in);
 	auto* img = dynamic_cast<Image*>(out);

@@ -20,8 +20,8 @@ public:
 	                          const cudaStream_t* mainStream = nullptr,
 	                          const cudaStream_t* auxStream = nullptr);
 
-	void applyA(const GCVariable* in, GCVariable* out) override;
-	void applyAH(const GCVariable* in, GCVariable* out) override;
+	void applyA(const Variable* in, Variable* out) override;
+	void applyAH(const Variable* in, Variable* out) override;
 
 private:
 	void applyAttenuationOnLoadedBatchIfNeeded(
@@ -48,8 +48,8 @@ private:
 	                         const float4* pd_lorDet2Orient,
 	                         const float* pd_lorTOFValue,
 	                         const TimeOfFlightHelper* pd_tofHelper,
-	                         GCCUScannerParams scannerParams,
-	                         GCCUImageParams imgParams, size_t batchSize,
+	                         CUScannerParams scannerParams,
+	                         CUImageParams imgParams, size_t batchSize,
 	                         unsigned int gridSize, unsigned int blockSize,
 	                         const cudaStream_t* stream, bool synchronize);
 };

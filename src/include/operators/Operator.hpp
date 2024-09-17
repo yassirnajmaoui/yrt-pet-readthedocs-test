@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "recon/GCVariable.hpp"
+#include "recon/Variable.hpp"
 
 class Operator
 {
 public:
 	virtual ~Operator() = default;
-	virtual void applyA(const GCVariable* in, GCVariable* out) = 0;
-	virtual void applyAH(const GCVariable* in, GCVariable* out) = 0;
+	virtual void applyA(const Variable* in, Variable* out) = 0;
+	virtual void applyAH(const Variable* in, Variable* out) = 0;
 };

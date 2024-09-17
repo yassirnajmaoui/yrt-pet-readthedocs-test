@@ -6,13 +6,13 @@
 #pragma once
 
 #include "datastruct/projection/BinIterator.hpp"
-#include "recon/GCVariable.hpp"
+#include "recon/Variable.hpp"
 #include "utils/GCTypes.hpp"
 
 #include <functional>
 #include <memory>
 
-class ProjectionData : public GCVariable
+class ProjectionData : public Variable
 {
 public:
 	~ProjectionData() override = default;

@@ -160,7 +160,7 @@ int main(int argc, char** argv)
 	auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
 	auto projectorType = IO::getProjector(projector_name);
 
-	std::unique_ptr<GCOSEM> osem =
+	std::unique_ptr<OSEM> osem =
 	    Util::createOSEM(scanner.get(), IO::requiresGPU(projectorType));
 
 	osem->num_MLEM_iterations = numIterations;

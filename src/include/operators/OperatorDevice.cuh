@@ -10,7 +10,7 @@
 #include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "operators/Operator.hpp"
 #include "operators/OperatorProjector.hpp"
-#include "recon/GCCUParameters.hpp"
+#include "recon/CUParameters.hpp"
 #include "utils/GCDeviceObject.cuh"
 #include "utils/GCGPUTypes.cuh"
 
@@ -31,8 +31,8 @@ class OperatorDevice : public Operator
 	// Nothing here for now...
 
 public:
-	static GCCUScannerParams getCUScannerParams(const Scanner& scanner);
-	static GCCUImageParams getCUImageParams(const ImageParams& imgParams);
+	static CUScannerParams getCUScannerParams(const Scanner& scanner);
+	static CUImageParams getCUImageParams(const ImageParams& imgParams);
 
 protected:
 	OperatorDevice() = default;

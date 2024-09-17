@@ -92,7 +92,7 @@ void OperatorPsf::readFromFile(const std::string& image_space_psf_filename)
 
 OperatorPsf::~OperatorPsf() {}
 
-void OperatorPsf::applyA(const GCVariable* in, GCVariable* out)
+void OperatorPsf::applyA(const Variable* in, Variable* out)
 {
 	const Image* img_in = dynamic_cast<const Image*>(in);
 	Image* img_out = dynamic_cast<Image*>(out);
@@ -100,7 +100,7 @@ void OperatorPsf::applyA(const GCVariable* in, GCVariable* out)
 	convolve(img_in, img_out, m_KernelX, m_KernelY, m_KernelZ);
 }
 
-void OperatorPsf::applyAH(const GCVariable* in, GCVariable* out)
+void OperatorPsf::applyAH(const Variable* in, Variable* out)
 {
 	const Image* img_in = dynamic_cast<const Image*>(in);
 	Image* img_out = dynamic_cast<Image*>(out);

@@ -16,7 +16,7 @@ namespace py = pybind11;
 
 void py_setup_projectiondata(py::module& m)
 {
-	auto c = py::class_<ProjectionData, GCVariable>(m, "ProjectionData");
+	auto c = py::class_<ProjectionData, Variable>(m, "ProjectionData");
 	c.def("count", &ProjectionData::count);
 	c.def("getProjectionValue", &ProjectionData::getProjectionValue);
 	c.def("setProjectionValue", &ProjectionData::setProjectionValue);

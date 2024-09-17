@@ -6,7 +6,7 @@
 #pragma once
 
 #include "operators/TimeOfFlight.hpp"
-#include "recon/GCCUParameters.hpp"
+#include "recon/CUParameters.hpp"
 
 #ifdef __CUDACC__
 
@@ -28,15 +28,15 @@ __global__ void gatherLORs_kernel(const uint2* pd_lorDetsId,
                                   float4* pd_lorDet1Pos, float4* pd_lorDet2Pos,
                                   float4* pd_lorDet1Orient,
                                   float4* pd_lorDet2Orient,
-                                  GCCUImageParams imgParams, size_t batchSize);
+                                  CUImageParams imgParams, size_t batchSize);
 
 template <bool IsForward, bool HasTOF>
 __global__ void OperatorProjectorDDCU_kernel(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
-    GCCUImageParams imgParams, size_t batchSize);
+    const TimeOfFlightHelper* pd_tofHelper, CUScannerParams scannerParams,
+    CUImageParams imgParams, size_t batchSize);
 
 
 __global__ void applyAttenuationFactors_kernel(const float* pd_attImgProjData,

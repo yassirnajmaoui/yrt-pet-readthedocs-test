@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "recon/GCOSEM_gpu.cuh"
+#include "recon/OSEM_gpu.cuh"
 
 #include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/ProjectionDataDevice.cuh"
@@ -11,8 +11,8 @@
 #include "operators/OperatorProjectorDD_GPU.cuh"
 #include "utils/GCAssert.hpp"
 
-GCOSEM_gpu::GCOSEM_gpu(const Scanner* p_scanner)
-    : GCOSEM(p_scanner),
+OSEM_gpu::OSEM_gpu(const Scanner* p_scanner)
+    : OSEM(p_scanner),
       mpd_sensImageBuffer(nullptr),
       mpd_tempSensDataInput(nullptr),
       mpd_mlemImage(nullptr),
@@ -27,9 +27,9 @@ GCOSEM_gpu::GCOSEM_gpu(const Scanner* p_scanner)
 	projectorType = OperatorProjector::DD_GPU;
 }
 
-GCOSEM_gpu::~GCOSEM_gpu() = default;
+OSEM_gpu::~OSEM_gpu() = default;
 
-void GCOSEM_gpu::SetupOperatorsForSensImgGen()
+void OSEM_gpu::SetupOperatorsForSensImgGen()
 {
 	ASSERT_MSG(projectorType == OperatorProjector::ProjectorType::DD_GPU,
 	           "No viable projector provided");
@@ -59,7 +59,7 @@ void GCOSEM_gpu::SetupOperatorsForSensImgGen()
 	}
 }
 
-void GCOSEM_gpu::allocateForSensImgGen()
+void OSEM_gpu::allocateForSensImgGen()
 {
 	// Allocate for image space
 	mpd_sensImageBuffer =
@@ -73,7 +73,7 @@ void GCOSEM_gpu::allocateForSensImgGen()
 }
 
 std::unique_ptr<Image>
-    GCOSEM_gpu::GetLatestSensitivityImage(bool isLastSubset)
+    OSEM_gpu::GetLatestSensitivityImage(bool isLastSubset)
 {
 	(void)isLastSubset;  // Copy flag is obsolete since the data is not yet on
 	                     // Host-side
@@ -83,14 +83,14 @@ std::unique_ptr<Image>
 	return img;
 }
 
-void GCOSEM_gpu::EndSensImgGen()
+void OSEM_gpu::EndSensImgGen()
 {
 	// Clear temporary buffers
 	mpd_sensImageBuffer = nullptr;
 	mpd_tempSensDataInput = nullptr;
 }
 
-void GCOSEM_gpu::SetupOperatorsForRecon()
+void OSEM_gpu::SetupOperatorsForRecon()
 {
 	getBinIterators().clear();
 	getBinIterators().reserve(num_OSEM_subsets);
@@ -119,7 +119,7 @@ void GCOSEM_gpu::SetupOperatorsForRecon()
 	}
 }
 
-void GCOSEM_gpu::allocateForRecon()
+void OSEM_gpu::allocateForRecon()
 {
 	// Allocate image-space buffers
 	mpd_mlemImage =
@@ -157,7 +157,7 @@ void GCOSEM_gpu::allocateForRecon()
 	mpd_datTmp = std::move(datTmp);
 }
 
-void GCOSEM_gpu::EndRecon()
+void OSEM_gpu::EndRecon()
 {
 	// Transfer MLEM image Device to host
 	mpd_mlemImage->transferToHostMemory(outImage, true);
@@ -169,37 +169,37 @@ void GCOSEM_gpu::EndRecon()
 	mpd_datTmp = nullptr;
 }
 
-ImageBase* GCOSEM_gpu::GetSensImageBuffer()
+ImageBase* OSEM_gpu::GetSensImageBuffer()
 {
 	return mpd_sensImageBuffer.get();
 }
 
-ProjectionData* GCOSEM_gpu::GetSensDataInputBuffer()
+ProjectionData* OSEM_gpu::GetSensDataInputBuffer()
 {
 	return mpd_tempSensDataInput.get();
 }
 
-ImageBase* GCOSEM_gpu::GetMLEMImageBuffer()
+ImageBase* OSEM_gpu::GetMLEMImageBuffer()
 {
 	return mpd_mlemImage.get();
 }
 
-ImageBase* GCOSEM_gpu::GetMLEMImageTmpBuffer()
+ImageBase* OSEM_gpu::GetMLEMImageTmpBuffer()
 {
 	return mpd_mlemImageTmp.get();
 }
 
-ProjectionData* GCOSEM_gpu::GetMLEMDataBuffer()
+ProjectionData* OSEM_gpu::GetMLEMDataBuffer()
 {
 	return mpd_dat.get();
 }
 
-ProjectionData* GCOSEM_gpu::GetMLEMDataTmpBuffer()
+ProjectionData* OSEM_gpu::GetMLEMDataTmpBuffer()
 {
 	return mpd_datTmp.get();
 }
 
-int GCOSEM_gpu::GetNumBatches(int subsetId, bool forRecon) const
+int OSEM_gpu::GetNumBatches(int subsetId, bool forRecon) const
 {
 	if (forRecon)
 	{
@@ -208,7 +208,7 @@ int GCOSEM_gpu::GetNumBatches(int subsetId, bool forRecon) const
 	return mpd_tempSensDataInput->getNumBatches(subsetId);
 }
 
-void GCOSEM_gpu::LoadBatch(int batchId, bool forRecon)
+void OSEM_gpu::LoadBatch(int batchId, bool forRecon)
 {
 	std::cout << "Loading batch " << batchId + 1 << "/"
 	          << GetNumBatches(m_current_OSEM_subset, forRecon) << "..."
@@ -232,7 +232,7 @@ void GCOSEM_gpu::LoadBatch(int batchId, bool forRecon)
 	std::cout << "Batch " << batchId + 1 << " loaded." << std::endl;
 }
 
-void GCOSEM_gpu::LoadSubset(int subsetId, bool forRecon)
+void OSEM_gpu::LoadSubset(int subsetId, bool forRecon)
 {
 	m_current_OSEM_subset = subsetId;
 
@@ -247,16 +247,16 @@ void GCOSEM_gpu::LoadSubset(int subsetId, bool forRecon)
 	}
 }
 
-void GCOSEM_gpu::CompleteMLEMIteration() {}
+void OSEM_gpu::CompleteMLEMIteration() {}
 
-const cudaStream_t* GCOSEM_gpu::getAuxStream() const
+const cudaStream_t* OSEM_gpu::getAuxStream() const
 {
 	// TODO: Add parallel loading
 	// return &m_auxStream.getStream();
 	return &m_mainStream.getStream();
 }
 
-const cudaStream_t* GCOSEM_gpu::getMainStream() const
+const cudaStream_t* OSEM_gpu::getMainStream() const
 {
 	return &m_mainStream.getStream();
 }

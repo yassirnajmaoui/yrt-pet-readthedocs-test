@@ -35,7 +35,7 @@
 
 class ImageParams;
 
-class ImageWarperTemplate : public GCVariable
+class ImageWarperTemplate : public Variable
 {
 public:
 	// List of public methods.
@@ -269,8 +269,8 @@ class OperatorWarpRefImage : public Operator
 public:
 	OperatorWarpRefImage(int p_frameId = 0) : m_frameId(p_frameId) {}
 	void setFrameId(int p_frameId) { m_frameId = p_frameId; }
-	void applyA(const GCVariable* in, GCVariable* out) override;
-	void applyAH(const GCVariable* in, GCVariable* out) override;
+	void applyA(const Variable* in, Variable* out) override;
+	void applyAH(const Variable* in, Variable* out) override;
 
 protected:
 	int m_frameId;

@@ -71,7 +71,7 @@ OperatorProjectorDD_GPU::OperatorProjectorDD_GPU(
 {
 }
 
-void OperatorProjectorDD_GPU::applyA(const GCVariable* in, GCVariable* out)
+void OperatorProjectorDD_GPU::applyA(const Variable* in, Variable* out)
 {
 	auto* img_in_const = dynamic_cast<const ImageDevice*>(in);
 	auto* dat_out = dynamic_cast<ProjectionDataDevice*>(out);
@@ -155,7 +155,7 @@ void OperatorProjectorDD_GPU::applyA(const GCVariable* in, GCVariable* out)
 	}
 }
 
-void OperatorProjectorDD_GPU::applyAH(const GCVariable* in, GCVariable* out)
+void OperatorProjectorDD_GPU::applyAH(const Variable* in, Variable* out)
 {
 	auto* dat_in_const = dynamic_cast<const ProjectionDataDevice*>(in);
 	auto* img_out = dynamic_cast<ImageDevice*>(out);
@@ -392,8 +392,8 @@ void OperatorProjectorDD_GPU::launchKernel(
     float* pd_projValues, float* pd_image, const float4* pd_lorDet1Pos,
     const float4* pd_lorDet2Pos, const float4* pd_lorDet1Orient,
     const float4* pd_lorDet2Orient, const float* pd_lorTOFValue,
-    const TimeOfFlightHelper* pd_tofHelper, GCCUScannerParams scannerParams,
-    GCCUImageParams imgParams, size_t batchSize, unsigned int gridSize,
+    const TimeOfFlightHelper* pd_tofHelper, CUScannerParams scannerParams,
+    CUImageParams imgParams, size_t batchSize, unsigned int gridSize,
     unsigned int blockSize, const cudaStream_t* stream, bool synchronize)
 {
 	ASSERT_MSG(pd_projValues != nullptr && pd_lorDet1Pos != nullptr &&

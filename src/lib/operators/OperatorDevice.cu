@@ -80,19 +80,19 @@ namespace Util
 	}
 }  // namespace Util
 
-GCCUScannerParams OperatorDevice::getCUScannerParams(const Scanner& scanner)
+CUScannerParams OperatorDevice::getCUScannerParams(const Scanner& scanner)
 {
-	GCCUScannerParams params;
+	CUScannerParams params;
 	params.crystalSize_trans = scanner.crystalSize_trans;
 	params.crystalSize_z = scanner.crystalSize_z;
 	params.numDets = scanner.getNumDets();
 	return params;
 }
 
-GCCUImageParams
+CUImageParams
     OperatorDevice::getCUImageParams(const ImageParams& imgParams)
 {
-	GCCUImageParams params;
+	CUImageParams params;
 
 	params.voxelNumber[0] = imgParams.nx;
 	params.voxelNumber[1] = imgParams.ny;

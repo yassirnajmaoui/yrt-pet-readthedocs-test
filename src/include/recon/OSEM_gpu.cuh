@@ -9,14 +9,14 @@
 #include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "datastruct/projection/ProjectionData.hpp"
-#include "recon/GCOSEM.hpp"
+#include "recon/OSEM.hpp"
 #include "utils/GCGPUStream.cuh"
 
-class GCOSEM_gpu : public GCOSEM
+class OSEM_gpu : public OSEM
 {
 public:
-	GCOSEM_gpu(const Scanner* p_scanner);
-	~GCOSEM_gpu() override;
+	OSEM_gpu(const Scanner* p_scanner);
+	~OSEM_gpu() override;
 
 	// Sens Image generator driver
 	void SetupOperatorsForSensImgGen() override;

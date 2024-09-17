@@ -5,17 +5,17 @@
 
 #pragma once
 
-typedef struct GCCUScannerParams
+typedef struct CUScannerParams
 {
 	float crystalSize_trans;
 	float crystalSize_z;
 	size_t numDets;
-} GCCUScannerParams;
+} CUScannerParams;
 
-typedef struct GCCUImageParams
+typedef struct CUImageParams
 {
 	int voxelNumber[3];
 	float voxelSize[3];
 	float imgLength[3];
 	float offset[3];
-} GCCUImageParams;
+} CUImageParams;

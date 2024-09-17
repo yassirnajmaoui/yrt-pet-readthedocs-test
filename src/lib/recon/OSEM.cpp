@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "recon/GCOSEM.hpp"
+#include "recon/OSEM.hpp"
 
 #include "datastruct/IO.hpp"
 #include "datastruct/image/Image.hpp"
@@ -28,12 +28,12 @@
 namespace py = pybind11;
 void py_setup_gcosem(pybind11::module& m)
 {
-	auto c = py::class_<GCOSEM>(m, "GCOSEM");
+	auto c = py::class_<OSEM>(m, "OSEM");
 
 	// This returns a python list of the sensitivity images
 	c.def(
 	    "generateSensitivityImages",
-	    [](GCOSEM& self, const std::string& out_fname,
+	    [](OSEM& self, const std::string& out_fname,
 	       bool saveToMemory) -> py::list
 	    {
 		    ASSERT_MSG(self.imageParams.isValid(),
@@ -55,47 +55,47 @@ void py_setup_gcosem(pybind11::module& m)
 	    },
 	    py::arg("out_fname") = "", py::arg("saveToMemory") = true);
 
-	c.def("validateSensImagesAmount", &GCOSEM::validateSensImagesAmount);
+	c.def("validateSensImagesAmount", &OSEM::validateSensImagesAmount);
 
 	c.def("registerSensitivityImages",
-	      static_cast<void (GCOSEM::*)(py::list& imageList)>(
-	          &GCOSEM::registerSensitivityImages));
+	      static_cast<void (OSEM::*)(py::list& imageList)>(
+	          &OSEM::registerSensitivityImages));
 
-	c.def("reconstruct", &GCOSEM::reconstruct);
-	c.def("reconstructWithWarperMotion", &GCOSEM::reconstructWithWarperMotion);
-	c.def("summary", &GCOSEM::summary);
+	c.def("reconstruct", &OSEM::reconstruct);
+	c.def("reconstructWithWarperMotion", &OSEM::reconstructWithWarperMotion);
+	c.def("summary", &OSEM::summary);
 
-	c.def("getSensDataInput", static_cast<ProjectionData* (GCOSEM::*)()>(
-	                              &GCOSEM::getSensDataInput));
-	c.def("setSensDataInput", &GCOSEM::setSensDataInput);
+	c.def("getSensDataInput", static_cast<ProjectionData* (OSEM::*)()>(
+	                              &OSEM::getSensDataInput));
+	c.def("setSensDataInput", &OSEM::setSensDataInput);
 	c.def("getDataInput",
-	      static_cast<ProjectionData* (GCOSEM::*)()>(&GCOSEM::getDataInput));
-	c.def("setDataInput", &GCOSEM::setDataInput);
-	c.def("addTOF", &GCOSEM::addTOF);
-	c.def("addProjPSF", &GCOSEM::addProjPSF);
-	c.def("addImagePSF", &GCOSEM::addImagePSF);
-	c.def("setSaveSteps", &GCOSEM::setSaveSteps);
-	c.def("setListModeEnabled", &GCOSEM::setListModeEnabled);
-	c.def("setProjector", &GCOSEM::setProjector);
-	c.def("isListModeEnabled", &GCOSEM::isListModeEnabled);
+	      static_cast<ProjectionData* (OSEM::*)()>(&OSEM::getDataInput));
+	c.def("setDataInput", &OSEM::setDataInput);
+	c.def("addTOF", &OSEM::addTOF);
+	c.def("addProjPSF", &OSEM::addProjPSF);
+	c.def("addImagePSF", &OSEM::addImagePSF);
+	c.def("setSaveSteps", &OSEM::setSaveSteps);
+	c.def("setListModeEnabled", &OSEM::setListModeEnabled);
+	c.def("setProjector", &OSEM::setProjector);
+	c.def("isListModeEnabled", &OSEM::isListModeEnabled);
 
-	c.def_readwrite("num_MLEM_iterations", &GCOSEM::num_MLEM_iterations);
-	c.def_readwrite("num_OSEM_subsets", &GCOSEM::num_OSEM_subsets);
-	c.def_readwrite("hardThreshold", &GCOSEM::hardThreshold);
-	c.def_readwrite("numRays", &GCOSEM::numRays);
-	c.def_readwrite("projectorType", &GCOSEM::projectorType);
-	c.def_readwrite("imageParams", &GCOSEM::imageParams);
-	c.def_readwrite("scanner", &GCOSEM::scanner);
-	c.def_readwrite("maskImage", &GCOSEM::maskImage);
-	c.def_readwrite("attenuationImage", &GCOSEM::attenuationImage);
-	c.def_readwrite("addHis", &GCOSEM::addHis);
-	c.def_readwrite("warper", &GCOSEM::warper);
-	c.def_readwrite("attenuationImage", &GCOSEM::attenuationImage);
-	c.def_readwrite("outImage", &GCOSEM::outImage);
+	c.def_readwrite("num_MLEM_iterations", &OSEM::num_MLEM_iterations);
+	c.def_readwrite("num_OSEM_subsets", &OSEM::num_OSEM_subsets);
+	c.def_readwrite("hardThreshold", &OSEM::hardThreshold);
+	c.def_readwrite("numRays", &OSEM::numRays);
+	c.def_readwrite("projectorType", &OSEM::projectorType);
+	c.def_readwrite("imageParams", &OSEM::imageParams);
+	c.def_readwrite("scanner", &OSEM::scanner);
+	c.def_readwrite("maskImage", &OSEM::maskImage);
+	c.def_readwrite("attenuationImage", &OSEM::attenuationImage);
+	c.def_readwrite("addHis", &OSEM::addHis);
+	c.def_readwrite("warper", &OSEM::warper);
+	c.def_readwrite("attenuationImage", &OSEM::attenuationImage);
+	c.def_readwrite("outImage", &OSEM::outImage);
 }
 #endif
 
-GCOSEM::GCOSEM(const Scanner* p_scanner)
+OSEM::OSEM(const Scanner* p_scanner)
     : num_MLEM_iterations(DEFAULT_NUM_ITERATIONS),
       num_OSEM_subsets(1),
       hardThreshold(DEFAULT_HARD_THRESHOLD),
@@ -121,13 +121,13 @@ GCOSEM::GCOSEM(const Scanner* p_scanner)
 {
 }
 
-void GCOSEM::generateSensitivityImages(const std::string& out_fname)
+void OSEM::generateSensitivityImages(const std::string& out_fname)
 {
 	std::vector<std::unique_ptr<Image>> dummy;
 	GenerateSensitivityImagesCore(true, out_fname, false, dummy);
 }
 
-void GCOSEM::generateSensitivityImages(
+void OSEM::generateSensitivityImages(
     std::vector<std::unique_ptr<Image>>& sensImages,
     const std::string& out_fname)
 {
@@ -142,7 +142,7 @@ void GCOSEM::generateSensitivityImages(
 	registerSensitivityImages(sensImages);
 }
 
-void GCOSEM::GenerateSensitivityImageForSubset(int subsetId)
+void OSEM::GenerateSensitivityImageForSubset(int subsetId)
 {
 	GetSensImageBuffer()->setValue(0.0);
 
@@ -165,7 +165,7 @@ void GCOSEM::GenerateSensitivityImageForSubset(int subsetId)
 	std::cout << "Threshold applied" << std::endl;
 }
 
-void GCOSEM::GenerateSensitivityImagesCore(
+void OSEM::GenerateSensitivityImagesCore(
     bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
     std::vector<std::unique_ptr<Image>>& sensImages)
 {
@@ -240,7 +240,7 @@ void GCOSEM::GenerateSensitivityImagesCore(
 	}
 }
 
-bool GCOSEM::validateSensImagesAmount(int size) const
+bool OSEM::validateSensImagesAmount(int size) const
 {
 	if (usingListModeInput)
 	{
@@ -249,7 +249,7 @@ bool GCOSEM::validateSensImagesAmount(int size) const
 	return size == num_OSEM_subsets;
 }
 
-void GCOSEM::registerSensitivityImages(
+void OSEM::registerSensitivityImages(
     const std::vector<std::unique_ptr<Image>>& sensImages)
 {
 	if (!validateSensImagesAmount(static_cast<int>(sensImages.size())))
@@ -267,7 +267,7 @@ void GCOSEM::registerSensitivityImages(
 }
 
 #if BUILD_PYBIND11
-void GCOSEM::registerSensitivityImages(py::list& imageList)
+void OSEM::registerSensitivityImages(py::list& imageList)
 {
 	const int imageListSize = static_cast<int>(imageList.size());
 	if (!validateSensImagesAmount(imageListSize))
@@ -286,30 +286,30 @@ void GCOSEM::registerSensitivityImages(py::list& imageList)
 #endif
 
 
-void GCOSEM::LoadSubsetInternal(int p_subsetId, bool p_forRecon)
+void OSEM::LoadSubsetInternal(int p_subsetId, bool p_forRecon)
 {
 	mp_projector->setBinIter(getBinIterators()[p_subsetId].get());
 	LoadSubset(p_subsetId, p_forRecon);
 }
 
-void GCOSEM::InitializeForSensImgGen()
+void OSEM::InitializeForSensImgGen()
 {
 	SetupOperatorsForSensImgGen();
 	allocateForSensImgGen();
 }
 
-void GCOSEM::InitializeForRecon()
+void OSEM::InitializeForRecon()
 {
 	SetupOperatorsForRecon();
 	allocateForRecon();
 }
 
-void GCOSEM::setSensDataInput(ProjectionData* p_sensDataInput)
+void OSEM::setSensDataInput(ProjectionData* p_sensDataInput)
 {
 	sensDataInput = p_sensDataInput;
 }
 
-void GCOSEM::setDataInput(ProjectionData* p_dataInput)
+void OSEM::setDataInput(ProjectionData* p_dataInput)
 {
 	dataInput = p_dataInput;
 	if (dynamic_cast<const ListMode*>(dataInput))
@@ -322,26 +322,26 @@ void GCOSEM::setDataInput(ProjectionData* p_dataInput)
 	}
 }
 
-void GCOSEM::addTOF(float p_tofWidth_ps, int p_tofNumStd)
+void OSEM::addTOF(float p_tofWidth_ps, int p_tofNumStd)
 {
 	tofWidth_ps = p_tofWidth_ps;
 	tofNumStd = p_tofNumStd;
 	flagProjTOF = true;
 }
 
-void GCOSEM::addProjPSF(const std::string& p_projSpacePsf_fname)
+void OSEM::addProjPSF(const std::string& p_projSpacePsf_fname)
 {
 	projSpacePsf_fname = p_projSpacePsf_fname;
 	flagProjPSF = !projSpacePsf_fname.empty();
 }
 
-void GCOSEM::addImagePSF(OperatorPsf* p_imageSpacePsf)
+void OSEM::addImagePSF(OperatorPsf* p_imageSpacePsf)
 {
 	imageSpacePsf = p_imageSpacePsf;
 	flagImagePSF = imageSpacePsf != nullptr;
 }
 
-void GCOSEM::setSaveSteps(int p_saveSteps, const std::string& p_saveStepsPath)
+void OSEM::setSaveSteps(int p_saveSteps, const std::string& p_saveStepsPath)
 {
 	if (p_saveSteps > 0)
 	{
@@ -350,39 +350,39 @@ void GCOSEM::setSaveSteps(int p_saveSteps, const std::string& p_saveStepsPath)
 	}
 }
 
-void GCOSEM::setListModeEnabled(bool enabled)
+void OSEM::setListModeEnabled(bool enabled)
 {
 	usingListModeInput = enabled;
 }
 
-void GCOSEM::setProjector(const std::string& projectorName)
+void OSEM::setProjector(const std::string& projectorName)
 {
 	projectorType = IO::getProjector(projectorName);
 }
 
-bool GCOSEM::isListModeEnabled() const
+bool OSEM::isListModeEnabled() const
 {
 	return usingListModeInput;
 }
 
-const Image* GCOSEM::getSensitivityImage(int subsetId) const
+const Image* OSEM::getSensitivityImage(int subsetId) const
 {
 	return sensitivityImages.at(subsetId);
 }
 
-Image* GCOSEM::getSensitivityImage(int subsetId)
+Image* OSEM::getSensitivityImage(int subsetId)
 {
 	return sensitivityImages.at(subsetId);
 }
 
-int GCOSEM::GetNumBatches(int subsetId, bool forRecon) const
+int OSEM::GetNumBatches(int subsetId, bool forRecon) const
 {
 	(void)subsetId;
 	(void)forRecon;
 	return 1;
 }
 
-void GCOSEM::reconstruct()
+void OSEM::reconstruct()
 {
 	ASSERT_MSG(outImage != nullptr, "Output image unspecified");
 	ASSERT_MSG(dataInput != nullptr, "Data input unspecified");
@@ -484,7 +484,7 @@ void GCOSEM::reconstruct()
 	EndRecon();
 }
 
-void GCOSEM::reconstructWithWarperMotion()
+void OSEM::reconstructWithWarperMotion()
 {
 	ASSERT_MSG(
 	    !IO::requiresGPU(projectorType),
@@ -624,7 +624,7 @@ void GCOSEM::reconstructWithWarperMotion()
 	}
 }
 
-void GCOSEM::summary() const
+void OSEM::summary() const
 {
 	std::cout << "Number of iterations: " << num_MLEM_iterations << std::endl;
 	std::cout << "Number of subsets: " << num_OSEM_subsets << std::endl;

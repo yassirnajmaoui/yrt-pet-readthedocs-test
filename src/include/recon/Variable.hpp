@@ -5,9 +5,9 @@
 
 #pragma once
 
-class GCVariable
+class Variable
 {
 public:
-	virtual ~GCVariable() = default;
+	virtual ~Variable() = default;
 private:
 };

@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "recon/GCOSEM.hpp"
+#include "recon/OSEM.hpp"
 
-class GCOSEM_cpu : public GCOSEM
+class OSEM_cpu : public OSEM
 {
 public:
-	GCOSEM_cpu(const Scanner* p_scanner);
-	~GCOSEM_cpu() override;
+	OSEM_cpu(const Scanner* p_scanner);
+	~OSEM_cpu() override;
 
 protected:
 	// Sens Image generator driver
