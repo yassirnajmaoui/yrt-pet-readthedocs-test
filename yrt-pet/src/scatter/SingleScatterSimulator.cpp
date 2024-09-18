@@ -378,7 +378,7 @@ namespace Scatter
 				continue;
 			}
 			tmp = (m_energyLLD - energy) / (sqrt(2.0) * m_sigmaEnergy);
-			mu_scaling_factor = GetMuScalingFactor(energy);
+			mu_scaling_factor = getMuScalingFactor(energy);
 
 			// get scatter values:
 			vatt = mr_mu.nearest_neigh(ps);
@@ -521,7 +521,7 @@ namespace Scatter
 	}
 
 	// This is the integrated KN formula up to a proportionaity constant:
-	double SingleScatterSimulator::GetMuScalingFactor(double energy)
+	double SingleScatterSimulator::getMuScalingFactor(double energy)
 	{
 		double a = energy / 511.0;
 		double res = (1 + a) / (a * a);
