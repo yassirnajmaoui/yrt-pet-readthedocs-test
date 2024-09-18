@@ -163,7 +163,7 @@ void ImageParams::serialize(const std::string& fname) const
 
 void ImageParams::writeToJSON(json& geom_json) const
 {
-	geom_json["IMAGEPARAMS_FILE_VERSION"] = IMAGEPARAMS_FILE_VERSION;
+	geom_json["VERSION"] = IMAGEPARAMS_FILE_VERSION;
 	geom_json["nx"] = nx;
 	geom_json["ny"] = ny;
 	geom_json["nz"] = nz;
@@ -190,7 +190,7 @@ void ImageParams::deserialize(const std::string& fname)
 void ImageParams::readFromJSON(json& geom_json)
 {
 	float version = -1.0f;
-	auto imgVersionAccessor = geom_json.find("IMAGEPARAMS_FILE_VERSION");
+	auto imgVersionAccessor = geom_json.find("VERSION");
 	if (imgVersionAccessor == geom_json.end())
 	{
 		// Backwards compatibility

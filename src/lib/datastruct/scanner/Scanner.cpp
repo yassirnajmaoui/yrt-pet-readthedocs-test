@@ -65,10 +65,10 @@ void py_setup_scanner(pybind11::module& m)
 	    { self.setScannerPath(str); });
 	c_owned.def(pybind11::pickle([](const ScannerOwned& s)
 	                             { return s.getScannerPath(); },
-	                             [](const std::string& t)
+	                             [](const std::string& fname)
 	                             {
 		                             std::unique_ptr<ScannerOwned> s =
-		                                 std::make_unique<ScannerOwned>(t);
+		                                 std::make_unique<ScannerOwned>(fname);
 		                             return s;
 	                             }));
 }

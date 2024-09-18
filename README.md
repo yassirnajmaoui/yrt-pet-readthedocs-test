@@ -192,7 +192,7 @@ coordinates of the volume.  The configuration is in `json` format.
 An example is provided here for reference. Note that the values are all in mm.
 ```JSON
     {
-        "IMAGEPARAMS_FILE_VERSION": 1.0,
+        "VERSION": 1.0,
         "nx": 250,
         "ny": 250,
         "nz": 118,
