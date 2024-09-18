@@ -33,7 +33,7 @@ typedef std::pair<det_id_t, det_id_t> DetRingPair;  // d1, d2
 class Histogram3D : public Histogram
 {
 public:
-	const Scanner* getScanner() const { return mp_scanner; }
+	const Scanner& getScanner() const { return mr_scanner; }
 	Array3DBase<float>& getData() { return *mp_data; }
 	const Array3DBase<float>& getData() const { return *mp_data; }
 	virtual void writeToFile(const std::string& filename) const;
@@ -71,7 +71,7 @@ public:
 	void get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const;
 
 protected:
-	Histogram3D(const Scanner* pp_scanner);
+	Histogram3D(const Scanner& pr_scanner);
 	void getDetPairInSameRing(coord_t r_ring, coord_t phi, det_id_t& d1,
 	                          det_id_t& d2) const;
 	void getCoordsInSameRing(det_id_t d1_ring, det_id_t d2_ring,
@@ -96,7 +96,7 @@ public:
 protected:
 	std::unique_ptr<Array3DBase<float>> mp_data;
 	std::unordered_map<DetRingPair, DetRingCoordinates, hash_pair> m_ringMap;
-	const Scanner* mp_scanner;
+	const Scanner& mr_scanner;
 	size_t r_cut;
 	size_t num_doi_poss;  // Number of DOI possibilities (ex: 2 doi -> 4 lor
 	                      // possibilities)
@@ -106,15 +106,15 @@ protected:
 class Histogram3DAlias : public Histogram3D
 {
 public:
-	Histogram3DAlias(const Scanner* p_scanner);
-	void bind(Array3DBase<float>& p_data);
+	Histogram3DAlias(const Scanner& pr_scanner);
+	void bind(Array3DBase<float>& pr_data);
 };
 
 class Histogram3DOwned : public Histogram3D
 {
 public:
-	Histogram3DOwned(const Scanner* p_scanner);
-	Histogram3DOwned(const Scanner* p_scanner, const std::string& filename);
+	Histogram3DOwned(const Scanner& pr_scanner);
+	Histogram3DOwned(const Scanner& pr_scanner, const std::string& filename);
 	void allocate();
 	void readFromFile(const std::string& filename);
 

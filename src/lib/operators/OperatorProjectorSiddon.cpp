@@ -79,8 +79,8 @@ OperatorProjectorSiddon::OperatorProjectorSiddon(
 	{
 		mp_lineGen = std::make_unique<std::vector<MultiRayGenerator>>(
 		    Globals::get_num_threads(),
-		    MultiRayGenerator(scanner->crystalSize_z,
-		                        scanner->crystalSize_trans));
+		    MultiRayGenerator(scanner.crystalSize_z,
+		                        scanner.crystalSize_trans));
 	}
 }
 
@@ -99,7 +99,7 @@ double OperatorProjectorSiddon::forwardProjection(const Image* img,
                                                     bin_t bin)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =
-	    Util::getProjectionProperties(*scanner, *dat, bin);
+	    Util::getProjectionProperties(scanner, *dat, bin);
 
 	// TODO: What to do with randomsEstimate ?
 
@@ -111,7 +111,7 @@ void OperatorProjectorSiddon::backProjection(Image* img,
                                                bin_t bin, double projValue)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =
-	    Util::getProjectionProperties(*scanner, *dat, bin);
+	    Util::getProjectionProperties(scanner, *dat, bin);
 
 	backProjection(img, lor, n1, n2, projValue, mp_tofHelper.get(), tofValue);
 }
@@ -135,7 +135,7 @@ double OperatorProjectorSiddon::forwardProjection(
 	{
 		currThread = omp_get_thread_num();
 		ASSERT(mp_lineGen != nullptr);
-		mp_lineGen->at(currThread).setupGenerator(lor, n1, n2, *scanner);
+		mp_lineGen->at(currThread).setupGenerator(lor, n1, n2, scanner);
 	}
 
 	for (int i_line = 0; i_line < numRaysToCast; i_line++)
@@ -186,7 +186,7 @@ void OperatorProjectorSiddon::backProjection(
 	{
 		ASSERT(mp_lineGen != nullptr);
 		currThread = omp_get_thread_num();
-		mp_lineGen->at(currThread).setupGenerator(lor, n1, n2, *scanner);
+		mp_lineGen->at(currThread).setupGenerator(lor, n1, n2, scanner);
 		projValuePerLor = projValue / static_cast<double>(m_numRays);
 	}
 

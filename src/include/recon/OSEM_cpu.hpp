@@ -10,7 +10,7 @@
 class OSEM_cpu : public OSEM
 {
 public:
-	OSEM_cpu(const Scanner* p_scanner);
+	OSEM_cpu(const Scanner& pr_scanner);
 	~OSEM_cpu() override;
 
 protected:

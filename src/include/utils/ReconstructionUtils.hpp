@@ -31,29 +31,29 @@ namespace Util
 	StraightLineParam getNativeLOR(const Scanner& scanner,
 	                                 const ProjectionData& dat, bin_t binId);
 
-	std::unique_ptr<OSEM> createOSEM(const Scanner* scanner,
+	std::unique_ptr<OSEM> createOSEM(const Scanner& scanner,
 	                                   bool useGPU = false);
 
 
 	std::tuple<StraightLineParam, Vector3D, Vector3D>
-	    generateTORRandomDOI(const Scanner* scanner, det_id_t d1, det_id_t d2,
+	    generateTORRandomDOI(const Scanner& scanner, det_id_t d1, det_id_t d2,
 	                         int vmax = 256);
 
 	// Forward projection
-	void forwProject(const Scanner* scanner, const Image* img,
-	                 ProjectionData* projData,
+	void forwProject(const Scanner& scanner, const Image& img,
+	                 ProjectionData& projData,
 	                 OperatorProjector::ProjectorType projectorType =
 	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
-	void forwProject(const Scanner* scanner, const Image* img,
-	                 ProjectionData* projData,
+	void forwProject(const Scanner& scanner, const Image& img,
+	                 ProjectionData& projData,
 	                 const BinIterator& binIterator,
 	                 OperatorProjector::ProjectorType projectorType =
 	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
-	void forwProject(const Image* img, ProjectionData* projData,
+	void forwProject(const Image& img, ProjectionData& projData,
 	                 const OperatorProjectorParams& projParams,
 	                 OperatorProjector::ProjectorType projectorType =
 	                     OperatorProjector::SIDDON,
@@ -61,20 +61,20 @@ namespace Util
 	                 const Histogram* additiveHistogram = nullptr);
 
 	// Back projection
-	void backProject(const Scanner* scanner, Image* img,
-	                 const ProjectionData* projData,
+	void backProject(const Scanner& scanner, Image& img,
+	                 const ProjectionData& projData,
 	                 OperatorProjector::ProjectorType projectorType =
 	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
-	void backProject(const Scanner* scanner, Image* img,
-	                 const ProjectionData* projData,
+	void backProject(const Scanner& scanner, Image& img,
+	                 const ProjectionData& projData,
 	                 const BinIterator& binIterator,
 	                 OperatorProjector::ProjectorType projectorType =
 	                     OperatorProjector::SIDDON,
 	                 const Image* attImage = nullptr,
 	                 const Histogram* additiveHistogram = nullptr);
-	void backProject(Image* img, const ProjectionData* projData,
+	void backProject(Image& img, const ProjectionData& projData,
 	                 const OperatorProjectorParams& projParams,
 	                 OperatorProjector::ProjectorType projectorType =
 	                     OperatorProjector::SIDDON,

@@ -23,7 +23,7 @@ public:
 	static constexpr float DEFAULT_HARD_THRESHOLD = 1.0f;
 	static constexpr float INITIAL_VALUE_MLEM = 0.1f;
 	// ---------- Public methods ----------
-	OSEM(const Scanner* p_scanner);
+	explicit OSEM(const Scanner& p_scanner);
 	virtual ~OSEM() = default;
 	OSEM(const OSEM&) = delete;
 	OSEM& operator=(const OSEM&) = delete;
@@ -71,7 +71,7 @@ public:
 	int numRays;  // For Siddon only
 	OperatorProjector::ProjectorType projectorType;
 	ImageParams imageParams;
-	const Scanner* scanner;
+	const Scanner& scanner;
 	const Image* maskImage;
 	const Image* attenuationImage;
 	const Image* attenuationImageForBackprojection;

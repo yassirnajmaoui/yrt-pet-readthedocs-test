@@ -151,18 +151,18 @@ int main(int argc, char** argv)
 
 		std::cout << "Reading histograms..." << std::endl;
 		auto promptsHis = std::make_unique<Histogram3DOwned>(
-		    scanner.get(), promptsHis_fname);
+		    *scanner, promptsHis_fname);
 		auto randomsHis = std::make_unique<Histogram3DOwned>(
-		    scanner.get(), randomsHis_fname);
+		    *scanner, randomsHis_fname);
 		auto normOrSensHis = std::make_unique<Histogram3DOwned>(
-		    scanner.get(), *normOrSensHis_fname);
+		    *scanner, *normOrSensHis_fname);
 		auto acfHis =
-		    std::make_unique<Histogram3DOwned>(scanner.get(), acfHis_fname);
+		    std::make_unique<Histogram3DOwned>(*scanner, acfHis_fname);
 		std::cout << "Done reading histograms." << std::endl;
 
 		// Generate additive histogram
 		std::cout << "Preparing additive histogram..." << std::endl;
-		auto additiveHis = std::make_unique<Histogram3DOwned>(scanner.get());
+		auto additiveHis = std::make_unique<Histogram3DOwned>(*scanner);
 		additiveHis->allocate();
 		if (isNorm)
 		{
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
 			std::cout << "Preparing sensitivity histogram for the MLEM part..."
 			          << std::endl;
 			auto sensDataHis =
-			    std::make_unique<Histogram3DOwned>(scanner.get());
+			    std::make_unique<Histogram3DOwned>(*scanner);
 			sensDataHis->allocate();
 			if (isNorm)
 			{
@@ -233,7 +233,7 @@ int main(int argc, char** argv)
 			// Generate source Image
 			auto projectorType = IO::getProjector(projector_name);
 			auto osem =
-			    Util::createOSEM(scanner.get(), IO::requiresGPU(projectorType));
+			    Util::createOSEM(*scanner, IO::requiresGPU(projectorType));
 			osem->num_MLEM_iterations = num_MLEM_iterations;
 			osem->addHis = additiveHis.get();
 			osem->imageParams = imageParams;

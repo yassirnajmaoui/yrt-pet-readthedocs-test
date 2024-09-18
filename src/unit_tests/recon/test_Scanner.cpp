@@ -25,7 +25,7 @@ TEST_CASE("scanner", "[createLUT]")
 	auto detRegular = std::make_unique<DetRegular>(scanner.get());
 	detRegular->generateLUT();
 	scanner->setDetectorSetup(detRegular.get());
-	auto histo3d = std::make_unique<Histogram3DOwned>(scanner.get());
+	auto histo3d = std::make_unique<Histogram3DOwned>(*scanner);
 
 	Array2D<float> lut;
 	scanner->createLUT(lut);

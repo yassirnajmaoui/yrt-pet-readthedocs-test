@@ -71,7 +71,7 @@ TEST_CASE("histo3d", "[histo]")
 
 	size_t n_total_detectors =
 	    scanner->num_doi * scanner->num_rings * scanner->dets_per_ring;
-	auto histo3d = std::make_unique<Histogram3DOwned>(scanner.get());
+	auto histo3d = std::make_unique<Histogram3DOwned>(*scanner);
 
 	SECTION("histo3d-sizes")
 	{

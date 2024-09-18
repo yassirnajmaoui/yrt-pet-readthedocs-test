@@ -175,7 +175,7 @@ namespace Scatter
 		ASSERT_MSG(num_i_z > 0,
 		           "The number of zs given has to be larger than 0");
 		ASSERT_MSG(
-			scatterHisto.getScanner() == &mr_scanner,
+			&scatterHisto.getScanner() == &mr_scanner,
 			"The histogram's scanner is not the same as the SSS's scanner");
 
 		constexpr size_t min_z = 0;

@@ -161,7 +161,7 @@ int main(int argc, char** argv)
 	auto projectorType = IO::getProjector(projector_name);
 
 	std::unique_ptr<OSEM> osem =
-	    Util::createOSEM(scanner.get(), IO::requiresGPU(projectorType));
+	    Util::createOSEM(*scanner, IO::requiresGPU(projectorType));
 
 	osem->num_MLEM_iterations = numIterations;
 	osem->num_OSEM_subsets = numSubsets;

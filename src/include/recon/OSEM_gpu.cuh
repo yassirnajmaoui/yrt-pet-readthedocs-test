@@ -15,7 +15,7 @@
 class OSEM_gpu : public OSEM
 {
 public:
-	OSEM_gpu(const Scanner* p_scanner);
+	explicit OSEM_gpu(const Scanner& pr_scanner);
 	~OSEM_gpu() override;
 
 	// Sens Image generator driver

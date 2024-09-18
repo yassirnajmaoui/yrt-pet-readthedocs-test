@@ -85,7 +85,6 @@ void py_setup_osem(pybind11::module& m)
 	c.def_readwrite("numRays", &OSEM::numRays);
 	c.def_readwrite("projectorType", &OSEM::projectorType);
 	c.def_readwrite("imageParams", &OSEM::imageParams);
-	c.def_readwrite("scanner", &OSEM::scanner);
 	c.def_readwrite("maskImage", &OSEM::maskImage);
 	c.def_readwrite("attenuationImage", &OSEM::attenuationImage);
 	c.def_readwrite("addHis", &OSEM::addHis);
@@ -95,13 +94,13 @@ void py_setup_osem(pybind11::module& m)
 }
 #endif
 
-OSEM::OSEM(const Scanner* p_scanner)
+OSEM::OSEM(const Scanner& pr_scanner)
     : num_MLEM_iterations(DEFAULT_NUM_ITERATIONS),
       num_OSEM_subsets(1),
       hardThreshold(DEFAULT_HARD_THRESHOLD),
       numRays(1),
       projectorType(OperatorProjector::SIDDON),
-      scanner(p_scanner),
+      scanner(pr_scanner),
       maskImage(nullptr),
       attenuationImage(nullptr),
       attenuationImageForBackprojection(nullptr),
@@ -644,7 +643,7 @@ void OSEM::summary() const
 	}
 	std::cout << "Number of threads used: " << Globals::get_num_threads()
 	          << std::endl;
-	std::cout << "Scanner name: " << scanner->scannerName << std::endl;
+	std::cout << "Scanner name: " << scanner.scannerName << std::endl;
 
 	if (flagProjTOF)
 	{

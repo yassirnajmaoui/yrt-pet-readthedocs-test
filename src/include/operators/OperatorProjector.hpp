@@ -19,14 +19,14 @@ class Histogram;
 class OperatorProjectorParams
 {
 public:
-	OperatorProjectorParams(const BinIterator* p_binIter,
-	                          const Scanner* p_scanner,
+	OperatorProjectorParams(const BinIterator* pp_binIter,
+	                          const Scanner& pr_scanner,
 	                          float p_tofWidth_ps = 0.f, int p_tofNumStd = 0,
 	                          std::string p_psfProjFilename = "",
 	                          int p_num_rays = 1);
 
 	const BinIterator* binIter;
-	const Scanner* scanner;
+	const Scanner& scanner;
 
 	// Time of Flight
 	float tofWidth_ps;
@@ -54,7 +54,7 @@ public:
 
 	OperatorProjectorBase(const OperatorProjectorParams& p_projParams);
 
-	const Scanner* getScanner() const;
+	const Scanner& getScanner() const;
 	const BinIterator* getBinIter() const;
 
 	virtual void setAttImage(const Image* p_attImage);  // alias
@@ -68,11 +68,11 @@ public:
 	const Histogram* getAddHisto() const;
 
 protected:
+	// To take scanner properties into account
+	const Scanner& scanner;
+
 	// Bin iterator
 	const BinIterator* binIter;
-
-	// To take scanner properties into account
-	const Scanner* scanner;
 
 	// Attenuation image for forward projection (when there is motion)
 	const Image* attImage;

@@ -97,14 +97,14 @@ void py_setup_histogram3d(pybind11::module& m)
 
 	auto c_owned =
 		py::class_<Histogram3DOwned, Histogram3D>(m, "Histogram3DOwned");
-	c_owned.def(py::init<Scanner*>());
-	c_owned.def(py::init<Scanner*, std::string>());
+	c_owned.def(py::init<const Scanner&>());
+	c_owned.def(py::init<const Scanner&, std::string>());
 	c_owned.def("readFromFile", &Histogram3DOwned::readFromFile);
 	c_owned.def("allocate", &Histogram3DOwned::allocate);
 
 	auto c_alias =
 		py::class_<Histogram3DAlias, Histogram3D>(m, "Histogram3DAlias");
-	c_alias.def(py::init<Scanner*>());
+	c_alias.def(py::init<const Scanner&>());
 	c_alias.def("bind", &Histogram3DAlias::bind, py::arg("array3dfloat"));
 	c_alias.def(
 		"bind",
@@ -139,23 +139,23 @@ void py_setup_histogram3d(pybind11::module& m)
 }
 #endif
 
-Histogram3D::Histogram3D(const Scanner* pp_scanner)
+Histogram3D::Histogram3D(const Scanner& pr_scanner)
 	: mp_data(nullptr),
-	  mp_scanner(pp_scanner)
+	  mr_scanner(pr_scanner)
 {
-	r_cut = mp_scanner->min_ang_diff / 2;
-	num_doi_poss = mp_scanner->num_doi * mp_scanner->num_doi;
+	r_cut = mr_scanner.min_ang_diff / 2;
+	num_doi_poss = mr_scanner.num_doi * mr_scanner.num_doi;
 
 	n_r = num_doi_poss *
-	      (mp_scanner->dets_per_ring / 2 + 1 - mp_scanner->min_ang_diff);
+	      (mr_scanner.dets_per_ring / 2 + 1 - mr_scanner.min_ang_diff);
 
-	n_phi = mp_scanner->dets_per_ring;
+	n_phi = mr_scanner.dets_per_ring;
 
-	size_t dz_max = mp_scanner->max_ring_diff;
+	size_t dz_max = mr_scanner.max_ring_diff;
 	n_z_bin =
-		(dz_max + 1) * mp_scanner->num_rings - (dz_max * (dz_max + 1)) / 2;
+		(dz_max + 1) * mr_scanner.num_rings - (dz_max * (dz_max + 1)) / 2;
 	// Number of z_bins that have z1 < z2
-	n_z_bin_diff = n_z_bin - mp_scanner->num_rings;
+	n_z_bin_diff = n_z_bin - mr_scanner.num_rings;
 	// Other side for if z1 > z2
 	n_z_bin = n_z_bin + n_z_bin_diff;
 	setupHistogram();
@@ -164,21 +164,21 @@ Histogram3D::Histogram3D(const Scanner* pp_scanner)
 
 Histogram3D::~Histogram3D() {}
 
-Histogram3DOwned::Histogram3DOwned(const Scanner* pp_scanner)
-	: Histogram3D(pp_scanner)
+Histogram3DOwned::Histogram3DOwned(const Scanner& pr_scanner)
+	: Histogram3D(pr_scanner)
 {
 	mp_data = std::make_unique<Array3D<float>>();
 }
 
-Histogram3DOwned::Histogram3DOwned(const Scanner* p_scanner,
+Histogram3DOwned::Histogram3DOwned(const Scanner& pr_scanner,
                                    const std::string& filename)
-	: Histogram3DOwned(p_scanner)
+	: Histogram3DOwned(pr_scanner)
 {
 	readFromFile(filename);
 }
 
-Histogram3DAlias::Histogram3DAlias(const Scanner* p_scanner)
-	: Histogram3D(p_scanner)
+Histogram3DAlias::Histogram3DAlias(const Scanner& pr_scanner)
+	: Histogram3D(pr_scanner)
 {
 	mp_data = std::make_unique<Array3DAlias<float>>();
 }
@@ -199,10 +199,10 @@ void Histogram3DOwned::readFromFile(const std::string& filename)
 	}
 }
 
-void Histogram3DAlias::bind(Array3DBase<float>& p_data)
+void Histogram3DAlias::bind(Array3DBase<float>& pr_data)
 {
-	static_cast<Array3DAlias<float>*>(mp_data.get())->bind(p_data);
-	if (mp_data->getRawPointer() != p_data.getRawPointer())
+	static_cast<Array3DAlias<float>*>(mp_data.get())->bind(pr_data);
+	if (mp_data->getRawPointer() != pr_data.getRawPointer())
 	{
 		throw std::runtime_error(
 			"Error occured in the binding of the given array");
@@ -270,12 +270,12 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 	getDetPairInSameRing(r_ring, phi, d1_ring, d2_ring);
 
 	coord_t doi_case = r % num_doi_poss;
-	coord_t doi_d1 = doi_case % mp_scanner->num_doi;
-	coord_t doi_d2 = doi_case / mp_scanner->num_doi;
+	coord_t doi_d1 = doi_case % mr_scanner.num_doi;
+	coord_t doi_d2 = doi_case / mr_scanner.num_doi;
 
 	// Determine delta Z and Z1
 	coord_t z1, z2;
-	if (z_bin < mp_scanner->num_rings)
+	if (z_bin < mr_scanner.num_rings)
 	{
 		z1 = z2 = z_bin;
 	}
@@ -283,9 +283,9 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 	{
 		// Regardless of if z1<z2 or z1>z2
 		int current_z_bin =
-			(((int)z_bin) - mp_scanner->num_rings) % n_z_bin_diff +
-			mp_scanner->num_rings;
-		int current_n_planes = mp_scanner->num_rings;
+			(((int)z_bin) - mr_scanner.num_rings) % n_z_bin_diff +
+			mr_scanner.num_rings;
+		int current_n_planes = mr_scanner.num_rings;
 		size_t delta_z = 0;
 		while (current_z_bin - current_n_planes >= 0)
 		{
@@ -296,16 +296,16 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 		z1 = current_z_bin;
 		z2 = z1 + delta_z;
 		// Check if i had to switch (z1>z2)
-		if (z_bin - mp_scanner->num_rings >= n_z_bin_diff)
+		if (z_bin - mr_scanner.num_rings >= n_z_bin_diff)
 		{
 			std::swap(z1, z2);
 		}
 	}
 
-	d1 = d1_ring + z1 * mp_scanner->dets_per_ring +
-	     doi_d1 * (mp_scanner->dets_per_ring * mp_scanner->num_rings);
-	d2 = d2_ring + z2 * mp_scanner->dets_per_ring +
-	     doi_d2 * (mp_scanner->dets_per_ring * mp_scanner->num_rings);
+	d1 = d1_ring + z1 * mr_scanner.dets_per_ring +
+	     doi_d1 * (mr_scanner.dets_per_ring * mr_scanner.num_rings);
+	d2 = d2_ring + z2 * mr_scanner.dets_per_ring +
+	     doi_d2 * (mr_scanner.dets_per_ring * mr_scanner.num_rings);
 }
 
 // Transpose
@@ -315,8 +315,8 @@ void Histogram3D::getCoordsFromDetPair(det_id_t d1, det_id_t d2, coord_t& r,
 	coord_t r_ring;
 	if (d1 > d2)
 		std::swap(d1, d2);
-	det_id_t d1_ring = d1 % (mp_scanner->dets_per_ring);
-	det_id_t d2_ring = d2 % (mp_scanner->dets_per_ring);
+	det_id_t d1_ring = d1 % (mr_scanner.dets_per_ring);
+	det_id_t d2_ring = d2 % (mr_scanner.dets_per_ring);
 	if (d1_ring > d2_ring)
 	{
 		std::swap(d1, d2);
@@ -324,19 +324,19 @@ void Histogram3D::getCoordsFromDetPair(det_id_t d1, det_id_t d2, coord_t& r,
 	}
 
 	getCoordsInSameRing(d1_ring, d2_ring, r_ring, phi);
-	det_id_t doi_d1 = d1 / (mp_scanner->num_rings * mp_scanner->dets_per_ring);
-	det_id_t doi_d2 = d2 / (mp_scanner->num_rings * mp_scanner->dets_per_ring);
+	det_id_t doi_d1 = d1 / (mr_scanner.num_rings * mr_scanner.dets_per_ring);
+	det_id_t doi_d2 = d2 / (mr_scanner.num_rings * mr_scanner.dets_per_ring);
 	if (d1_ring > d2_ring)
 		std::swap(doi_d1, doi_d2);
-	r = r_ring * num_doi_poss + (doi_d1 + doi_d2 * mp_scanner->num_doi);
+	r = r_ring * num_doi_poss + (doi_d1 + doi_d2 * mr_scanner.num_doi);
 
-	int z1 = (d1 / (mp_scanner->dets_per_ring)) % (mp_scanner->num_rings);
-	int z2 = (d2 / (mp_scanner->dets_per_ring)) % (mp_scanner->num_rings);
+	int z1 = (d1 / (mr_scanner.dets_per_ring)) % (mr_scanner.num_rings);
+	int z2 = (d2 / (mr_scanner.dets_per_ring)) % (mr_scanner.num_rings);
 
 	coord_t delta_z = static_cast<coord_t>(std::abs(z2 - z1));
 	coord_t num_removed_z_bins = delta_z * (delta_z - 1) / 2;
 	z_bin =
-		delta_z * mp_scanner->num_rings + std::min(z1, z2) - num_removed_z_bins;
+		delta_z * mr_scanner.num_rings + std::min(z1, z2) - num_removed_z_bins;
 	if (delta_z > 0 && z1 > z2)
 	{
 		z_bin += n_z_bin_diff; // switch
@@ -373,7 +373,7 @@ void Histogram3D::getDetPairInSameRing(coord_t r_ring, coord_t phi,
                                        det_id_t& d1_ring,
                                        det_id_t& d2_ring) const
 {
-	int n_tot_ring = mp_scanner->dets_per_ring;
+	int n_tot_ring = mr_scanner.dets_per_ring;
 	int r = r_ring; // for cleanness
 	int d01 = 0;
 	int d02 = n_tot_ring / 2;
@@ -473,7 +473,7 @@ det_pair_t Histogram3D::getDetectorPair(bin_t id) const
 
 void Histogram3D::get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const
 {
-	if (z_bin < mp_scanner->num_rings)
+	if (z_bin < mr_scanner.num_rings)
 	{
 		z1 = z2 = z_bin;
 	}
@@ -481,9 +481,9 @@ void Histogram3D::get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const
 	{
 		// Regardless of if z1<z2 or z1>z2
 		int current_z_bin =
-			(((int)z_bin) - mp_scanner->num_rings) % n_z_bin_diff +
-			mp_scanner->num_rings;
-		int current_n_planes = mp_scanner->num_rings;
+			(((int)z_bin) - mr_scanner.num_rings) % n_z_bin_diff +
+			mr_scanner.num_rings;
+		int current_n_planes = mr_scanner.num_rings;
 		size_t delta_z = 0;
 		while (current_z_bin - current_n_planes >= 0)
 		{
@@ -494,7 +494,7 @@ void Histogram3D::get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const
 		z1 = current_z_bin;
 		z2 = z1 + delta_z;
 		// Check if i had to switch (z1>z2)
-		if (z_bin - mp_scanner->num_rings >= n_z_bin_diff)
+		if (z_bin - mr_scanner.num_rings >= n_z_bin_diff)
 		{
 			std::swap(z1, z2);
 		}
@@ -546,7 +546,7 @@ std::unique_ptr<ProjectionData>
 	                         const Plugin::OptionsResult& pluginOptions)
 {
 	(void)pluginOptions; // No use for extra options
-	return std::make_unique<Histogram3DOwned>(&scanner, filename);
+	return std::make_unique<Histogram3DOwned>(scanner, filename);
 }
 
 Plugin::OptionsListPerPlugin Histogram3DOwned::getOptions()

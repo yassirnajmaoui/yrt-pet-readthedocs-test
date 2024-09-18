@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 	else
 	{
 		std::cout << "Preparing output Histogram3D..." << std::endl;
-		auto histoOut = std::make_unique<Histogram3DOwned>(scanner.get());
+		auto histoOut = std::make_unique<Histogram3DOwned>(*scanner);
 		histoOut->allocate();
 		histoOut->clearProjections(0.0f);
 		std::cout << "Done preparing output Histogram3D." << std::endl;

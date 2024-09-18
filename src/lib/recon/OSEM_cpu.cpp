@@ -12,8 +12,8 @@
 
 #include <utility>
 
-OSEM_cpu::OSEM_cpu(const Scanner* p_scanner)
-    : OSEM(p_scanner),
+OSEM_cpu::OSEM_cpu(const Scanner& pr_scanner)
+    : OSEM(pr_scanner),
       mp_tempSensImageBuffer(nullptr),
       mp_mlemImageTmp(nullptr),
       mp_datTmp(nullptr),

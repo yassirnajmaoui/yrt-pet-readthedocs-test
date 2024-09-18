@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		auto histo3DOut = std::make_unique<Histogram3DOwned>(scanner.get());
+		auto histo3DOut = std::make_unique<Histogram3DOwned>(*scanner);
 		histo3DOut->allocate();
 		histo3DOut->clearProjections(0.0f);
 		histoOut = std::move(histo3DOut);

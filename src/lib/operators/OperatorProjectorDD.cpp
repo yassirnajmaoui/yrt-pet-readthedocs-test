@@ -62,7 +62,7 @@ double OperatorProjectorDD::forwardProjection(const Image* img,
                                                 bin_t bin)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =
-	    Util::getProjectionProperties(*scanner, *dat, bin);
+	    Util::getProjectionProperties(scanner, *dat, bin);
 
 	// TODO: What to do with randomsEstimate ?
 
@@ -75,7 +75,7 @@ void OperatorProjectorDD::backProjection(Image* img,
                                            bin_t bin, double projValue)
 {
 	auto [lor, tofValue, randomsEstimate, n1, n2] =
-	    Util::getProjectionProperties(*scanner, *dat, bin);
+	    Util::getProjectionProperties(scanner, *dat, bin);
 
 	backProjection(img, lor, n1, n2, projValue, mp_tofHelper.get(), tofValue,
 	               mp_projPsfManager.get());
@@ -167,8 +167,8 @@ void OperatorProjectorDD::dd_project_ref(
 	const double d_norm = d1_minus_d2.getNorm();
 
 	// Scanner size
-	const float thickness_z = scanner->crystalSize_z;
-	const float thickness_trans = scanner->crystalSize_trans;
+	const float thickness_z = scanner.crystalSize_z;
+	const float thickness_trans = scanner.crystalSize_trans;
 
 	// PSF
 	float* psfKernel = nullptr;

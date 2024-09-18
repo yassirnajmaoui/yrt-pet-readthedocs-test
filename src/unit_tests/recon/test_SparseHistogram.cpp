@@ -53,7 +53,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 	SECTION("from-histogram3d")
 	{
-		auto histo = std::make_unique<Histogram3DOwned>(scanner.get());
+		auto histo = std::make_unique<Histogram3DOwned>(*scanner);
 		histo->allocate();
 		histo->clearProjections(1.0f);
 
@@ -70,7 +70,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 
 	SECTION("from-histogram3d-with-biniterator")
 	{
-		auto histo = std::make_unique<Histogram3DOwned>(scanner.get());
+		auto histo = std::make_unique<Histogram3DOwned>(*scanner);
 		histo->allocate();
 		auto binIter = histo->getBinIter(5, 2);
 

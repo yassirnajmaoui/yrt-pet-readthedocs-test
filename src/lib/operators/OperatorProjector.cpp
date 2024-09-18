@@ -31,8 +31,8 @@ void py_setup_operator(py::module& m)
 void py_setup_operatorprojectorparams(py::module& m)
 {
 	auto c =
-	    py::class_<OperatorProjectorParams>(m, "OperatorProjectorParams");
-	c.def(py::init<BinIterator*, Scanner*, float, int, const std::string&,
+		py::class_<OperatorProjectorParams>(m, "OperatorProjectorParams");
+	c.def(py::init<BinIterator*, Scanner&, float, int, const std::string&,
 	               int>(),
 	      py::arg("binIter"), py::arg("scanner"), py::arg("tofWidth_ps") = 0.f,
 	      py::arg("tofNumStd") = 0, py::arg("psfProjFilename") = "",
@@ -47,7 +47,7 @@ void py_setup_operatorprojectorparams(py::module& m)
 void py_setup_operatorprojectorbase(py::module& m)
 {
 	auto c = py::class_<OperatorProjectorBase, Operator>(
-	    m, "OperatorProjectorBase");
+		m, "OperatorProjectorBase");
 	c.def("setAddHisto", &OperatorProjectorBase::setAddHisto);
 	c.def("setAttenuationImage", &OperatorProjectorBase::setAttenuationImage);
 	c.def("setAttImage", &OperatorProjectorBase::setAttenuationImage);
@@ -61,51 +61,51 @@ void py_setup_operatorprojectorbase(py::module& m)
 void py_setup_operatorprojector(py::module& m)
 {
 	auto c = py::class_<OperatorProjector, OperatorProjectorBase>(
-	    m, "OperatorProjector");
+		m, "OperatorProjector");
 	c.def("setupTOFHelper", &OperatorProjector::setupTOFHelper);
 	c.def("getTOFHelper", &OperatorProjector::getTOFHelper);
 	c.def("getProjectionPsfManager",
 	      &OperatorProjector::getProjectionPsfManager);
 	c.def(
-	    "applyA",
-	    [](OperatorProjector& self, const Image* img, ProjectionData* proj)
-	    { self.applyA(img, proj); }, py::arg("img"), py::arg("proj"));
+		"applyA",
+		[](OperatorProjector& self, const Image* img, ProjectionData* proj)
+		{
+			self.applyA(img, proj);
+		}, py::arg("img"), py::arg("proj"));
 	c.def(
-	    "applyAH",
-	    [](OperatorProjector& self, const ProjectionData* proj, Image* img)
-	    { self.applyAH(proj, img); }, py::arg("proj"), py::arg("img"));
+		"applyAH",
+		[](OperatorProjector& self, const ProjectionData* proj, Image* img)
+		{
+			self.applyAH(proj, img);
+		}, py::arg("proj"), py::arg("img"));
 
 	py::enum_<OperatorProjector::ProjectorType>(c, "ProjectorType")
-	    .value("SIDDON", OperatorProjector::ProjectorType::SIDDON)
-	    .value("DD", OperatorProjector::ProjectorType::DD)
-	    .value("DD_GPU", OperatorProjector::ProjectorType::DD_GPU)
-	    .export_values();
+		.value("SIDDON", OperatorProjector::ProjectorType::SIDDON)
+		.value("DD", OperatorProjector::ProjectorType::DD)
+		.value("DD_GPU", OperatorProjector::ProjectorType::DD_GPU)
+		.export_values();
 }
 
 #endif
 
 OperatorProjectorParams::OperatorProjectorParams(
-    const BinIterator* p_binIter, const Scanner* p_scanner,
-    float p_tofWidth_ps, int p_tofNumStd, std::string p_psfProjFilename,
-    int p_num_rays)
-    : binIter(p_binIter),
-      scanner(p_scanner),
-      tofWidth_ps(p_tofWidth_ps),
-      tofNumStd(p_tofNumStd),
-      psfProjFilename(std::move(p_psfProjFilename)),
-      numRays(p_num_rays)
-{
-}
+	const BinIterator* pp_binIter, const Scanner& pr_scanner,
+	float p_tofWidth_ps, int p_tofNumStd, std::string p_psfProjFilename,
+	int p_num_rays)
+	: binIter(pp_binIter),
+	  scanner(pr_scanner),
+	  tofWidth_ps(p_tofWidth_ps),
+	  tofNumStd(p_tofNumStd),
+	  psfProjFilename(std::move(p_psfProjFilename)),
+	  numRays(p_num_rays) {}
 
 OperatorProjectorBase::OperatorProjectorBase(
-    const OperatorProjectorParams& p_projParams)
-    : binIter(p_projParams.binIter),
-      scanner(p_projParams.scanner),
-      attImage(nullptr),
-      attImageForBackprojection(nullptr),
-      addHisto(nullptr)
-{
-}
+	const OperatorProjectorParams& p_projParams)
+	: scanner(p_projParams.scanner),
+	  binIter(p_projParams.binIter),
+	  attImage(nullptr),
+	  attImageForBackprojection(nullptr),
+	  addHisto(nullptr) {}
 
 void OperatorProjectorBase::setAddHisto(const Histogram* p_addHisto)
 {
@@ -126,7 +126,7 @@ void OperatorProjectorBase::setAttenuationImage(const Image* p_attImage)
 }
 
 void OperatorProjectorBase::setAttImageForBackprojection(
-    const Image* p_attImage)
+	const Image* p_attImage)
 {
 	attImageForBackprojection = p_attImage;
 }
@@ -144,7 +144,7 @@ const BinIterator* OperatorProjectorBase::getBinIter() const
 	return binIter;
 }
 
-const Scanner* OperatorProjectorBase::getScanner() const
+const Scanner& OperatorProjectorBase::getScanner() const
 {
 	return scanner;
 }
@@ -165,10 +165,10 @@ const Histogram* OperatorProjectorBase::getAddHisto() const
 }
 
 OperatorProjector::OperatorProjector(
-    const OperatorProjectorParams& p_projParams)
-    : OperatorProjectorBase(p_projParams),
-      mp_tofHelper(nullptr),
-      mp_projPsfManager(nullptr)
+	const OperatorProjectorParams& p_projParams)
+	: OperatorProjectorBase(p_projParams),
+	  mp_tofHelper(nullptr),
+	  mp_projPsfManager(nullptr)
 {
 	if (p_projParams.tofWidth_ps > 0.f)
 	{
@@ -179,8 +179,8 @@ OperatorProjector::OperatorProjector(
 		setupProjPsfManager(p_projParams.psfProjFilename);
 	}
 	ASSERT_MSG_WARNING(
-	    mp_projPsfManager == nullptr,
-	    "Siddon does not support Projection space PSF. It will be ignored.");
+		mp_projPsfManager == nullptr,
+		"Siddon does not support Projection space PSF. It will be ignored.");
 }
 
 void OperatorProjector::applyA(const Variable* in, Variable* out)
@@ -203,7 +203,7 @@ void OperatorProjector::applyA(const Variable* in, Variable* out)
 			// Multiplicative attenuation correction (for motion)
 			const double attProj = forwardProjection(attImage, dat, bin);
 			const double attProj_coeff =
-			    Util::getAttenuationCoefficientFactor(attProj);
+				Util::getAttenuationCoefficientFactor(attProj);
 			imProj *= attProj_coeff;
 		}
 
@@ -238,9 +238,9 @@ void OperatorProjector::applyAH(const Variable* in, Variable* out)
 		{
 			// Multiplicative attenuation correction
 			const double attProj =
-			    forwardProjection(attImageForBackprojection, dat, bin);
+				forwardProjection(attImageForBackprojection, dat, bin);
 			const double attProj_coeff =
-			    Util::getAttenuationCoefficientFactor(attProj);
+				Util::getAttenuationCoefficientFactor(attProj);
 			projValue *= attProj_coeff;
 		}
 
@@ -251,7 +251,7 @@ void OperatorProjector::applyAH(const Variable* in, Variable* out)
 void OperatorProjector::setupTOFHelper(float tofWidth_ps, int tofNumStd)
 {
 	mp_tofHelper =
-	    std::make_unique<TimeOfFlightHelper>(tofWidth_ps, tofNumStd);
+		std::make_unique<TimeOfFlightHelper>(tofWidth_ps, tofNumStd);
 	ASSERT_MSG(mp_tofHelper != nullptr,
 	           "Error occured during the setup of TimeOfFlightHelper");
 }
@@ -269,13 +269,13 @@ const TimeOfFlightHelper* OperatorProjector::getTOFHelper() const
 }
 
 const ProjectionPsfManager*
-    OperatorProjector::getProjectionPsfManager() const
+OperatorProjector::getProjectionPsfManager() const
 {
 	return mp_projPsfManager.get();
 }
 
 void OperatorProjector::get_alpha(double r0, double r1, double p1, double p2,
-                                    double inv_p12, double& amin, double& amax)
+                                  double inv_p12, double& amin, double& amax)
 {
 	amin = 0.0;
 	amax = 1.0;

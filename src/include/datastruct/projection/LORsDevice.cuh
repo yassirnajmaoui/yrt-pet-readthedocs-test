@@ -18,8 +18,8 @@ class ImageParams;
 class LORsDevice
 {
 public:
-	LORsDevice(std::shared_ptr<ScannerDevice> pp_scannerDevice);
-	LORsDevice(const Scanner* pp_scanner);
+	explicit LORsDevice(std::shared_ptr<ScannerDevice> pp_scannerDevice);
+	explicit LORsDevice(const Scanner& pr_scanner);
 
 	// Load the events' detector ids from a specific subset&batch id
 	void loadEventLORs(const BinIterator& binIter,
@@ -29,7 +29,7 @@ public:
 	                   const cudaStream_t* stream = nullptr);
 
 	std::shared_ptr<ScannerDevice> getScannerDevice() const;
-	const Scanner* getScanner() const;
+	const Scanner& getScanner() const;
 
 	// Gets the size of the last-loaded batch
 	size_t getLoadedBatchSize() const;

@@ -23,13 +23,13 @@ LORsDevice::LORsDevice(std::shared_ptr<ScannerDevice> pp_scannerDevice)
 	initializeDeviceArrays();
 }
 
-LORsDevice::LORsDevice(const Scanner* pp_scanner)
+LORsDevice::LORsDevice(const Scanner& pr_scanner)
     : m_areLORsGathered(false),
       m_loadedBatchSize(0ull),
       m_loadedBatchId(0ull),
       m_loadedSubsetId(0ull)
 {
-	mp_scannerDevice = std::make_shared<ScannerDevice>(pp_scanner);
+	mp_scannerDevice = std::make_shared<ScannerDevice>(pr_scanner);
 	initializeDeviceArrays();
 }
 
@@ -65,7 +65,7 @@ void LORsDevice::loadEventLORs(const BinIterator& binIter,
 	auto* binIter_ptr = &binIter;
 	const Vector3D offsetVec{imgParams.off_x, imgParams.off_y,
 	                            imgParams.off_z};
-	const Scanner* scanner = getScanner();
+	const Scanner* scanner = &getScanner();
 	const ProjectionData* reference_ptr = &reference;
 
 	bin_t binId;
@@ -82,7 +82,6 @@ void LORsDevice::loadEventLORs(const BinIterator& binIter,
 		    Util::getProjectionProperties(*scanner, *reference_ptr, binId);
 
 		// TODO: What to do with randoms estimate?
-		// TODO: store TOF value
 
 		lor.point1 = lor.point1 - offsetVec;
 		lor.point2 = lor.point2 - offsetVec;
@@ -153,7 +152,7 @@ std::shared_ptr<ScannerDevice> LORsDevice::getScannerDevice() const
 	return mp_scannerDevice;
 }
 
-const Scanner* LORsDevice::getScanner() const
+const Scanner& LORsDevice::getScanner() const
 {
 	return mp_scannerDevice->getScanner();
 }

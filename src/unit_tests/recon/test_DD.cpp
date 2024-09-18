@@ -40,7 +40,7 @@ double get_rmse(const Image* img_ref, const Image* img)
 	return rmse;
 }
 
-void dd(const Scanner* scanner, ListMode* proj,
+void dd(const Scanner& scanner, ListMode* proj,
         std::unique_ptr<Image>& out, const bool flag_cuda)
 {
 	const auto osem = Util::createOSEM(scanner, flag_cuda);
@@ -137,12 +137,12 @@ TEST_CASE("DD", "[dd]")
 	ImageUniquePTR img_cpu = std::make_unique<ImageOwned>(img_params);
 	toOwned(img_cpu)->allocate();
 	img_cpu->setValue(0.0);
-	dd(scanner.get(), data.get(), img_cpu, false);
+	dd(*scanner, data.get(), img_cpu, false);
 
 	ImageUniquePTR img_gpu = std::make_unique<ImageOwned>(img_params);
 	toOwned(img_gpu)->allocate();
 	img_gpu->setValue(0.0);
-	dd(scanner.get(), data.get(), img_gpu, true);
+	dd(*scanner, data.get(), img_gpu, true);
 
 	const double rmseCpuGpu = get_rmse(img_gpu.get(), img_cpu.get());
 

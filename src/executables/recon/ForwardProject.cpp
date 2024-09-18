@@ -131,19 +131,19 @@ int main(int argc, char** argv)
 	}
 
 	// Create histo here
-	auto his = std::make_unique<Histogram3DOwned>(scanner.get());
+	auto his = std::make_unique<Histogram3DOwned>(*scanner);
 	his->allocate();
 
 
 	// Start forward projection
 	auto binIter = his->getBinIter(numSubsets, subsetId);
-	OperatorProjectorParams projParams(binIter.get(), scanner.get(),
+	OperatorProjectorParams projParams(binIter.get(), *scanner,
 	                                     tofWidth_ps, tofNumStd,
 	                                     projSpacePsf_fname, numRays);
 
 	auto projectorType = IO::getProjector(projector_name);
 
-	Util::forwProject(inputImage.get(), his.get(), projParams, projectorType,
+	Util::forwProject(*inputImage, *his, projParams, projectorType,
 	                  attImg.get(), nullptr);
 
 	if (convertToAcf)

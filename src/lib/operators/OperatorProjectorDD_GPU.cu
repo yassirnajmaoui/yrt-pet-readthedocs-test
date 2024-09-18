@@ -321,7 +321,7 @@ void OperatorProjectorDD_GPU::applyOnLoadedBatch(ProjectionDataDevice* dat,
                                                    ImageDevice* img)
 {
 	setBatchSize(dat->getCurrentBatchSize());
-	const auto cuScannerParams = getCUScannerParams(*getScanner());
+	const auto cuScannerParams = getCUScannerParams(getScanner());
 	const auto cuImageParams = getCUImageParams(img->getParams());
 	const TimeOfFlightHelper* tofHelperDevicePointer =
 	    getTOFHelperDevicePointer();

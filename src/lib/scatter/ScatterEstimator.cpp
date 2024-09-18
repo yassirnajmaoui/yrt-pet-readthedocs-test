@@ -66,7 +66,7 @@ namespace Scatter
 		m_saveIntermediary = saveIntermediary;
 
 		// Initialize buffers
-		mp_scatterHisto = std::make_unique<Histogram3DOwned>(&mr_scanner);
+		mp_scatterHisto = std::make_unique<Histogram3DOwned>(mr_scanner);
 		mp_scatterHisto->allocate();
 		mp_scatterHisto->clearProjections();
 	}
@@ -142,7 +142,7 @@ namespace Scatter
 
 	void ScatterEstimator::saveScatterTailsMask()
 	{
-		const auto tmpHisto = std::make_unique<Histogram3DOwned>(&mr_scanner);
+		const auto tmpHisto = std::make_unique<Histogram3DOwned>(mr_scanner);
 		tmpHisto->allocate();
 		tmpHisto->operationOnEachBinParallel(
 			[this](bin_t bin) -> float
