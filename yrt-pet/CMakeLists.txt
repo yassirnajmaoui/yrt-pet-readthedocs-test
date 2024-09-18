@@ -222,7 +222,7 @@ if (BUILD_PYBIND11)
 endif (BUILD_PYBIND11)
 
 # # Targets
-add_subdirectory(lib)
+add_subdirectory(src)
 add_subdirectory(executables)
 
 # # Build plugins

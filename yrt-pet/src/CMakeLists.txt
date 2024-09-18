@@ -1,4 +1,4 @@
-project(lib)
+project(src)
 
 # List source files explicitly
 set(SOURCES
