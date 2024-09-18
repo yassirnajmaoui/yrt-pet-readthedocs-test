@@ -63,55 +63,53 @@ void py_setup_imageparams(py::module& m)
 	c.def("serialize", &ImageParams::serialize);
 
 	c.def(py::pickle(
-	    [](const ImageParams& g)
-	    {
-		    nlohmann::json geom_json;
-		    g.writeToJSON(geom_json);
-		    std::stringstream oss;
-		    oss << geom_json;
-		    return oss.str();
-	    },
-	    [](const std::string& s)
-	    {
-		    nlohmann::json geom_json;
-		    geom_json = json::parse(s);
-		    ImageParams g;
-		    g.readFromJSON(geom_json);
-		    return g;
-	    }));
+		[](const ImageParams& g)
+		{
+			nlohmann::json geom_json;
+			g.writeToJSON(geom_json);
+			std::stringstream oss;
+			oss << geom_json;
+			return oss.str();
+		},
+		[](const std::string& s)
+		{
+			nlohmann::json geom_json;
+			geom_json = json::parse(s);
+			ImageParams g;
+			g.readFromJSON(geom_json);
+			return g;
+		}));
 }
 #endif
 
 
 ImageParams::ImageParams()
-    : nx(-1),
-      ny(-1),
-      nz(-1),
-      length_x(-1.0),
-      length_y(-1.0),
-      length_z(-1.0),
-      off_x(0.0),
-      off_y(0.0),
-      off_z(0.0),
-      vx(-1.0),
-      vy(-1.0),
-      vz(-1.0)
-{
-}
+	: nx(-1),
+	  ny(-1),
+	  nz(-1),
+	  length_x(-1.0),
+	  length_y(-1.0),
+	  length_z(-1.0),
+	  off_x(0.0),
+	  off_y(0.0),
+	  off_z(0.0),
+	  vx(-1.0),
+	  vy(-1.0),
+	  vz(-1.0) {}
 
 ImageParams::ImageParams(int nxi, int nyi, int nzi, double length_xi,
-                             double length_yi, double length_zi,
-                             double offset_xi, double offset_yi,
-                             double offset_zi)
-    : nx(nxi),
-      ny(nyi),
-      nz(nzi),
-      length_x(length_xi),
-      length_y(length_yi),
-      length_z(length_zi),
-      off_x(offset_xi),
-      off_y(offset_yi),
-      off_z(offset_zi)
+                         double length_yi, double length_zi,
+                         double offset_xi, double offset_yi,
+                         double offset_zi)
+	: nx(nxi),
+	  ny(nyi),
+	  nz(nzi),
+	  length_x(length_xi),
+	  length_y(length_yi),
+	  length_z(length_zi),
+	  off_x(offset_xi),
+	  off_y(offset_yi),
+	  off_z(offset_zi)
 {
 	setup();
 }
@@ -165,7 +163,7 @@ void ImageParams::serialize(const std::string& fname) const
 
 void ImageParams::writeToJSON(json& geom_json) const
 {
-	geom_json["GCIMAGEPARAMS_FILE_VERSION"] = GCIMAGEPARAMS_FILE_VERSION;
+	geom_json["IMAGEPARAMS_FILE_VERSION"] = IMAGEPARAMS_FILE_VERSION;
 	geom_json["nx"] = nx;
 	geom_json["ny"] = ny;
 	geom_json["nz"] = nz;
@@ -191,9 +189,24 @@ void ImageParams::deserialize(const std::string& fname)
 
 void ImageParams::readFromJSON(json& geom_json)
 {
-	if (geom_json["GCIMAGEPARAMS_FILE_VERSION"] != GCIMAGEPARAMS_FILE_VERSION)
+	float version = -1.0f;
+	auto imgVersionAccessor = geom_json.find("IMAGEPARAMS_FILE_VERSION");
+	if (imgVersionAccessor == geom_json.end())
 	{
-		throw std::logic_error("Error in ImageParams file version");
+		// Backwards compatibility
+		imgVersionAccessor = geom_json.find("GCIMAGEPARAMS_FILE_VERSION");
+		if (imgVersionAccessor == geom_json.end())
+		{
+			throw std::logic_error(
+				"Error in ImageParams file version : Version unspecified");
+		}
+	}
+	version = *imgVersionAccessor;
+	if (version > IMAGEPARAMS_FILE_VERSION)
+	{
+		throw std::logic_error(
+			"Error in ImageParams file version : Wrong version. Current version: "
+			+ std::to_string(IMAGEPARAMS_FILE_VERSION));
 	}
 	nx = geom_json["nx"].get<int>();
 	ny = geom_json["ny"].get<int>();
@@ -239,9 +252,8 @@ bool ImageParams::isSameAs(const ImageParams& other) const
 	       isSameOffsetsAs(other);
 }
 
-ImageBase::ImageBase(const ImageParams& img_params) : m_params(img_params)
-{
-}
+ImageBase::ImageBase(const ImageParams& img_params)
+	: m_params(img_params) {}
 
 const ImageParams& ImageBase::getParams() const
 {
