@@ -21,14 +21,14 @@ void py_setup_scatterestimator(py::module& m)
 {
 	auto c = py::class_<Scatter::ScatterEstimator>(m, "ScatterEstimator");
 	c.def(
-	    py::init<const Scanner&, const Image&, const Image&,
-	             const Histogram3D*, const Histogram3D*,
-	             const Histogram3D*, const Histogram3D*,
-	             Scatter::CrystalMaterial, int, bool, bool, int, float, bool>(),
-	    "scanner"_a, "source_image"_a, "attenuation_image"_a, "prompts_his"_a,
-	    "norm_or_sens_his"_a, "randoms_his"_a, "acf_his"_a,
-	    "crystal_material"_a, "seed"_a, "do_tail_fitting"_a, "is_norm"_a,
-	    "mask_width"_a, "mask_threshold"_a, "save_intermediary"_a);
+		py::init<const Scanner&, const Image&, const Image&,
+		         const Histogram3D*, const Histogram3D*,
+		         const Histogram3D*, const Histogram3D*,
+		         Scatter::CrystalMaterial, int, bool, bool, int, float, bool>(),
+		"scanner"_a, "source_image"_a, "attenuation_image"_a, "prompts_his"_a,
+		"norm_or_sens_his"_a, "randoms_his"_a, "acf_his"_a,
+		"crystal_material"_a, "seed"_a, "do_tail_fitting"_a, "is_norm"_a,
+		"mask_width"_a, "mask_threshold"_a, "save_intermediary"_a);
 	c.def("estimateScatter", &Scatter::ScatterEstimator::estimateScatter,
 	      "num_z"_a, "num_phi"_a, "num_r"_a, "print_progress"_a = false);
 	c.def("getScatterHistogram",
@@ -39,14 +39,14 @@ void py_setup_scatterestimator(py::module& m)
 namespace Scatter
 {
 	ScatterEstimator::ScatterEstimator(
-	    const Scanner& pr_scanner, const Image& pr_lambda,
-	    const Image& pr_mu, const Histogram3D* pp_promptsHis,
-	    const Histogram3D* pp_normOrSensHis,
-	    const Histogram3D* pp_randomsHis, const Histogram3D* pp_acfHis,
-	    CrystalMaterial p_crystalMaterial, int seedi, bool p_doTailFitting,
-	    bool isNorm, int maskWidth, float maskThreshold, bool saveIntermediary)
-	    : mr_scanner(pr_scanner),
-	      m_sss(pr_scanner, pr_mu, pr_lambda, p_crystalMaterial, seedi)
+		const Scanner& pr_scanner, const Image& pr_lambda,
+		const Image& pr_mu, const Histogram3D* pp_promptsHis,
+		const Histogram3D* pp_normOrSensHis,
+		const Histogram3D* pp_randomsHis, const Histogram3D* pp_acfHis,
+		CrystalMaterial p_crystalMaterial, int seedi, bool p_doTailFitting,
+		bool isNorm, int maskWidth, float maskThreshold, bool saveIntermediary)
+		: mr_scanner(pr_scanner),
+		  m_sss(pr_scanner, pr_mu, pr_lambda, p_crystalMaterial, seedi)
 	{
 		mp_promptsHis = pp_promptsHis;
 		mp_normOrSensHis = pp_normOrSensHis;
@@ -72,7 +72,7 @@ namespace Scatter
 	}
 
 	void ScatterEstimator::estimateScatter(size_t numberZ, size_t numberPhi,
-	                                         size_t numberR, bool printProgress)
+	                                       size_t numberR, bool printProgress)
 	{
 		m_sss.runSSS(numberZ, numberPhi, numberR, *mp_scatterHisto,
 		             printProgress);
@@ -100,14 +100,14 @@ namespace Scatter
 				{
 					prompt += (mp_promptsHis->getProjectionValue(bin) -
 					           mp_randomsHis->getProjectionValue(bin)) *
-					          mp_normOrSensHis->getProjectionValue(bin);
+						mp_normOrSensHis->getProjectionValue(bin);
 				}
 				else
 				{
 					prompt +=
-					    (mp_promptsHis->getProjectionValue(bin) -
-					     mp_randomsHis->getProjectionValue(bin)) /
-					    (mp_normOrSensHis->getProjectionValue(bin) + EPS_FLT);
+						(mp_promptsHis->getProjectionValue(bin) -
+						 mp_randomsHis->getProjectionValue(bin)) /
+						(mp_normOrSensHis->getProjectionValue(bin) + EPS_FLT);
 				}
 			}
 			const float fac = prompt / scat;
@@ -145,15 +145,17 @@ namespace Scatter
 		const auto tmpHisto = std::make_unique<Histogram3DOwned>(&mr_scanner);
 		tmpHisto->allocate();
 		tmpHisto->operationOnEachBinParallel(
-		    [this](bin_t bin) -> float
-		    { return m_scatterTailsMask[bin] ? 1.0 : 0.0; });
+			[this](bin_t bin) -> float
+			{
+				return m_scatterTailsMask[bin] ? 1.0 : 0.0;
+			});
 		tmpHisto->writeToFile("intermediary_scatterTailsMask.his");
 	}
 
 
 	void ScatterEstimator::generateScatterTailsMask(
-	    const Histogram3D& acfHis, std::vector<bool>& mask, size_t maskWidth,
-	    float maskThreshold)
+		const Histogram3D& acfHis, std::vector<bool>& mask, size_t maskWidth,
+		float maskThreshold)
 	{
 		const size_t numBins = acfHis.count();
 		mask.resize(numBins);
@@ -171,7 +173,7 @@ namespace Scatter
 			for (size_t phi = 0; phi < acfHis.n_phi; phi++)
 			{
 				const size_t initRowBinId =
-				    acfHis.getBinIdFromCoords(0, phi, zBin);
+					acfHis.getBinIdFromCoords(0, phi, zBin);
 
 				// Process beginning of the mask
 				for (size_t r = 0; r < acfHis.n_r; r++)
@@ -193,23 +195,22 @@ namespace Scatter
 					}
 				}
 
-				// TODO debug this
 				// Process end of the mask
 				for (long r = acfHis.n_r - 1; r >= 0; r--)
 				{
 					const bin_t binId = initRowBinId + r;
 					if (mask[binId] == false)
 					{
-						if (r > static_cast<long>(acfHis.n_r - maskWidth))
+						if (r < static_cast<long>(acfHis.n_r - maskWidth))
 						{
 							// Put zeros from the beginning of the row to the
 							// current position minus the width of the mask
-							for (long newBinId = acfHis.n_r - 1;
-							     newBinId >=
-							     static_cast<long>(binId + maskWidth);
-							     newBinId--)
+							for (long newR = acfHis.n_r - 1;
+							     newR >=
+							     static_cast<long>(r + maskWidth);
+							     newR--)
 							{
-								mask[newBinId] = false;
+								mask[newR + initRowBinId] = false;
 							}
 						}
 						break;
@@ -219,4 +220,4 @@ namespace Scatter
 		}
 	}
 
-}  // namespace Scatter
+} // namespace Scatter
