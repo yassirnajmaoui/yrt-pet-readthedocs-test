@@ -5,6 +5,7 @@
 
 #include "datastruct/image/ImageBase.hpp"
 #include "geometry/Constants.hpp"
+#include "utils/JSONUtils.hpp"
 
 #include "nlohmann/json.hpp"
 #include <fstream>
@@ -61,6 +62,7 @@ void py_setup_imageparams(py::module& m)
 
 	c.def("setup", &ImageParams::setup);
 	c.def("serialize", &ImageParams::serialize);
+	c.def("deserialize", &ImageParams::deserialize);
 
 	c.def(py::pickle(
 		[](const ImageParams& g)
@@ -146,11 +148,11 @@ ImageParams::ImageParams(const std::string& fname)
 
 void ImageParams::setup()
 {
-	vx = length_x / (double)nx;
-	vy = length_y / (double)ny;
-	vz = length_z / (double)nz;
-	fov_radius = (float)(std::max(length_x / 2, length_y / 2));
-	fov_radius -= (float)(std::max(vx, vy) / 1000);
+	vx = length_x / static_cast<double>(nx);
+	vy = length_y / static_cast<double>(ny);
+	vz = length_z / static_cast<double>(nz);
+	fov_radius = static_cast<float>(std::max(length_x / 2, length_y / 2));
+	fov_radius -= static_cast<float>(std::max(vx, vy) / 1000);
 }
 
 void ImageParams::serialize(const std::string& fname) const
@@ -161,64 +163,99 @@ void ImageParams::serialize(const std::string& fname) const
 	output << geom_json << std::endl;
 }
 
-void ImageParams::writeToJSON(json& geom_json) const
+void ImageParams::writeToJSON(json& j) const
 {
-	geom_json["VERSION"] = IMAGEPARAMS_FILE_VERSION;
-	geom_json["nx"] = nx;
-	geom_json["ny"] = ny;
-	geom_json["nz"] = nz;
-	geom_json["length_x"] = length_x;
-	geom_json["length_y"] = length_y;
-	geom_json["length_z"] = length_z;
-	geom_json["off_x"] = off_x;
-	geom_json["off_y"] = off_y;
-	geom_json["off_z"] = off_z;
+	j["VERSION"] = IMAGEPARAMS_FILE_VERSION;
+	j["nx"] = nx;
+	j["ny"] = ny;
+	j["nz"] = nz;
+	j["length_x"] = length_x;
+	j["length_y"] = length_y;
+	j["length_z"] = length_z;
+	j["off_x"] = off_x;
+	j["off_y"] = off_y;
+	j["off_z"] = off_z;
 }
 
 void ImageParams::deserialize(const std::string& fname)
 {
-	std::ifstream json_file(fname);
-	if (!json_file.is_open())
+	std::ifstream ifs(fname);
+	if (!ifs.is_open())
 	{
 		throw std::runtime_error("Error opening ImageParams file: " + fname);
 	}
-	json geom_json;
-	json_file >> geom_json;
-	readFromJSON(geom_json);
+	auto ss = std::ostringstream{};
+	ss << ifs.rdbuf();
+	std::string fileContents = ss.str();
+	json j;
+	try
+	{
+		j = json::parse(fileContents);
+	}
+	catch (json::exception& e)
+	{
+		throw std::invalid_argument("Error in ImageParams JSON file parsing");
+	}
+	readFromJSON(j);
 }
 
-void ImageParams::readFromJSON(json& geom_json)
+void ImageParams::readFromJSON(json& j)
 {
-	float version = -1.0f;
-	auto imgVersionAccessor = geom_json.find("VERSION");
-	if (imgVersionAccessor == geom_json.end())
-	{
-		// Backwards compatibility
-		imgVersionAccessor = geom_json.find("GCIMAGEPARAMS_FILE_VERSION");
-		if (imgVersionAccessor == geom_json.end())
-		{
-			throw std::logic_error(
-				"Error in ImageParams file version : Version unspecified");
-		}
-	}
-	version = *imgVersionAccessor;
-	if (version > IMAGEPARAMS_FILE_VERSION)
+	float version;
+
+	Util::getParam<float>(&j, &version,
+	                      {"VERSION", "GCIMAGEPARAMS_FILE_VERSION"}, -1.0, true,
+	                      "Error in ImageParams file version : Version unspecified");
+
+	if (version > IMAGEPARAMS_FILE_VERSION + SMALL_FLT)
 	{
 		throw std::logic_error(
 			"Error in ImageParams file version : Wrong version. Current version: "
-			+ std::to_string(IMAGEPARAMS_FILE_VERSION));
+			+ std::to_string(IMAGEPARAMS_FILE_VERSION) + ", Given version: " +
+			std::to_string(version));
 	}
-	nx = geom_json["nx"].get<int>();
-	ny = geom_json["ny"].get<int>();
-	nz = geom_json["nz"].get<int>();
-	// TODO: Add possibility to provide "vx"
-	length_x = geom_json["length_x"].get<double>();
-	length_y = geom_json["length_y"].get<double>();
-	length_z = geom_json["length_z"].get<double>();
-	off_x = geom_json.value("off_x", 0.0);
-	off_y = geom_json.value("off_y", 0.0);
-	off_z = geom_json.value("off_z", 0.0);
+
+	Util::getParam<int>(&j, &nx,
+	                    "nx", 0, true,
+	                    "Error in ImageParams file version : \'nx\' unspecified");
+
+	Util::getParam<int>(&j, &ny,
+	                    "ny", 0, true,
+	                    "Error in ImageParams file version : \'ny\' unspecified");
+
+	Util::getParam<int>(&j, &nz,
+	                    "nz", 0, true,
+	                    "Error in ImageParams file version : \'nz\' unspecified");
+
+	Util::getParam<double>(&j, &off_x,
+	                       {"off_x", "offset_x"}, 0.0, false);
+
+	Util::getParam<double>(&j, &off_y,
+	                       {"off_y", "offset_y"}, 0.0, false);
+
+	Util::getParam<double>(&j, &off_z,
+	                       {"off_z", "offset_z"}, 0.0, false);
+
+	length_x = readLengthFromJSON(j, "length_x", "vx", nx);
+	length_y = readLengthFromJSON(j, "length_y", "vy", ny);
+	length_z = readLengthFromJSON(j, "length_z", "vz", nz);
+
 	setup();
+}
+
+double ImageParams::readLengthFromJSON(nlohmann::json& j,
+                                       const std::string& length_name,
+                                       const std::string& v_name, int n)
+{
+	double given_v;
+	if (!Util::getParam<double>(&j, &given_v, v_name, -1.0, false))
+	{
+		double length;
+		Util::getParam<double>(&j, &length, length_name, -1.0, true,
+		                       "You need to specify either the voxel size (vx, vy or vz) or the length (length_x, length_y or length_z) for all three dimensions.");
+		return length;
+	}
+	return given_v * n;
 }
 
 bool ImageParams::isValid() const

@@ -10,7 +10,7 @@
 #include "nlohmann/json_fwd.hpp"
 #include <string>
 
-#define IMAGEPARAMS_FILE_VERSION 1.0
+#define IMAGEPARAMS_FILE_VERSION 1.1
 
 class ImageParams
 {
@@ -44,10 +44,13 @@ public:
     void copy(const ImageParams& in);
     void setup();
     void serialize(const std::string& fname) const;
-    void writeToJSON(nlohmann::json& geom_json) const;
+    void writeToJSON(nlohmann::json& j) const;
     void deserialize(const std::string& fname);
-    void readFromJSON(nlohmann::json& geom_json);
+    void readFromJSON(nlohmann::json& j);
     bool isValid() const;
+
+private:
+    static double readLengthFromJSON(nlohmann::json& j, const std::string& length_name, const std::string& v_name, int n);
 };
 
 class ImageBase : public Variable

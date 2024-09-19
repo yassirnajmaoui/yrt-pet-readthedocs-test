@@ -228,6 +228,6 @@ void ScannerOwned::readFromFile(const std::string& p_definitionFile)
 	std::ifstream i(m_scannerPath.string());
 	auto ss = std::ostringstream{};
 	ss << i.rdbuf();
-	std::string file_contents = ss.str();
-	readFromString(file_contents);
+	std::string fileContents = ss.str();
+	readFromString(fileContents);
 }
