@@ -84,7 +84,7 @@ namespace Scatter
 
 		int seed = std::abs(seedi); // YP random seed
 		int init = -1;
-		Ran1(&init);
+		ran1(&init);
 		m_numSamples = 0;
 
 		// Generate scatter points:
@@ -130,9 +130,9 @@ namespace Scatter
 					const double x =
 						i / (static_cast<double>(nxsamp)) * mu_params.length_x -
 						mu_params.length_x / 2 + mu_params.vx / 2.0;
-					const double x2 = Ran1(&seed) * dxsamp + x;
-					const double y2 = Ran1(&seed) * dysamp + y;
-					const double z2 = Ran1(&seed) * dzsamp + z;
+					const double x2 = ran1(&seed) * dxsamp + x;
+					const double y2 = ran1(&seed) * dysamp + y;
+					const double z2 = ran1(&seed) * dzsamp + z;
 					// YP generate a random scatter poitn within its cell
 					p.update(x2, y2, z2);
 					if (mr_mu.nearest_neigh(p) > 0.005)
@@ -382,7 +382,7 @@ namespace Scatter
 
 			// get scatter values:
 			vatt = mr_mu.nearest_neigh(ps);
-			dsigcompdomega = GetKleinNishina(cosa);
+			dsigcompdomega = getKleinNishina(cosa);
 
 			// compute I1 and I2:
 			att_s_1_511 = OperatorProjectorSiddon::singleForwardProjection(
@@ -484,7 +484,7 @@ namespace Scatter
 		return m_numSamples;
 	}
 
-	double SingleScatterSimulator::Ran1(int* idum)
+	double SingleScatterSimulator::ran1(int* idum)
 	{
 		int j, k;
 		static int iy = 0;
@@ -582,7 +582,7 @@ namespace Scatter
 
 	// This is the differential KN formula up to a proportionality constant for
 	// Ep=511keV.
-	double SingleScatterSimulator::GetKleinNishina(double cosa)
+	double SingleScatterSimulator::getKleinNishina(double cosa)
 	{
 		double res = (1 + cosa * cosa) / 2;
 		res /= (2 - cosa) * (2 - cosa);

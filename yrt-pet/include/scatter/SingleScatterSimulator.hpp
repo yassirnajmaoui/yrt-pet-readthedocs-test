@@ -32,9 +32,9 @@ namespace Scatter
         bool passCollimator(const StraightLineParam& lor) const;
 
     private:
-        static double Ran1(int* idum);
-        static double GetKleinNishina(double cosa);
-        static double GetMuScalingFactor(double energy);
+        static double ran1(int* idum);
+        static double getKleinNishina(double cosa);
+        static double getMuScalingFactor(double energy);
 
         double getIntersectionLengthLORCrystal(
             const StraightLineParam& lor) const;
