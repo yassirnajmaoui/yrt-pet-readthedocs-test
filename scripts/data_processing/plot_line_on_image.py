@@ -16,9 +16,9 @@ if(__name__ == "__main__"):
     parser.add_argument('--out', type=str, required=False, help='Output figure to save')
     args = parser.parse_args()
 
-    gc_img = yrt.Array3Ddouble()
-    gc_img.readFromFile(args.image)
-    img = np.array(gc_img,copy=False)[args.slice]
+    yrt_img = yrt.Array3Ddouble()
+    yrt_img.readFromFile(args.image)
+    img = np.array(yrt_img,copy=False)[args.slice]
 
     start_point = (args.p1[0],args.p1[1])
     end_point = (args.p2[0],args.p2[1])

@@ -21,7 +21,7 @@ osem = yrt.createOSEM(scanner, useGPU=True)
 osem.setProjector("<Projector>") # Possible values: S (Siddon), DD (Distance-Driven), or DD_GPU (GPU Distance-Driven, available only if useGPU is 'True')
 osem.num_MLEM_iterations = 10 # Number of MLEM iterations
 osem.num_OSEM_subsets = 5 # Number of OSEM subsets
-osem.setSensDataInput(...) # Dataset to use as input for the sensitivity image generation. Takes, as input, a GCProjectionData object.
+osem.setSensDataInput(...) # Dataset to use as input for the sensitivity image generation. Takes, as input, a ProjectionData object.
 osem.addTOF(<TOF width in picoseconds>, <Number of STD deviations>) # To enable Time-of-flight
 osem.addProjPSF("<path to the PSF's CSV file>") # To add Projection-space PSF
 osem.addImagePSF(...) # To add Image-space PSF. Takes, as input, a OperatorPsf object

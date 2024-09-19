@@ -82,9 +82,9 @@ if(__name__ == "__main__"):
 
         for i_img_fname in tqdm(range(num_files)):
             img_fname = args.image[i_img_fname]
-            gc_img = yrt.Array3Ddouble()
-            gc_img.readFromFile(img_fname)
-            img = np.array(gc_img, copy=False)
+            yrt_img = yrt.Array3Ddouble()
+            yrt_img.readFromFile(img_fname)
+            img = np.array(yrt_img, copy=False)
             img_z_averaged = np.mean(img[slice_list],axis=0)
             
             for i_box in range(num_boxes):
@@ -109,9 +109,9 @@ if(__name__ == "__main__"):
 
     for i_img_fname in tqdm(range(num_files)):
         img_fname = args.image[i_img_fname]
-        gc_img = yrt.Array3Ddouble()
-        gc_img.readFromFile(img_fname)
-        img = np.array(gc_img, copy=False)
+        yrt_img = yrt.Array3Ddouble()
+        yrt_img.readFromFile(img_fname)
+        img = np.array(yrt_img, copy=False)
         img_z_averaged = np.mean(img[slice_list],axis=0)
 
         for i_box in range(num_boxes):

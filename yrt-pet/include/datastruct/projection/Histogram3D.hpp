@@ -71,7 +71,7 @@ public:
 	void get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const;
 
 protected:
-	Histogram3D(const Scanner& pr_scanner);
+	explicit Histogram3D(const Scanner& pr_scanner);
 	void getDetPairInSameRing(coord_t r_ring, coord_t phi, det_id_t& d1,
 	                          det_id_t& d2) const;
 	void getCoordsInSameRing(det_id_t d1_ring, det_id_t d2_ring,
@@ -106,14 +106,14 @@ protected:
 class Histogram3DAlias : public Histogram3D
 {
 public:
-	Histogram3DAlias(const Scanner& pr_scanner);
+	explicit Histogram3DAlias(const Scanner& pr_scanner);
 	void bind(Array3DBase<float>& pr_data);
 };
 
 class Histogram3DOwned : public Histogram3D
 {
 public:
-	Histogram3DOwned(const Scanner& pr_scanner);
+	explicit Histogram3DOwned(const Scanner& pr_scanner);
 	Histogram3DOwned(const Scanner& pr_scanner, const std::string& filename);
 	void allocate();
 	void readFromFile(const std::string& filename);
