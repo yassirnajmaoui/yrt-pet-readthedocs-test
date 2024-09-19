@@ -310,9 +310,20 @@ namespace Scatter
 			const Array3DBase<float>& scatterHistoData_c =
 				scatterHisto.getData();
 			Array3DBase<float>& scatterHistoData = scatterHisto.getData();
-			scatterHistoData[z_bin_i] += scatterHistoData_c[z1];
-			scatterHistoData[z_bin_i] += scatterHistoData_c[z2];
-			scatterHistoData[z_bin_i] *= 0.5; // average
+			coord_t z_average = z1 + z2;
+			if (z_average % 2 == 0)
+			{
+				z_average = z_average / 2;
+				scatterHistoData[z_bin_i] += scatterHistoData_c[z_average];
+			}
+			else
+			{
+				const coord_t z_average_0 = z_average / 2;
+				const coord_t z_average_1 = z_average_0 + 1;
+				scatterHistoData[z_bin_i] += scatterHistoData_c[z_average_0];
+				scatterHistoData[z_bin_i] += scatterHistoData_c[z_average_1];
+				scatterHistoData[z_bin_i] *= 0.5; // average
+			}
 		}
 		std::cout << "Done Filling oblique bins." << std::endl;
 	}
