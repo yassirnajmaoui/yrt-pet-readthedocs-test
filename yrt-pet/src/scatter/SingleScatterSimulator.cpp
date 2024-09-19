@@ -160,9 +160,9 @@ namespace Scatter
 	}
 
 	void SingleScatterSimulator::runSSS(size_t numberZ, size_t numberPhi,
-	                                      size_t numberR,
-	                                      Histogram3D& scatterHisto,
-	                                      bool printProgress)
+	                                    size_t numberR,
+	                                    Histogram3D& scatterHisto,
+	                                    bool printProgress)
 	{
 		const size_t num_i_z = numberZ;
 		const size_t num_i_phi = numberPhi;
@@ -467,7 +467,8 @@ namespace Scatter
 		eps_s_1_511 *= 1 - exp(-delta_1 * mu_det_511);
 		eps_s_2_511 *= 1 - exp(-delta_2 * mu_det_511);
 		// YN: Changed eps_s_1_511 * eps_s_1_511 to eps_s_1_511 * eps_s_2_511
-		res /= eps_s_1_511 * eps_s_2_511 * sig_s_1 * sig_s_2 / (dist1 * dist1);
+		res /= eps_s_1_511 * eps_s_2_511 * sig_s_1 * sig_s_2 / (
+			dist1 * dist1 * 4 * PI);
 
 		return res;
 	}
