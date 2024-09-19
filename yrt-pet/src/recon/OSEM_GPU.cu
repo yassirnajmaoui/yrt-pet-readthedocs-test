@@ -3,7 +3,7 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "recon/OSEM_gpu.cuh"
+#include "recon/OSEM_GPU.cuh"
 
 #include "datastruct/image/ImageDevice.cuh"
 #include "datastruct/projection/ProjectionDataDevice.cuh"
@@ -11,7 +11,7 @@
 #include "operators/OperatorProjectorDD_GPU.cuh"
 #include "utils/Assert.hpp"
 
-OSEM_gpu::OSEM_gpu(const Scanner& pr_scanner)
+OSEM_GPU::OSEM_GPU(const Scanner& pr_scanner)
 	: OSEM(pr_scanner),
 	  mpd_sensImageBuffer(nullptr),
 	  mpd_tempSensDataInput(nullptr),
@@ -27,9 +27,9 @@ OSEM_gpu::OSEM_gpu(const Scanner& pr_scanner)
 	projectorType = OperatorProjector::DD_GPU;
 }
 
-OSEM_gpu::~OSEM_gpu() = default;
+OSEM_GPU::~OSEM_GPU() = default;
 
-void OSEM_gpu::SetupOperatorsForSensImgGen()
+void OSEM_GPU::SetupOperatorsForSensImgGen()
 {
 	ASSERT_MSG(projectorType == OperatorProjector::ProjectorType::DD_GPU,
 	           "No viable projector provided");
@@ -60,7 +60,7 @@ void OSEM_gpu::SetupOperatorsForSensImgGen()
 	}
 }
 
-void OSEM_gpu::allocateForSensImgGen()
+void OSEM_GPU::allocateForSensImgGen()
 {
 	// Allocate for image space
 	mpd_sensImageBuffer =
@@ -74,7 +74,7 @@ void OSEM_gpu::allocateForSensImgGen()
 }
 
 std::unique_ptr<Image>
-	OSEM_gpu::GetLatestSensitivityImage(bool isLastSubset)
+	OSEM_GPU::GetLatestSensitivityImage(bool isLastSubset)
 {
 	(void)isLastSubset; // Copy flag is obsolete since the data is not yet on
 	// Host-side
@@ -84,14 +84,14 @@ std::unique_ptr<Image>
 	return img;
 }
 
-void OSEM_gpu::EndSensImgGen()
+void OSEM_GPU::EndSensImgGen()
 {
 	// Clear temporary buffers
 	mpd_sensImageBuffer = nullptr;
 	mpd_tempSensDataInput = nullptr;
 }
 
-void OSEM_gpu::SetupOperatorsForRecon()
+void OSEM_GPU::SetupOperatorsForRecon()
 {
 	getBinIterators().clear();
 	getBinIterators().reserve(num_OSEM_subsets);
@@ -120,7 +120,7 @@ void OSEM_gpu::SetupOperatorsForRecon()
 	}
 }
 
-void OSEM_gpu::allocateForRecon()
+void OSEM_GPU::allocateForRecon()
 {
 	// Allocate image-space buffers
 	mpd_mlemImage =
@@ -158,7 +158,7 @@ void OSEM_gpu::allocateForRecon()
 	mpd_datTmp = std::move(datTmp);
 }
 
-void OSEM_gpu::EndRecon()
+void OSEM_GPU::EndRecon()
 {
 	// Transfer MLEM image Device to host
 	mpd_mlemImage->transferToHostMemory(outImage, true);
@@ -170,37 +170,37 @@ void OSEM_gpu::EndRecon()
 	mpd_datTmp = nullptr;
 }
 
-ImageBase* OSEM_gpu::GetSensImageBuffer()
+ImageBase* OSEM_GPU::GetSensImageBuffer()
 {
 	return mpd_sensImageBuffer.get();
 }
 
-ProjectionData* OSEM_gpu::GetSensDataInputBuffer()
+ProjectionData* OSEM_GPU::GetSensDataInputBuffer()
 {
 	return mpd_tempSensDataInput.get();
 }
 
-ImageBase* OSEM_gpu::GetMLEMImageBuffer()
+ImageBase* OSEM_GPU::GetMLEMImageBuffer()
 {
 	return mpd_mlemImage.get();
 }
 
-ImageBase* OSEM_gpu::GetMLEMImageTmpBuffer()
+ImageBase* OSEM_GPU::GetMLEMImageTmpBuffer()
 {
 	return mpd_mlemImageTmp.get();
 }
 
-ProjectionData* OSEM_gpu::GetMLEMDataBuffer()
+ProjectionData* OSEM_GPU::GetMLEMDataBuffer()
 {
 	return mpd_dat.get();
 }
 
-ProjectionData* OSEM_gpu::GetMLEMDataTmpBuffer()
+ProjectionData* OSEM_GPU::GetMLEMDataTmpBuffer()
 {
 	return mpd_datTmp.get();
 }
 
-int OSEM_gpu::GetNumBatches(int subsetId, bool forRecon) const
+int OSEM_GPU::GetNumBatches(int subsetId, bool forRecon) const
 {
 	if (forRecon)
 	{
@@ -209,7 +209,7 @@ int OSEM_gpu::GetNumBatches(int subsetId, bool forRecon) const
 	return mpd_tempSensDataInput->getNumBatches(subsetId);
 }
 
-void OSEM_gpu::LoadBatch(int batchId, bool forRecon)
+void OSEM_GPU::LoadBatch(int batchId, bool forRecon)
 {
 	std::cout << "Loading batch " << batchId + 1 << "/"
 		<< GetNumBatches(m_current_OSEM_subset, forRecon) << "..."
@@ -233,7 +233,7 @@ void OSEM_gpu::LoadBatch(int batchId, bool forRecon)
 	std::cout << "Batch " << batchId + 1 << " loaded." << std::endl;
 }
 
-void OSEM_gpu::LoadSubset(int subsetId, bool forRecon)
+void OSEM_GPU::LoadSubset(int subsetId, bool forRecon)
 {
 	m_current_OSEM_subset = subsetId;
 
@@ -248,16 +248,16 @@ void OSEM_gpu::LoadSubset(int subsetId, bool forRecon)
 	}
 }
 
-void OSEM_gpu::CompleteMLEMIteration() {}
+void OSEM_GPU::CompleteMLEMIteration() {}
 
-const cudaStream_t* OSEM_gpu::getAuxStream() const
+const cudaStream_t* OSEM_GPU::getAuxStream() const
 {
 	// TODO: Add parallel loading
 	// return &m_auxStream.getStream();
 	return &m_mainStream.getStream();
 }
 
-const cudaStream_t* OSEM_gpu::getMainStream() const
+const cudaStream_t* OSEM_GPU::getMainStream() const
 {
 	return &m_mainStream.getStream();
 }

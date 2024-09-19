@@ -7,11 +7,11 @@
 
 #include "recon/OSEM.hpp"
 
-class OSEM_cpu : public OSEM
+class OSEM_CPU : public OSEM
 {
 public:
-	OSEM_cpu(const Scanner& pr_scanner);
-	~OSEM_cpu() override;
+	explicit OSEM_CPU(const Scanner& pr_scanner);
+	~OSEM_CPU() override;
 
 protected:
 	// Sens Image generator driver

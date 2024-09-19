@@ -39,7 +39,7 @@ set(SOURCES
         operators/ProjectionPsfManager.cpp
         operators/TimeOfFlight.cpp
         recon/OSEM.cpp
-        recon/OSEM_cpu.cpp
+        recon/OSEM_CPU.cpp
         scatter/ScatterEstimator.cpp
         scatter/SingleScatterSimulator.cpp
         scatter/Crystal.cpp
@@ -64,7 +64,7 @@ if (USE_CUDA)
             operators/OperatorDevice.cu
             operators/OperatorProjectorDD_GPUKernels.cu
             operators/OperatorProjectorDD_GPU.cu
-            recon/OSEM_gpu.cu
+            recon/OSEM_GPU.cu
             utils/PageLockedBuffer.cu
             utils/GPUStream.cu
             utils/GPUUtils.cu

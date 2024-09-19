@@ -12,11 +12,11 @@
 #include "recon/OSEM.hpp"
 #include "utils/GPUStream.cuh"
 
-class OSEM_gpu : public OSEM
+class OSEM_GPU : public OSEM
 {
 public:
-	explicit OSEM_gpu(const Scanner& pr_scanner);
-	~OSEM_gpu() override;
+	explicit OSEM_GPU(const Scanner& pr_scanner);
+	~OSEM_GPU() override;
 
 	// Sens Image generator driver
 	void SetupOperatorsForSensImgGen() override;

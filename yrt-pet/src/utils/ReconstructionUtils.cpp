@@ -11,7 +11,7 @@
 #include "geometry/Matrix.hpp"
 #include "operators/OperatorProjectorDD.hpp"
 #include "operators/OperatorProjectorSiddon.hpp"
-#include "recon/OSEM_cpu.hpp"
+#include "recon/OSEM_CPU.hpp"
 #include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
 #include "utils/ProgressDisplay.hpp"
@@ -19,7 +19,7 @@
 
 #if BUILD_CUDA
 #include "operators/OperatorProjectorDD_GPU.cuh"
-#include "recon/OSEM_gpu.cuh"
+#include "recon/OSEM_GPU.cuh"
 #endif
 
 
@@ -374,7 +374,7 @@ namespace Util
 		if (useGPU)
 		{
 #if BUILD_CUDA
-			osem = std::make_unique<OSEM_gpu>(scanner);
+			osem = std::make_unique<OSEM_GPU>(scanner);
 #else
 			throw std::runtime_error(
 			    "Project not compiled with CUDA, GPU projectors unavailable.");
@@ -382,7 +382,7 @@ namespace Util
 		}
 		else
 		{
-			osem = std::make_unique<OSEM_cpu>(scanner);
+			osem = std::make_unique<OSEM_CPU>(scanner);
 		}
 		return osem;
 	}
