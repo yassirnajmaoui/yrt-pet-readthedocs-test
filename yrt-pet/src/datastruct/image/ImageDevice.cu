@@ -24,7 +24,7 @@ void py_setup_imagedevice(py::module& m)
 {
 	auto c = py::class_<ImageDevice, ImageBase>(m, "ImageDevice");
 	c.def(
-	    "TransferToDeviceMemory",
+	    "transferToDeviceMemory",
 	    [](ImageDevice& self, py::buffer& np_data)
 	    {
 		    try
@@ -62,12 +62,12 @@ void py_setup_imagedevice(py::module& m)
 	    },
 	    "Copy from numpy array to device", "numpy_array"_a);
 	c.def(
-	    "TransferToDeviceMemory",
+	    "transferToDeviceMemory",
 	    [](ImageDevice& self, const Image* sourceImage)
 	    { self.transferToDeviceMemory(sourceImage, true); },
 	    "Copy from a Host-side Image object", "sourceImage"_a);
 	c.def(
-	    "TransferToHostMemory",
+	    "transferToHostMemory",
 	    [](const ImageDevice& self)
 	    {
 		    const auto& params = self.getParams();
@@ -99,7 +99,7 @@ void py_setup_imagedevice(py::module& m)
 	    "Transfer device image to host-side memory and return it as a numpy "
 	    "array");
 	c.def(
-	    "TransferToHostMemory", [](ImageDevice& self, Image* img)
+	    "transferToHostMemory", [](ImageDevice& self, Image* img)
 	    { self.transferToHostMemory(img); },
 	    "Transfer device image to host-side Image", "image"_a);
 
