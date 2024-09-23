@@ -5,12 +5,12 @@
 
 #pragma once
 
+#include <array>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <array>
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>
@@ -45,7 +45,9 @@ class Array
 {
 public:
 	Array() : _shape(nullptr), _data(nullptr) {}
+
 	virtual ~Array() = default;
+
 	size_t getFlatIdx(const std::array<size_t, ndim>& idx) const
 	{
 		size_t flat_idx = 0;
@@ -57,25 +59,32 @@ public:
 		}
 		return flat_idx;
 	}
+
 	T& get(const std::array<size_t, ndim>& idx) const
 	{
 		return _data[getFlatIdx(idx)];
 	}
+
 	void set(const std::array<size_t, ndim>& l, T val)
 	{
 		_data[getFlatIdx(l)] = val;
 	}
+
 	void increment(const std::array<size_t, ndim>& idx, T val)
 	{
 		_data[getFlatIdx(idx)] += val;
 	}
+
 	void increment_flat(size_t idx, T val) { _data[idx] += val; }
+
 	void scale(const std::array<size_t, ndim>& idx, T val)
 	{
 		_data[getFlatIdx(idx)] *= val;
 	}
+
 	void set_flat(size_t idx, T val) { _data[idx] = val; }
 	T& get_flat(size_t idx) const { return _data[idx]; }
+
 	size_t getSize(size_t dim) const
 	{
 		if (_shape == nullptr)
@@ -91,6 +100,7 @@ public:
 			return _shape.get()[dim];
 		}
 	}
+
 	size_t getSizeTotal() const
 	{
 		if (_shape == nullptr)
@@ -107,6 +117,7 @@ public:
 			return size;
 		}
 	}
+
 	void getDims(size_t output[]) const
 	{
 		for (int dim = 0; dim < ndim; dim++)
@@ -114,6 +125,7 @@ public:
 			output[dim] = _shape.get()[dim];
 		}
 	}
+
 	std::array<size_t, ndim> getDims() const
 	{
 		std::array<size_t, ndim> dims;
@@ -123,6 +135,7 @@ public:
 		}
 		return dims;
 	}
+
 	std::array<size_t, ndim> getStrides() const
 	{
 		std::array<size_t, ndim> strides;
@@ -141,7 +154,9 @@ public:
 		}
 		return strides;
 	}
+
 	void fill(T val) { std::fill(_data, _data + getSizeTotal(), val); }
+
 	void writeToFile(const std::string& fname) const
 	{
 		std::ofstream file;
@@ -159,12 +174,14 @@ public:
 		file.write((char*)_shape.get(), ndim * sizeof(size_t));
 		file.write((char*)_data, getSizeTotal() * sizeof(T));
 	}
+
 	void readFromFile(const std::string& fname)
 	{
 		std::array<size_t, ndim> expected_dims;
 		std::fill(expected_dims.begin(), expected_dims.end(), 0);
 		readFromFile(fname, expected_dims);
 	}
+
 	void readFromFile(const std::string& fname,
 	                  const std::array<size_t, ndim>& expected_dims)
 	{
@@ -178,6 +195,12 @@ public:
 			    "The file given \"" + fname + "\" could not be opened",
 			    std::make_error_code(std::errc::no_such_file_or_directory));
 		}
+
+		// Get the file size
+		file.seekg(0, std::ios::end);
+		const size_t fileSize = file.tellg();
+		file.seekg(0, std::ios::beg);
+
 		file.read((char*)&magic, sizeof(int));
 		if (magic != MAGIC_NUMBER)
 		{
@@ -226,11 +249,26 @@ public:
 			}
 		}
 		setShape(dims.get());
-		allocateFlat(getSizeTotal());
-		file.read((char*)_data, getSizeTotal() * sizeof(T));
+		const size_t totalSize = getSizeTotal();
+		constexpr size_t headerSize =
+		    sizeof(int) + sizeof(int) + ndim * sizeof(size_t);
+		const size_t expectedFileSize = headerSize + totalSize * sizeof(T);
+		if (fileSize != expectedFileSize)
+		{
+			throw std::runtime_error("The file given is of the wrong size. The "
+			                         "expected file size is " +
+			                         std::to_string(expectedFileSize) +
+			                         " while the file is " +
+			                         std::to_string(fileSize) + ".");
+		}
+
+		allocateFlat(totalSize);
+		file.read((char*)_data, totalSize * sizeof(T));
 	}
+
 	T* getRawPointer() { return _data; }
 	const T* getRawPointer() const { return _data; }
+
 	Array<ndim, T>& operator+=(const Array<ndim, T>& other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -239,6 +277,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& operator+=(T other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -247,6 +286,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& operator*=(const Array<ndim, T>& other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -255,6 +295,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& operator/=(const Array<ndim, T>& other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -263,6 +304,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& operator*=(T other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -271,6 +313,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& operator/=(T other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -279,6 +322,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& operator-=(const Array<ndim, T>& other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -287,6 +331,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& operator-=(T other)
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -295,6 +340,7 @@ public:
 		}
 		return *this;
 	}
+
 	Array<ndim, T>& invert()
 	{
 		for (size_t i = 0; i < getSizeTotal(); i++)
@@ -303,6 +349,7 @@ public:
 		}
 		return *this;
 	}
+
 	// Copy from array object (memory must be allocated and appropriately sized)
 	void copy(const Array<ndim, T>& src)
 	{
@@ -376,6 +423,7 @@ public:
 		size_t dims[1] = {0};
 		this->setShape(dims);
 	}
+
 	T& operator[](size_t ri) const { return this->_data[ri]; }
 	T& operator[](size_t ri) { return this->_data[ri]; }
 
@@ -388,6 +436,7 @@ class Array1D : public Array1DBase<T>
 {
 public:
 	Array1D() : Array1DBase<T>() {}
+
 	void allocate(size_t num_el)
 	{
 		if (num_el != this->getSizeTotal())
@@ -407,6 +456,7 @@ private:
 
 protected:
 	std::unique_ptr<T[]> _data_ptr;
+
 	void allocateFlat(size_t size) override
 	{
 		_data_ptr = this->allocateFlatPointer(size);
@@ -421,6 +471,7 @@ class Array1DAlias : public Array1DBase<T>
 {
 public:
 	Array1DAlias() : Array1DBase<T>() {}
+
 	void bind(const Array1DBase<T>& array)
 	{
 		size_t dims[1];
@@ -428,16 +479,19 @@ public:
 		this->setShape(dims);
 		this->_data = &(array[0]);
 	}
+
 	void bind(T* data, size_t num_el)
 	{
 		size_t dims[1] = {num_el};
 		this->setShape(dims);
 		this->_data = data;
 	}
+
 	Array1DAlias(const Array1DAlias<T>& array) : Array1DBase<T>()
 	{
 		bind(array);
 	}
+
 	Array1DAlias(const Array1DBase<T>* array) { bind(*array); }
 	Array1DAlias(const Array1D<T>& array) { bind(array); }
 
@@ -463,10 +517,12 @@ public:
 		size_t dims[2] = {0, 0};
 		this->setShape(dims);
 	}
+
 	T* operator[](size_t ri) const
 	{
 		return &this->_data[ri * this->_shape.get()[1]];
 	}
+
 	T* operator[](size_t ri)
 	{
 		return &this->_data[ri * this->_shape.get()[1]];
@@ -481,6 +537,7 @@ class Array2D : public Array2DBase<T>
 {
 public:
 	Array2D() : Array2DBase<T>() {}
+
 	void allocate(size_t num_rows, size_t num_el)
 	{
 		if (num_rows * num_el != this->getSizeTotal())
@@ -515,6 +572,7 @@ class Array2DAlias : public Array2DBase<T>
 {
 public:
 	Array2DAlias() : Array2DBase<T>() {}
+
 	void bind(const Array2DBase<T>& array)
 	{
 		size_t dims[2];
@@ -522,16 +580,19 @@ public:
 		this->setShape(dims);
 		this->_data = array[0];
 	}
+
 	void bind(T* data, size_t num_rows, size_t num_el)
 	{
 		size_t dims[2] = {num_rows, num_el};
 		this->setShape(dims);
 		this->_data = data;
 	}
+
 	Array2DAlias(const Array2DAlias<T>& array) : Array2DBase<T>()
 	{
 		bind(array);
 	}
+
 	Array2DAlias(const Array2DBase<T>* array) { bind(*array); }
 	Array2DAlias(const Array2D<T>& array) { bind(array); }
 
@@ -554,14 +615,17 @@ public:
 		size_t dims[3] = {0, 0, 0};
 		this->setShape(dims);
 	}
+
 	T* getSlicePtr(size_t ri)
 	{
 		return &this->_data[ri * this->_shape.get()[1] * this->_shape.get()[2]];
 	}
+
 	T* getSlicePtr(size_t ri) const
 	{
 		return &this->_data[ri * this->_shape.get()[1] * this->_shape.get()[2]];
 	}
+
 	Array2DAlias<T> operator[](size_t ri)
 	{
 		Array2DAlias<T> slice_array;
@@ -570,6 +634,7 @@ public:
 		                 this->_shape.get()[2]);
 		return slice_array;
 	}
+
 	Array2DAlias<T> operator[](size_t ri) const
 	{
 		Array2DAlias<T> slice_array;
@@ -588,6 +653,7 @@ class Array3D : public Array3DBase<T>
 {
 public:
 	Array3D() : Array3DBase<T>() {}
+
 	void allocate(size_t num_slices, size_t num_rows, size_t num_el)
 	{
 		if (num_slices * num_rows * num_el != this->getSizeTotal())
@@ -607,6 +673,7 @@ private:
 
 protected:
 	std::unique_ptr<T[]> _data_ptr;
+
 	void allocateFlat(size_t size) override
 	{
 		_data_ptr = this->allocateFlatPointer(size);
@@ -622,6 +689,7 @@ class Array3DAlias : public Array3DBase<T>
 {
 public:
 	Array3DAlias() : Array3DBase<T>() {}
+
 	void bind(const Array3DBase<T>& array)
 	{
 		size_t dims[3];
@@ -629,17 +697,21 @@ public:
 		this->setShape(dims);
 		this->_data = array[0][0];
 	}
+
 	void bind(T* data, size_t num_slices, size_t num_rows, size_t num_el)
 	{
 		size_t dims[3] = {num_slices, num_rows, num_el};
 		this->setShape(dims);
 		this->_data = data;
 	}
+
 	Array3DAlias(const Array3DBase<T>* array) { bind(*array); }
+
 	Array3DAlias(const Array3DAlias<T>& array) : Array3DBase<T>()
 	{
 		bind(array);
 	}
+
 	Array3DAlias(const Array3D<T>& array) { bind(array); }
 
 protected:
