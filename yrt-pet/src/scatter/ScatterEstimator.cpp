@@ -165,7 +165,7 @@ namespace Scatter
 		{
 			const float acfValue = acfHis.getProjectionValue(binId);
 			mask[binId] = acfValue == 0.0 /* For invalid acf bins */ ||
-			              acfValue > maskThreshold;
+						  acfValue > maskThreshold;
 		}
 
 		for (size_t zBin = 0; zBin < acfHis.n_z_bin; zBin++)
@@ -176,7 +176,8 @@ namespace Scatter
 					acfHis.getBinIdFromCoords(0, phi, zBin);
 
 				// Process beginning of the mask
-				for (size_t r = 0; r < acfHis.n_r; r++)
+				size_t r;
+				for (r = 0; r < acfHis.n_r; r++)
 				{
 					const bin_t binId = initRowBinId + r;
 					if (mask[binId] == false)
@@ -186,7 +187,7 @@ namespace Scatter
 							// Put zeros from the beginning of the row to the
 							// current position minus the width of the mask
 							for (bin_t newBinId = initRowBinId;
-							     newBinId < binId - maskWidth; newBinId++)
+								 newBinId < binId - maskWidth; newBinId++)
 							{
 								mask[newBinId] = false;
 							}
@@ -195,22 +196,35 @@ namespace Scatter
 					}
 				}
 
-				// Process end of the mask
-				for (long r = acfHis.n_r - 1; r >= 0; r--)
+				// For when the line is true everywhere
+				if (r == acfHis.n_r)
 				{
-					const bin_t binId = initRowBinId + r;
+					for (bin_t binId = initRowBinId;
+						 binId < initRowBinId + acfHis.n_r; binId++)
+					{
+						mask[binId] = false;
+					}
+					continue;
+				}
+
+				// Process end of the mask
+				for (long reverseR = acfHis.n_r - 1; reverseR >= 0; reverseR--)
+				{
+					const bin_t binId = initRowBinId + reverseR;
 					if (mask[binId] == false)
 					{
-						if (r < static_cast<long>(acfHis.n_r - maskWidth))
+						if (reverseR <
+							static_cast<long>(acfHis.n_r - maskWidth))
 						{
 							// Put zeros from the beginning of the row to the
 							// current position minus the width of the mask
 							for (long newR = acfHis.n_r - 1;
-							     newR >=
-							     static_cast<long>(r + maskWidth);
-							     newR--)
+								 newR >=
+								 static_cast<long>(reverseR + maskWidth);
+								 newR--)
 							{
-								mask[newR + initRowBinId] = false;
+								const bin_t newBinId = newR + initRowBinId;
+								mask[newBinId] = false;
 							}
 						}
 						break;
