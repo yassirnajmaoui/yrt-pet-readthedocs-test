@@ -17,22 +17,26 @@ namespace Scatter
 	class ScatterEstimator
 	{
 	public:
-		ScatterEstimator(const Scanner& pr_scanner,
-		                   const Image& pr_lambda, const Image& pr_mu,
-		                   const Histogram3D* pp_promptsHis,
-		                   const Histogram3D* pp_normOrSensHis,
-		                   const Histogram3D* pp_randomsHis,
-		                   const Histogram3D* pp_acfHis,
-		                   CrystalMaterial p_crystalMaterial, int seedi,
-		                   bool p_doTailFitting, bool isNorm, int maskWidth,
-		                   float maskThreshold, bool saveIntermediary);
+		ScatterEstimator(const Scanner& pr_scanner, const Image& pr_lambda,
+		                 const Image& pr_mu, const Histogram3D* pp_promptsHis,
+		                 const Histogram3D* pp_normOrSensHis,
+		                 const Histogram3D* pp_randomsHis,
+		                 const Histogram3D* pp_acfHis,
+		                 CrystalMaterial p_crystalMaterial, int seedi,
+		                 bool isNorm, int maskWidth, float maskThreshold,
+		                 bool saveIntermediary);
 
-		void estimateScatter(size_t numberZ, size_t numberPhi, size_t numberR,
-		                     bool printProgress = false);
+		void computeAdditiveScatterCorrection(size_t numberZ, size_t numberPhi,
+		                                      size_t numberR,
+		                                      bool printProgress = false);
 
+		void computeScatterEstimate(size_t numberZ, size_t numberPhi,
+		                            size_t numberR, bool printProgress);
 		void generateScatterTailsMask();
 		float computeTailFittingFactor();
 
+		void setScatterHistogram(
+		    const std::shared_ptr<Histogram3DOwned>& pp_scatterHisto);
 		const Histogram3DOwned* getScatterHistogram() const;
 
 	protected:
@@ -52,12 +56,11 @@ namespace Scatter
 		const Histogram3D* mp_acfHis;
 
 		std::vector<bool> m_scatterTailsMask;
-		bool m_doTailFitting;
 		bool m_isNorm;
 		bool m_saveIntermediary;
 		float m_maskThreshold;
 		size_t m_scatterTailsMaskWidth;
 
-		std::unique_ptr<Histogram3DOwned> mp_scatterHisto;  // Final structure
+		std::shared_ptr<Histogram3DOwned> mp_scatterHisto;  // Final structure
 	};
 }  // namespace Scatter

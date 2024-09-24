@@ -21,15 +21,15 @@ void py_setup_scatterestimator(py::module& m)
 {
 	auto c = py::class_<Scatter::ScatterEstimator>(m, "ScatterEstimator");
 	c.def(
-		py::init<const Scanner&, const Image&, const Image&,
-		         const Histogram3D*, const Histogram3D*,
-		         const Histogram3D*, const Histogram3D*,
-		         Scatter::CrystalMaterial, int, bool, bool, int, float, bool>(),
-		"scanner"_a, "source_image"_a, "attenuation_image"_a, "prompts_his"_a,
-		"norm_or_sens_his"_a, "randoms_his"_a, "acf_his"_a,
-		"crystal_material"_a, "seed"_a, "do_tail_fitting"_a, "is_norm"_a,
-		"mask_width"_a, "mask_threshold"_a, "save_intermediary"_a);
-	c.def("estimateScatter", &Scatter::ScatterEstimator::estimateScatter,
+	    py::init<const Scanner&, const Image&, const Image&, const Histogram3D*,
+	             const Histogram3D*, const Histogram3D*, const Histogram3D*,
+	             Scatter::CrystalMaterial, int, bool, int, float, bool>(),
+	    "scanner"_a, "source_image"_a, "attenuation_image"_a, "prompts_his"_a,
+	    "norm_or_sens_his"_a, "randoms_his"_a, "acf_his"_a,
+	    "crystal_material"_a, "seed"_a, "is_norm"_a, "mask_width"_a,
+	    "mask_threshold"_a, "save_intermediary"_a);
+	c.def("computeAdditiveScatterCorrection",
+	      &Scatter::ScatterEstimator::computeAdditiveScatterCorrection,
 	      "num_z"_a, "num_phi"_a, "num_r"_a, "print_progress"_a = false);
 	c.def("getScatterHistogram",
 	      &Scatter::ScatterEstimator::getScatterHistogram);
@@ -39,20 +39,18 @@ void py_setup_scatterestimator(py::module& m)
 namespace Scatter
 {
 	ScatterEstimator::ScatterEstimator(
-		const Scanner& pr_scanner, const Image& pr_lambda,
-		const Image& pr_mu, const Histogram3D* pp_promptsHis,
-		const Histogram3D* pp_normOrSensHis,
-		const Histogram3D* pp_randomsHis, const Histogram3D* pp_acfHis,
-		CrystalMaterial p_crystalMaterial, int seedi, bool p_doTailFitting,
-		bool isNorm, int maskWidth, float maskThreshold, bool saveIntermediary)
-		: mr_scanner(pr_scanner),
-		  m_sss(pr_scanner, pr_mu, pr_lambda, p_crystalMaterial, seedi)
+	    const Scanner& pr_scanner, const Image& pr_lambda, const Image& pr_mu,
+	    const Histogram3D* pp_promptsHis, const Histogram3D* pp_normOrSensHis,
+	    const Histogram3D* pp_randomsHis, const Histogram3D* pp_acfHis,
+	    CrystalMaterial p_crystalMaterial, int seedi, bool isNorm,
+	    int maskWidth, float maskThreshold, bool saveIntermediary)
+	    : mr_scanner(pr_scanner),
+	      m_sss(pr_scanner, pr_mu, pr_lambda, p_crystalMaterial, seedi)
 	{
 		mp_promptsHis = pp_promptsHis;
 		mp_normOrSensHis = pp_normOrSensHis;
 		mp_randomsHis = pp_randomsHis;
 		mp_acfHis = pp_acfHis;
-		m_doTailFitting = p_doTailFitting;
 		m_isNorm = isNorm;
 		if (maskWidth > 0)
 		{
@@ -64,56 +62,65 @@ namespace Scatter
 		}
 		m_maskThreshold = maskThreshold;
 		m_saveIntermediary = saveIntermediary;
-
-		// Initialize buffers
-		mp_scatterHisto = std::make_unique<Histogram3DOwned>(mr_scanner);
-		mp_scatterHisto->allocate();
-		mp_scatterHisto->clearProjections();
 	}
 
-	void ScatterEstimator::estimateScatter(size_t numberZ, size_t numberPhi,
-	                                       size_t numberR, bool printProgress)
+	void ScatterEstimator::computeAdditiveScatterCorrection(size_t numberZ,
+	                                                        size_t numberPhi,
+	                                                        size_t numberR,
+	                                                        bool printProgress)
 	{
-		m_sss.runSSS(numberZ, numberPhi, numberR, *mp_scatterHisto,
-		             printProgress);
-
-		if (m_doTailFitting)
+		if (mp_scatterHisto == nullptr)
 		{
-			std::cout << "Generating scatter tails mask..." << std::endl;
-			generateScatterTailsMask();
-			if (m_saveIntermediary)
-			{
-				saveScatterTailsMask();
-			}
-
-			const float fac = computeTailFittingFactor();
-			mp_scatterHisto->getData() *= fac;
+			computeScatterEstimate(numberZ, numberPhi, numberR, printProgress);
 		}
 
+		generateScatterTailsMask();
 		if (m_saveIntermediary)
 		{
-			mp_scatterHisto->writeToFile("intermediary_scatterEstimate.his");
+			saveScatterTailsMask();
 		}
+
+		const float fac = computeTailFittingFactor();
+		mp_scatterHisto->getData() *= fac;
 
 		std::cout << "Dividing by the ACF..." << std::endl;
 		mp_scatterHisto->operationOnEachBin(
-			[this](bin_t bin) -> float
-			{
-				const float acf = mp_acfHis->getProjectionValue(bin);
-				if (acf > SMALL_FLT)
-				{
-					return mp_scatterHisto->getProjectionValue(bin) / acf;
-				}
-				return 0.0f;
-			});
+		    [this](bin_t bin) -> float
+		    {
+			    const float acf = mp_acfHis->getProjectionValue(bin);
+			    if (acf > SMALL_FLT)
+			    {
+				    return mp_scatterHisto->getProjectionValue(bin) / acf;
+			    }
+			    return 0.0f;
+		    });
 		std::cout << "Done with scatter estimate." << std::endl;
+	}
+
+	void ScatterEstimator::computeScatterEstimate(size_t numberZ,
+	                                              size_t numberPhi,
+	                                              size_t numberR,
+	                                              bool printProgress)
+	{
+		mp_scatterHisto = std::make_shared<Histogram3DOwned>(mr_scanner);
+		mp_scatterHisto->allocate();
+		mp_scatterHisto->clearProjections();
+
+		m_sss.runSSS(numberZ, numberPhi, numberR, *mp_scatterHisto,
+		             printProgress);
+		if (m_saveIntermediary)
+		{
+			mp_scatterHisto->writeToFile(
+			    "intermediary_scatterEstimate_notTailFitted.his");
+		}
 	}
 
 	void ScatterEstimator::generateScatterTailsMask()
 	{
+		std::cout << "Generating scatter tails mask..." << std::endl;
 		ScatterEstimator::generateScatterTailsMask(
-			*mp_acfHis, m_scatterTailsMask, m_scatterTailsMaskWidth,
-			m_maskThreshold);
+		    *mp_acfHis, m_scatterTailsMask, m_scatterTailsMaskWidth,
+		    m_maskThreshold);
 	}
 
 	float ScatterEstimator::computeTailFittingFactor()
@@ -130,24 +137,30 @@ namespace Scatter
 			if (m_isNorm)
 			{
 				prompt += (mp_promptsHis->getProjectionValue(bin) -
-						   mp_randomsHis->getProjectionValue(bin)) *
-						  mp_normOrSensHis->getProjectionValue(bin);
+				           mp_randomsHis->getProjectionValue(bin)) *
+				          mp_normOrSensHis->getProjectionValue(bin);
 			}
 			else
 			{
 				const float sensitivity =
-					mp_normOrSensHis->getProjectionValue(bin);
+				    mp_normOrSensHis->getProjectionValue(bin);
 				if (sensitivity > SMALL_FLT)
 				{
 					prompt += (mp_promptsHis->getProjectionValue(bin) -
-							   mp_randomsHis->getProjectionValue(bin)) /
-							  sensitivity;
+					           mp_randomsHis->getProjectionValue(bin)) /
+					          sensitivity;
 				}
 			}
 		}
 		const float fac = prompt / scat;
 		std::cout << "Tail-fitting factor: " << fac << std::endl;
 		return fac;
+	}
+
+	void ScatterEstimator::setScatterHistogram(
+	    const std::shared_ptr<Histogram3DOwned>& pp_scatterHisto)
+	{
+		mp_scatterHisto = pp_scatterHisto;
 	}
 
 	const Histogram3DOwned* ScatterEstimator::getScatterHistogram() const
@@ -160,16 +173,15 @@ namespace Scatter
 		const auto tmpHisto = std::make_unique<Histogram3DOwned>(mr_scanner);
 		tmpHisto->allocate();
 		tmpHisto->operationOnEachBinParallel(
-			[this](bin_t bin) -> float
-			{
-				return m_scatterTailsMask[bin] ? 1.0 : 0.0;
-			});
+		    [this](bin_t bin) -> float
+		    { return m_scatterTailsMask[bin] ? 1.0 : 0.0; });
 		tmpHisto->writeToFile("intermediary_scatterTailsMask.his");
 	}
 
-	void ScatterEstimator::generateScatterTailsMask(
-		const Histogram3D& acfHis, std::vector<bool>& mask, size_t maskWidth,
-		float maskThreshold)
+	void ScatterEstimator::generateScatterTailsMask(const Histogram3D& acfHis,
+	                                                std::vector<bool>& mask,
+	                                                size_t maskWidth,
+	                                                float maskThreshold)
 	{
 		const size_t numBins = acfHis.count();
 		mask.resize(numBins);
@@ -179,7 +191,7 @@ namespace Scatter
 		{
 			const float acfValue = acfHis.getProjectionValue(binId);
 			mask[binId] = acfValue == 0.0 /* For invalid acf bins */ ||
-						  acfValue > maskThreshold;
+			              acfValue > maskThreshold;
 		}
 
 		for (size_t zBin = 0; zBin < acfHis.n_z_bin; zBin++)
@@ -187,7 +199,7 @@ namespace Scatter
 			for (size_t phi = 0; phi < acfHis.n_phi; phi++)
 			{
 				const size_t initRowBinId =
-					acfHis.getBinIdFromCoords(0, phi, zBin);
+				    acfHis.getBinIdFromCoords(0, phi, zBin);
 
 				// Process beginning of the mask
 				size_t r;
@@ -201,7 +213,7 @@ namespace Scatter
 							// Put zeros from the beginning of the row to the
 							// current position minus the width of the mask
 							for (bin_t newBinId = initRowBinId;
-								 newBinId < binId - maskWidth; newBinId++)
+							     newBinId < binId - maskWidth; newBinId++)
 							{
 								mask[newBinId] = false;
 							}
@@ -214,7 +226,7 @@ namespace Scatter
 				if (r == acfHis.n_r)
 				{
 					for (bin_t binId = initRowBinId;
-						 binId < initRowBinId + acfHis.n_r; binId++)
+					     binId < initRowBinId + acfHis.n_r; binId++)
 					{
 						mask[binId] = false;
 					}
@@ -229,14 +241,14 @@ namespace Scatter
 					if (mask[binId] == false)
 					{
 						if (reverseR <
-							static_cast<long>(acfHis.n_r - maskWidth))
+						    static_cast<long>(acfHis.n_r - maskWidth))
 						{
 							// Put zeros from the end of the row to the
 							// current position plus the width of the mask
 							for (long newR = lastRValue;
-								 newR >=
-								 static_cast<long>(reverseR + maskWidth);
-								 newR--)
+							     newR >=
+							     static_cast<long>(reverseR + maskWidth);
+							     newR--)
 							{
 								const bin_t newBinId = newR + initRowBinId;
 								mask[newBinId] = false;
@@ -248,4 +260,4 @@ namespace Scatter
 			}
 		}
 	}
-} // namespace Scatter
+}  // namespace Scatter

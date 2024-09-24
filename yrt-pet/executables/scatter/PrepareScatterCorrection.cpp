@@ -32,11 +32,11 @@ int main(int argc, char** argv)
 	std::string scatterHistoOut_fname;
 	std::string projector_name;
 	std::string sourceImage_fname;
+	std::string scatterHistoIn_fname;
 	int numThreads = -1;
 	int num_OSEM_subsets = 1;
 	int num_MLEM_iterations = 3;
 	bool printProgressFlag = false;
-	bool noTailFitting = false;
 	int maskWidth = -1;
 	float acfThreshold = 0.9523809f;  // 1/1.05
 	bool saveIntermediary = false;
@@ -44,8 +44,9 @@ int main(int argc, char** argv)
 	// Parse command line arguments
 	try
 	{
-		cxxopts::Options options(
-		    argv[0], "Single-Scatter-Simulation estimation driver");
+		cxxopts::Options options(argv[0],
+		                         "Single-Scatter-Simulation and Scatter "
+		                         "Correction histogram generation");
 		options.positional_help("[optional args]").show_positional_help();
 
 		/* clang-format off */
@@ -68,7 +69,7 @@ int main(int argc, char** argv)
 		("source", "Non scatter-corrected source image (if available)", cxxopts::value(sourceImage_fname))
 		("num_threads", "Number of threads", cxxopts::value(numThreads))
 		("print_progress", "Print progress flag", cxxopts::value(printProgressFlag))
-		("no_tail_fitting", "Disable tail fitting", cxxopts::value(noTailFitting))
+		("scatter_his", "Previously generated scatter histogram (if available)", cxxopts::value(scatterHistoIn_fname))
 		("save_intermediary", "Enable saving intermediary histograms", cxxopts::value(saveIntermediary))
 		("mask_width", "Tail fitting mask width. By default, uses 1/10th of the \'r\' dimension", cxxopts::value(maskWidth))
 		("acf_threshold", "Tail fitting ACF threshold", cxxopts::value(acfThreshold))
@@ -139,6 +140,18 @@ int main(int argc, char** argv)
 		Globals::set_num_threads(numThreads);
 		auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
 
+		// Check if scanner parameters have been set properly for Scatter
+		// estimation
+		if (scanner->collimatorRadius < 0.0f || scanner->fwhm < 0.0f ||
+		    scanner->energyLLD < 0.0f)
+		{
+			std::cerr
+			    << "The scanner parameters given need to have a value for "
+			       "\'collimatorRadius\',\'fwhm\', and \'energyLLD\'."
+			    << std::endl;
+			return -1;
+		}
+
 		ImageParams imageParams(imgParams_fname);
 
 		Scatter::CrystalMaterial crystalMaterial =
@@ -150,12 +163,12 @@ int main(int argc, char** argv)
 		    std::make_unique<ImageOwned>(attImageParams, attImg_fname);
 
 		std::cout << "Reading histograms..." << std::endl;
-		auto promptsHis = std::make_unique<Histogram3DOwned>(
-		    *scanner, promptsHis_fname);
-		auto randomsHis = std::make_unique<Histogram3DOwned>(
-		    *scanner, randomsHis_fname);
-		auto normOrSensHis = std::make_unique<Histogram3DOwned>(
-		    *scanner, *normOrSensHis_fname);
+		auto promptsHis =
+		    std::make_unique<Histogram3DOwned>(*scanner, promptsHis_fname);
+		auto randomsHis =
+		    std::make_unique<Histogram3DOwned>(*scanner, randomsHis_fname);
+		auto normOrSensHis =
+		    std::make_unique<Histogram3DOwned>(*scanner, *normOrSensHis_fname);
 		auto acfHis =
 		    std::make_unique<Histogram3DOwned>(*scanner, acfHis_fname);
 		std::cout << "Done reading histograms." << std::endl;
@@ -198,8 +211,7 @@ int main(int argc, char** argv)
 			// Generate histogram to use for the sensitivity image generation
 			std::cout << "Preparing sensitivity histogram for the MLEM part..."
 			          << std::endl;
-			auto sensDataHis =
-			    std::make_unique<Histogram3DOwned>(*scanner);
+			auto sensDataHis = std::make_unique<Histogram3DOwned>(*scanner);
 			sensDataHis->allocate();
 			if (isNorm)
 			{
@@ -266,25 +278,20 @@ int main(int argc, char** argv)
 			    std::make_unique<ImageOwned>(imageParams, sourceImage_fname);
 		}
 
-		Scatter::ScatterEstimator sss(
-		    *scanner, *sourceImg, *attImg, promptsHis.get(),
-		    normOrSensHis.get(), randomsHis.get(), acfHis.get(),
-		    crystalMaterial, 13, !noTailFitting, isNorm, maskWidth,
-		    acfThreshold, saveIntermediary);
+		Scatter::ScatterEstimator sss(*scanner, *sourceImg, *attImg,
+		                              promptsHis.get(), normOrSensHis.get(),
+		                              randomsHis.get(), acfHis.get(),
+		                              crystalMaterial, 13, isNorm, maskWidth,
+		                              acfThreshold, saveIntermediary);
 
-		// Check if scanner parameters have been set properly for Scatter
-		// estimation
-		if (scanner->collimatorRadius < 0.0f || scanner->fwhm < 0.0f ||
-		    scanner->energyLLD < 0.0f)
+		if (!scatterHistoIn_fname.empty())
 		{
-			std::cerr
-			    << "The scanner parameters given need to have a value for "
-			       "\'collimatorRadius\',\'fwhm\', and \'energyLLD\'."
-			    << std::endl;
-			return -1;
+			auto scatterHis = std::make_shared<Histogram3DOwned>(
+			    *scanner, scatterHistoIn_fname);
+			sss.setScatterHistogram(scatterHis);
 		}
 
-		sss.estimateScatter(nZ, nPhi, nR, printProgressFlag);
+		sss.computeAdditiveScatterCorrection(nZ, nPhi, nR, printProgressFlag);
 
 		// Generate _final_ additive histogram
 		const Histogram3D* scatterHis = sss.getScatterHistogram();
