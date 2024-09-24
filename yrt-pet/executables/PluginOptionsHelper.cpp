@@ -88,18 +88,26 @@ namespace PluginOptionsHelper
 			    pluginOptionGrouped.second;
 			std::string optionHelp;
 			int isBool = -1;
-			for (const auto& pluginThatHasCurrentOption :
-			     listOfPluginsThatHaveCurrentOption)
+			const size_t numPluginsThatHaveCurrentOptions =
+			    listOfPluginsThatHaveCurrentOption.size();
+			for (size_t i = 0; i < numPluginsThatHaveCurrentOptions; ++i)
 			{
-				optionHelp += "For " + pluginThatHasCurrentOption.first + ": " +
-				              std::get<0>(pluginThatHasCurrentOption.second) +
-				              "\n";
+				const auto& [pluginName, helpForPlugin] =
+				    listOfPluginsThatHaveCurrentOption[i];
+				const bool isLastPlugin =
+				    i == numPluginsThatHaveCurrentOptions - 1;
+
+				optionHelp +=
+				    "For " + pluginName + ": " + std::get<0>(helpForPlugin);
+				if (!isLastPlugin)
+				{
+					optionHelp += "\n";
+				}
 
 				// It should not be allowed to provide two plugins that
 				// have different IsBool (OptionInfo::second).
 				// Send a warning here if that happens
-				const int currentIsBool =
-				    (std::get<1>(pluginThatHasCurrentOption.second)) ? 1 : 0;
+				const int currentIsBool = (std::get<1>(helpForPlugin)) ? 1 : 0;
 				if (isBool == -1)
 				{
 					// First init
