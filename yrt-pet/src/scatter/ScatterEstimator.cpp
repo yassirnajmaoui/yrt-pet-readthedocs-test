@@ -80,38 +80,13 @@ namespace Scatter
 		if (m_doTailFitting)
 		{
 			std::cout << "Generating scatter tails mask..." << std::endl;
-			generateScatterTailsMask(*mp_acfHis, m_scatterTailsMask,
-			                         m_scatterTailsMaskWidth, m_maskThreshold);
+			generateScatterTailsMask();
 			if (m_saveIntermediary)
 			{
 				saveScatterTailsMask();
 			}
 
-			std::cout << "Computing Tail-fit factor..." << std::endl;
-			float scat = 0.0f, prompt = 0.0f;
-			for (bin_t bin = 0; bin < mp_scatterHisto->count(); bin++)
-			{
-				// Only fit outside the image
-				if (!m_scatterTailsMask[bin])
-					continue;
-
-				scat += mp_scatterHisto->getProjectionValue(bin);
-				if (m_isNorm)
-				{
-					prompt += (mp_promptsHis->getProjectionValue(bin) -
-					           mp_randomsHis->getProjectionValue(bin)) *
-						mp_normOrSensHis->getProjectionValue(bin);
-				}
-				else
-				{
-					prompt +=
-						(mp_promptsHis->getProjectionValue(bin) -
-						 mp_randomsHis->getProjectionValue(bin)) /
-						(mp_normOrSensHis->getProjectionValue(bin) + EPS_FLT);
-				}
-			}
-			const float fac = prompt / scat;
-			std::cout << "Tail-fitting factor: " << fac << std::endl;
+			const float fac = computeTailFittingFactor();
 			mp_scatterHisto->getData() *= fac;
 		}
 
@@ -125,7 +100,7 @@ namespace Scatter
 			[this](bin_t bin) -> float
 			{
 				const float acf = mp_acfHis->getProjectionValue(bin);
-				if (acf > 0.0f)
+				if (acf > SMALL_FLT)
 				{
 					return mp_scatterHisto->getProjectionValue(bin) / acf;
 				}
@@ -134,6 +109,46 @@ namespace Scatter
 		std::cout << "Done with scatter estimate." << std::endl;
 	}
 
+	void ScatterEstimator::generateScatterTailsMask()
+	{
+		ScatterEstimator::generateScatterTailsMask(
+			*mp_acfHis, m_scatterTailsMask, m_scatterTailsMaskWidth,
+			m_maskThreshold);
+	}
+
+	float ScatterEstimator::computeTailFittingFactor()
+	{
+		std::cout << "Computing Tail-fit factor..." << std::endl;
+		float scat = 0.0f, prompt = 0.0f;
+		for (bin_t bin = 0; bin < mp_scatterHisto->count(); bin++)
+		{
+			// Only fit outside the image
+			if (!m_scatterTailsMask[bin])
+				continue;
+
+			scat += mp_scatterHisto->getProjectionValue(bin);
+			if (m_isNorm)
+			{
+				prompt += (mp_promptsHis->getProjectionValue(bin) -
+						   mp_randomsHis->getProjectionValue(bin)) *
+						  mp_normOrSensHis->getProjectionValue(bin);
+			}
+			else
+			{
+				const float sensitivity =
+					mp_normOrSensHis->getProjectionValue(bin);
+				if (sensitivity > SMALL_FLT)
+				{
+					prompt += (mp_promptsHis->getProjectionValue(bin) -
+							   mp_randomsHis->getProjectionValue(bin)) /
+							  sensitivity;
+				}
+			}
+		}
+		const float fac = prompt / scat;
+		std::cout << "Tail-fitting factor: " << fac << std::endl;
+		return fac;
+	}
 
 	const Histogram3DOwned* ScatterEstimator::getScatterHistogram() const
 	{
@@ -151,7 +166,6 @@ namespace Scatter
 			});
 		tmpHisto->writeToFile("intermediary_scatterTailsMask.his");
 	}
-
 
 	void ScatterEstimator::generateScatterTailsMask(
 		const Histogram3D& acfHis, std::vector<bool>& mask, size_t maskWidth,
@@ -208,7 +222,8 @@ namespace Scatter
 				}
 
 				// Process end of the mask
-				for (long reverseR = acfHis.n_r - 1; reverseR >= 0; reverseR--)
+				const long lastRValue = static_cast<long>(acfHis.n_r - 1);
+				for (long reverseR = lastRValue; reverseR >= 0; reverseR--)
 				{
 					const bin_t binId = initRowBinId + reverseR;
 					if (mask[binId] == false)
@@ -216,9 +231,9 @@ namespace Scatter
 						if (reverseR <
 							static_cast<long>(acfHis.n_r - maskWidth))
 						{
-							// Put zeros from the beginning of the row to the
-							// current position minus the width of the mask
-							for (long newR = acfHis.n_r - 1;
+							// Put zeros from the end of the row to the
+							// current position plus the width of the mask
+							for (long newR = lastRValue;
 								 newR >=
 								 static_cast<long>(reverseR + maskWidth);
 								 newR--)
@@ -233,5 +248,4 @@ namespace Scatter
 			}
 		}
 	}
-
 } // namespace Scatter

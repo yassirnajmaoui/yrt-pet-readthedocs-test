@@ -30,6 +30,9 @@ namespace Scatter
 		void estimateScatter(size_t numberZ, size_t numberPhi, size_t numberR,
 		                     bool printProgress = false);
 
+		void generateScatterTailsMask();
+		float computeTailFittingFactor();
+
 		const Histogram3DOwned* getScatterHistogram() const;
 
 	protected:
