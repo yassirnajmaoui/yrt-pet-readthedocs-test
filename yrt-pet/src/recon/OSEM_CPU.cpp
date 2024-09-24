@@ -6,7 +6,6 @@
 #include "recon/OSEM_CPU.hpp"
 
 #include "datastruct/projection/ProjectionList.hpp"
-#include "datastruct/projection/ListMode.hpp"
 #include "operators/OperatorProjectorDD.hpp"
 #include "operators/OperatorProjectorSiddon.hpp"
 
@@ -14,10 +13,10 @@
 
 OSEM_CPU::OSEM_CPU(const Scanner& pr_scanner)
     : OSEM(pr_scanner),
-      mp_tempSensImageBuffer(nullptr),
-      mp_mlemImageTmp(nullptr),
-      mp_datTmp(nullptr),
-      m_current_OSEM_subset(-1)
+      mp_tempSensImageBuffer{nullptr},
+      mp_mlemImageTmp{nullptr},
+      mp_datTmp{nullptr},
+      m_current_OSEM_subset{-1}
 {
 }
 
@@ -31,7 +30,7 @@ void OSEM_CPU::allocateForSensImgGen()
 	mp_tempSensImageBuffer = std::move(tempSensImageBuffer);
 }
 
-void OSEM_CPU::SetupOperatorsForSensImgGen()
+void OSEM_CPU::setupOperatorsForSensImgGen()
 {
 	// TODO: Unify this in OSEM (avoids the copy-paste)
 	getBinIterators().clear();
@@ -65,8 +64,7 @@ void OSEM_CPU::SetupOperatorsForSensImgGen()
 	}
 }
 
-std::unique_ptr<Image>
-    OSEM_CPU::GetLatestSensitivityImage(bool isLastSubset)
+std::unique_ptr<Image> OSEM_CPU::getLatestSensitivityImage(bool isLastSubset)
 {
 	// This will dereference mp_tempSensImageBuffer
 	auto img = std::move(mp_tempSensImageBuffer);
@@ -80,13 +78,13 @@ std::unique_ptr<Image>
 	return img;
 }
 
-void OSEM_CPU::EndSensImgGen()
+void OSEM_CPU::endSensImgGen()
 {
 	// Clear temporary buffers
 	mp_tempSensImageBuffer = nullptr;
 }
 
-ImageBase* OSEM_CPU::GetSensImageBuffer()
+ImageBase* OSEM_CPU::getSensImageBuffer()
 {
 	if (mp_tempSensImageBuffer != nullptr)
 	{
@@ -96,33 +94,33 @@ ImageBase* OSEM_CPU::GetSensImageBuffer()
 	return getSensitivityImage(usingListModeInput ? 0 : m_current_OSEM_subset);
 }
 
-ProjectionData* OSEM_CPU::GetSensDataInputBuffer()
+ProjectionData* OSEM_CPU::getSensDataInputBuffer()
 {
 	// Since in the CPU version, the projection data is unchanged from the
 	// original and stays in the Host.
 	return getSensDataInput();
 }
 
-ImageBase* OSEM_CPU::GetMLEMImageBuffer()
+ImageBase* OSEM_CPU::getMLEMImageBuffer()
 {
 	return outImage;
 }
-ImageBase* OSEM_CPU::GetMLEMImageTmpBuffer()
+ImageBase* OSEM_CPU::getMLEMImageTmpBuffer()
 {
 	return mp_mlemImageTmp.get();
 }
 
-ProjectionData* OSEM_CPU::GetMLEMDataBuffer()
+ProjectionData* OSEM_CPU::getMLEMDataBuffer()
 {
 	return getDataInput();
 }
 
-ProjectionData* OSEM_CPU::GetMLEMDataTmpBuffer()
+ProjectionData* OSEM_CPU::getMLEMDataTmpBuffer()
 {
 	return mp_datTmp.get();
 }
 
-void OSEM_CPU::SetupOperatorsForRecon()
+void OSEM_CPU::setupOperatorsForRecon()
 {
 	getBinIterators().clear();
 	getBinIterators().reserve(num_OSEM_subsets);
@@ -169,12 +167,12 @@ void OSEM_CPU::allocateForRecon()
 	reinterpret_cast<ImageOwned*>(mp_mlemImageTmp.get())->allocate();
 
 	// Initialize output image
-	GetMLEMImageBuffer()->setValue(INITIAL_VALUE_MLEM);
+	getMLEMImageBuffer()->setValue(INITIAL_VALUE_MLEM);
 
 	// Apply mask image
 	std::cout << "Applying threshold" << std::endl;
 	auto applyMask = [this](const Image* maskImage) -> void
-	{ GetMLEMImageBuffer()->applyThreshold(maskImage, 0.0, 0.0, 0.0, 0.0, 1); };
+	{ getMLEMImageBuffer()->applyThreshold(maskImage, 0.0, 0.0, 0.0, 0.0, 1); };
 	if (maskImage != nullptr)
 	{
 		applyMask(maskImage);
@@ -202,24 +200,24 @@ void OSEM_CPU::allocateForRecon()
 	std::cout << "Threshold applied" << std::endl;
 }
 
-void OSEM_CPU::EndRecon()
+void OSEM_CPU::endRecon()
 {
 	// Clear temporary buffers
 	mp_mlemImageTmp = nullptr;
 	mp_datTmp = nullptr;
 }
 
-void OSEM_CPU::LoadBatch(int batchId, bool forRecon)
+void OSEM_CPU::loadBatch(int batchId, bool forRecon)
 {
 	// No-op on CPU
 	(void)forRecon;
 	(void)batchId;
 }
 
-void OSEM_CPU::LoadSubset(int subsetId, bool forRecon)
+void OSEM_CPU::loadSubset(int subsetId, bool forRecon)
 {
 	(void)forRecon;
 	m_current_OSEM_subset = subsetId;
 }
 
-void OSEM_CPU::CompleteMLEMIteration() {}
+void OSEM_CPU::completeMLEMIteration() {}

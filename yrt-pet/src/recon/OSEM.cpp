@@ -123,7 +123,7 @@ OSEM::OSEM(const Scanner& pr_scanner)
 void OSEM::generateSensitivityImages(const std::string& out_fname)
 {
 	std::vector<std::unique_ptr<Image>> dummy;
-	GenerateSensitivityImagesCore(true, out_fname, false, dummy);
+	generateSensitivityImagesCore(true, out_fname, false, dummy);
 }
 
 void OSEM::generateSensitivityImages(
@@ -132,39 +132,39 @@ void OSEM::generateSensitivityImages(
 {
 	if (out_fname.empty())
 	{
-		GenerateSensitivityImagesCore(false, "", true, sensImages);
+		generateSensitivityImagesCore(false, "", true, sensImages);
 	}
 	else
 	{
-		GenerateSensitivityImagesCore(true, out_fname, true, sensImages);
+		generateSensitivityImagesCore(true, out_fname, true, sensImages);
 	}
 	registerSensitivityImages(sensImages);
 }
 
-void OSEM::GenerateSensitivityImageForSubset(int subsetId)
+void OSEM::generateSensitivityImageForSubset(int subsetId)
 {
-	GetSensImageBuffer()->setValue(0.0);
+	getSensImageBuffer()->setValue(0.0);
 
 	// Backproject everything
-	const int numBatches = GetNumBatches(subsetId, false);
+	const int numBatches = getNumBatches(subsetId, false);
 	for (int batchId = 0; batchId < numBatches; batchId++)
 	{
-		LoadBatch(batchId, false);
-		mp_projector->applyAH(GetSensDataInputBuffer(), GetSensImageBuffer());
+		loadBatch(batchId, false);
+		mp_projector->applyAH(getSensDataInputBuffer(), getSensImageBuffer());
 	}
 
 	if (flagImagePSF)
 	{
-		imageSpacePsf->applyAH(GetSensImageBuffer(), GetSensImageBuffer());
+		imageSpacePsf->applyAH(getSensImageBuffer(), getSensImageBuffer());
 	}
 
 	std::cout << "Applying threshold" << std::endl;
-	GetSensImageBuffer()->applyThreshold(GetSensImageBuffer(), hardThreshold,
+	getSensImageBuffer()->applyThreshold(getSensImageBuffer(), hardThreshold,
 	                                     0.0, 0.0, 1.0, 0.0);
 	std::cout << "Threshold applied" << std::endl;
 }
 
-void OSEM::GenerateSensitivityImagesCore(
+void OSEM::generateSensitivityImagesCore(
     bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
     std::vector<std::unique_ptr<Image>>& sensImages)
 {
@@ -187,7 +187,7 @@ void OSEM::GenerateSensitivityImagesCore(
 		num_OSEM_subsets = 1;
 	}
 
-	InitializeForSensImgGen();
+	initializeForSensImgGen();
 
 	sensImages.clear();
 
@@ -196,13 +196,13 @@ void OSEM::GenerateSensitivityImagesCore(
 		std::cout << "OSEM subset " << subsetId + 1 << "/" << num_OSEM_subsets
 		          << "..." << std::endl;
 
-		LoadSubsetInternal(subsetId, false);
+		loadSubsetInternal(subsetId, false);
 
 
-		GenerateSensitivityImageForSubset(subsetId);
+		generateSensitivityImageForSubset(subsetId);
 
 		auto generatedImage =
-		    GetLatestSensitivityImage(subsetId == num_OSEM_subsets - 1);
+		    getLatestSensitivityImage(subsetId == num_OSEM_subsets - 1);
 
 		if (saveOnDisk)
 		{
@@ -224,7 +224,7 @@ void OSEM::GenerateSensitivityImagesCore(
 		}
 	}
 
-	EndSensImgGen();
+	endSensImgGen();
 
 	if (sensDataInputUnspecified)
 	{
@@ -285,21 +285,21 @@ void OSEM::registerSensitivityImages(py::list& imageList)
 #endif
 
 
-void OSEM::LoadSubsetInternal(int p_subsetId, bool p_forRecon)
+void OSEM::loadSubsetInternal(int p_subsetId, bool p_forRecon)
 {
 	mp_projector->setBinIter(getBinIterators()[p_subsetId].get());
-	LoadSubset(p_subsetId, p_forRecon);
+	loadSubset(p_subsetId, p_forRecon);
 }
 
-void OSEM::InitializeForSensImgGen()
+void OSEM::initializeForSensImgGen()
 {
-	SetupOperatorsForSensImgGen();
+	setupOperatorsForSensImgGen();
 	allocateForSensImgGen();
 }
 
-void OSEM::InitializeForRecon()
+void OSEM::initializeForRecon()
 {
-	SetupOperatorsForRecon();
+	setupOperatorsForRecon();
 	allocateForRecon();
 }
 
@@ -374,7 +374,7 @@ Image* OSEM::getSensitivityImage(int subsetId)
 	return sensitivityImages.at(subsetId);
 }
 
-int OSEM::GetNumBatches(int subsetId, bool forRecon) const
+int OSEM::getNumBatches(int subsetId, bool forRecon) const
 {
 	(void)subsetId;
 	(void)forRecon;
@@ -395,7 +395,7 @@ void OSEM::reconstruct()
 		    1.0 / (static_cast<double>(num_OSEM_subsets)));
 	}
 
-	InitializeForRecon();
+	initializeForRecon();
 
 	const int numDigitsInFilename =
 	    Util::maxNumberOfDigits(num_MLEM_iterations);
@@ -412,62 +412,62 @@ void OSEM::reconstruct()
 			std::cout << "OSEM subset " << subsetId + 1 << "/"
 			          << num_OSEM_subsets << "..." << std::endl;
 
-			LoadSubsetInternal(subsetId, true);
+			loadSubsetInternal(subsetId, true);
 
 			// SET TMP VARIABLES TO 0
-			GetMLEMImageTmpBuffer()->setValue(0.0);
+			getMLEMImageTmpBuffer()->setValue(0.0);
 
-			const int numBatches = GetNumBatches(subsetId, true);
+			const int numBatches = getNumBatches(subsetId, true);
 
 			// Data batches in case it doesn't fit in device memory
 			for (int batchId = 0; batchId < numBatches; batchId++)
 			{
-				LoadBatch(batchId, true);
+				loadBatch(batchId, true);
 
 				if (numBatches > 1)
 				{
 					std::cout << "Processing batch " << batchId + 1 << "/"
 					          << numBatches << "..." << std::endl;
 				}
-				GetMLEMDataTmpBuffer()->clearProjections(0.0);
+				getMLEMDataTmpBuffer()->clearProjections(0.0);
 				ImageBase* mlem_image_rp;
 				if (flagImagePSF)
 				{
 					// PSF
-					imageSpacePsf->applyA(GetMLEMImageBuffer(),
-					                      GetMLEMImageTmpBuffer());
-					mlem_image_rp = GetMLEMImageTmpBuffer();
+					imageSpacePsf->applyA(getMLEMImageBuffer(),
+					                      getMLEMImageTmpBuffer());
+					mlem_image_rp = getMLEMImageTmpBuffer();
 				}
 				else
 				{
-					mlem_image_rp = GetMLEMImageBuffer();
+					mlem_image_rp = getMLEMImageBuffer();
 				}
 
 				// PROJECTION OF IMAGE
-				mp_projector->applyA(mlem_image_rp, GetMLEMDataTmpBuffer());
+				mp_projector->applyA(mlem_image_rp, getMLEMDataTmpBuffer());
 
 				// DATA RATIO
-				GetMLEMDataTmpBuffer()->divideMeasurements(
-				    GetMLEMDataBuffer(), getBinIterators()[subsetId].get());
+				getMLEMDataTmpBuffer()->divideMeasurements(
+				    getMLEMDataBuffer(), getBinIterators()[subsetId].get());
 
 				if (flagImagePSF)
 				{
-					GetMLEMImageTmpBuffer()->setValue(0.0);
+					getMLEMImageTmpBuffer()->setValue(0.0);
 				}
 				// BACK PROJECTION OF RATIO
-				mp_projector->applyAH(GetMLEMDataTmpBuffer(),
-				                      GetMLEMImageTmpBuffer());
+				mp_projector->applyAH(getMLEMDataTmpBuffer(),
+				                      getMLEMImageTmpBuffer());
 			}
 			// PSF
 			if (flagImagePSF)
 			{
-				imageSpacePsf->applyAH(GetMLEMImageTmpBuffer(),
-				                       GetMLEMImageTmpBuffer());
+				imageSpacePsf->applyAH(getMLEMImageTmpBuffer(),
+				                       getMLEMImageTmpBuffer());
 			}
 
 			// UPDATE
-			GetMLEMImageBuffer()->updateEMThreshold(GetMLEMImageTmpBuffer(),
-			                                        GetSensImageBuffer(), 0.0);
+			getMLEMImageBuffer()->updateEMThreshold(getMLEMImageTmpBuffer(),
+			                                        getSensImageBuffer(), 0.0);
 		}
 		if (saveSteps > 0 && ((iter + 1) % saveSteps) == 0)
 		{
@@ -475,12 +475,12 @@ void OSEM::reconstruct()
 			    Util::padZeros(iter + 1, numDigitsInFilename);
 			std::string out_fname = Util::addBeforeExtension(
 			    saveStepsPath, std::string("_iteration") + iteration_name);
-			GetMLEMImageBuffer()->writeToFile(out_fname);
+			getMLEMImageBuffer()->writeToFile(out_fname);
 		}
-		CompleteMLEMIteration();
+		completeMLEMIteration();
 	}
 
-	EndRecon();
+	endRecon();
 }
 
 void OSEM::reconstructWithWarperMotion()
@@ -507,7 +507,7 @@ void OSEM::reconstructWithWarperMotion()
 	warper->computeGlobalWarpToRefFrame(sens_image, saveSteps > 0);
 	std::cout << "Applying threshold" << std::endl;
 	sens_image->applyThreshold(sens_image, hardThreshold, 0.0, 0.0, 1.0, 0.0);
-	GetMLEMImageBuffer()->applyThreshold(sens_image, 0.0, 0.0, 0.0, 0.0, 1.0);
+	getMLEMImageBuffer()->applyThreshold(sens_image, 0.0, 0.0, 0.0, 0.0, 1.0);
 	std::cout << "Threshold applied" << std::endl;
 
 	std::vector<size_t> eventsPartitionOverMotionFrame(
@@ -518,14 +518,14 @@ void OSEM::reconstructWithWarperMotion()
 	eventsPartitionOverMotionFrame[0] = 0;
 	while (frameId < warper->getNumberOfFrame())
 	{
-		if (currEventId + 1 == GetMLEMDataBuffer()->count())
+		if (currEventId + 1 == getMLEMDataBuffer()->count())
 		{
 			eventsPartitionOverMotionFrame[frameId + 1] =
-			    GetMLEMDataBuffer()->count();
+			    getMLEMDataBuffer()->count();
 			break;
 		}
 
-		if (GetMLEMDataBuffer()->getTimestamp(currEventId) >= currFrameEndTime)
+		if (getMLEMDataBuffer()->getTimestamp(currEventId) >= currFrameEndTime)
 		{
 			eventsPartitionOverMotionFrame[frameId + 1] = currEventId - 1;
 			frameId++;
@@ -591,25 +591,25 @@ void OSEM::reconstructWithWarperMotion()
 		for (frameId = 0; frameId < numFrames; frameId++)
 		{
 			mp_projector->setBinIter(getBinIterators()[frameId].get());
-			GetMLEMImageTmpBuffer()->setValue(0.0);
+			getMLEMImageTmpBuffer()->setValue(0.0);
 
 			warpImg.setFrameId(frameId);
 			warpImg.applyA(warper, mlem_image_curr_frame.get());
 
 			mp_projector->applyA(mlem_image_curr_frame.get(),
-			                     GetMLEMDataTmpBuffer());
-			GetMLEMDataTmpBuffer()->divideMeasurements(
-			    GetMLEMDataBuffer(), getBinIterators()[frameId].get());
+			                     getMLEMDataTmpBuffer());
+			getMLEMDataTmpBuffer()->divideMeasurements(
+			    getMLEMDataBuffer(), getBinIterators()[frameId].get());
 
-			mp_projector->applyAH(GetMLEMDataTmpBuffer(),
-			                      GetMLEMImageTmpBuffer());
+			mp_projector->applyAH(getMLEMDataTmpBuffer(),
+			                      getMLEMImageTmpBuffer());
 
-			warpImg.applyAH(warper, GetMLEMImageTmpBuffer());
+			warpImg.applyAH(warper, getMLEMImageTmpBuffer());
 
 			mlem_image_update_factor->addFirstImageToSecond(
-			    GetMLEMImageTmpBuffer());
+			    getMLEMImageTmpBuffer());
 		}
-		GetMLEMImageBuffer()->updateEMThreshold(mlem_image_update_factor.get(),
+		getMLEMImageBuffer()->updateEMThreshold(mlem_image_update_factor.get(),
 		                                        sens_image, UpdateEMThreshold);
 
 		if (saveSteps > 0 && ((iter + 1) % saveSteps) == 0)
@@ -618,7 +618,7 @@ void OSEM::reconstructWithWarperMotion()
 			    Util::padZeros(iter + 1, num_digits_in_fname);
 			std::string out_fname = Util::addBeforeExtension(
 			    saveStepsPath, std::string("_iteration") + iteration_name);
-			GetMLEMImageBuffer()->writeToFile(out_fname);
+			getMLEMImageBuffer()->writeToFile(out_fname);
 		}
 	}
 }

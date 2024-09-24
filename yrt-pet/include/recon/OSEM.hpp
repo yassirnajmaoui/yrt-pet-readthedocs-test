@@ -109,38 +109,38 @@ protected:
 	// ---------- Virtual pure functions ----------
 
 	// Sens Image generator driver
-	virtual void SetupOperatorsForSensImgGen() = 0;
+	virtual void setupOperatorsForSensImgGen() = 0;
 	virtual void allocateForSensImgGen() = 0;
-	virtual std::unique_ptr<Image> GetLatestSensitivityImage(bool isLastSubset) = 0;
-	virtual void EndSensImgGen() = 0;
+	virtual std::unique_ptr<Image> getLatestSensitivityImage(bool isLastSubset) = 0;
+	virtual void endSensImgGen() = 0;
 
 	// Reconstruction driver
-	virtual void SetupOperatorsForRecon() = 0;
+	virtual void setupOperatorsForRecon() = 0;
 	virtual void allocateForRecon() = 0;
-	virtual void EndRecon() = 0;
-	virtual void CompleteMLEMIteration() = 0;
+	virtual void endRecon() = 0;
+	virtual void completeMLEMIteration() = 0;
 
 	// Abstract Getters
-	virtual ImageBase* GetSensImageBuffer() = 0;
-	virtual ProjectionData* GetSensDataInputBuffer() = 0;
-	virtual ImageBase* GetMLEMImageBuffer() = 0;
-	virtual ImageBase* GetMLEMImageTmpBuffer() = 0;
-	virtual ProjectionData* GetMLEMDataBuffer() = 0;
-	virtual ProjectionData* GetMLEMDataTmpBuffer() = 0;
-	virtual int GetNumBatches(int subsetId, bool forRecon) const;
+	virtual ImageBase* getSensImageBuffer() = 0;
+	virtual ProjectionData* getSensDataInputBuffer() = 0;
+	virtual ImageBase* getMLEMImageBuffer() = 0;
+	virtual ImageBase* getMLEMImageTmpBuffer() = 0;
+	virtual ProjectionData* getMLEMDataBuffer() = 0;
+	virtual ProjectionData* getMLEMDataTmpBuffer() = 0;
+	virtual int getNumBatches(int subsetId, bool forRecon) const;
 
 	// Common methods
-	virtual void LoadBatch(int p_batchId, bool p_forRecon) = 0;
-	virtual void LoadSubset(int p_subsetId, bool p_forRecon) = 0;
+	virtual void loadBatch(int p_batchId, bool p_forRecon) = 0;
+	virtual void loadSubset(int p_subsetId, bool p_forRecon) = 0;
 
 private:
-	void LoadSubsetInternal(int p_subsetId, bool p_forRecon);
-	void InitializeForSensImgGen();
-	void GenerateSensitivityImageForSubset(int subsetId);
-	void GenerateSensitivityImagesCore(
+	void loadSubsetInternal(int p_subsetId, bool p_forRecon);
+	void initializeForSensImgGen();
+	void generateSensitivityImageForSubset(int subsetId);
+	void generateSensitivityImagesCore(
 	    bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
 	    std::vector<std::unique_ptr<Image>>& sensImages);
-	void InitializeForRecon();
+	void initializeForRecon();
 
 	std::vector<std::unique_ptr<BinIterator>> m_binIterators;
 

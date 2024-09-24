@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 		("acf_threshold", "Tail fitting ACF threshold", cxxopts::value(acfThreshold))
 		("num_subsets", "Number of subsets to use for the MLEM part (Default: 1)", cxxopts::value(num_OSEM_subsets))
 		("num_iterations", "Number of MLEM iterations to do to generate source image (if needed) (Default: 3)", cxxopts::value(num_MLEM_iterations))
-		("projector", "Projector to use, choices: Siddon (S), Distance-Driven (D)"
+		("projector", "Projector to use, choices: Siddon (S), Distance-Driven (DD)"
 			 #if BUILD_CUDA
 			 ", or GPU Distance-Driven (DD_GPU)"
 			 #endif

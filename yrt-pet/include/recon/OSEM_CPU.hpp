@@ -15,28 +15,28 @@ public:
 
 protected:
 	// Sens Image generator driver
-	void SetupOperatorsForSensImgGen() override;
+	void setupOperatorsForSensImgGen() override;
 	void allocateForSensImgGen() override;
-	std::unique_ptr<Image> GetLatestSensitivityImage(bool isLastSubset) override;
-	void EndSensImgGen() override;
+	std::unique_ptr<Image> getLatestSensitivityImage(bool isLastSubset) override;
+	void endSensImgGen() override;
 
 	// Reconstruction driver
-	void SetupOperatorsForRecon() override;
+	void setupOperatorsForRecon() override;
 	void allocateForRecon() override;
-	void EndRecon() override;
-	void CompleteMLEMIteration() override;
+	void endRecon() override;
+	void completeMLEMIteration() override;
 
 	// Internal getters
-	ImageBase* GetSensImageBuffer() override;
-	ProjectionData* GetSensDataInputBuffer() override;
-	ImageBase* GetMLEMImageBuffer() override;
-	ImageBase* GetMLEMImageTmpBuffer() override;
-	ProjectionData* GetMLEMDataBuffer() override;
-	ProjectionData* GetMLEMDataTmpBuffer() override;
+	ImageBase* getSensImageBuffer() override;
+	ProjectionData* getSensDataInputBuffer() override;
+	ImageBase* getMLEMImageBuffer() override;
+	ImageBase* getMLEMImageTmpBuffer() override;
+	ProjectionData* getMLEMDataBuffer() override;
+	ProjectionData* getMLEMDataTmpBuffer() override;
 
 	// Common methods
-	void LoadBatch(int batchId, bool forRecon) override;
-	void LoadSubset(int subsetId, bool forRecon) override;
+	void loadBatch(int batchId, bool forRecon) override;
+	void loadSubset(int subsetId, bool forRecon) override;
 
 private:
 	// For sensitivity image generation

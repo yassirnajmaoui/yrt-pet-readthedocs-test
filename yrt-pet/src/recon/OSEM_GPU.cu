@@ -29,7 +29,7 @@ OSEM_GPU::OSEM_GPU(const Scanner& pr_scanner)
 
 OSEM_GPU::~OSEM_GPU() = default;
 
-void OSEM_GPU::SetupOperatorsForSensImgGen()
+void OSEM_GPU::setupOperatorsForSensImgGen()
 {
 	ASSERT_MSG(projectorType == OperatorProjector::ProjectorType::DD_GPU,
 	           "No viable projector provided");
@@ -74,7 +74,7 @@ void OSEM_GPU::allocateForSensImgGen()
 }
 
 std::unique_ptr<Image>
-	OSEM_GPU::GetLatestSensitivityImage(bool isLastSubset)
+	OSEM_GPU::getLatestSensitivityImage(bool isLastSubset)
 {
 	(void)isLastSubset; // Copy flag is obsolete since the data is not yet on
 	// Host-side
@@ -84,14 +84,14 @@ std::unique_ptr<Image>
 	return img;
 }
 
-void OSEM_GPU::EndSensImgGen()
+void OSEM_GPU::endSensImgGen()
 {
 	// Clear temporary buffers
 	mpd_sensImageBuffer = nullptr;
 	mpd_tempSensDataInput = nullptr;
 }
 
-void OSEM_GPU::SetupOperatorsForRecon()
+void OSEM_GPU::setupOperatorsForRecon()
 {
 	getBinIterators().clear();
 	getBinIterators().reserve(num_OSEM_subsets);
@@ -158,7 +158,7 @@ void OSEM_GPU::allocateForRecon()
 	mpd_datTmp = std::move(datTmp);
 }
 
-void OSEM_GPU::EndRecon()
+void OSEM_GPU::endRecon()
 {
 	// Transfer MLEM image Device to host
 	mpd_mlemImage->transferToHostMemory(outImage, true);
@@ -170,37 +170,37 @@ void OSEM_GPU::EndRecon()
 	mpd_datTmp = nullptr;
 }
 
-ImageBase* OSEM_GPU::GetSensImageBuffer()
+ImageBase* OSEM_GPU::getSensImageBuffer()
 {
 	return mpd_sensImageBuffer.get();
 }
 
-ProjectionData* OSEM_GPU::GetSensDataInputBuffer()
+ProjectionData* OSEM_GPU::getSensDataInputBuffer()
 {
 	return mpd_tempSensDataInput.get();
 }
 
-ImageBase* OSEM_GPU::GetMLEMImageBuffer()
+ImageBase* OSEM_GPU::getMLEMImageBuffer()
 {
 	return mpd_mlemImage.get();
 }
 
-ImageBase* OSEM_GPU::GetMLEMImageTmpBuffer()
+ImageBase* OSEM_GPU::getMLEMImageTmpBuffer()
 {
 	return mpd_mlemImageTmp.get();
 }
 
-ProjectionData* OSEM_GPU::GetMLEMDataBuffer()
+ProjectionData* OSEM_GPU::getMLEMDataBuffer()
 {
 	return mpd_dat.get();
 }
 
-ProjectionData* OSEM_GPU::GetMLEMDataTmpBuffer()
+ProjectionData* OSEM_GPU::getMLEMDataTmpBuffer()
 {
 	return mpd_datTmp.get();
 }
 
-int OSEM_GPU::GetNumBatches(int subsetId, bool forRecon) const
+int OSEM_GPU::getNumBatches(int subsetId, bool forRecon) const
 {
 	if (forRecon)
 	{
@@ -209,10 +209,10 @@ int OSEM_GPU::GetNumBatches(int subsetId, bool forRecon) const
 	return mpd_tempSensDataInput->getNumBatches(subsetId);
 }
 
-void OSEM_GPU::LoadBatch(int batchId, bool forRecon)
+void OSEM_GPU::loadBatch(int batchId, bool forRecon)
 {
 	std::cout << "Loading batch " << batchId + 1 << "/"
-		<< GetNumBatches(m_current_OSEM_subset, forRecon) << "..."
+		<< getNumBatches(m_current_OSEM_subset, forRecon) << "..."
 		<< std::endl;
 	if (forRecon)
 	{
@@ -233,7 +233,7 @@ void OSEM_GPU::LoadBatch(int batchId, bool forRecon)
 	std::cout << "Batch " << batchId + 1 << " loaded." << std::endl;
 }
 
-void OSEM_GPU::LoadSubset(int subsetId, bool forRecon)
+void OSEM_GPU::loadSubset(int subsetId, bool forRecon)
 {
 	m_current_OSEM_subset = subsetId;
 
@@ -248,7 +248,7 @@ void OSEM_GPU::LoadSubset(int subsetId, bool forRecon)
 	}
 }
 
-void OSEM_GPU::CompleteMLEMIteration() {}
+void OSEM_GPU::completeMLEMIteration() {}
 
 const cudaStream_t* OSEM_GPU::getAuxStream() const
 {
