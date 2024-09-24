@@ -293,7 +293,8 @@ int main(int argc, char** argv)
 
 		sss.computeAdditiveScatterCorrection(nZ, nPhi, nR, printProgressFlag);
 
-		// Generate _final_ additive histogram
+		std::cout << "Preparing final additive correction histogram..."
+		          << std::endl;
 		const Histogram3D* scatterHis = sss.getScatterHistogram();
 		additiveHis->operationOnEachBinParallel(
 		    [&additiveHis, &scatterHis](const bin_t bin) -> float
@@ -302,7 +303,9 @@ int main(int argc, char** argv)
 			           scatterHis->getProjectionValue(bin);
 		    });
 
+		std::cout << "Saving histogram file..." << std::endl;
 		additiveHis->writeToFile(scatterHistoOut_fname);
+		std::cout << "Done." << std::endl;
 
 		return 0;
 	}
