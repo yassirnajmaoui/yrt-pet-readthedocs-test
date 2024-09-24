@@ -8,9 +8,9 @@
 #include "datastruct/IO.hpp"
 #include "datastruct/image/Image.hpp"
 #include "datastruct/projection/Histogram3D.hpp"
-#include "datastruct/projection/UniformHistogram.hpp"
 #include "datastruct/projection/ListMode.hpp"
 #include "datastruct/projection/ProjectionData.hpp"
+#include "datastruct/projection/UniformHistogram.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "motion/ImageWarperMatrix.hpp"
 #include "operators/OperatorProjector.hpp"
@@ -65,8 +65,8 @@ void py_setup_osem(pybind11::module& m)
 	c.def("reconstructWithWarperMotion", &OSEM::reconstructWithWarperMotion);
 	c.def("summary", &OSEM::summary);
 
-	c.def("getSensDataInput", static_cast<ProjectionData* (OSEM::*)()>(
-	                              &OSEM::getSensDataInput));
+	c.def("getSensDataInput",
+	      static_cast<ProjectionData* (OSEM::*)()>(&OSEM::getSensDataInput));
 	c.def("setSensDataInput", &OSEM::setSensDataInput);
 	c.def("getDataInput",
 	      static_cast<ProjectionData* (OSEM::*)()>(&OSEM::getDataInput));
@@ -115,8 +115,10 @@ OSEM::OSEM(const Scanner& pr_scanner)
       tofNumStd(0),
       saveSteps(0),
       usingListModeInput(false),
+      needToMakeCopyOfSensImage(false),
       sensDataInput(nullptr),
-      dataInput(nullptr)
+      dataInput(nullptr),
+      copiedSensitivityImage(nullptr)
 {
 }
 
@@ -197,7 +199,6 @@ void OSEM::generateSensitivityImagesCore(
 		          << "..." << std::endl;
 
 		loadSubsetInternal(subsetId, false);
-
 
 		generateSensitivityImageForSubset(subsetId);
 
@@ -364,13 +365,26 @@ bool OSEM::isListModeEnabled() const
 	return usingListModeInput;
 }
 
+void OSEM::enableNeedToMakeCopyOfSensImage()
+{
+	needToMakeCopyOfSensImage = true;
+}
+
 const Image* OSEM::getSensitivityImage(int subsetId) const
 {
+	if (copiedSensitivityImage != nullptr)
+	{
+		return copiedSensitivityImage.get();
+	}
 	return sensitivityImages.at(subsetId);
 }
 
 Image* OSEM::getSensitivityImage(int subsetId)
 {
+	if (copiedSensitivityImage != nullptr)
+	{
+		return copiedSensitivityImage.get();
+	}
 	return sensitivityImages.at(subsetId);
 }
 
@@ -386,13 +400,31 @@ void OSEM::reconstruct()
 	ASSERT_MSG(outImage != nullptr, "Output image unspecified");
 	ASSERT_MSG(dataInput != nullptr, "Data input unspecified");
 	ASSERT_MSG(!sensitivityImages.empty(), "Sensitivity image(s) unspecified");
-	ASSERT_MSG(imageParams.isValid(), "Image parameters not valid/set");
+
+	if (!imageParams.isValid())
+	{
+		imageParams = sensitivityImages[0]->getParams();
+	}
+
 	if (usingListModeInput)
 	{
 		std::cout << "Arranging sensitivity image scaling for ListMode"
 		          << std::endl;
-		sensitivityImages[0]->multWithScalar(
-		    1.0 / (static_cast<double>(num_OSEM_subsets)));
+		if (needToMakeCopyOfSensImage)
+		{
+			// This is for the specific case of doing a list-mode reconstruction
+			// from Python
+			copiedSensitivityImage = std::make_unique<ImageOwned>(imageParams);
+			copiedSensitivityImage->allocate();
+			copiedSensitivityImage->copyFromImage(sensitivityImages.at(0));
+			copiedSensitivityImage->multWithScalar(
+			    1.0 / (static_cast<double>(num_OSEM_subsets)));
+		}
+		else
+		{
+			sensitivityImages[0]->multWithScalar(
+			    1.0 / (static_cast<double>(num_OSEM_subsets)));
+		}
 	}
 
 	initializeForRecon();
@@ -494,7 +526,11 @@ void OSEM::reconstructWithWarperMotion()
 	           "reconstruction with image warper");
 	ASSERT_MSG(outImage != nullptr, "Output image unspecified");
 	ASSERT_MSG(dataInput != nullptr, "Data input unspecified");
-	ASSERT_MSG(imageParams.isValid(), "Image parameters not valid/set");
+
+	if (!imageParams.isValid())
+	{
+		imageParams = sensitivityImages.at(0)->getParams();
+	}
 
 	allocateForRecon();
 	auto mlem_image_update_factor = std::make_unique<ImageOwned>(imageParams);
@@ -502,7 +538,7 @@ void OSEM::reconstructWithWarperMotion()
 	auto mlem_image_curr_frame = std::make_unique<ImageOwned>(imageParams);
 	mlem_image_curr_frame->allocate();
 
-	Image* sens_image = sensitivityImages[0];
+	Image* sens_image = sensitivityImages.at(0);
 	std::cout << "Computing global Warp-to-ref frame" << std::endl;
 	warper->computeGlobalWarpToRefFrame(sens_image, saveSteps > 0);
 	std::cout << "Applying threshold" << std::endl;

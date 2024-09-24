@@ -32,42 +32,42 @@ void py_setup_reconstructionutils(pybind11::module& m)
 {
 	m.def("histogram3DToListModeLUT", &Util::histogram3DToListModeLUT);
 	m.def(
-		"convertToHistogram3D",
-		[](const Histogram& dat, Histogram3D& histoOut)
-		{
-			Util::convertToHistogram3D<false>(dat, histoOut);
-		},
-		py::arg("histogramDataInput"), py::arg("histoOut"));
+	    "convertToHistogram3D", [](const Histogram& dat, Histogram3D& histoOut)
+	    { Util::convertToHistogram3D<false>(dat, histoOut); },
+	    py::arg("histogramDataInput"), py::arg("histoOut"));
 	m.def(
-		"convertToHistogram3D",
-		[](const ListMode& dat, Histogram3D& histoOut)
-		{
-			Util::convertToHistogram3D<true>(dat, histoOut);
-		},
-		py::arg("listmodeDataInput"), py::arg("histoOut"));
-	m.def("createOSEM", &Util::createOSEM, py::arg("scanner"),
-	      py::arg("useGPU") = false);
+	    "convertToHistogram3D", [](const ListMode& dat, Histogram3D& histoOut)
+	    { Util::convertToHistogram3D<true>(dat, histoOut); },
+	    py::arg("listmodeDataInput"), py::arg("histoOut"));
+	m.def(
+	    "createOSEM",
+	    [](const Scanner& scanner, bool useGPU)
+	    {
+		    auto osem = Util::createOSEM(scanner, useGPU);
+		    osem->enableNeedToMakeCopyOfSensImage();
+		    return osem;
+	    },
+	    py::arg("scanner"), py::arg("useGPU") = false);
 	m.def("generateTORRandomDOI", &Util::generateTORRandomDOI,
 	      py::arg("scanner"), py::arg("d1"), py::arg("d2"), py::arg("vmax"));
 
-	m.def("forwProject",
-	      static_cast<void (*)(const Scanner& scanner, const Image& img,
-	                           ProjectionData& projData,
-	                           OperatorProjector::ProjectorType projectorType,
-	                           const Image* attImage,
-	                           const Histogram* additiveHistogram)>(
-		      &Util::forwProject),
-	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
-	      py::arg("projectorType") = OperatorProjector::ProjectorType::SIDDON,
-	      py::arg("attImage") = nullptr,
-	      py::arg("additiveHistogram") = nullptr);
+	m.def(
+	    "forwProject",
+	    static_cast<void (*)(
+	        const Scanner& scanner, const Image& img, ProjectionData& projData,
+	        OperatorProjector::ProjectorType projectorType,
+	        const Image* attImage, const Histogram* additiveHistogram)>(
+	        &Util::forwProject),
+	    py::arg("scanner"), py::arg("img"), py::arg("projData"),
+	    py::arg("projectorType") = OperatorProjector::ProjectorType::SIDDON,
+	    py::arg("attImage") = nullptr, py::arg("additiveHistogram") = nullptr);
 	m.def("forwProject",
 	      static_cast<void (*)(
-		      const Scanner& scanner, const Image& img,
-		      ProjectionData& projData, const BinIterator& binIterator,
-		      OperatorProjector::ProjectorType projectorType,
-		      const Image* attImage, const Histogram* additiveHistogram)>(
-		      &Util::forwProject),
+	          const Scanner& scanner, const Image& img,
+	          ProjectionData& projData, const BinIterator& binIterator,
+	          OperatorProjector::ProjectorType projectorType,
+	          const Image* attImage, const Histogram* additiveHistogram)>(
+	          &Util::forwProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("binIterator"),
 	      py::arg("projectorType") = OperatorProjector::SIDDON,
@@ -79,30 +79,29 @@ void py_setup_reconstructionutils(pybind11::module& m)
 	                           OperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
 	                           const Histogram* additiveHistogram)>(
-		      &Util::forwProject),
+	          &Util::forwProject),
 	      py::arg("img"), py::arg("projData"), py::arg("projParams"),
 	      py::arg("projectorType") = OperatorProjector::SIDDON,
 	      py::arg("attImage") = nullptr,
 	      py::arg("additiveHistogram") = nullptr);
 
-	m.def("backProject",
-	      static_cast<void (*)(const Scanner& scanner, Image& img,
-	                           const ProjectionData& projData,
-	                           OperatorProjector::ProjectorType projectorType,
-	                           const Image* attImage,
-	                           const Histogram* additiveHistogram)>(
-		      &Util::backProject),
-	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
-	      py::arg("projectorType") = OperatorProjector::ProjectorType::SIDDON,
-	      py::arg("attImage") = nullptr,
-	      py::arg("additiveHistogram") = nullptr);
+	m.def(
+	    "backProject",
+	    static_cast<void (*)(
+	        const Scanner& scanner, Image& img, const ProjectionData& projData,
+	        OperatorProjector::ProjectorType projectorType,
+	        const Image* attImage, const Histogram* additiveHistogram)>(
+	        &Util::backProject),
+	    py::arg("scanner"), py::arg("img"), py::arg("projData"),
+	    py::arg("projectorType") = OperatorProjector::ProjectorType::SIDDON,
+	    py::arg("attImage") = nullptr, py::arg("additiveHistogram") = nullptr);
 	m.def("backProject",
 	      static_cast<void (*)(
-		      const Scanner& scanner, Image& img,
-		      const ProjectionData& projData, const BinIterator& binIterator,
-		      OperatorProjector::ProjectorType projectorType,
-		      const Image* attImage, const Histogram* additiveHistogram)>(
-		      &Util::backProject),
+	          const Scanner& scanner, Image& img,
+	          const ProjectionData& projData, const BinIterator& binIterator,
+	          OperatorProjector::ProjectorType projectorType,
+	          const Image* attImage, const Histogram* additiveHistogram)>(
+	          &Util::backProject),
 	      py::arg("scanner"), py::arg("img"), py::arg("projData"),
 	      py::arg("binIterator"),
 	      py::arg("projectorType") = OperatorProjector::SIDDON,
@@ -114,7 +113,7 @@ void py_setup_reconstructionutils(pybind11::module& m)
 	                           OperatorProjector::ProjectorType projectorType,
 	                           const Image* attImage,
 	                           const Histogram* additiveHistogram)>(
-		      &Util::backProject),
+	          &Util::backProject),
 	      py::arg("img"), py::arg("projData"), py::arg("projParams"),
 	      py::arg("projectorType") = OperatorProjector::SIDDON,
 	      py::arg("attImage") = nullptr,
@@ -159,7 +158,7 @@ namespace Util
 		if (numThreads > 1)
 		{
 			size_t numBinsPerThread =
-				std::ceil(double(histo->count()) / (double)numThreads);
+			    std::ceil(double(histo->count()) / (double)numThreads);
 			Array1D<size_t> partialSums;
 			partialSums.allocate(numThreads);
 
@@ -173,7 +172,7 @@ namespace Util
 				for (bin_t binId = binStart; binId <= binEnd; binId++)
 				{
 					partialSums[ti] +=
-						std::lround(dataPtr[binId] / sum * (double)numEvents);
+					    std::lround(dataPtr[binId] / sum * (double)numEvents);
 				}
 			}
 
@@ -200,7 +199,7 @@ namespace Util
 					{
 						auto [d1, d2] = histo->getDetectorPair(binId);
 						int numEventsBin = std::lround(dataPtr[binId] / sum *
-							(double)numEvents);
+						                               (double)numEvents);
 						for (int ei = 0; ei < numEventsBin; ei++)
 						{
 							lmOut->setDetectorIdsOfEvent(eventId++, d1, d2);
@@ -218,7 +217,7 @@ namespace Util
 				{
 					auto [d1, d2] = histo->getDetectorPair(binId);
 					int numEventsBin =
-						std::lround(dataPtr[binId] / sum * (double)numEvents);
+					    std::lround(dataPtr[binId] / sum * (double)numEvents);
 					for (int ei = 0; ei < numEventsBin; ei++)
 					{
 						lmOut->setDetectorIdsOfEvent(eventId++, d1, d2);
@@ -229,8 +228,7 @@ namespace Util
 	}
 
 	template <bool RequiresAtomicAccumulation>
-	void convertToHistogram3D(const ProjectionData& dat,
-	                          Histogram3D& histoOut)
+	void convertToHistogram3D(const ProjectionData& dat, Histogram3D& histoOut)
 	{
 		float* histoDataPointer = histoOut.getData().getRawPointer();
 		const size_t numDatBins = dat.count();
@@ -264,7 +262,7 @@ namespace Util
 					continue;
 				}
 				const bin_t histoBin =
-					histoOut_constptr->getBinIdFromDetPair(d1, d2);
+				    histoOut_constptr->getBinIdFromDetPair(d1, d2);
 				if constexpr (RequiresAtomicAccumulation)
 				{
 #pragma omp atomic
@@ -284,8 +282,8 @@ namespace Util
 	                                          Histogram3D&);
 
 	OperatorProjectorBase::ProjectionProperties
-		getProjectionProperties(const Scanner& scanner,
-		                        const ProjectionData& dat, bin_t bin)
+	    getProjectionProperties(const Scanner& scanner,
+	                            const ProjectionData& dat, bin_t bin)
 	{
 		auto [d1, d2] = dat.getDetectorPair(bin);
 
@@ -293,9 +291,8 @@ namespace Util
 		if (dat.hasArbitraryLORs())
 		{
 			const line_t lorPts = dat.getArbitraryLOR(bin);
-			lor =
-				StraightLineParam{Vector3D{lorPts.x1, lorPts.y1, lorPts.z1},
-				                  Vector3D{lorPts.x2, lorPts.y2, lorPts.z2}};
+			lor = StraightLineParam{Vector3D{lorPts.x1, lorPts.y1, lorPts.z1},
+			                        Vector3D{lorPts.x2, lorPts.y2, lorPts.z2}};
 		}
 		else
 		{
@@ -333,8 +330,8 @@ namespace Util
 		Vector3DFloat det1Orient = scanner.getDetectorOrient(d1);
 		Vector3DFloat det2Orient = scanner.getDetectorOrient(d2);
 		return OperatorProjectorBase::ProjectionProperties{
-			lor, tofValue, randomsEstimate, det1Orient.to<double>(),
-			det2Orient.to<double>()};
+		    lor, tofValue, randomsEstimate, det1Orient.to<double>(),
+		    det2Orient.to<double>()};
 	}
 
 	StraightLineParam getNativeLOR(const Scanner& scanner,
@@ -347,8 +344,8 @@ namespace Util
 	}
 
 	std::tuple<StraightLineParam, Vector3D, Vector3D>
-		generateTORRandomDOI(const Scanner& scanner, det_id_t d1, det_id_t d2,
-		                     int vmax)
+	    generateTORRandomDOI(const Scanner& scanner, det_id_t d1, det_id_t d2,
+	                         int vmax)
 	{
 		const Vector3DFloat p1 = scanner.getDetectorPos(d1);
 		const Vector3DFloat p2 = scanner.getDetectorPos(d2);
@@ -416,8 +413,8 @@ namespace Util
 		else
 		{
 			throw std::logic_error(
-				"Error in forwProject: Unknown projector type (Note that the "
-				"GPU Distance-Driven projector is unsupported for now)");
+			    "Error in forwProject: Unknown projector type (Note that the "
+			    "GPU Distance-Driven projector is unsupported for now)");
 		}
 
 		if (attImage != nullptr)
@@ -453,8 +450,7 @@ namespace Util
 	void forwProject(const Scanner& scanner, const Image& img,
 	                 ProjectionData& projData,
 	                 OperatorProjector::ProjectorType projectorType,
-	                 const Image* attImage,
-	                 const Histogram* additiveHistogram)
+	                 const Image* attImage, const Histogram* additiveHistogram)
 	{
 		const auto binIter = projData.getBinIter(1, 0);
 		const OperatorProjectorParams projParams(binIter.get(), scanner);
@@ -463,11 +459,9 @@ namespace Util
 	}
 
 	void forwProject(const Scanner& scanner, const Image& img,
-	                 ProjectionData& projData,
-	                 const BinIterator& binIterator,
+	                 ProjectionData& projData, const BinIterator& binIterator,
 	                 OperatorProjector::ProjectorType projectorType,
-	                 const Image* attImage,
-	                 const Histogram* additiveHistogram)
+	                 const Image* attImage, const Histogram* additiveHistogram)
 	{
 		const OperatorProjectorParams projParams(&binIterator, scanner);
 		forwProject(img, projData, projParams, projectorType, attImage,
@@ -477,8 +471,7 @@ namespace Util
 	void forwProject(const Image& img, ProjectionData& projData,
 	                 const OperatorProjectorParams& projParams,
 	                 OperatorProjector::ProjectorType projectorType,
-	                 const Image* attImage,
-	                 const Histogram* additiveHistogram)
+	                 const Image* attImage, const Histogram* additiveHistogram)
 	{
 		project<true>(const_cast<Image*>(&img), &projData, projParams,
 		              projectorType, attImage, additiveHistogram);
@@ -487,8 +480,7 @@ namespace Util
 	void backProject(const Scanner& scanner, Image& img,
 	                 const ProjectionData& projData,
 	                 OperatorProjector::ProjectorType projectorType,
-	                 const Image* attImage,
-	                 const Histogram* additiveHistogram)
+	                 const Image* attImage, const Histogram* additiveHistogram)
 	{
 		const auto binIter = projData.getBinIter(1, 0);
 		const OperatorProjectorParams projParams(binIter.get(), scanner);
@@ -500,8 +492,7 @@ namespace Util
 	                 const ProjectionData& projData,
 	                 const BinIterator& binIterator,
 	                 OperatorProjector::ProjectorType projectorType,
-	                 const Image* attImage,
-	                 const Histogram* additiveHistogram)
+	                 const Image* attImage, const Histogram* additiveHistogram)
 	{
 		const OperatorProjectorParams projParams(&binIterator, scanner);
 		backProject(img, projData, projParams, projectorType, attImage,
@@ -511,11 +502,10 @@ namespace Util
 	void backProject(Image& img, const ProjectionData& projData,
 	                 const OperatorProjectorParams& projParams,
 	                 OperatorProjector::ProjectorType projectorType,
-	                 const Image* attImage,
-	                 const Histogram* additiveHistogram)
+	                 const Image* attImage, const Histogram* additiveHistogram)
 	{
 		project<false>(&img, const_cast<ProjectionData*>(&projData), projParams,
 		               projectorType, attImage, additiveHistogram);
 	}
 
-} // namespace Util
+}  // namespace Util

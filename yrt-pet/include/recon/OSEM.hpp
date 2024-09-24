@@ -61,8 +61,9 @@ public:
 	void addImagePSF(OperatorPsf* p_imageSpacePsf);
 	void setSaveSteps(int p_saveSteps, const std::string& p_saveStepsPath);
 	void setListModeEnabled(bool enabled);
-	void setProjector(const std::string& projectorName); // Helper
+	void setProjector(const std::string& projectorName);  // Helper
 	bool isListModeEnabled() const;
+	void enableNeedToMakeCopyOfSensImage();
 
 	// ---------- Public members ----------
 	int num_MLEM_iterations;
@@ -76,7 +77,7 @@ public:
 	const Image* attenuationImage;
 	const Image* attenuationImageForBackprojection;
 	const Histogram* addHis;
-	ImageWarperTemplate* warper; // For MLEM with Warper only
+	ImageWarperTemplate* warper;  // For MLEM with Warper only
 	// TODO: Maybe make it so a buffer is automatically created in Initialize
 	Image* outImage;  // Buffer to for recon fill (Note: This is a host image)
 
@@ -105,13 +106,15 @@ protected:
 	std::string saveStepsPath;
 	bool usingListModeInput;  // true => ListMode, false => Histogram
 	std::unique_ptr<OperatorProjectorBase> mp_projector;
+	bool needToMakeCopyOfSensImage;
 
 	// ---------- Virtual pure functions ----------
 
 	// Sens Image generator driver
 	virtual void setupOperatorsForSensImgGen() = 0;
 	virtual void allocateForSensImgGen() = 0;
-	virtual std::unique_ptr<Image> getLatestSensitivityImage(bool isLastSubset) = 0;
+	virtual std::unique_ptr<Image>
+	    getLatestSensitivityImage(bool isLastSubset) = 0;
 	virtual void endSensImgGen() = 0;
 
 	// Reconstruction driver
@@ -148,4 +151,5 @@ private:
 	ProjectionData* dataInput;
 
 	std::vector<Image*> sensitivityImages;
+	std::unique_ptr<ImageOwned> copiedSensitivityImage;
 };
