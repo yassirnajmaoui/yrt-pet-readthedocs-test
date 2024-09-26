@@ -93,6 +93,9 @@ void OSEM_GPU::endSensImgGen()
 
 void OSEM_GPU::setupOperatorsForRecon()
 {
+	ASSERT_MSG(projectorType == OperatorProjector::ProjectorType::DD_GPU,
+			   "No viable projector provided");
+
 	getBinIterators().clear();
 	getBinIterators().reserve(num_OSEM_subsets);
 

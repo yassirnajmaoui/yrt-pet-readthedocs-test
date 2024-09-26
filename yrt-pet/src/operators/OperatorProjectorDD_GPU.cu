@@ -23,41 +23,41 @@ void py_setup_operatorprojectordd_gpu(py::module& m)
 	c.def(py::init<const OperatorProjectorParams&>(), py::arg("projParams"));
 	c.def(
 	    "applyA",
-	    [](OperatorProjector& self, const ImageDevice* img,
+	    [](OperatorProjectorDD_GPU& self, const ImageDevice* img,
 	       ProjectionData* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](OperatorProjector& self, const Image* img, ProjectionData* proj)
+	    [](OperatorProjectorDD_GPU& self, const Image* img, ProjectionData* proj)
 	    { self.applyA(img, proj); }, py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](OperatorProjector& self, const ImageDevice* img,
+	    [](OperatorProjectorDD_GPU& self, const ImageDevice* img,
 	       ProjectionDataDevice* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 	c.def(
 	    "applyA",
-	    [](OperatorProjector& self, const Image* img,
+	    [](OperatorProjectorDD_GPU& self, const Image* img,
 	       ProjectionDataDevice* proj) { self.applyA(img, proj); },
 	    py::arg("img"), py::arg("proj"));
 
 	c.def(
 	    "applyAH",
-	    [](OperatorProjector& self, const ProjectionData* proj, Image* img)
+	    [](OperatorProjectorDD_GPU& self, const ProjectionData* proj, Image* img)
 	    { self.applyAH(proj, img); }, py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
-	    [](OperatorProjector& self, const ProjectionData* proj,
+	    [](OperatorProjectorDD_GPU& self, const ProjectionData* proj,
 	       ImageDevice* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
-	    [](OperatorProjector& self, const ProjectionDataDevice* proj,
+	    [](OperatorProjectorDD_GPU& self, const ProjectionDataDevice* proj,
 	       Image* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 	c.def(
 	    "applyAH",
-	    [](OperatorProjector& self, const ProjectionDataDevice* proj,
+	    [](OperatorProjectorDD_GPU& self, const ProjectionDataDevice* proj,
 	       ImageDevice* img) { self.applyAH(proj, img); },
 	    py::arg("proj"), py::arg("img"));
 }
