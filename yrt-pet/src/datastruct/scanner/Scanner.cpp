@@ -13,11 +13,22 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <utility>
+
 namespace py = pybind11;
+using namespace py::literals;
 
 void py_setup_scanner(pybind11::module& m)
 {
 	auto c = py::class_<Scanner>(m, "Scanner");
+
+	c.def(py::init<std::string, float, float, float, float, float, size_t,
+	               size_t, size_t, size_t, size_t, size_t>(),
+	      "scannerName"_a, "axialFOV"_a, "crystalSize_z"_a,
+	      "crystalSize_trans"_a, "crystalDepth"_a, "scannerRadius"_a,
+	      "detsPerRing"_a, "numRings"_a, "numDOI"_a, "maxRingDiff"_a,
+	      "minAngDiff"_a, "detsPerBlock"_a);
+	c.def(py::init<const std::string&>());
 	c.def("getNumDets", &Scanner::getNumDets);
 	c.def("getTheoreticalNumDets", &Scanner::getTheoreticalNumDets);
 	c.def("getDetectorPos", &Scanner::getDetectorPos);
@@ -48,32 +59,43 @@ void py_setup_scanner(pybind11::module& m)
 		          shape, std::move(lut.get())->getRawPointer());
 		      return lut_array;
 	      });
-
-	auto c_alias = py::class_<ScannerAlias, Scanner>(m, "ScannerAlias");
-	c_alias.def(py::init());
-	c_alias.def("setDetectorSetup", &ScannerAlias::setDetectorSetup);
-
-	auto c_owned = py::class_<ScannerOwned, Scanner>(m, "ScannerOwned");
-	c_owned.def(py::init());
-	c_owned.def(py::init<const std::string&>());
-	c_owned.def("readFromFile", &ScannerOwned::readFromFile);
-	c_owned.def("readFromString", &ScannerOwned::readFromString);
-	c_owned.def(pybind11::pickle([](const ScannerOwned& s)
-	                             { return s.getScannerPath(); },
-	                             [](const std::string& fname)
-	                             {
-		                             std::unique_ptr<ScannerOwned> s =
-		                                 std::make_unique<ScannerOwned>(fname);
-		                             return s;
-	                             }));
+	c.def("readFromFile", &Scanner::readFromFile);
+	c.def("readFromString", &Scanner::readFromString);
+	c.def(pybind11::pickle([](const Scanner& s) { return s.getScannerPath(); },
+	                       [](const std::string& fname)
+	                       {
+		                       std::unique_ptr<Scanner> s =
+		                           std::make_unique<Scanner>(fname);
+		                       return s;
+	                       }));
 }
 #endif
 
-Scanner::Scanner() : mp_detectors(nullptr) {}
-ScannerOwned::ScannerOwned() : Scanner() {}
-ScannerAlias::ScannerAlias() : Scanner() {}
-ScannerOwned::ScannerOwned(const std::string& p_definitionFile)
-    : ScannerOwned()
+Scanner::Scanner(std::string pr_scannerName, float p_axialFOV,
+                 float p_crystalSize_z, float p_crystalSize_trans,
+                 float p_crystalDepth, float p_scannerRadius,
+                 size_t p_detsPerRing, size_t p_numRings, size_t p_numDOI,
+                 size_t p_maxRingDiff, size_t p_minAngDiff,
+                 size_t p_detsPerBlock)
+    : scannerName(std::move(pr_scannerName)),
+      axialFOV(p_axialFOV),
+      crystalSize_z(p_crystalSize_z),
+      crystalSize_trans(p_crystalSize_trans),
+      crystalDepth(p_crystalDepth),
+      scannerRadius(p_scannerRadius),
+      collimatorRadius(p_scannerRadius - p_crystalDepth),
+      fwhm(0.2),
+      energyLLD(400),
+      dets_per_ring(p_detsPerRing),
+      num_rings(p_numRings),
+      num_doi(p_numDOI),
+      max_ring_diff(p_maxRingDiff),
+      min_ang_diff(p_minAngDiff),
+      dets_per_block(p_detsPerBlock)
+{
+}
+
+Scanner::Scanner(const std::string& p_definitionFile)
 {
 	readFromFile(p_definitionFile);
 }
@@ -98,6 +120,16 @@ Vector3DFloat Scanner::getDetectorOrient(det_id_t id) const
 	return mp_detectors->getOrient(id);
 }
 
+std::shared_ptr<DetectorSetup> Scanner::getDetectorSetup() const
+{
+	return mp_detectors;
+}
+
+bool Scanner::isValid() const
+{
+	return mp_detectors != nullptr;
+}
+
 void Scanner::createLUT(Array2D<float>& lut) const
 {
 	lut.allocate(this->getNumDets(), 6);
@@ -114,7 +146,13 @@ void Scanner::createLUT(Array2D<float>& lut) const
 	}
 }
 
-void ScannerOwned::readFromString(const std::string& fileContents)
+void Scanner::setDetectorSetup(
+    const std::shared_ptr<DetectorSetup>& pp_detectors)
+{
+	mp_detectors = pp_detectors;
+}
+
+void Scanner::readFromString(const std::string& fileContents)
 {
 	json j;
 	try
@@ -179,29 +217,26 @@ void ScannerOwned::readFromString(const std::string& fileContents)
 	{
 		fs::path detCoord_path =
 		    m_scannerPath.parent_path() / fs::path(detCoord);
-		mp_detectorsPtr =
-		    std::make_unique<DetCoordOwned>(detCoord_path.string());
-		if (mp_detectorsPtr->getNumDets() != getTheoreticalNumDets())
+		mp_detectors = std::make_shared<DetCoordOwned>(detCoord_path.string());
+		if (mp_detectors->getNumDets() != getTheoreticalNumDets())
 			throw std::runtime_error(
 			    "The number of detectors given by the LUT file does not match "
 			    "the scanner's characteristics. Namely, (num_doi * num_rings * "
 			    "dets_per_ring) does not equal the size of the LUT");
-		this->mp_detectors = mp_detectorsPtr.get();
 	}
 	else
 	{
-		mp_detectorsPtr = std::make_unique<DetRegular>(this);
-		static_cast<DetRegular*>(mp_detectorsPtr.get())->generateLUT();
-		this->mp_detectors = mp_detectorsPtr.get();
+		mp_detectors = std::make_shared<DetRegular>(this);
+		static_cast<DetRegular*>(mp_detectors.get())->generateLUT();
 	}
 }
 
-std::string ScannerOwned::getScannerPath() const
+std::string Scanner::getScannerPath() const
 {
 	return m_scannerPath.string();
 }
 
-void ScannerOwned::readFromFile(const std::string& p_definitionFile)
+void Scanner::readFromFile(const std::string& p_definitionFile)
 {
 	m_scannerPath = fs::path(p_definitionFile);
 	if (!(fs::exists(m_scannerPath)))

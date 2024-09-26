@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
+	auto scanner = std::make_unique<Scanner>(scanner_fname);
 	Globals::set_num_threads(numThreads);
 
 	// Input file

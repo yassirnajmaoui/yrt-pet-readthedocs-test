@@ -23,8 +23,8 @@ std::unique_ptr<ListModeLUTOwned> getListMode(const Scanner& scanner)
 
 TEST_CASE("listmode", "[list-mode]")
 {
-	const auto scannerPair = TestUtils::makeScanner();
-	auto listMode = getListMode(*scannerPair.first);
+	const auto scanner = TestUtils::makeScanner();
+	auto listMode = getListMode(*scanner);
 
 	SECTION("listmode-data")
 	{
@@ -36,7 +36,7 @@ TEST_CASE("listmode", "[list-mode]")
 
 	SECTION("listmode-binding")
 	{
-		ListModeLUTAlias listMode_alias(*scannerPair.first);
+		ListModeLUTAlias listMode_alias(*scanner);
 		listMode_alias.bind(listMode.get());
 		CHECK(listMode->getTimestamp(0) == listMode_alias.getTimestamp(0));
 		CHECK(listMode->getTimestamp(13) == listMode_alias.getTimestamp(13));
@@ -50,7 +50,7 @@ TEST_CASE("listmode", "[list-mode]")
 	{
 		listMode->writeToFile("listmode1");
 
-		auto listMode2 = std::make_unique<ListModeLUTOwned>(*scannerPair.first);
+		auto listMode2 = std::make_unique<ListModeLUTOwned>(*scanner);
 		listMode2->readFromFile("listmode1");
 
 		CHECK(listMode->getTimestamp(0) == listMode2->getTimestamp(0));

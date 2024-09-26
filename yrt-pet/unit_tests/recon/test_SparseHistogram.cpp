@@ -9,23 +9,12 @@
 #include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/projection/SparseHistogram.hpp"
 #include "datastruct/scanner/DetRegular.hpp"
+#include "test_utils.hpp"
 
 
 TEST_CASE("sparsehisto", "[sparsehisto]")
 {
-	auto scanner = std::make_unique<ScannerAlias>();  // Fake small scanner
-	scanner->scannerRadius = 2;
-	scanner->axialFOV = 200;
-	scanner->dets_per_ring = 24;
-	scanner->num_rings = 3;
-	scanner->num_doi = 1;
-	scanner->max_ring_diff = 4;
-	scanner->min_ang_diff = 6;
-	scanner->dets_per_block = 1;
-	scanner->crystalDepth = 0.5;
-	auto detRegular = std::make_unique<DetRegular>(scanner.get());
-	detRegular->generateLUT();
-	scanner->setDetectorSetup(detRegular.get());
+	auto scanner = TestUtils::makeScanner();
 
 	SECTION("from-listmode")
 	{

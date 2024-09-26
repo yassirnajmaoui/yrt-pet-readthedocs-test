@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
 	Globals::set_num_threads(numThreads);
 
-	auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
+	auto scanner = std::make_unique<Scanner>(scanner_fname);
 
 	std::cout << "Reading input data..." << std::endl;
 

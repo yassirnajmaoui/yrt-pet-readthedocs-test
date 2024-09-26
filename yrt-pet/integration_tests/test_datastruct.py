@@ -26,7 +26,7 @@ fold_bin = _helper.fold_bin
 
 
 def test_scanner_lookup_table():
-    scanner = yrt.ScannerOwned(
+    scanner = yrt.Scanner(
         util_paths['Geometry_2panels_large_3x3x20mm_rot_gc_json'])
     lut = scanner.createLUT()
     bin_id = 10

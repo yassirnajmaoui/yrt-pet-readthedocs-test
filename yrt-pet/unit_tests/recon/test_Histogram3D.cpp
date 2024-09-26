@@ -8,7 +8,9 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/ListModeLUT.hpp"
 #include "datastruct/scanner/DetRegular.hpp"
+#include "test_utils.hpp"
 #include "utils/ReconstructionUtils.hpp"
+
 
 bool check_coords(std::array<coord_t, 3> c1, std::array<coord_t, 3> c2)
 {
@@ -55,19 +57,7 @@ bool compare_coords(std::array<coord_t, 3> c1, std::array<coord_t, 3> c2)
 
 TEST_CASE("histo3d", "[histo]")
 {
-	auto scanner = std::make_unique<ScannerAlias>();  // Fake small scanner
-	scanner->scannerRadius = 2;
-	scanner->axialFOV = 200;
-	scanner->dets_per_ring = 24;
-	scanner->num_rings = 9;
-	scanner->num_doi = 2;
-	scanner->max_ring_diff = 4;
-	scanner->min_ang_diff = 6;
-	scanner->dets_per_block = 1;
-	scanner->crystalDepth = 0.5;
-	auto detRegular = std::make_unique<DetRegular>(scanner.get());
-	detRegular->generateLUT();
-	scanner->setDetectorSetup(detRegular.get());
+	auto scanner = TestUtils::makeScanner();
 
 	size_t n_total_detectors =
 	    scanner->num_doi * scanner->num_rings * scanner->dets_per_ring;

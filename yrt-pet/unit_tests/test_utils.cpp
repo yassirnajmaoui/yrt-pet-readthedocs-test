@@ -1,22 +1,19 @@
 #include "test_utils.hpp"
 
-std::pair<std::unique_ptr<ScannerAlias>,
-          std::unique_ptr<DetRegular>> TestUtils::makeScanner()
+std::unique_ptr<Scanner> TestUtils::makeScanner()
 {
-	auto scanner = std::make_unique<ScannerAlias>();  // Fake small scanner
-	scanner->scannerRadius = 2;
-	scanner->axialFOV = 200;
-	scanner->dets_per_ring = 24;
-	scanner->num_rings = 9;
-	scanner->num_doi = 2;
-	scanner->max_ring_diff = 4;
-	scanner->min_ang_diff = 6;
-	scanner->dets_per_block = 1;
-	scanner->crystalDepth = 0.5;
-	auto detRegular = std::make_unique<DetRegular>(scanner.get());
+	// Fake small scanner
+	auto scanner = std::make_unique<Scanner>("FakeScanner", 200, 1, 1, 10, 200,
+	                                         24, 9, 2, 4, 6, 4);
+	const auto detRegular = std::make_shared<DetRegular>(scanner.get());
 	detRegular->generateLUT();
-	scanner->setDetectorSetup(detRegular.get());
-	return std::pair<std::unique_ptr<ScannerAlias>,
-	                 std::unique_ptr<DetRegular>>(std::move(scanner),
-	                                                std::move(detRegular));
+	scanner->setDetectorSetup(detRegular);
+
+	// Sanity check
+	if(!scanner->isValid())
+	{
+		throw std::runtime_error("Unknown error in TestUtils::makeScanner");
+	}
+
+	return scanner;
 }

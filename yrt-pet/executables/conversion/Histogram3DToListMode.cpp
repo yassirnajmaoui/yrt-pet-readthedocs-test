@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 
 	Globals::set_num_threads(numThreads);
 
-	const auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
+	const auto scanner = std::make_unique<Scanner>(scanner_fname);
 	auto histo =
 	    std::make_unique<Histogram3DOwned>(*scanner, input_fname);
 

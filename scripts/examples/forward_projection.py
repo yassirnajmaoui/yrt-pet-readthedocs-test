@@ -3,7 +3,7 @@ import pyyrtpet as yrt
 
 # Note: This file is not to be executed, but simply to be used as a documentation
 
-scanner = yrt.ScannerOwned("<path to the scanner's json file>")
+scanner = yrt.Scanner("<path to the scanner's json file>")
 
 # Prepare an empty histogram
 outHis = yrt.Histogram3DOwned(scanner)

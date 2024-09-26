@@ -3,11 +3,12 @@
  * file 'LICENSE.txt', which is part of this source code package.
  */
 
-#include "datastruct/scanner/Scanner.hpp"
+#pragma once
+
 #include "datastruct/scanner/DetRegular.hpp"
+#include "datastruct/scanner/Scanner.hpp"
 
 namespace TestUtils
 {
-	std::pair<std::unique_ptr<ScannerAlias>,
-	          std::unique_ptr<DetRegular>> makeScanner();
+	std::unique_ptr<Scanner> makeScanner();
 }

@@ -18,22 +18,31 @@ namespace fs = std::filesystem;
 class Scanner
 {
 public:
+	Scanner(std::string pr_scannerName, float p_axialFOV,
+	        float p_crystalSize_z, float p_crystalSize_trans, float p_crystalDepth,
+	        float p_scannerRadius, size_t p_detsPerRing, size_t p_numRings,
+	        size_t p_numDOI, size_t p_maxRingDiff, size_t p_minAngDiff,
+	        size_t p_detsPerBlock);
+	explicit Scanner(const std::string& p_definitionFile);
+	void readFromFile(const std::string& p_definitionFile);
+	void readFromString(const std::string& fileContents);
+	std::string getScannerPath() const;
 	size_t getNumDets() const;
 	size_t getTheoreticalNumDets() const;
 	Vector3DFloat getDetectorPos(det_id_t id) const;
 	Vector3DFloat getDetectorOrient(det_id_t id) const;
-	const DetectorSetup* getDetectorSetup() const { return mp_detectors; }
+	std::shared_ptr<DetectorSetup> getDetectorSetup() const;
+	bool isValid() const;
+
 	// Allocate and fill array with detector positions
 	void createLUT(Array2D<float>& lut) const;
-
-protected:
-	Scanner();
+	void setDetectorSetup(const std::shared_ptr<DetectorSetup>& pp_detectors);
 
 public:
 	std::string scannerName;
 	float axialFOV, crystalSize_z, crystalSize_trans, crystalDepth,
 	    scannerRadius;
-	float collimatorRadius, fwhm, energyLLD;  // for Scatter
+	float collimatorRadius, fwhm, energyLLD;  // Optional, for scatter only
 
 	// dets_per_ring : Number of detectors per ring (not counting DOI)
 	// num_rings : Number of rings in total (not countring DOI)
@@ -44,30 +53,6 @@ public:
 	size_t dets_per_block;
 
 protected:
-	// Base class that encapsulates the calculations for both a regular and a
-	// LUT based scanner
-	DetectorSetup* mp_detectors;
-};
-
-// Owned class for when the detector setup is of the right ownership
-class ScannerOwned : public Scanner
-{
-public:
-	ScannerOwned();
-	ScannerOwned(const std::string& p_definitionFile);
-	void readFromFile(const std::string& p_definitionFile);
-	void readFromString(const std::string& fileContents);
-	std::string getScannerPath() const;
-
-protected:
 	fs::path m_scannerPath;
-	std::unique_ptr<DetectorSetup> mp_detectorsPtr;
-};
-
-// Alias scanner class for when the detector setup is outside the scope
-class ScannerAlias : public Scanner
-{
-public:
-	ScannerAlias();
-	void setDetectorSetup(DetectorSetup* d) { this->mp_detectors = d; }
+	std::shared_ptr<DetectorSetup> mp_detectors;
 };

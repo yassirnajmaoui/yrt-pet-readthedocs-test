@@ -138,7 +138,7 @@ int main(int argc, char** argv)
 	try
 	{
 		Globals::set_num_threads(numThreads);
-		auto scanner = std::make_unique<ScannerOwned>(scanner_fname);
+		auto scanner = std::make_unique<Scanner>(scanner_fname);
 
 		// Check if scanner parameters have been set properly for Scatter
 		// estimation

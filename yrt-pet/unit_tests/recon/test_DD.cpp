@@ -12,6 +12,7 @@
 #include "operators/OperatorProjectorDD.hpp"
 #include "operators/OperatorProjectorSiddon.hpp"
 #include "utils/ReconstructionUtils.hpp"
+#include "../test_utils.hpp"
 
 #include <algorithm>
 #include <utility>
@@ -86,23 +87,9 @@ TEST_CASE("DD", "[dd]")
 	srand(13);
 
 	// Create Scanner
-	auto scanner = std::make_unique<ScannerAlias>();
-	scanner->scannerRadius = 200;
-	scanner->axialFOV = 100;
-	scanner->dets_per_ring = 64;
-	scanner->num_rings = 8;
-	scanner->num_doi = 1;
-	scanner->max_ring_diff = 9;
-	scanner->min_ang_diff = 3;
-	scanner->dets_per_block = 1;
-	scanner->crystalDepth = 0.5;
-	scanner->crystalSize_trans = 0.15;
-	scanner->crystalSize_z = 0.15;
-	auto detRegular = std::make_unique<DetRegular>(scanner.get());
-	detRegular->generateLUT();
-	scanner->setDetectorSetup(detRegular.get());
-	size_t numDets =
-	    scanner->num_doi * scanner->num_rings * scanner->dets_per_ring;
+	const auto scanner = TestUtils::makeScanner();
+
+	const size_t numDets = scanner->getTheoreticalNumDets();
 
 	// Create some image
 	// Setup image

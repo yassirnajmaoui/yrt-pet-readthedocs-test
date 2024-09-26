@@ -26,7 +26,7 @@ fold_bin = _helper.fold_bin
 
 def test_mlem_simple():
     img_params = yrt.ImageParams(util_paths['img_params_500'])
-    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    scanner = yrt.Scanner(util_paths['SAVANT_json'])
     dataset = yrt.ListModeLUTOwned(scanner, dataset_paths['test_mlem_simple'])
     sens_img = yrt.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
     _helper._test_reconstruction(
@@ -39,7 +39,7 @@ def _test_mlem_helper(dset):
     """Helper function for motion MLEM tests"""
     test_name = 'test_mlem_{}'.format(dset)
     img_params = yrt.ImageParams(util_paths['img_params_500'])
-    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    scanner = yrt.Scanner(util_paths['SAVANT_json'])
     dataset = yrt.ListModeLUTOwned(scanner, dataset_paths[test_name][0])
     sens_img = yrt.ImageOwned(img_params, util_paths['SensImageSAVANT500'])
 
@@ -66,7 +66,7 @@ def test_mlem_yesMan():
 
 def test_bwd():
     img_params = yrt.ImageParams(util_paths['img_params_500'])
-    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    scanner = yrt.Scanner(util_paths['SAVANT_json'])
     dataset = yrt.ListModeLUTOwned(scanner, dataset_paths['test_bwd'])
 
     out_img = yrt.ImageOwned(img_params)
@@ -86,7 +86,7 @@ def test_bwd():
 
 def test_sens():
     img_params = yrt.ImageParams(util_paths['img_params_500'])
-    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    scanner = yrt.Scanner(util_paths['SAVANT_json'])
     dataset = yrt.UniformHistogram(scanner)
 
     osem = yrt.createOSEM(scanner)
@@ -198,7 +198,7 @@ def test_psf_adjoint():
 
 def test_flat_panel_mlem_tof():
     img_params = yrt.ImageParams(util_paths['img_params_3.0'])
-    scanner = yrt.ScannerOwned(
+    scanner = yrt.Scanner(
         util_paths['Geometry_2panels_large_3x3x20mm_rot_gc_json'])
     dataset = yrt.ListModeLUTDOIOwned(
         scanner, dataset_paths['test_flat_panel_mlem_tof'][0], True)
@@ -238,28 +238,28 @@ def test_flat_panel_mlem_tof_exec():
 
 
 def test_subsets_savant_siddon():
-    scanner = yrt.ScannerOwned(util_paths["SAVANT_json"])
+    scanner = yrt.Scanner(util_paths["SAVANT_json"])
     img_params = yrt.ImageParams(util_paths["img_params_500"])
     lm = yrt.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
     _helper._test_subsets(scanner, img_params, lm, projector='Siddon')
 
 
 def test_subsets_savant_dd():
-    scanner = yrt.ScannerOwned(util_paths["SAVANT_json"])
+    scanner = yrt.Scanner(util_paths["SAVANT_json"])
     img_params = yrt.ImageParams(util_paths["img_params_500"])
     lm = yrt.ListModeLUTOwned(scanner, dataset_paths["test_subsets_savant"])
     _helper._test_subsets(scanner, img_params, lm, projector='DD')
 
 
 def test_adjoint_uhr2d_siddon():
-    scanner = yrt.ScannerOwned(util_paths["UHR2D_json"])
+    scanner = yrt.Scanner(util_paths["UHR2D_json"])
     img_params = yrt.ImageParams(util_paths["img_params_2d"])
     his = yrt.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='Siddon')
 
 
 def test_adjoint_uhr2d_multi_ray_siddon():
-    scanner = yrt.ScannerOwned(util_paths["UHR2D_json"])
+    scanner = yrt.Scanner(util_paths["UHR2D_json"])
     img_params = yrt.ImageParams(util_paths["img_params_2d"])
     his = yrt.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='Siddon',
@@ -267,7 +267,7 @@ def test_adjoint_uhr2d_multi_ray_siddon():
 
 
 def test_adjoint_uhr2d_dd():
-    scanner = yrt.ScannerOwned(util_paths["UHR2D_json"])
+    scanner = yrt.Scanner(util_paths["UHR2D_json"])
     img_params = yrt.ImageParams(util_paths["img_params_2d"])
     his = yrt.ListModeLUTOwned(scanner, dataset_paths["test_adjoint_uhr2d"])
     _helper._test_adjoint(scanner, img_params, his, projector='DD')
@@ -308,7 +308,7 @@ def test_osem_his_2d():
 def test_osem_siddon_multi_ray():
     num_siddon_rays = 6
     img_params = yrt.ImageParams(util_paths['img_params_500'])
-    scanner = yrt.ScannerOwned(util_paths['SAVANT_json'])
+    scanner = yrt.Scanner(util_paths['SAVANT_json'])
     dataset = yrt.ListModeLUTOwned(
         scanner, dataset_paths['test_osem_siddon_multi_ray'])
     sens_img = yrt.ImageOwned(

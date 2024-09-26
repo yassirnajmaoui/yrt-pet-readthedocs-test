@@ -9,7 +9,7 @@
 #include "utils/PageLockedBuffer.cuh"
 
 ScannerDevice::ScannerDevice(const Scanner& pr_scanner,
-                                 const cudaStream_t* pp_stream)
+                             const cudaStream_t* pp_stream)
     : mr_scanner(pr_scanner), isAllocated(false), isLoaded(false)
 {
 	mpd_detPos = std::make_unique<DeviceArray<float4>>();
@@ -30,7 +30,8 @@ void ScannerDevice::load(const cudaStream_t* stream)
 	float4* ph_detPos = tempBuffer.getPointer();
 	float4* ph_detOrient = ph_detPos + numDets;
 
-	const DetectorSetup* detectorSetup = mr_scanner.getDetectorSetup();
+	const auto detectorSetup_shared = mr_scanner.getDetectorSetup();
+	const DetectorSetup* detectorSetup = detectorSetup_shared.get();
 
 #pragma omp parallel for default(none) \
     firstprivate(ph_detPos, ph_detOrient, numDets, detectorSetup)
