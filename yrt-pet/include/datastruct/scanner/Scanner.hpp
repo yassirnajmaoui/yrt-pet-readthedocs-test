@@ -58,8 +58,6 @@ public:
 	void readFromFile(const std::string& p_definitionFile);
 	void readFromString(const std::string& fileContents);
 	std::string getScannerPath() const;
-	void setScannerPath(const fs::path& p);
-	void setScannerPath(const std::string& s);
 
 protected:
 	fs::path m_scannerPath;

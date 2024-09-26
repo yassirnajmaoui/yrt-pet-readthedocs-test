@@ -58,11 +58,6 @@ void py_setup_scanner(pybind11::module& m)
 	c_owned.def(py::init<const std::string&>());
 	c_owned.def("readFromFile", &ScannerOwned::readFromFile);
 	c_owned.def("readFromString", &ScannerOwned::readFromString);
-	c_owned.def_property(
-	    "scannerPath",
-	    [](const ScannerOwned& self) { return self.getScannerPath(); },
-	    [](ScannerOwned& self, const std::string& str)
-	    { self.setScannerPath(str); });
 	c_owned.def(pybind11::pickle([](const ScannerOwned& s)
 	                             { return s.getScannerPath(); },
 	                             [](const std::string& fname)
@@ -204,16 +199,6 @@ void ScannerOwned::readFromString(const std::string& fileContents)
 std::string ScannerOwned::getScannerPath() const
 {
 	return m_scannerPath.string();
-}
-
-void ScannerOwned::setScannerPath(const fs::path& p)
-{
-	m_scannerPath = p;
-}
-
-void ScannerOwned::setScannerPath(const std::string& s)
-{
-	m_scannerPath = fs::path(s);
 }
 
 void ScannerOwned::readFromFile(const std::string& p_definitionFile)
