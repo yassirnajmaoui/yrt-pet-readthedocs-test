@@ -49,6 +49,7 @@ namespace Util
                   T defaultValue, bool isMandatory,
                   const std::string& errorMessage = "")
     {
+        // This is done to manage different aliases for the same argument
         for (const auto& argname : argnames)
         {
             if (getParam(j, buffer, argname, defaultValue, false))

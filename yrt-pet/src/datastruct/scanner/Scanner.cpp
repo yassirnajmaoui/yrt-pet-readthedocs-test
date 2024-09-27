@@ -6,13 +6,13 @@
 #include "datastruct/scanner/Scanner.hpp"
 
 #include "datastruct/scanner/DetRegular.hpp"
+#include "geometry/Constants.hpp"
 #include "utils/JSONUtils.hpp"
 
 #if BUILD_PYBIND11
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
 #include <utility>
 
 namespace py = pybind11;
@@ -42,13 +42,13 @@ void py_setup_scanner(pybind11::module& m)
 	c.def_readwrite("collimatorRadius", &Scanner::collimatorRadius);
 	c.def_readwrite("fwhm", &Scanner::fwhm);
 	c.def_readwrite("energyLLD", &Scanner::energyLLD);
-	c.def_readwrite("dets_per_ring", &Scanner::dets_per_ring);
+	c.def_readwrite("detsPerRing", &Scanner::detsPerRing);
 	c.def_readwrite("fwhm", &Scanner::fwhm);
-	c.def_readwrite("num_rings", &Scanner::num_rings);
-	c.def_readwrite("num_doi", &Scanner::num_doi);
-	c.def_readwrite("max_ring_diff", &Scanner::max_ring_diff);
-	c.def_readwrite("min_ang_diff", &Scanner::min_ang_diff);
-	c.def_readwrite("dets_per_block", &Scanner::dets_per_block);
+	c.def_readwrite("numRings", &Scanner::numRings);
+	c.def_readwrite("numDoi", &Scanner::numDoi);
+	c.def_readwrite("maxRingDiff", &Scanner::maxRingDiff);
+	c.def_readwrite("minAngDiff", &Scanner::minAngDiff);
+	c.def_readwrite("detsPerBlock", &Scanner::detsPerBlock);
 	c.def("createLUT",
 	      [](const Scanner& s)
 	      {
@@ -86,12 +86,12 @@ Scanner::Scanner(std::string pr_scannerName, float p_axialFOV,
       collimatorRadius(p_scannerRadius - p_crystalDepth),
       fwhm(0.2),
       energyLLD(400),
-      dets_per_ring(p_detsPerRing),
-      num_rings(p_numRings),
-      num_doi(p_numDOI),
-      max_ring_diff(p_maxRingDiff),
-      min_ang_diff(p_minAngDiff),
-      dets_per_block(p_detsPerBlock)
+      detsPerRing(p_detsPerRing),
+      numRings(p_numRings),
+      numDoi(p_numDOI),
+      maxRingDiff(p_maxRingDiff),
+      minAngDiff(p_minAngDiff),
+      detsPerBlock(p_detsPerBlock)
 {
 }
 
@@ -107,7 +107,7 @@ size_t Scanner::getNumDets() const
 
 size_t Scanner::getTheoreticalNumDets() const
 {
-	return num_doi * num_rings * dets_per_ring;
+	return numDoi * numRings * detsPerRing;
 }
 
 Vector3DFloat Scanner::getDetectorPos(det_id_t id) const
@@ -196,15 +196,19 @@ void Scanner::readFromString(const std::string& fileContents)
 	                      "Missing crystal depth in scanner definition file");
 	Util::getParam<float>(&j, &scannerRadius, "scannerRadius", 0.0, true,
 	                      "Missing scanner radius in scanner definition file");
-	Util::getParam<size_t>(&j, &dets_per_ring, "dets_per_ring", 0, true);
-	Util::getParam<size_t>(&j, &num_rings, "num_rings", 0, true);
-	Util::getParam<size_t>(&j, &num_doi, "num_doi", 0, true);
-	Util::getParam<size_t>(&j, &max_ring_diff, "max_ring_diff", 0, true);
-	Util::getParam<size_t>(&j, &min_ang_diff, "min_ang_diff", 0, true);
-	Util::getParam<size_t>(&j, &dets_per_block, "dets_per_block", 1, false);
+	Util::getParam<size_t>(&j, &detsPerRing, {"dets_per_ring", "detsPerRing"},
+	                       0, true);
+	Util::getParam<size_t>(&j, &numRings, {"num_rings", "numRings"}, 0, true);
+	Util::getParam<size_t>(&j, &numDoi, {"num_doi", "numDOI"}, 0, true);
+	Util::getParam<size_t>(&j, &maxRingDiff, {"max_ring_diff", "maxRingDiff"},
+	                       0, true);
+	Util::getParam<size_t>(&j, &minAngDiff, {"min_ang_diff", "minAngDiff"}, 0,
+	                       true);
+	Util::getParam<size_t>(&j, &detsPerBlock,
+	                       {"dets_per_block", "detsPerBlock"}, 1, false);
 
 	// Check for errors
-	if (scannerFileVersion != SCANNER_FILE_VERSION)
+	if (scannerFileVersion > SCANNER_FILE_VERSION + SMALL_FLT)
 	{
 		throw std::invalid_argument(
 		    "Wrong file version for Scanner JSON file, the "

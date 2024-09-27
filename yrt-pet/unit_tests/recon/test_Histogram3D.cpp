@@ -60,7 +60,7 @@ TEST_CASE("histo3d", "[histo]")
 	auto scanner = TestUtils::makeScanner();
 
 	size_t n_total_detectors =
-	    scanner->num_doi * scanner->num_rings * scanner->dets_per_ring;
+	    scanner->numDoi * scanner->numRings * scanner->detsPerRing;
 	auto histo3d = std::make_unique<Histogram3DOwned>(*scanner);
 
 	SECTION("histo3d-sizes")
@@ -140,19 +140,19 @@ TEST_CASE("histo3d", "[histo]")
 		{
 			for (det_id_t d2 = d1 + 1; d2 < n_total_detectors; d2++)
 			{
-				int d1_ring = d1 % (scanner->dets_per_ring);
-				int d2_ring = d2 % (scanner->dets_per_ring);
+				int d1_ring = d1 % (scanner->detsPerRing);
+				int d2_ring = d2 % (scanner->detsPerRing);
 				int diff = std::abs(d1_ring - d2_ring);
-				diff = (diff < static_cast<int>(scanner->dets_per_ring / 2)) ?
+				diff = (diff < static_cast<int>(scanner->detsPerRing / 2)) ?
 				           diff :
-				           scanner->dets_per_ring - diff;
-				if (diff < static_cast<int>(scanner->min_ang_diff))
+				           scanner->detsPerRing - diff;
+				if (diff < static_cast<int>(scanner->minAngDiff))
 				{
 					continue;
 				}
-				int z1 = (d1 / (scanner->dets_per_ring)) % (scanner->num_rings);
-				int z2 = (d2 / (scanner->dets_per_ring)) % (scanner->num_rings);
-				if (std::abs(z1 - z2) > scanner->max_ring_diff)
+				int z1 = (d1 / (scanner->detsPerRing)) % (scanner->numRings);
+				int z2 = (d2 / (scanner->detsPerRing)) % (scanner->numRings);
+				if (std::abs(z1 - z2) > scanner->maxRingDiff)
 				{
 					continue;
 				}

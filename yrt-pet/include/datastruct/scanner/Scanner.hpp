@@ -11,7 +11,7 @@
 #include <filesystem>
 #include <string>
 
-#define SCANNER_FILE_VERSION 3.0
+#define SCANNER_FILE_VERSION 3.1
 
 namespace fs = std::filesystem;
 
@@ -49,8 +49,8 @@ public:
 	// num_doi : Number of DOI crystals (ex: 2 for SAVANT)
 	// max_ring_diff : Maximum ring difference (number of rings)
 	// min_ang_diff : Minimum angular difference, in terms of detector indices
-	size_t dets_per_ring, num_rings, num_doi, max_ring_diff, min_ang_diff;
-	size_t dets_per_block;
+	size_t detsPerRing, numRings, numDoi, maxRingDiff, minAngDiff;
+	size_t detsPerBlock;
 
 protected:
 	fs::path m_scannerPath;

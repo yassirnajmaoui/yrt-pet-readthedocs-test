@@ -143,19 +143,19 @@ Histogram3D::Histogram3D(const Scanner& pr_scanner)
 	: mp_data(nullptr),
 	  mr_scanner(pr_scanner)
 {
-	r_cut = mr_scanner.min_ang_diff / 2;
-	num_doi_poss = mr_scanner.num_doi * mr_scanner.num_doi;
+	r_cut = mr_scanner.minAngDiff / 2;
+	num_doi_poss = mr_scanner.numDoi * mr_scanner.numDoi;
 
 	n_r = num_doi_poss *
-	      (mr_scanner.dets_per_ring / 2 + 1 - mr_scanner.min_ang_diff);
+	      (mr_scanner.detsPerRing / 2 + 1 - mr_scanner.minAngDiff);
 
-	n_phi = mr_scanner.dets_per_ring;
+	n_phi = mr_scanner.detsPerRing;
 
-	size_t dz_max = mr_scanner.max_ring_diff;
+	size_t dz_max = mr_scanner.maxRingDiff;
 	n_z_bin =
-		(dz_max + 1) * mr_scanner.num_rings - (dz_max * (dz_max + 1)) / 2;
+		(dz_max + 1) * mr_scanner.numRings - (dz_max * (dz_max + 1)) / 2;
 	// Number of z_bins that have z1 < z2
-	n_z_bin_diff = n_z_bin - mr_scanner.num_rings;
+	n_z_bin_diff = n_z_bin - mr_scanner.numRings;
 	// Other side for if z1 > z2
 	n_z_bin = n_z_bin + n_z_bin_diff;
 	setupHistogram();
@@ -270,12 +270,12 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 	getDetPairInSameRing(r_ring, phi, d1_ring, d2_ring);
 
 	coord_t doi_case = r % num_doi_poss;
-	coord_t doi_d1 = doi_case % mr_scanner.num_doi;
-	coord_t doi_d2 = doi_case / mr_scanner.num_doi;
+	coord_t doi_d1 = doi_case % mr_scanner.numDoi;
+	coord_t doi_d2 = doi_case / mr_scanner.numDoi;
 
 	// Determine delta Z and Z1
 	coord_t z1, z2;
-	if (z_bin < mr_scanner.num_rings)
+	if (z_bin < mr_scanner.numRings)
 	{
 		z1 = z2 = z_bin;
 	}
@@ -283,9 +283,9 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 	{
 		// Regardless of if z1<z2 or z1>z2
 		int current_z_bin =
-			(((int)z_bin) - mr_scanner.num_rings) % n_z_bin_diff +
-			mr_scanner.num_rings;
-		int current_n_planes = mr_scanner.num_rings;
+			(((int)z_bin) - mr_scanner.numRings) % n_z_bin_diff +
+			mr_scanner.numRings;
+		int current_n_planes = mr_scanner.numRings;
 		size_t delta_z = 0;
 		while (current_z_bin - current_n_planes >= 0)
 		{
@@ -296,16 +296,16 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 		z1 = current_z_bin;
 		z2 = z1 + delta_z;
 		// Check if i had to switch (z1>z2)
-		if (z_bin - mr_scanner.num_rings >= n_z_bin_diff)
+		if (z_bin - mr_scanner.numRings >= n_z_bin_diff)
 		{
 			std::swap(z1, z2);
 		}
 	}
 
-	d1 = d1_ring + z1 * mr_scanner.dets_per_ring +
-	     doi_d1 * (mr_scanner.dets_per_ring * mr_scanner.num_rings);
-	d2 = d2_ring + z2 * mr_scanner.dets_per_ring +
-	     doi_d2 * (mr_scanner.dets_per_ring * mr_scanner.num_rings);
+	d1 = d1_ring + z1 * mr_scanner.detsPerRing +
+	     doi_d1 * (mr_scanner.detsPerRing * mr_scanner.numRings);
+	d2 = d2_ring + z2 * mr_scanner.detsPerRing +
+	     doi_d2 * (mr_scanner.detsPerRing * mr_scanner.numRings);
 }
 
 // Transpose
@@ -315,8 +315,8 @@ void Histogram3D::getCoordsFromDetPair(det_id_t d1, det_id_t d2, coord_t& r,
 	coord_t r_ring;
 	if (d1 > d2)
 		std::swap(d1, d2);
-	det_id_t d1_ring = d1 % (mr_scanner.dets_per_ring);
-	det_id_t d2_ring = d2 % (mr_scanner.dets_per_ring);
+	det_id_t d1_ring = d1 % (mr_scanner.detsPerRing);
+	det_id_t d2_ring = d2 % (mr_scanner.detsPerRing);
 	if (d1_ring > d2_ring)
 	{
 		std::swap(d1, d2);
@@ -324,19 +324,19 @@ void Histogram3D::getCoordsFromDetPair(det_id_t d1, det_id_t d2, coord_t& r,
 	}
 
 	getCoordsInSameRing(d1_ring, d2_ring, r_ring, phi);
-	det_id_t doi_d1 = d1 / (mr_scanner.num_rings * mr_scanner.dets_per_ring);
-	det_id_t doi_d2 = d2 / (mr_scanner.num_rings * mr_scanner.dets_per_ring);
+	det_id_t doi_d1 = d1 / (mr_scanner.numRings * mr_scanner.detsPerRing);
+	det_id_t doi_d2 = d2 / (mr_scanner.numRings * mr_scanner.detsPerRing);
 	if (d1_ring > d2_ring)
 		std::swap(doi_d1, doi_d2);
-	r = r_ring * num_doi_poss + (doi_d1 + doi_d2 * mr_scanner.num_doi);
+	r = r_ring * num_doi_poss + (doi_d1 + doi_d2 * mr_scanner.numDoi);
 
-	int z1 = (d1 / (mr_scanner.dets_per_ring)) % (mr_scanner.num_rings);
-	int z2 = (d2 / (mr_scanner.dets_per_ring)) % (mr_scanner.num_rings);
+	int z1 = (d1 / (mr_scanner.detsPerRing)) % (mr_scanner.numRings);
+	int z2 = (d2 / (mr_scanner.detsPerRing)) % (mr_scanner.numRings);
 
 	coord_t delta_z = static_cast<coord_t>(std::abs(z2 - z1));
 	coord_t num_removed_z_bins = delta_z * (delta_z - 1) / 2;
 	z_bin =
-		delta_z * mr_scanner.num_rings + std::min(z1, z2) - num_removed_z_bins;
+		delta_z * mr_scanner.numRings + std::min(z1, z2) - num_removed_z_bins;
 	if (delta_z > 0 && z1 > z2)
 	{
 		z_bin += n_z_bin_diff; // switch
@@ -373,7 +373,7 @@ void Histogram3D::getDetPairInSameRing(coord_t r_ring, coord_t phi,
                                        det_id_t& d1_ring,
                                        det_id_t& d2_ring) const
 {
-	int n_tot_ring = mr_scanner.dets_per_ring;
+	int n_tot_ring = mr_scanner.detsPerRing;
 	int r = r_ring; // for cleanness
 	int d01 = 0;
 	int d02 = n_tot_ring / 2;
@@ -473,7 +473,7 @@ det_pair_t Histogram3D::getDetectorPair(bin_t id) const
 
 void Histogram3D::get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const
 {
-	if (z_bin < mr_scanner.num_rings)
+	if (z_bin < mr_scanner.numRings)
 	{
 		z1 = z2 = z_bin;
 	}
@@ -481,9 +481,9 @@ void Histogram3D::get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const
 	{
 		// Regardless of if z1<z2 or z1>z2
 		int current_z_bin =
-			(((int)z_bin) - mr_scanner.num_rings) % n_z_bin_diff +
-			mr_scanner.num_rings;
-		int current_n_planes = mr_scanner.num_rings;
+			(((int)z_bin) - mr_scanner.numRings) % n_z_bin_diff +
+			mr_scanner.numRings;
+		int current_n_planes = mr_scanner.numRings;
 		size_t delta_z = 0;
 		while (current_z_bin - current_n_planes >= 0)
 		{
@@ -494,7 +494,7 @@ void Histogram3D::get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const
 		z1 = current_z_bin;
 		z2 = z1 + delta_z;
 		// Check if i had to switch (z1>z2)
-		if (z_bin - mr_scanner.num_rings >= n_z_bin_diff)
+		if (z_bin - mr_scanner.numRings >= n_z_bin_diff)
 		{
 			std::swap(z1, z2);
 		}

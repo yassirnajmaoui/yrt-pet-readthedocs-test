@@ -29,12 +29,12 @@ DetRegular::DetRegular(Scanner* pp_scanner) : mp_scanner(pp_scanner)
 void DetRegular::generateLUT()
 {
 	allocate();
-	size_t num_blocks = mp_scanner->dets_per_ring / mp_scanner->dets_per_block;
+	size_t num_blocks = mp_scanner->detsPerRing / mp_scanner->detsPerBlock;
 	float block_length;
 	if (num_blocks == 2)
 	{
 		block_length =
-		    mp_scanner->crystalSize_trans * mp_scanner->dets_per_block;
+		    mp_scanner->crystalSize_trans * mp_scanner->detsPerBlock;
 	}
 	else
 	{
@@ -43,29 +43,29 @@ void DetRegular::generateLUT()
 		block_length = 2 * std::sqrt((std::pow(scanner_longerRadius, 2) -
 		                              std::pow(mp_scanner->scannerRadius, 2)));
 	}
-	for (size_t doi = 0; doi < mp_scanner->num_doi; doi++)
+	for (size_t doi = 0; doi < mp_scanner->numDoi; doi++)
 	{
 		float block_distance =
 		    mp_scanner->scannerRadius + mp_scanner->crystalDepth * doi;
-		for (size_t ring = 0; ring < mp_scanner->num_rings; ring++)
+		for (size_t ring = 0; ring < mp_scanner->numRings; ring++)
 		{
 			// Gap between each ring (Currently, equal distance)
-			float z_gap = mp_scanner->axialFOV / ((float)mp_scanner->num_rings);
+			float z_gap = mp_scanner->axialFOV / ((float)mp_scanner->numRings);
 			float z_pos = -mp_scanner->axialFOV / 2.0 + ring * z_gap;
 			for (size_t block = 0; block < num_blocks; block++)
 			{
 				float block_angle = block * TWOPI / num_blocks;
 				float x_block = block_distance * std::cos(block_angle);
 				float y_block = block_distance * std::sin(block_angle);
-				for (size_t det = 0; det < mp_scanner->dets_per_block; det++)
+				for (size_t det = 0; det < mp_scanner->detsPerBlock; det++)
 				{
 					// relative_det_pos is a number between 0 and 1 describing
 					// how far we've gone in the current block
 					float relative_det_pos = 0.0;
-					if (mp_scanner->dets_per_block != 1)
+					if (mp_scanner->detsPerBlock != 1)
 					{
 						relative_det_pos =
-						    -(det / (float)(mp_scanner->dets_per_block - 1)) +
+						    -(det / (float)(mp_scanner->detsPerBlock - 1)) +
 						    0.5;
 					}
 					float relative_x_det =
@@ -75,10 +75,10 @@ void DetRegular::generateLUT()
 					    block_length *
 					    (relative_det_pos)*std::sin(block_angle + PI / 2.0);
 
-					size_t idx = det + block * mp_scanner->dets_per_block +
-					             ring * (mp_scanner->dets_per_ring) +
-					             doi * (mp_scanner->num_rings *
-					                    mp_scanner->dets_per_ring);
+					size_t idx = det + block * mp_scanner->detsPerBlock +
+					             ring * (mp_scanner->detsPerRing) +
+					             doi * (mp_scanner->numRings *
+					                    mp_scanner->detsPerRing);
 
 					setXpos(idx, x_block + relative_x_det);
 					setYpos(idx, y_block + relative_y_det);

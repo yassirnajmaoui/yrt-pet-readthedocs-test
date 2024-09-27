@@ -183,7 +183,7 @@ namespace Scatter
 
 		// We only fill the perpendicular bins... What does that imply for the
 		// interpolation?
-		const size_t num_z = mr_scanner.num_rings;
+		const size_t num_z = mr_scanner.numRings;
 		const size_t num_phi = scatterHisto.n_phi;
 		const size_t num_r = scatterHisto.n_r;
 
@@ -301,7 +301,7 @@ namespace Scatter
 		          << std::endl;
 
 		std::cout << "Filling oblique bins..." << std::endl;
-		for (coord_t z_bin_i = mr_scanner.num_rings;
+		for (coord_t z_bin_i = mr_scanner.numRings;
 		     z_bin_i < scatterHisto.n_z_bin; ++z_bin_i)
 		{
 			coord_t z1, z2;
