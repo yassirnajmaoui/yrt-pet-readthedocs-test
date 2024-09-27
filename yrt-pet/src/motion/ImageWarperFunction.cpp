@@ -96,7 +96,7 @@ void ImageWarperFunction::warp(Image* image, int frameId) const
 			{
 				voxPos[0] = getVoxelPhysPos(i, 0);
 				applyTransformation(voxPos, movVoxPos, frameId);
-				ptr[i] = m_refImage->interpol_image(movVoxPos);
+				ptr[i] = m_refImage->interpolateImage(movVoxPos);
 			}
 		}
 	}
@@ -135,7 +135,7 @@ void ImageWarperFunction::inverseWarp(Image* image, int frameId) const
 			{
 				voxPos[0] = getVoxelPhysPos(i, 0);
 				applyInvTransformation(voxPos, movVoxPos, frameId);
-				ptr[i] = tmpCopy->interpol_image(movVoxPos);
+				ptr[i] = tmpCopy->interpolateImage(movVoxPos);
 			}
 		}
 	}

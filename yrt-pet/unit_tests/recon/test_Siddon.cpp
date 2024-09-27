@@ -17,21 +17,22 @@
  * Compute the backprojection of the line of response into img_bp, and return
  * the dot product between img and img_bp.
  */
-double bp_dot(StraightLineParam& lor, Image* img_bp, Image* img,
+double bp_dot(const StraightLineParam& lor, Image* img_bp, const Image* img,
               double proj_val)
 {
 	img_bp->setValue(0.0);
 	OperatorProjectorSiddon::singleBackProjection(img_bp, lor, proj_val);
-	return img->dot_product(img_bp);
+	return img->dotProduct(*img_bp);
 }
 
-double bp_dot_slow(StraightLineParam& lor, Image* img_bp, Image* img,
+double bp_dot_slow(const StraightLineParam& lor, Image* img_bp,
+                   const Image* img,
                    double proj_val)
 {
 	img_bp->setValue(0.0);
 	OperatorProjectorSiddon::project_helper<false, false, false>(img_bp, lor,
 	                                                               proj_val);
-	return img->dot_product(img_bp);
+	return img->dotProduct(*img_bp);
 }
 
 TEST_CASE("Siddon-simple", "[siddon]")

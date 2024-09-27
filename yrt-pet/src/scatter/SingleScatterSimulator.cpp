@@ -134,7 +134,7 @@ namespace Scatter
 					const double z2 = ran1(&seed) * dzsamp + z;
 					// YP generate a random scatter poitn within its cell
 					p.update(x2, y2, z2);
-					if (mr_mu.nearest_neigh(p) > 0.005)
+					if (mr_mu.nearestNeighbor(p) > 0.005)
 					{
 						// YP rejects the point if the associated att. coeff is
 						// below
@@ -391,7 +391,7 @@ namespace Scatter
 			mu_scaling_factor = getMuScalingFactor(energy);
 
 			// get scatter values:
-			vatt = mr_mu.nearest_neigh(ps);
+			vatt = mr_mu.nearestNeighbor(ps);
 			dsigcompdomega = getKleinNishina(cosa);
 
 			// compute I1 and I2:
