@@ -12,8 +12,7 @@ void assertion_failed(char const* expr, char const* function, char const* file,
 {
 	std::string fullErrorMessage;
 	fullErrorMessage += "Assertion failed: (" + std::string{expr} + ") in " +
-	                    file + "::" + function + " line " +
-	                    std::to_string(line) + "\n";
+	                    file + ":" + std::to_string(line) + ": " + function;
 
 	if (critical)
 	{
@@ -40,8 +39,8 @@ void assertion_failed_msg(char const* expr, char const* msg,
 	fullErrorMessage += msg;
 
 	fullErrorMessage += "\nDetails: assertion failed: (" + std::string{expr} +
-	                    ") in " + file + "::" + function + " line " +
-	                    std::to_string(line) + "\n";
+	                    ") in " + file + ":" + std::to_string(line) + ": " +
+	                    function;
 
 	if (critical)
 	{
@@ -57,6 +56,7 @@ void Util::printExceptionMessage(const std::exception& e)
 {
 	constexpr auto delim = "===================";
 	std::cerr << "Exception caught:\n"
-	          << delim << "\n" << e.what() << "\n"
+	          << delim << "\n"
+	          << e.what() << "\n"
 	          << delim << std::endl;
 }
