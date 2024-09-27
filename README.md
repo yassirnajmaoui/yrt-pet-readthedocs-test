@@ -127,7 +127,7 @@ Here is, as an example, the SAVANT parameters file.
         "crystalDepth" : 6,
         "scannerRadius" : 197.4,
         "fwhm" : 0.2,
-        "energyLLD" : 200,
+        "energyLLD" : 400,
         "collimatorRadius" : 167.4,
         "dets_per_ring" : 896,
         "num_rings" : 144,

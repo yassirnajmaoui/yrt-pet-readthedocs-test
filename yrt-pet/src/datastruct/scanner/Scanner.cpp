@@ -215,7 +215,7 @@ void Scanner::readFromString(const std::string& fileContents)
 	// Join paths for DetCoord
 	if (isDetCoordGiven)
 	{
-		fs::path detCoord_path =
+		const fs::path detCoord_path =
 		    m_scannerPath.parent_path() / fs::path(detCoord);
 		mp_detectors = std::make_shared<DetCoordOwned>(detCoord_path.string());
 		if (mp_detectors->getNumDets() != getTheoreticalNumDets())
@@ -227,7 +227,7 @@ void Scanner::readFromString(const std::string& fileContents)
 	else
 	{
 		mp_detectors = std::make_shared<DetRegular>(this);
-		static_cast<DetRegular*>(mp_detectors.get())->generateLUT();
+		reinterpret_cast<DetRegular*>(mp_detectors.get())->generateLUT();
 	}
 }
 
