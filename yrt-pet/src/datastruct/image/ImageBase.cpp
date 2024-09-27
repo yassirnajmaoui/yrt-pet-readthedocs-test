@@ -35,8 +35,8 @@ void py_setup_imageparams(py::module& m)
 {
 	auto c = py::class_<ImageParams>(m, "ImageParams");
 	c.def(py::init<>());
-	c.def(py::init<int, int, int, double, double, double, double, double,
-	               double>(),
+	c.def(py::init<int, int, int, float, float, float, float, float,
+	               float>(),
 	      py::arg("nx"), py::arg("ny"), py::arg("nz"), py::arg("length_x"),
 	      py::arg("length_y"), py::arg("length_z"), py::arg("offset_x") = 0.,
 	      py::arg("offset_y") = 0., py::arg("offset_z") = 0.);
@@ -99,10 +99,10 @@ ImageParams::ImageParams()
 	  vy(-1.0),
 	  vz(-1.0) {}
 
-ImageParams::ImageParams(int nxi, int nyi, int nzi, double length_xi,
-                         double length_yi, double length_zi,
-                         double offset_xi, double offset_yi,
-                         double offset_zi)
+ImageParams::ImageParams(int nxi, int nyi, int nzi, float length_xi,
+                         float length_yi, float length_zi,
+                         float offset_xi, float offset_yi,
+                         float offset_zi)
 	: nx(nxi),
 	  ny(nyi),
 	  nz(nzi),
@@ -148,9 +148,9 @@ ImageParams::ImageParams(const std::string& fname)
 
 void ImageParams::setup()
 {
-	vx = length_x / static_cast<double>(nx);
-	vy = length_y / static_cast<double>(ny);
-	vz = length_z / static_cast<double>(nz);
+	vx = length_x / static_cast<float>(nx);
+	vy = length_y / static_cast<float>(ny);
+	vz = length_z / static_cast<float>(nz);
 	fov_radius = static_cast<float>(std::max(length_x / 2, length_y / 2));
 	fov_radius -= static_cast<float>(std::max(vx, vy) / 1000);
 }
@@ -227,13 +227,13 @@ void ImageParams::readFromJSON(json& j)
 	                    "nz", 0, true,
 	                    "Error in ImageParams file version : \'nz\' unspecified");
 
-	Util::getParam<double>(&j, &off_x,
+	Util::getParam<float>(&j, &off_x,
 	                       {"off_x", "offset_x"}, 0.0, false);
 
-	Util::getParam<double>(&j, &off_y,
+	Util::getParam<float>(&j, &off_y,
 	                       {"off_y", "offset_y"}, 0.0, false);
 
-	Util::getParam<double>(&j, &off_z,
+	Util::getParam<float>(&j, &off_z,
 	                       {"off_z", "offset_z"}, 0.0, false);
 
 	length_x = readLengthFromJSON(j, "length_x", "vx", nx);
@@ -243,15 +243,15 @@ void ImageParams::readFromJSON(json& j)
 	setup();
 }
 
-double ImageParams::readLengthFromJSON(nlohmann::json& j,
+float ImageParams::readLengthFromJSON(nlohmann::json& j,
                                        const std::string& length_name,
                                        const std::string& v_name, int n)
 {
-	double given_v;
-	if (!Util::getParam<double>(&j, &given_v, v_name, -1.0, false))
+	float given_v;
+	if (!Util::getParam<float>(&j, &given_v, v_name, -1.0, false))
 	{
-		double length;
-		Util::getParam<double>(&j, &length, length_name, -1.0, true,
+		float length;
+		Util::getParam<float>(&j, &length, length_name, -1.0, true,
 		                       "You need to specify either the voxel size (vx, vy or vz) or the length (length_x, length_y or length_z) for all three dimensions.");
 		return length;
 	}
