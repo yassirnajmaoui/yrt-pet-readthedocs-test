@@ -53,21 +53,21 @@ bin_t BinIterator::get(bin_t idx) const
 }
 
 BinIteratorRange::BinIteratorRange(bin_t num)
-	: idxStart(0),
-	  idxEnd(num - 1),
-	  idxStride(1) {}
+	: m_idxStart(0),
+	  m_idxEnd(num - 1),
+	  m_idxStride(1) {}
 
 BinIteratorRange::BinIteratorRange(bin_t p_idxStart, bin_t p_idxEnd,
                                    bin_t p_idxStride)
-	: idxStart(p_idxStart),
-	  idxEnd(getIdxEnd(p_idxStart, p_idxEnd, p_idxStride)),
-	  idxStride(p_idxStride) {}
+	: m_idxStart(p_idxStart),
+	  m_idxEnd(getIdxEnd(p_idxStart, p_idxEnd, p_idxStride)),
+	  m_idxStride(p_idxStride) {}
 
 BinIteratorRange::BinIteratorRange(std::tuple<bin_t, bin_t, bin_t> info)
-	: idxStart(std::get<0>(info)),
-	  idxEnd(
+	: m_idxStart(std::get<0>(info)),
+	  m_idxEnd(
 		  getIdxEnd(std::get<0>(info), std::get<1>(info), std::get<2>(info))),
-	  idxStride(std::get<2>(info)) {}
+	  m_idxStride(std::get<2>(info)) {}
 
 bin_t BinIteratorRange::getIdxEnd(bin_t idxStart, bin_t idxEnd, bin_t stride)
 {
@@ -76,51 +76,51 @@ bin_t BinIteratorRange::getIdxEnd(bin_t idxStart, bin_t idxEnd, bin_t stride)
 
 bin_t BinIteratorRange::begin() const
 {
-	return idxStart;
+	return m_idxStart;
 }
 
 bin_t BinIteratorRange::end() const
 {
-	return idxEnd;
+	return m_idxEnd;
 }
 
 bin_t BinIteratorRange::getSafe(bin_t idx) const
 {
-	return idxStart + idxStride * idx;
+	return m_idxStart + m_idxStride * idx;
 }
 
 size_t BinIteratorRange::size() const
 {
-	return (idxEnd - idxStart) / idxStride + 1;
+	return (m_idxEnd - m_idxStart) / m_idxStride + 1;
 }
 
 BinIteratorRange2D::BinIteratorRange2D(bin_t p_idxStart, bin_t p_numSlices,
                                        bin_t p_sliceSize, bin_t p_idxStride)
-	: idxStart(p_idxStart),
-	  numSlices(p_numSlices),
-	  sliceSize(p_sliceSize),
-	  idxStride(p_idxStride) {}
+	: m_idxStart(p_idxStart),
+	  m_numSlices(p_numSlices),
+	  m_sliceSize(p_sliceSize),
+	  m_idxStride(p_idxStride) {}
 
 bin_t BinIteratorRange2D::begin() const
 {
-	return idxStart;
+	return m_idxStart;
 }
 
 bin_t BinIteratorRange2D::end() const
 {
-	return idxStart + numSlices * idxStride;
+	return m_idxStart + m_numSlices * m_idxStride;
 }
 
 size_t BinIteratorRange2D::size() const
 {
-	return numSlices * sliceSize - 1;
+	return m_numSlices * m_sliceSize - 1;
 }
 
 bin_t BinIteratorRange2D::getSafe(bin_t idx) const
 {
-	bin_t sliceIdx = idx / sliceSize;
-	bin_t idxOffset = idx % sliceSize;
-	return idxStart + idxStride * sliceIdx + idxOffset;
+	bin_t sliceIdx = idx / m_sliceSize;
+	bin_t idxOffset = idx % m_sliceSize;
+	return m_idxStart + m_idxStride * sliceIdx + idxOffset;
 }
 
 BinIteratorRangeHistogram3D::BinIteratorRangeHistogram3D(size_t p_n_z_bin,
@@ -128,79 +128,79 @@ BinIteratorRangeHistogram3D::BinIteratorRangeHistogram3D(size_t p_n_z_bin,
 	size_t p_n_r,
 	int p_num_subsets,
 	int p_idx_subset)
-	: n_z_bin(p_n_z_bin),
-	  n_phi(p_n_phi),
-	  n_r(p_n_r),
-	  num_subsets(p_num_subsets),
-	  idx_subset(p_idx_subset)
+	: m_numZBin(p_n_z_bin),
+	  m_numPhi(p_n_phi),
+	  m_numR(p_n_r),
+	  m_numSubsets(p_num_subsets),
+	  m_idxSubset(p_idx_subset)
 {
-	phi_stride = num_subsets;
-	phi_0 = idx_subset;
-	n_phi_subset = n_phi / num_subsets; // Number of rs in the subset
+	m_phiStride = m_numSubsets;
+	m_phi0 = m_idxSubset;
+	m_numPhiSubset = m_numPhi / m_numSubsets; // Number of rs in the subset
 	// In the case that we would miss some bins because of the "floor" division
 	// above
-	if (phi_0 + n_phi_subset * phi_stride < n_phi)
+	if (m_phi0 + m_numPhiSubset * m_phiStride < m_numPhi)
 	{
-		n_phi_subset += 1;
+		m_numPhiSubset += 1;
 	}
-	histoSize = n_r * n_phi_subset * n_z_bin;
+	m_histoSize = m_numR * m_numPhiSubset * m_numZBin;
 }
 
 bin_t BinIteratorRangeHistogram3D::begin() const
 {
 	bin_t r = 0;
-	bin_t phi = phi_0;
+	bin_t phi = m_phi0;
 	bin_t z_bin = 0;
-	return z_bin * n_phi * n_r + phi * n_r + r;
+	return z_bin * m_numPhi * m_numR + phi * m_numR + r;
 }
 
 bin_t BinIteratorRangeHistogram3D::end() const
 {
-	bin_t r = n_r - 1;
-	bin_t phi = (phi_stride * (n_phi_subset - 1)) + phi_0;
-	bin_t z_bin = (n_z_bin - 1);
-	return z_bin * n_phi * n_r + phi * n_r + r;
+	bin_t r = m_numR - 1;
+	bin_t phi = (m_phiStride * (m_numPhiSubset - 1)) + m_phi0;
+	bin_t z_bin = (m_numZBin - 1);
+	return z_bin * m_numPhi * m_numR + phi * m_numR + r;
 }
 
 size_t BinIteratorRangeHistogram3D::size() const
 {
-	return histoSize;
+	return m_histoSize;
 }
 
 bin_t BinIteratorRangeHistogram3D::getSafe(bin_t idx) const
 {
-	bin_t z_bin = idx / (n_phi_subset * n_r);
-	bin_t phi = (idx % (n_phi_subset * n_r)) / n_r;
-	bin_t r = (idx % (n_phi_subset * n_r)) % n_r;
-	phi = phi_stride * phi + phi_0; // scale and shift the phi coordinate
-	return z_bin * n_phi * n_r + phi * n_r + r;
+	bin_t z_bin = idx / (m_numPhiSubset * m_numR);
+	bin_t phi = (idx % (m_numPhiSubset * m_numR)) / m_numR;
+	bin_t r = (idx % (m_numPhiSubset * m_numR)) % m_numR;
+	phi = m_phiStride * phi + m_phi0; // scale and shift the phi coordinate
+	return z_bin * m_numPhi * m_numR + phi * m_numR + r;
 }
 
 
 BinIteratorVector::BinIteratorVector(
 	std::unique_ptr<std::vector<bin_t>>& p_idxList)
 {
-	idxList = std::move(p_idxList);
+	m_idxList = std::move(p_idxList);
 }
 
 bin_t BinIteratorVector::begin() const
 {
-	return (*idxList.get())[0];
+	return (*m_idxList.get())[0];
 }
 
 bin_t BinIteratorVector::end() const
 {
-	return (*idxList.get())[idxList->size() - 1];
+	return (*m_idxList.get())[m_idxList->size() - 1];
 }
 
 bin_t BinIteratorVector::getSafe(bin_t idx) const
 {
-	return (*idxList.get())[idx];
+	return (*m_idxList.get())[idx];
 }
 
 size_t BinIteratorVector::size() const
 {
-	return idxList->size();
+	return m_idxList->size();
 }
 
 

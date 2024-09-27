@@ -65,9 +65,9 @@ TEST_CASE("histo3d", "[histo]")
 
 	SECTION("histo3d-sizes")
 	{
-		REQUIRE(histo3d->n_r == 28);  // 7*(2*2)
-		REQUIRE(histo3d->n_phi == 24);
-		REQUIRE(histo3d->n_z_bin == 61);
+		REQUIRE(histo3d->numR == 28);  // 7*(2*2)
+		REQUIRE(histo3d->numPhi == 24);
+		REQUIRE(histo3d->numZBin == 61);
 	}
 
 	SECTION("histo3d-binIds")
@@ -84,11 +84,11 @@ TEST_CASE("histo3d", "[histo]")
 	SECTION("histo3d-coords-binning")
 	{
 		coord_t r, phi, z_bin;
-		for (r = 0; r < histo3d->n_r; r++)
+		for (r = 0; r < histo3d->numR; r++)
 		{
-			for (phi = 0; phi < histo3d->n_phi; phi++)
+			for (phi = 0; phi < histo3d->numPhi; phi++)
 			{
-				for (z_bin = 0; z_bin < histo3d->n_z_bin; z_bin++)
+				for (z_bin = 0; z_bin < histo3d->numZBin; z_bin++)
 				{
 					det_id_t d1, d2;
 					coord_t r_supp, phi_supp, z_bin_supp;
@@ -112,11 +112,11 @@ TEST_CASE("histo3d", "[histo]")
 	SECTION("histo3d-detector-swap")
 	{
 		coord_t r, phi, z_bin;
-		for (r = 0; r < histo3d->n_r; r++)
+		for (r = 0; r < histo3d->numR; r++)
 		{
-			for (phi = 0; phi < histo3d->n_phi; phi++)
+			for (phi = 0; phi < histo3d->numPhi; phi++)
 			{
-				for (z_bin = 0; z_bin < histo3d->n_z_bin; z_bin++)
+				for (z_bin = 0; z_bin < histo3d->numZBin; z_bin++)
 				{
 					det_id_t d1, d2;
 					coord_t r_supp, phi_supp, z_bin_supp;
@@ -201,12 +201,12 @@ TEST_CASE("histo3d", "[histo]")
 
 	SECTION("histo3d-bin-iterator")
 	{
-		size_t num_subsets = histo3d->n_phi;  // Have a subset for every angle
+		size_t num_subsets = histo3d->numPhi;  // Have a subset for every angle
 		for (size_t subset = 0; subset < num_subsets; subset++)
 		{
 			auto binIter = histo3d->getBinIter(num_subsets, subset);
 			CHECK(binIter->size() == histo3d->count() / num_subsets);
-			CHECK(binIter->size() == histo3d->n_r * histo3d->n_z_bin);
+			CHECK(binIter->size() == histo3d->numR * histo3d->numZBin);
 			coord_t r0, phi0, z_bin0;
 			histo3d->getCoordsFromBinId(binIter->get(0), r0, phi0, z_bin0);
 			for (bin_t bin = 1; bin < binIter->size(); bin++)

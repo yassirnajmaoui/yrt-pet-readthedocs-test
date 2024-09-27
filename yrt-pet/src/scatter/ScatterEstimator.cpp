@@ -58,7 +58,7 @@ namespace Scatter
 		}
 		else
 		{
-			m_scatterTailsMaskWidth = mp_promptsHis->n_r / 10;
+			m_scatterTailsMaskWidth = mp_promptsHis->numR / 10;
 		}
 		m_maskThreshold = maskThreshold;
 		m_saveIntermediary = saveIntermediary;
@@ -194,16 +194,16 @@ namespace Scatter
 			              acfValue > maskThreshold;
 		}
 
-		for (size_t zBin = 0; zBin < acfHis.n_z_bin; zBin++)
+		for (size_t zBin = 0; zBin < acfHis.numZBin; zBin++)
 		{
-			for (size_t phi = 0; phi < acfHis.n_phi; phi++)
+			for (size_t phi = 0; phi < acfHis.numPhi; phi++)
 			{
 				const size_t initRowBinId =
 				    acfHis.getBinIdFromCoords(0, phi, zBin);
 
 				// Process beginning of the mask
 				size_t r;
-				for (r = 0; r < acfHis.n_r; r++)
+				for (r = 0; r < acfHis.numR; r++)
 				{
 					const bin_t binId = initRowBinId + r;
 					if (mask[binId] == false)
@@ -223,10 +223,10 @@ namespace Scatter
 				}
 
 				// For when the line is true everywhere
-				if (r == acfHis.n_r)
+				if (r == acfHis.numR)
 				{
 					for (bin_t binId = initRowBinId;
-					     binId < initRowBinId + acfHis.n_r; binId++)
+					     binId < initRowBinId + acfHis.numR; binId++)
 					{
 						mask[binId] = false;
 					}
@@ -234,14 +234,14 @@ namespace Scatter
 				}
 
 				// Process end of the mask
-				const long lastRValue = static_cast<long>(acfHis.n_r - 1);
+				const long lastRValue = static_cast<long>(acfHis.numR - 1);
 				for (long reverseR = lastRValue; reverseR >= 0; reverseR--)
 				{
 					const bin_t binId = initRowBinId + reverseR;
 					if (mask[binId] == false)
 					{
 						if (reverseR <
-						    static_cast<long>(acfHis.n_r - maskWidth))
+						    static_cast<long>(acfHis.numR - maskWidth))
 						{
 							// Put zeros from the end of the row to the
 							// current position plus the width of the mask

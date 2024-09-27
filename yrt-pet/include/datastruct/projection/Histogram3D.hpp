@@ -68,7 +68,7 @@ public:
 
 	float getProjectionValueFromHistogramBin(
 	    histo_bin_t histoBinId) const override;
-	void get_z1_z2(coord_t z_bin, coord_t& z1, coord_t& z2) const;
+	void getZ1Z2(coord_t z_bin, coord_t& z1, coord_t& z2) const;
 
 protected:
 	explicit Histogram3D(const Scanner& pr_scanner);
@@ -82,7 +82,8 @@ protected:
 	void setupHistogram();
 
 public:
-	size_t n_r, n_phi, n_z_bin;
+	size_t numR, numPhi, numZBin;
+	// size_t numR, numPhi, numZBin
 	size_t histoSize;
 	// domains:
 	// 	r: {0, 1, ..., nr/2-mad-2}
@@ -97,10 +98,10 @@ protected:
 	std::unique_ptr<Array3DBase<float>> mp_data;
 	std::unordered_map<DetRingPair, DetRingCoordinates, hash_pair> m_ringMap;
 	const Scanner& mr_scanner;
-	size_t r_cut;
-	size_t num_doi_poss;  // Number of DOI possibilities (ex: 2 doi -> 4 lor
+	size_t m_rCut;
+	size_t m_numDOIPoss;  // Number of DOI combinations (ex: 2 doi -> 4 lor
 	                      // possibilities)
-	size_t n_z_bin_diff;  // Number of z_bins that have z1 < z2
+	size_t m_numZBinDiff;  // Number of z_bins that have z1 < z2
 };
 
 class Histogram3DAlias : public Histogram3D

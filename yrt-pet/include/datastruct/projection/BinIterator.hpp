@@ -40,9 +40,9 @@ protected:
 	static bin_t getIdxEnd(bin_t idxStart, bin_t idxEnd, bin_t stride);
 
 protected:
-	bin_t idxStart;
-	bin_t idxEnd;
-	bin_t idxStride;
+	bin_t m_idxStart;
+	bin_t m_idxEnd;
+	bin_t m_idxStride;
 };
 
 class BinIteratorRange2D : public BinIterator
@@ -58,10 +58,10 @@ protected:
 	bin_t getSafe(bin_t idx) const override;
 
 protected:
-	bin_t idxStart;
-	bin_t numSlices;
-	bin_t sliceSize;
-	bin_t idxStride;
+	bin_t m_idxStart;
+	bin_t m_numSlices;
+	bin_t m_sliceSize;
+	bin_t m_idxStride;
 };
 
 class BinIteratorRangeHistogram3D : public BinIterator
@@ -78,10 +78,10 @@ protected:
 	bin_t getSafe(bin_t idx) const override;
 
 protected:
-	size_t n_z_bin, n_phi, n_r;
-	size_t histoSize;
-	int num_subsets, idx_subset;
-	bin_t phi_0, phi_stride, n_phi_subset;
+	size_t m_numZBin, m_numPhi, m_numR;
+	size_t m_histoSize;
+	int m_numSubsets, m_idxSubset;
+	bin_t m_phi0, m_phiStride, m_numPhiSubset;
 };
 
 class BinIteratorVector : public BinIterator
@@ -93,7 +93,7 @@ public:
 	size_t size() const override;
 
 protected:
-	std::unique_ptr<std::vector<bin_t>> idxList;
+	std::unique_ptr<std::vector<bin_t>> m_idxList;
 	bin_t getSafe(bin_t idx) const override;
 };
 
