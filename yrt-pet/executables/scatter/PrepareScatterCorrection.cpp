@@ -230,7 +230,7 @@ int main(int argc, char** argv)
 				sensDataHis->writeToFile("intermediary_sensData.his");
 			}
 
-			std::vector<std::unique_ptr<Image>> sensImages;
+			std::vector<std::shared_ptr<Image>> sensImages;
 			sourceImg = std::make_unique<ImageOwned>(imageParams);
 			sourceImg->allocate();
 
@@ -247,6 +247,7 @@ int main(int argc, char** argv)
 			osem->setSensDataInput(sensDataHis.get());
 			osem->setDataInput(promptsHis.get());
 			osem->generateSensitivityImages(sensImages, outSensImg_fname);
+			osem->registerSensitivityImages(sensImages);
 			osem->reconstruct();
 
 			if (saveIntermediary)

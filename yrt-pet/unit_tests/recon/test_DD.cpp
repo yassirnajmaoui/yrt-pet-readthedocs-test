@@ -42,7 +42,7 @@ double get_rmse(const Image* img_ref, const Image* img)
 }
 
 void dd(const Scanner& scanner, ListMode* proj,
-        std::unique_ptr<Image>& out, const bool flag_cuda)
+        std::shared_ptr<Image>& out, const bool flag_cuda)
 {
 	const auto osem = Util::createOSEM(scanner, flag_cuda);
 	osem->imageParams = out->getParams();
@@ -56,7 +56,7 @@ void dd(const Scanner& scanner, ListMode* proj,
 	{
 		osem->projectorType = OperatorProjector::DD;
 	}
-	std::vector<std::unique_ptr<Image>> sensImages;
+	std::vector<std::shared_ptr<Image>> sensImages;
 	osem->generateSensitivityImages(sensImages, "");
 	out = std::move(sensImages[0]);
 }
@@ -117,16 +117,16 @@ TEST_CASE("DD", "[dd]")
 	}
 
 	// Helpter aliases
-	using ImageUniquePTR = std::unique_ptr<Image>;
-	const auto toOwned = [](const ImageUniquePTR& i)
+	using ImageSharedPTR = std::shared_ptr<Image>;
+	const auto toOwned = [](const ImageSharedPTR& i)
 	{ return reinterpret_cast<ImageOwned*>(i.get()); };
 
-	ImageUniquePTR img_cpu = std::make_unique<ImageOwned>(img_params);
+	ImageSharedPTR img_cpu = std::make_shared<ImageOwned>(img_params);
 	toOwned(img_cpu)->allocate();
 	img_cpu->setValue(0.0);
 	dd(*scanner, data.get(), img_cpu, false);
 
-	ImageUniquePTR img_gpu = std::make_unique<ImageOwned>(img_params);
+	ImageSharedPTR img_gpu = std::make_shared<ImageOwned>(img_params);
 	toOwned(img_gpu)->allocate();
 	img_gpu->setValue(0.0);
 	dd(*scanner, data.get(), img_gpu, true);

@@ -7,8 +7,8 @@
 
 #include "datastruct/image/Image.hpp"
 #include "datastruct/image/ImageDevice.cuh"
-#include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "datastruct/projection/ProjectionData.hpp"
+#include "datastruct/projection/ProjectionDataDevice.cuh"
 #include "recon/OSEM.hpp"
 #include "utils/GPUStream.cuh"
 
@@ -21,7 +21,7 @@ public:
 	// Sens Image generator driver
 	void setupOperatorsForSensImgGen() override;
 	void allocateForSensImgGen() override;
-	std::unique_ptr<Image>
+	std::shared_ptr<Image>
 	    getLatestSensitivityImage(bool isLastSubset) override;
 	void endSensImgGen() override;
 

@@ -25,7 +25,7 @@ OSEM_CPU::~OSEM_CPU() = default;
 
 void OSEM_CPU::allocateForSensImgGen()
 {
-	auto tempSensImageBuffer = std::make_unique<ImageOwned>(getImageParams());
+	auto tempSensImageBuffer = std::make_shared<ImageOwned>(getImageParams());
 	tempSensImageBuffer->allocate();
 	mp_tempSensImageBuffer = std::move(tempSensImageBuffer);
 }
@@ -64,7 +64,7 @@ void OSEM_CPU::setupOperatorsForSensImgGen()
 	}
 }
 
-std::unique_ptr<Image> OSEM_CPU::getLatestSensitivityImage(bool isLastSubset)
+std::shared_ptr<Image> OSEM_CPU::getLatestSensitivityImage(bool isLastSubset)
 {
 	// This will dereference mp_tempSensImageBuffer
 	auto img = std::move(mp_tempSensImageBuffer);

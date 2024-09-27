@@ -17,7 +17,8 @@ protected:
 	// Sens Image generator driver
 	void setupOperatorsForSensImgGen() override;
 	void allocateForSensImgGen() override;
-	std::unique_ptr<Image> getLatestSensitivityImage(bool isLastSubset) override;
+	std::shared_ptr<Image>
+	    getLatestSensitivityImage(bool isLastSubset) override;
 	void endSensImgGen() override;
 
 	// Reconstruction driver
@@ -40,7 +41,7 @@ protected:
 
 private:
 	// For sensitivity image generation
-	std::unique_ptr<Image> mp_tempSensImageBuffer;
+	std::shared_ptr<Image> mp_tempSensImageBuffer;
 	// For reconstruction
 	std::unique_ptr<Image> mp_mlemImageTmp;
 	std::unique_ptr<ProjectionData> mp_datTmp;

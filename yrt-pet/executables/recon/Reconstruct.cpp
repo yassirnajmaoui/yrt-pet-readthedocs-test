@@ -178,7 +178,7 @@ int main(int argc, char** argv)
 		}
 
 		// Sensitivity image(s)
-		std::vector<std::unique_ptr<Image>> sensImages;
+		std::vector<std::shared_ptr<Image>> sensImages;
 		if (sensImg_fnames.empty())
 		{
 			std::unique_ptr<ProjectionData> sensData = nullptr;
@@ -205,7 +205,6 @@ int main(int argc, char** argv)
 				sensImages.push_back(std::make_unique<ImageOwned>(
 				    osem->imageParams, sensImg_fname));
 			}
-			osem->registerSensitivityImages(sensImages);
 		}
 		else
 		{
@@ -223,6 +222,8 @@ int main(int argc, char** argv)
 			std::cout << "Done." << std::endl;
 			return 0;
 		}
+
+		osem->registerSensitivityImages(sensImages);
 
 		// Projection Data Input file
 		std::unique_ptr<ProjectionData> dataInput;

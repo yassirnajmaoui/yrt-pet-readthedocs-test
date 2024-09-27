@@ -31,13 +31,13 @@ public:
 	// Sensitivity image generation
 	void generateSensitivityImages(const std::string& out_fname);
 	void generateSensitivityImages(
-	    std::vector<std::unique_ptr<Image>>& sensImages,
+	    std::vector<std::shared_ptr<Image>>& sensImages,
 	    const std::string& out_fname);
 	bool validateSensImagesAmount(int size) const;
 
 	// In case the sensitivity images were already generated
 	void registerSensitivityImages(
-	    const std::vector<std::unique_ptr<Image>>& sensImages);
+	    const std::vector<std::shared_ptr<Image>>& sensImages);
 #if BUILD_PYBIND11
 	void registerSensitivityImages(pybind11::list& imageList);
 #endif
@@ -113,7 +113,7 @@ protected:
 	// Sens Image generator driver
 	virtual void setupOperatorsForSensImgGen() = 0;
 	virtual void allocateForSensImgGen() = 0;
-	virtual std::unique_ptr<Image>
+	virtual std::shared_ptr<Image>
 	    getLatestSensitivityImage(bool isLastSubset) = 0;
 	virtual void endSensImgGen() = 0;
 
@@ -142,7 +142,7 @@ private:
 	void generateSensitivityImageForSubset(int subsetId);
 	void generateSensitivityImagesCore(
 	    bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
-	    std::vector<std::unique_ptr<Image>>& sensImages);
+	    std::vector<std::shared_ptr<Image>>& sensImages);
 	void initializeForRecon();
 
 	std::vector<std::unique_ptr<BinIterator>> m_binIterators;
@@ -150,6 +150,7 @@ private:
 	ProjectionData* sensDataInput;
 	ProjectionData* dataInput;
 
-	std::vector<Image*> sensitivityImages;
+	std::vector<std::shared_ptr<Image>> sensitivityImages;
+	// In the specific case of ListMode reconstructions launched from Python
 	std::unique_ptr<ImageOwned> copiedSensitivityImage;
 };

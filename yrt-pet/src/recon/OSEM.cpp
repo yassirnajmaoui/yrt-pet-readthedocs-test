@@ -45,7 +45,7 @@ void py_setup_osem(pybind11::module& m)
 			    return pySensImagesList;
 		    }
 
-		    std::vector<std::unique_ptr<Image>> sensImages;
+		    std::vector<std::shared_ptr<Image>> sensImages;
 		    self.generateSensitivityImages(sensImages, out_fname);
 		    for (size_t i = 0; i < sensImages.size(); i++)
 		    {
@@ -124,12 +124,12 @@ OSEM::OSEM(const Scanner& pr_scanner)
 
 void OSEM::generateSensitivityImages(const std::string& out_fname)
 {
-	std::vector<std::unique_ptr<Image>> dummy;
+	std::vector<std::shared_ptr<Image>> dummy;
 	generateSensitivityImagesCore(true, out_fname, false, dummy);
 }
 
 void OSEM::generateSensitivityImages(
-    std::vector<std::unique_ptr<Image>>& sensImages,
+    std::vector<std::shared_ptr<Image>>& sensImages,
     const std::string& out_fname)
 {
 	if (out_fname.empty())
@@ -140,7 +140,6 @@ void OSEM::generateSensitivityImages(
 	{
 		generateSensitivityImagesCore(true, out_fname, true, sensImages);
 	}
-	registerSensitivityImages(sensImages);
 }
 
 void OSEM::generateSensitivityImageForSubset(int subsetId)
@@ -168,7 +167,7 @@ void OSEM::generateSensitivityImageForSubset(int subsetId)
 
 void OSEM::generateSensitivityImagesCore(
     bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
-    std::vector<std::unique_ptr<Image>>& sensImages)
+    std::vector<std::shared_ptr<Image>>& sensImages)
 {
 	ASSERT_MSG(imageParams.isValid(), "Image parameters not valid/set");
 
@@ -250,7 +249,7 @@ bool OSEM::validateSensImagesAmount(int size) const
 }
 
 void OSEM::registerSensitivityImages(
-    const std::vector<std::unique_ptr<Image>>& sensImages)
+    const std::vector<std::shared_ptr<Image>>& sensImages)
 {
 	if (!validateSensImagesAmount(static_cast<int>(sensImages.size())))
 	{
@@ -262,7 +261,7 @@ void OSEM::registerSensitivityImages(
 	sensitivityImages.clear();
 	for (const auto& sensImage : sensImages)
 	{
-		sensitivityImages.push_back(sensImage.get());
+		sensitivityImages.push_back(sensImage);
 	}
 }
 
@@ -280,7 +279,8 @@ void OSEM::registerSensitivityImages(py::list& imageList)
 	sensitivityImages.clear();
 	for (int i = 0; i < imageListSize; i++)
 	{
-		sensitivityImages.push_back(imageList[i].cast<Image*>());
+		sensitivityImages.push_back(
+		    imageList[i].cast<std::shared_ptr<Image>>());
 	}
 }
 #endif
@@ -376,7 +376,7 @@ const Image* OSEM::getSensitivityImage(int subsetId) const
 	{
 		return copiedSensitivityImage.get();
 	}
-	return sensitivityImages.at(subsetId);
+	return sensitivityImages.at(subsetId).get();
 }
 
 Image* OSEM::getSensitivityImage(int subsetId)
@@ -385,7 +385,7 @@ Image* OSEM::getSensitivityImage(int subsetId)
 	{
 		return copiedSensitivityImage.get();
 	}
-	return sensitivityImages.at(subsetId);
+	return sensitivityImages.at(subsetId).get();
 }
 
 int OSEM::getNumBatches(int subsetId, bool forRecon) const
@@ -416,7 +416,7 @@ void OSEM::reconstruct()
 			// from Python
 			copiedSensitivityImage = std::make_unique<ImageOwned>(imageParams);
 			copiedSensitivityImage->allocate();
-			copiedSensitivityImage->copyFromImage(sensitivityImages.at(0));
+			copiedSensitivityImage->copyFromImage(sensitivityImages.at(0).get());
 			copiedSensitivityImage->multWithScalar(
 			    1.0 / (static_cast<double>(num_OSEM_subsets)));
 		}
@@ -538,7 +538,7 @@ void OSEM::reconstructWithWarperMotion()
 	auto mlem_image_curr_frame = std::make_unique<ImageOwned>(imageParams);
 	mlem_image_curr_frame->allocate();
 
-	Image* sens_image = sensitivityImages.at(0);
+	Image* sens_image = sensitivityImages.at(0).get();
 	std::cout << "Computing global Warp-to-ref frame" << std::endl;
 	warper->computeGlobalWarpToRefFrame(sens_image, saveSteps > 0);
 	std::cout << "Applying threshold" << std::endl;
