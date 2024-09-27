@@ -20,13 +20,13 @@ void py_setup_histogram3d(pybind11::module& m)
 	c.def_readonly("numR", &Histogram3D::numR);
 	c.def_readonly("histoSize", &Histogram3D::histoSize);
 	c.def_buffer(
-		[](Histogram3D& self) -> py::buffer_info
-		{
-			Array3DBase<float>& d = self.getData();
-			return py::buffer_info(d.getRawPointer(), sizeof(float),
-			                       py::format_descriptor<float>::format(), 3,
-			                       d.getDims(), d.getStrides());
-		});
+	    [](Histogram3D& self) -> py::buffer_info
+	    {
+		    Array3DBase<float>& d = self.getData();
+		    return py::buffer_info(d.getRawPointer(), sizeof(float),
+		                           py::format_descriptor<float>::format(), 3,
+		                           d.getDims(), d.getStrides());
+	    });
 	c.def("writeToFile", &Histogram3D::writeToFile);
 	c.def("getBinIdFromCoords", &Histogram3D::getBinIdFromCoords);
 	c.def("getCoordsFromBinId",
@@ -34,42 +34,42 @@ void py_setup_histogram3d(pybind11::module& m)
 	      {
 		      if (binId >= self.histoSize)
 			      throw std::invalid_argument(
-				      "The binId provided exceeds the size "
-				      "permitted by the histogram");
+			          "The binId provided exceeds the size "
+			          "permitted by the histogram");
 		      coord_t r, phi, z_bin;
 		      self.getCoordsFromBinId(binId, r, phi, z_bin);
 		      return py::make_tuple(r, phi, z_bin);
 	      });
 	c.def(
-		"getDetPairFromCoords",
-		[](const Histogram3D& self, coord_t r, coord_t phi, coord_t z_bin)
-		{
-			if (r >= self.numR)
-			{
-				throw std::invalid_argument("The r coordinate given does not "
-					"respect the histogram shape");
-			}
-			if (phi >= self.numPhi)
-			{
-				throw std::invalid_argument("The phi coordinate given does not "
-					"respect the histogram shape");
-			}
-			if (z_bin >= self.numZBin)
-			{
-				throw std::invalid_argument("The z_bin coordinate given does "
-					"not respect the histogram shape");
-			}
-			det_id_t d1, d2;
-			self.getDetPairFromCoords(r, phi, z_bin, d1, d2);
-			return py::make_tuple(d1, d2);
-		});
+	    "getDetPairFromCoords",
+	    [](const Histogram3D& self, coord_t r, coord_t phi, coord_t z_bin)
+	    {
+		    if (r >= self.numR)
+		    {
+			    throw std::invalid_argument("The r coordinate given does not "
+			                                "respect the histogram shape");
+		    }
+		    if (phi >= self.numPhi)
+		    {
+			    throw std::invalid_argument("The phi coordinate given does not "
+			                                "respect the histogram shape");
+		    }
+		    if (z_bin >= self.numZBin)
+		    {
+			    throw std::invalid_argument("The z_bin coordinate given does "
+			                                "not respect the histogram shape");
+		    }
+		    det_id_t d1, d2;
+		    self.getDetPairFromCoords(r, phi, z_bin, d1, d2);
+		    return py::make_tuple(d1, d2);
+	    });
 	c.def("getDetPairFromBinId",
 	      [](const Histogram3D& self, bin_t binId)
 	      {
 		      if (binId >= self.histoSize)
 			      throw std::invalid_argument(
-				      "The binId provided exceeds the size "
-				      "permitted by the histogram");
+			          "The binId provided exceeds the size "
+			          "permitted by the histogram");
 		      auto [d1, d2] = self.getDetPairFromBinId(binId);
 		      return py::make_tuple(d1, d2);
 	      });
@@ -82,78 +82,75 @@ void py_setup_histogram3d(pybind11::module& m)
 	      });
 	c.def("getBinIdFromDetPair", &Histogram3D::getBinIdFromDetPair);
 	c.def(
-		"getZ1Z2",
-		[](const Histogram3D& self, coord_t z_bin)
-		{
-			if (z_bin >= self.numZBin)
-				throw std::invalid_argument(
-					"The binId provided exceeds the size "
-					"permitted by the histogram");
-			coord_t z1, z2;
-			self.getZ1Z2(z_bin, z1, z2);
-			return py::make_tuple(z1, z2);
-		},
-		py::arg("z_bin"));
+	    "getZ1Z2",
+	    [](const Histogram3D& self, coord_t z_bin)
+	    {
+		    if (z_bin >= self.numZBin)
+			    throw std::invalid_argument(
+			        "The binId provided exceeds the size "
+			        "permitted by the histogram");
+		    coord_t z1, z2;
+		    self.getZ1Z2(z_bin, z1, z2);
+		    return py::make_tuple(z1, z2);
+	    },
+	    py::arg("z_bin"));
 
 	auto c_owned =
-		py::class_<Histogram3DOwned, Histogram3D>(m, "Histogram3DOwned");
+	    py::class_<Histogram3DOwned, Histogram3D>(m, "Histogram3DOwned");
 	c_owned.def(py::init<const Scanner&>());
 	c_owned.def(py::init<const Scanner&, std::string>());
 	c_owned.def("readFromFile", &Histogram3DOwned::readFromFile);
 	c_owned.def("allocate", &Histogram3DOwned::allocate);
 
 	auto c_alias =
-		py::class_<Histogram3DAlias, Histogram3D>(m, "Histogram3DAlias");
+	    py::class_<Histogram3DAlias, Histogram3D>(m, "Histogram3DAlias");
 	c_alias.def(py::init<const Scanner&>());
 	c_alias.def("bind", &Histogram3DAlias::bind, py::arg("array3dfloat"));
 	c_alias.def(
-		"bind",
-		[](Histogram3DAlias& self,
-		   py::buffer& np_data)
-		{
-			py::buffer_info buffer = np_data.request();
-			if (buffer.ndim != 3)
-			{
-				throw std::invalid_argument(
-					"The buffer given has to have 3 dimensions");
-			}
-			if (buffer.format != py::format_descriptor<float>::format())
-			{
-				throw std::invalid_argument(
-					"The buffer given has to have a float32 format");
-			}
-			std::vector<size_t> dims = {self.numZBin, self.numPhi, self.numR};
-			for (int i = 0; i < 3; i++)
-			{
-				if (buffer.shape[i] != static_cast<int>(dims[i]))
-				{
-					throw std::invalid_argument(
-						"The buffer shape does not match with the image "
-						"parameters");
-				}
-			}
-			static_cast<Array3DAlias<float>&>(self.getData())
-				.bind(reinterpret_cast<float*>(buffer.ptr), dims[0], dims[1],
-				      dims[2]);
-		});
+	    "bind",
+	    [](Histogram3DAlias& self, py::buffer& np_data)
+	    {
+		    py::buffer_info buffer = np_data.request();
+		    if (buffer.ndim != 3)
+		    {
+			    throw std::invalid_argument(
+			        "The buffer given has to have 3 dimensions");
+		    }
+		    if (buffer.format != py::format_descriptor<float>::format())
+		    {
+			    throw std::invalid_argument(
+			        "The buffer given has to have a float32 format");
+		    }
+		    std::vector<size_t> dims = {self.numZBin, self.numPhi, self.numR};
+		    for (int i = 0; i < 3; i++)
+		    {
+			    if (buffer.shape[i] != static_cast<int>(dims[i]))
+			    {
+				    throw std::invalid_argument(
+				        "The buffer shape does not match with the image "
+				        "parameters");
+			    }
+		    }
+		    static_cast<Array3DAlias<float>&>(self.getData())
+		        .bind(reinterpret_cast<float*>(buffer.ptr), dims[0], dims[1],
+		              dims[2]);
+	    });
 }
 #endif
 
 Histogram3D::Histogram3D(const Scanner& pr_scanner)
-	: mp_data(nullptr),
-	  mr_scanner(pr_scanner)
+    : mp_data(nullptr), mr_scanner(pr_scanner)
 {
 	m_rCut = mr_scanner.minAngDiff / 2;
 	m_numDOIPoss = mr_scanner.numDoi * mr_scanner.numDoi;
 
-	numR = m_numDOIPoss *
-	      (mr_scanner.detsPerRing / 2 + 1 - mr_scanner.minAngDiff);
+	numR =
+	    m_numDOIPoss * (mr_scanner.detsPerRing / 2 + 1 - mr_scanner.minAngDiff);
 
 	numPhi = mr_scanner.detsPerRing;
 
 	size_t dz_max = mr_scanner.maxRingDiff;
-	numZBin =
-		(dz_max + 1) * mr_scanner.numRings - (dz_max * (dz_max + 1)) / 2;
+	numZBin = (dz_max + 1) * mr_scanner.numRings - (dz_max * (dz_max + 1)) / 2;
 	// Number of z_bins that have z1 < z2
 	m_numZBinDiff = numZBin - mr_scanner.numRings;
 	// Other side for if z1 > z2
@@ -165,20 +162,20 @@ Histogram3D::Histogram3D(const Scanner& pr_scanner)
 Histogram3D::~Histogram3D() {}
 
 Histogram3DOwned::Histogram3DOwned(const Scanner& pr_scanner)
-	: Histogram3D(pr_scanner)
+    : Histogram3D(pr_scanner)
 {
 	mp_data = std::make_unique<Array3D<float>>();
 }
 
 Histogram3DOwned::Histogram3DOwned(const Scanner& pr_scanner,
                                    const std::string& filename)
-	: Histogram3DOwned(pr_scanner)
+    : Histogram3DOwned(pr_scanner)
 {
 	readFromFile(filename);
 }
 
 Histogram3DAlias::Histogram3DAlias(const Scanner& pr_scanner)
-	: Histogram3D(pr_scanner)
+    : Histogram3D(pr_scanner)
 {
 	mp_data = std::make_unique<Array3DAlias<float>>();
 }
@@ -193,9 +190,9 @@ void Histogram3DOwned::readFromFile(const std::string& filename)
 	catch (const std::exception& e)
 	{
 		throw std::runtime_error(
-			"Error during Histogram initialization either the scanner\'s "
-			"attributes do not match the histogram given, the file given is "
-			"inexistant or the file given is not a valid histogram file");
+		    "Error during Histogram initialization either the scanner\'s "
+		    "attributes do not match the histogram given, the file given is "
+		    "inexistant or the file given is not a valid histogram file");
 	}
 }
 
@@ -205,13 +202,14 @@ void Histogram3DAlias::bind(Array3DBase<float>& pr_data)
 	if (mp_data->getRawPointer() != pr_data.getRawPointer())
 	{
 		throw std::runtime_error(
-			"Error occured in the binding of the given array");
+		    "Error occured in the binding of the given array");
 	}
 }
 
 void Histogram3DOwned::allocate()
 {
-	static_cast<Array3D<float>*>(mp_data.get())->allocate(numZBin, numPhi, numR);
+	static_cast<Array3D<float>*>(mp_data.get())
+	    ->allocate(numZBin, numPhi, numR);
 }
 
 void Histogram3D::writeToFile(const std::string& filename) const
@@ -258,11 +256,11 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 	if (r >= numR || phi >= numPhi || z_bin >= numZBin)
 	{
 		throw std::range_error(
-			"The requested histogram coordinates [" + std::to_string(z_bin) +
-			", " + std::to_string(phi) + ", " + std::to_string(r) +
-			"] are outside the histogram array (size:[" +
-			std::to_string(numZBin) + ", " + std::to_string(numPhi) + ", " +
-			std::to_string(numR) + "])");
+		    "The requested histogram coordinates [" + std::to_string(z_bin) +
+		    ", " + std::to_string(phi) + ", " + std::to_string(r) +
+		    "] are outside the histogram array (size:[" +
+		    std::to_string(numZBin) + ", " + std::to_string(numPhi) + ", " +
+		    std::to_string(numR) + "])");
 	}
 
 	coord_t r_ring = r / m_numDOIPoss;
@@ -283,8 +281,8 @@ void Histogram3D::getDetPairFromCoords(coord_t r, coord_t phi, coord_t z_bin,
 	{
 		// Regardless of if z1<z2 or z1>z2
 		int current_z_bin =
-			(((int)z_bin) - mr_scanner.numRings) % m_numZBinDiff +
-			mr_scanner.numRings;
+		    (((int)z_bin) - mr_scanner.numRings) % m_numZBinDiff +
+		    mr_scanner.numRings;
 		int current_n_planes = mr_scanner.numRings;
 		size_t delta_z = 0;
 		while (current_z_bin - current_n_planes >= 0)
@@ -336,15 +334,15 @@ void Histogram3D::getCoordsFromDetPair(det_id_t d1, det_id_t d2, coord_t& r,
 	coord_t delta_z = static_cast<coord_t>(std::abs(z2 - z1));
 	coord_t num_removed_z_bins = delta_z * (delta_z - 1) / 2;
 	z_bin =
-		delta_z * mr_scanner.numRings + std::min(z1, z2) - num_removed_z_bins;
+	    delta_z * mr_scanner.numRings + std::min(z1, z2) - num_removed_z_bins;
 	if (delta_z > 0 && z1 > z2)
 	{
-		z_bin += m_numZBinDiff; // switch
+		z_bin += m_numZBinDiff;  // switch
 	}
 	if (z_bin >= numZBin)
 	{
 		throw std::range_error("The detector pair given does not respect the "
-			"maximum ring difference rule");
+		                       "maximum ring difference rule");
 	}
 }
 
@@ -374,7 +372,7 @@ void Histogram3D::getDetPairInSameRing(coord_t r_ring, coord_t phi,
                                        det_id_t& d2_ring) const
 {
 	int n_tot_ring = mr_scanner.detsPerRing;
-	int r = r_ring; // for cleanness
+	int r = r_ring;  // for cleanness
 	int d01 = 0;
 	int d02 = n_tot_ring / 2;
 	if (phi % 2 != 0)
@@ -394,8 +392,7 @@ void Histogram3D::getDetPairInSameRing(coord_t r_ring, coord_t phi,
 }
 
 bool Histogram3D::getCoordsInSameRing_safe(det_id_t d1_ring, det_id_t d2_ring,
-                                           coord_t& r_ring,
-                                           coord_t& phi) const
+                                           coord_t& r_ring, coord_t& phi) const
 {
 	det_id_t d1_ring_c = d1_ring;
 	det_id_t d2_ring_c = d2_ring;
@@ -406,7 +403,7 @@ bool Histogram3D::getCoordsInSameRing_safe(det_id_t d1_ring, det_id_t d2_ring,
 	if (got == m_ringMap.end())
 	{
 		std::cerr << "Detector ring Exception found at " << d1_ring_c << ", "
-			<< d2_ring_c << std::endl;
+		          << d2_ring_c << std::endl;
 		return false;
 	}
 	DetRingCoordinates coords = got->second;
@@ -419,13 +416,13 @@ void Histogram3D::getCoordsInSameRing(det_id_t d1_ring, det_id_t d2_ring,
                                       coord_t& r_ring, coord_t& phi) const
 {
 	// Note: ".at(...)" is the "const" version of "[...]"
-	size_t d1_ring_c = d1_ring;
-	size_t d2_ring_c = d2_ring;
+	det_id_t d1_ring_c = d1_ring;
+	det_id_t d2_ring_c = d2_ring;
 	if (d1_ring_c > d2_ring_c)
 		std::swap(d1_ring_c, d2_ring_c);
 	try
 	{
-		DetRingCoordinates coords = m_ringMap.at({d1_ring_c, d2_ring_c});
+		const DetRingCoordinates coords = m_ringMap.at({d1_ring_c, d2_ring_c});
 		r_ring = coords[0];
 		phi = coords[1];
 	}
@@ -433,9 +430,9 @@ void Histogram3D::getCoordsInSameRing(det_id_t d1_ring, det_id_t d2_ring,
 	{
 		std::cerr << "Caught: " << e.what() << std::endl;
 		throw std::range_error(
-			"A Line-Of-Response might not respect the Minimum-Angle-Difference "
-			"restriction of the scanner.\nCheck the scanner properties or the "
-			"input files.");
+		    "A Line-Of-Response might not respect the Minimum-Angle-Difference "
+		    "restriction of the scanner.\nCheck the scanner properties or the "
+		    "input files.");
 	}
 }
 
@@ -481,8 +478,8 @@ void Histogram3D::getZ1Z2(coord_t z_bin, coord_t& z1, coord_t& z2) const
 	{
 		// Regardless of if z1<z2 or z1>z2
 		int current_z_bin =
-			(((int)z_bin) - mr_scanner.numRings) % m_numZBinDiff +
-			mr_scanner.numRings;
+		    (((int)z_bin) - mr_scanner.numRings) % m_numZBinDiff +
+		    mr_scanner.numRings;
 		int current_n_planes = mr_scanner.numRings;
 		size_t delta_z = 0;
 		while (current_z_bin - current_n_planes >= 0)
@@ -512,21 +509,21 @@ void Histogram3D::clearProjections(float value)
 }
 
 std::unique_ptr<BinIterator> Histogram3D::getBinIter(int numSubsets,
-	int idxSubset) const
+                                                     int idxSubset) const
 {
 	if (idxSubset < 0 || numSubsets <= 0)
 		throw std::invalid_argument(
-			"The subset index cannot be negative, the number of subsets cannot "
-			"be less or equal than zero");
+		    "The subset index cannot be negative, the number of subsets cannot "
+		    "be less or equal than zero");
 	if (idxSubset >= numSubsets)
 		throw std::invalid_argument(
-			"The subset index has to be smaller than the number of subsets");
-	return std::make_unique<BinIteratorRangeHistogram3D>(
-		numZBin, numPhi, numR, numSubsets, idxSubset);
+		    "The subset index has to be smaller than the number of subsets");
+	return std::make_unique<BinIteratorRangeHistogram3D>(numZBin, numPhi, numR,
+	                                                     numSubsets, idxSubset);
 }
 
 float Histogram3D::getProjectionValueFromHistogramBin(
-	histo_bin_t histoBinId) const
+    histo_bin_t histoBinId) const
 {
 	if (std::holds_alternative<bin_t>(histoBinId))
 	{
@@ -541,11 +538,11 @@ float Histogram3D::getProjectionValueFromHistogramBin(
 }
 
 std::unique_ptr<ProjectionData>
-	Histogram3DOwned::create(const Scanner& scanner,
-	                         const std::string& filename,
-	                         const Plugin::OptionsResult& pluginOptions)
+    Histogram3DOwned::create(const Scanner& scanner,
+                             const std::string& filename,
+                             const Plugin::OptionsResult& pluginOptions)
 {
-	(void)pluginOptions; // No use for extra options
+	(void)pluginOptions;  // No use for extra options
 	return std::make_unique<Histogram3DOwned>(scanner, filename);
 }
 

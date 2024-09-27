@@ -13,22 +13,26 @@
 #include <array>
 #include <vector>
 
-// A hash function used to hash a pair of any kind
-struct hash_pair
+struct HashDetPair
 {
-	template <class T1, class T2>
-	int operator()(const std::pair<T1, T2>& p) const
+	int operator()(det_pair_t p) const
 	{
-		auto hash1 = std::hash<T1>{}(p.first);
-		auto hash2 = std::hash<T2>{}(p.second);
+		const auto hash1 = std::hash<det_id_t>{}(p.d1);
+		const auto hash2 = std::hash<det_id_t>{}(p.d2);
 		return hash1 ^ hash2;
+	}
+};
+struct EqualDetPair
+{
+	int operator()(det_pair_t p1, det_pair_t p2) const
+	{
+		return p1.d1 == p2.d1 && p1.d2 == p2.d2;
 	}
 };
 
 typedef uint32_t coord_t;
 typedef std::array<coord_t, 3> DetCoordinates;      // r, phi, z
 typedef std::array<coord_t, 2> DetRingCoordinates;  // r, phi
-typedef std::pair<det_id_t, det_id_t> DetRingPair;  // d1, d2
 
 class Histogram3D : public Histogram
 {
@@ -64,7 +68,7 @@ public:
 	void clearProjections();
 	void clearProjections(float value) override;
 	std::unique_ptr<BinIterator> getBinIter(int numSubsets,
-	                                          int idxSubset) const override;
+	                                        int idxSubset) const override;
 
 	float getProjectionValueFromHistogramBin(
 	    histo_bin_t histoBinId) const override;
@@ -96,11 +100,13 @@ public:
 
 protected:
 	std::unique_ptr<Array3DBase<float>> mp_data;
-	std::unordered_map<DetRingPair, DetRingCoordinates, hash_pair> m_ringMap;
+	std::unordered_map<det_pair_t, DetRingCoordinates, HashDetPair,
+	                   EqualDetPair>
+	    m_ringMap;
 	const Scanner& mr_scanner;
 	size_t m_rCut;
-	size_t m_numDOIPoss;  // Number of DOI combinations (ex: 2 doi -> 4 lor
-	                      // possibilities)
+	size_t m_numDOIPoss;   // Number of DOI combinations (ex: 2 doi -> 4 lor
+	                       // possibilities)
 	size_t m_numZBinDiff;  // Number of z_bins that have z1 < z2
 };
 
