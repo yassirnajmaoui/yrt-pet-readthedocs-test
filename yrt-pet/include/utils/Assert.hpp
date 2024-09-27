@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <exception>
+
 void assertion_failed(char const* expr, char const* function, char const* file,
                       long line, bool critical);
 
@@ -21,3 +23,8 @@ void assertion_failed_msg(char const* expr, char const* msg,
 #define ASSERT_WARNING(expr) (CHECK_LIKELY(!!(expr))? ((void)0): assertion_failed(#expr, __PRETTY_FUNCTION__, __FILE__, __LINE__, false))
 #define ASSERT_MSG_WARNING(expr, msg) (CHECK_LIKELY(!!(expr))? ((void)0): assertion_failed_msg(#expr, msg, __PRETTY_FUNCTION__, __FILE__, __LINE__, false))
 /* clang-format on */
+
+namespace Util
+{
+	void printExceptionMessage(const std::exception& e);
+}

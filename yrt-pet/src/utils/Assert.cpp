@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "utils/Assert.hpp"
+
 void assertion_failed(char const* expr, char const* function, char const* file,
                       long line, bool critical)
 {
@@ -49,4 +51,12 @@ void assertion_failed_msg(char const* expr, char const* msg,
 	{
 		std::cerr << fullErrorMessage << std::endl;
 	}
+}
+
+void Util::printExceptionMessage(const std::exception& e)
+{
+	constexpr auto delim = "===================";
+	std::cerr << "Exception caught:\n"
+	          << delim << "\n" << e.what() << "\n"
+	          << delim << std::endl;
 }

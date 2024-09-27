@@ -15,41 +15,41 @@
 #include <cxxopts.hpp>
 #include <iostream>
 
-
 int main(int argc, char** argv)
 {
-	std::string scanner_fname;
-	std::string imgParams_fname;
-	std::string input_fname;
-	std::string input_format;
-	std::vector<std::string> sensImg_fnames;
-	std::string attImg_fname;
-	std::string attImgParams_fname;
-	std::string imageSpacePsf_fname;
-	std::string projSpacePsf_fname;
-	std::string addHis_fname;
-	std::string addHis_format = "H";
-	std::string projector_name = "S";
-	std::string sensData_fname;
-	std::string sensData_format;
-	std::string warpParamFile;  // For Warper
-	std::string out_fname;
-	std::string out_sensImg_fname;
-	int numIterations = 10;
-	int numSubsets = 1;
-	int numThreads = -1;
-	int numRays = 1;
-	float hardThreshold = 1.0f;
-	float tofWidth_ps = 0.0f;
-	int tofNumStd = 0;
-	int saveSteps = 0;
-	bool sensOnly = false;
-
-	Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
-
-	// Parse command line arguments
 	try
 	{
+		std::string scanner_fname;
+		std::string imgParams_fname;
+		std::string input_fname;
+		std::string input_format;
+		std::vector<std::string> sensImg_fnames;
+		std::string attImg_fname;
+		std::string attImgParams_fname;
+		std::string imageSpacePsf_fname;
+		std::string projSpacePsf_fname;
+		std::string addHis_fname;
+		std::string addHis_format = "H";
+		std::string projector_name = "S";
+		std::string sensData_fname;
+		std::string sensData_format;
+		std::string warpParamFile;  // For Warper
+		std::string out_fname;
+		std::string out_sensImg_fname;
+		int numIterations = 10;
+		int numSubsets = 1;
+		int numThreads = -1;
+		int numRays = 1;
+		float hardThreshold = 1.0f;
+		float tofWidth_ps = 0.0f;
+		int tofNumStd = 0;
+		int saveSteps = 0;
+		bool sensOnly = false;
+
+		Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
+
+		// Parse command line arguments
+
 		cxxopts::Options options(argv[0], "Reconstruction executable");
 		options.positional_help("[optional args]").show_positional_help();
 		/* clang-format off */
@@ -150,165 +150,173 @@ int main(int argc, char** argv)
 		// Parse plugin options
 		pluginOptionsResults =
 		    PluginOptionsHelper::convertPluginResultsToMap(result);
+
+		auto scanner = std::make_unique<Scanner>(scanner_fname);
+		auto projectorType = IO::getProjector(projector_name);
+
+		std::unique_ptr<OSEM> osem =
+		    Util::createOSEM(*scanner, IO::requiresGPU(projectorType));
+
+		osem->num_MLEM_iterations = numIterations;
+		osem->num_OSEM_subsets = numSubsets;
+		osem->hardThreshold = hardThreshold;
+		osem->imageParams = ImageParams(imgParams_fname);
+		osem->projectorType = projectorType;
+		osem->numRays = numRays;
+		Globals::set_num_threads(numThreads);
+
+		// To make sure the sensitivity image gets generated accordingly
+		const bool useListMode =
+		    !input_format.empty() && IO::isFormatListMode(input_format);
+		osem->setListModeEnabled(useListMode);
+
+		// Attenuation image
+		std::unique_ptr<ImageParams> att_img_params = nullptr;
+		std::unique_ptr<ImageOwned> att_img = nullptr;
+		if (!attImg_fname.empty())
+		{
+			if (attImgParams_fname.empty())
+			{
+				std::cerr << "If passing an attenuation image, the "
+				             "corresponding image "
+				          << "parameter file must also be provided"
+				          << std::endl;
+				return -1;
+			}
+			att_img_params = std::make_unique<ImageParams>(attImgParams_fname);
+			att_img =
+			    std::make_unique<ImageOwned>(*att_img_params, attImg_fname);
+		}
+
+		// Image-space PSF
+		std::unique_ptr<OperatorPsf> imageSpacePsf;
+		if (!imageSpacePsf_fname.empty())
+		{
+			imageSpacePsf = std::make_unique<OperatorPsf>(osem->imageParams,
+			                                              imageSpacePsf_fname);
+			osem->addImagePSF(imageSpacePsf.get());
+		}
+
+		// Projection-space PSF
+		if (!projSpacePsf_fname.empty())
+		{
+			osem->addProjPSF(projSpacePsf_fname);
+		}
+
+		// Sensitivity image(s)
+		std::vector<std::unique_ptr<Image>> sensImages;
+		if (sensImg_fnames.empty())
+		{
+			std::unique_ptr<ProjectionData> sensData = nullptr;
+			if (!sensData_fname.empty())
+			{
+				sensData =
+				    IO::openProjectionData(sensData_fname, sensData_format,
+				                           *scanner, pluginOptionsResults);
+			}
+
+			osem->attenuationImageForBackprojection = att_img.get();
+			osem->setSensDataInput(sensData.get());
+
+			osem->generateSensitivityImages(sensImages, out_sensImg_fname);
+
+			// Do not use this attenuation image for the reconstruction
+			osem->attenuationImageForBackprojection = nullptr;
+		}
+		else if (osem->validateSensImagesAmount(
+		             static_cast<int>(sensImg_fnames.size())))
+		{
+			for (auto& sensImg_fname : sensImg_fnames)
+			{
+				sensImages.push_back(std::make_unique<ImageOwned>(
+				    osem->imageParams, sensImg_fname));
+			}
+			osem->registerSensitivityImages(sensImages);
+		}
+		else
+		{
+			std::cout << "number of sensImages given: " << sensImg_fnames.size()
+			          << std::endl;
+			throw std::invalid_argument(
+			    "The number of sensitivity images given "
+			    "doesn't match the number of "
+			    "subsets specified. Note: For ListMode format, only one "
+			    "sensitivity image is required.");
+		}
+
+		if (sensOnly)
+		{
+			std::cout << "Done." << std::endl;
+			return 0;
+		}
+
+		// Projection Data Input file
+		std::unique_ptr<ProjectionData> dataInput;
+		dataInput = IO::openProjectionData(input_fname, input_format, *scanner,
+		                                   pluginOptionsResults);
+		osem->setDataInput(dataInput.get());
+		if (tofWidth_ps > 0.f)
+		{
+			osem->addTOF(tofWidth_ps, tofNumStd);
+		}
+
+		// Additive histogram
+		std::unique_ptr<ProjectionData> addHis;
+		if (!addHis_fname.empty())
+		{
+			addHis = IO::openProjectionData(addHis_fname, addHis_format,
+			                                *scanner, pluginOptionsResults);
+			osem->addHis = dynamic_cast<const Histogram*>(addHis.get());
+			ASSERT_MSG(osem->addHis != nullptr,
+			           "The additive histogram provided does not inherit from "
+			           "Histogram.");
+		}
+
+		// Save steps
+		osem->setSaveSteps(saveSteps, out_fname);
+
+		// Prepare output image
+		auto out_img = std::make_unique<ImageOwned>(osem->imageParams);
+		out_img->allocate();
+		osem->outImage = out_img.get();
+
+		// Image Warper
+		std::unique_ptr<ImageWarperTemplate> warper = nullptr;
+		if (!warpParamFile.empty())
+		{
+			warper = std::make_unique<ImageWarperMatrix>();
+			warper->setImageHyperParam(osem->imageParams);
+			warper->setFramesParamFromFile(warpParamFile);
+			osem->warper = warper.get();
+		}
+
+		if (warper == nullptr)
+		{
+			std::cout << "Launching reconstruction..." << std::endl;
+			osem->reconstruct();
+		}
+		else
+		{
+			std::cout << "Launching reconstruction with image warper..."
+			          << std::endl;
+			osem->reconstructWithWarperMotion();
+		}
+
+		std::cout << "Saving image..." << std::endl;
+		out_img->writeToFile(out_fname);
+
+		std::cout << "Done." << std::endl;
 	}
 	catch (const cxxopts::exceptions::exception& e)
 	{
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		return -1;
 	}
-
-	auto scanner = std::make_unique<Scanner>(scanner_fname);
-	auto projectorType = IO::getProjector(projector_name);
-
-	std::unique_ptr<OSEM> osem =
-	    Util::createOSEM(*scanner, IO::requiresGPU(projectorType));
-
-	osem->num_MLEM_iterations = numIterations;
-	osem->num_OSEM_subsets = numSubsets;
-	osem->hardThreshold = hardThreshold;
-	osem->imageParams = ImageParams(imgParams_fname);
-	osem->projectorType = projectorType;
-	osem->numRays = numRays;
-	Globals::set_num_threads(numThreads);
-
-	// To make sure the sensitivity image gets generated accordingly
-	const bool useListMode =
-	    !input_format.empty() && IO::isFormatListMode(input_format);
-	osem->setListModeEnabled(useListMode);
-
-	// Attenuation image
-	std::unique_ptr<ImageParams> att_img_params = nullptr;
-	std::unique_ptr<ImageOwned> att_img = nullptr;
-	if (!attImg_fname.empty())
+	catch (const std::exception& e)
 	{
-		if (attImgParams_fname.empty())
-		{
-			std::cerr
-			    << "If passing an attenuation image, the corresponding image "
-			    << "parameter file must also be provided" << std::endl;
-			return -1;
-		}
-		att_img_params = std::make_unique<ImageParams>(attImgParams_fname);
-		att_img = std::make_unique<ImageOwned>(*att_img_params, attImg_fname);
+		Util::printExceptionMessage(e);
+		return -1;
 	}
-
-	// Image-space PSF
-	std::unique_ptr<OperatorPsf> imageSpacePsf;
-	if (!imageSpacePsf_fname.empty())
-	{
-		imageSpacePsf = std::make_unique<OperatorPsf>(osem->imageParams,
-		                                                imageSpacePsf_fname);
-		osem->addImagePSF(imageSpacePsf.get());
-	}
-
-	// Projection-space PSF
-	if (!projSpacePsf_fname.empty())
-	{
-		osem->addProjPSF(projSpacePsf_fname);
-	}
-
-	// Sensitivity image(s)
-	std::vector<std::unique_ptr<Image>> sensImages;
-	if (sensImg_fnames.empty())
-	{
-		std::unique_ptr<ProjectionData> sensData = nullptr;
-		if (!sensData_fname.empty())
-		{
-			sensData = IO::openProjectionData(sensData_fname, sensData_format,
-			                                  *scanner, pluginOptionsResults);
-		}
-
-		osem->attenuationImageForBackprojection = att_img.get();
-		osem->setSensDataInput(sensData.get());
-
-		osem->generateSensitivityImages(sensImages, out_sensImg_fname);
-
-		// Do not use this attenuation image for the reconstruction
-		osem->attenuationImageForBackprojection = nullptr;
-	}
-	else if (osem->validateSensImagesAmount(
-	             static_cast<int>(sensImg_fnames.size())))
-	{
-		for (auto& sensImg_fname : sensImg_fnames)
-		{
-			sensImages.push_back(std::make_unique<ImageOwned>(
-			    osem->imageParams, sensImg_fname));
-		}
-		osem->registerSensitivityImages(sensImages);
-	}
-	else
-	{
-		std::cout << "number of sensImages given: " << sensImg_fnames.size()
-		          << std::endl;
-		throw std::invalid_argument(
-		    "The number of sensitivity images given "
-		    "doesn't match the number of "
-		    "subsets specified. Note: For ListMode format, only one "
-		    "sensitivity image is required.");
-	}
-
-	if (sensOnly)
-	{
-		std::cout << "Done." << std::endl;
-		return 0;
-	}
-
-	// Projection Data Input file
-	std::unique_ptr<ProjectionData> dataInput;
-	dataInput = IO::openProjectionData(input_fname, input_format, *scanner,
-	                                   pluginOptionsResults);
-	osem->setDataInput(dataInput.get());
-	if (tofWidth_ps > 0.f)
-	{
-		osem->addTOF(tofWidth_ps, tofNumStd);
-	}
-
-	// Additive histogram
-	std::unique_ptr<ProjectionData> addHis;
-	if (!addHis_fname.empty())
-	{
-		addHis = IO::openProjectionData(addHis_fname, addHis_format, *scanner,
-		                                pluginOptionsResults);
-		osem->addHis = dynamic_cast<const Histogram*>(addHis.get());
-		ASSERT_MSG(osem->addHis != nullptr,
-		           "The additive histogram provided does not inherit from "
-		           "Histogram.");
-	}
-
-	// Save steps
-	osem->setSaveSteps(saveSteps, out_fname);
-
-	// Prepare output image
-	auto out_img = std::make_unique<ImageOwned>(osem->imageParams);
-	out_img->allocate();
-	osem->outImage = out_img.get();
-
-	// Image Warper
-	std::unique_ptr<ImageWarperTemplate> warper = nullptr;
-	if (!warpParamFile.empty())
-	{
-		warper = std::make_unique<ImageWarperMatrix>();
-		warper->setImageHyperParam(osem->imageParams);
-		warper->setFramesParamFromFile(warpParamFile);
-		osem->warper = warper.get();
-	}
-
-	if (warper == nullptr)
-	{
-		std::cout << "Launching reconstruction..." << std::endl;
-		osem->reconstruct();
-	}
-	else
-	{
-		std::cout << "Launching reconstruction with image warper..."
-		          << std::endl;
-		osem->reconstructWithWarperMotion();
-	}
-
-	std::cout << "Saving image..." << std::endl;
-	out_img->writeToFile(out_fname);
-
-	std::cout << "Done." << std::endl;
 
 	return 0;
 }
