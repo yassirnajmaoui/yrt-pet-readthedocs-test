@@ -49,78 +49,52 @@ int main(int argc, char** argv)
 		Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
 
 		// Parse command line arguments
-
 		cxxopts::Options options(argv[0], "Reconstruction executable");
 		options.positional_help("[optional args]").show_positional_help();
+
 		/* clang-format off */
 		options.add_options()
-			("s,scanner", "Scanner parameters file name",
-			 cxxopts::value<std::string>(scanner_fname))
-			("p,params", "Image parameters file",
-			 cxxopts::value<std::string>(imgParams_fname))
-			("i,input", "Input file",
-			 cxxopts::value<std::string>(input_fname))
-			("f,format", "Input file format. Possible values: " + IO::possibleFormats(),
-			 cxxopts::value<std::string>(input_format))
-			("sens", "Sensitivity image files (separated by a comma)",
-			 cxxopts::value<std::vector<std::string>>(sensImg_fnames))
-			("att", "Attenuation image filename",
-			 cxxopts::value<std::string>(attImg_fname))
-			("att_params", "Attenuation image parameters filename",
-			 cxxopts::value<std::string>(attImgParams_fname))
-			("psf", "Image-space PSF kernel file",
-			 cxxopts::value<std::string>(imageSpacePsf_fname))
-			("proj_psf", "Projection-space PSF kernel file",
-			 cxxopts::value<std::string>(projSpacePsf_fname))
-			("add_his", "Histogram with additive corrections (scatter & randoms)",
-			 cxxopts::value<std::string>(addHis_fname))
-			("add_his_format", "Format of the histogram with additive corrections. Default value: H",
-			 cxxopts::value<std::string>(addHis_format))
-			("sensdata", "Sensitivity data input file",
-			 cxxopts::value<std::string>(sensData_fname))
-			("sensdata_format", "Sensitivity data input file format. Possible values: " + IO::possibleFormats(),
-			 cxxopts::value<std::string>(sensData_format))
-			("w,warper", "Path to the warp parameters file (Specify this to use the MLEM with image warper algorithm)",
-			 cxxopts::value<std::string>(warpParamFile))
-			("projector", "Projector to use, choices: Siddon (S), Distance-Driven (D)"
-			 #if BUILD_CUDA
-			 ", or GPU Distance-Driven (DD_GPU)"
-			 #endif
-			 ". The default projector is Siddon",
-			 cxxopts::value<std::string>(projector_name))
-			("num_rays", "Number of rays to use in the Siddon projector",
-			 cxxopts::value<int>(numRays))
-			("tof_width_ps", "TOF Width in Picoseconds",
-			 cxxopts::value<float>(tofWidth_ps))
-			("tof_n_std", "Number of standard deviations to consider for TOF's Gaussian curve",
-			 cxxopts::value<int>(tofNumStd))
-			("o,out", "Output image filename",
-			 cxxopts::value<std::string>(out_fname))
-			("num_iterations", "Number of MLEM Iterations",
-			 cxxopts::value<int>(numIterations))
-			("num_threads", "Number of threads to use",
-			 cxxopts::value<int>(numThreads))
-			("num_subsets","Number of OSEM subsets (Default: 1)",
-			 cxxopts::value<int>(numSubsets))
-			("hard_threshold", "Hard Threshold",
-			 cxxopts::value<float>(hardThreshold))
-			("save_steps", "Enable saving each MLEM iteration image (step)",
-			 cxxopts::value<int>(saveSteps))
-			("sens_only", "Only generate the sensitivity image. Do not launch reconstruction",
-			 cxxopts::value<bool>(sensOnly))
-			("out_sens", "Filename for the generated sensitivity image (if it needed to be computed). Leave blank to not save it",
-			 cxxopts::value<std::string>(out_sensImg_fname))
-			("h,help", "Print help");
+		("s,scanner", "Scanner parameters file name", cxxopts::value<std::string>(scanner_fname))
+		("p,params", "Image parameters file", cxxopts::value<std::string>(imgParams_fname))
+		("i,input", "Input file", cxxopts::value<std::string>(input_fname))
+		("f,format", "Input file format. Possible values: " + IO::possibleFormats(), cxxopts::value<std::string>(input_format))
+		("sens", "Sensitivity image files (separated by a comma)", cxxopts::value<std::vector<std::string>>(sensImg_fnames))
+		("att", "Attenuation image filename", cxxopts::value<std::string>(attImg_fname))
+		("att_params", "Attenuation image parameters filename", cxxopts::value<std::string>(attImgParams_fname))
+		("psf", "Image-space PSF kernel file", cxxopts::value<std::string>(imageSpacePsf_fname))
+		("proj_psf", "Projection-space PSF kernel file", cxxopts::value<std::string>(projSpacePsf_fname))
+		("add_his", "Histogram with additive corrections (scatter & randoms)", cxxopts::value<std::string>(addHis_fname))
+		("add_his_format", "Format of the histogram with additive corrections. Default value: H", cxxopts::value<std::string>(addHis_format))
+		("sensdata", "Sensitivity data input file", cxxopts::value<std::string>(sensData_fname))
+		("sensdata_format", "Sensitivity data input file format. Possible values: " + IO::possibleFormats(), cxxopts::value<std::string>(sensData_format))
+		("w,warper", "Path to the warp parameters file (Specify this to use the MLEM with image warper algorithm)", cxxopts::value<std::string>(warpParamFile))
+		("projector", "Projector to use, choices: Siddon (S), Distance-Driven (D)"
+		 #if BUILD_CUDA
+		 ", or GPU Distance-Driven (DD_GPU)"
+		 #endif
+		 ". The default projector is Siddon", cxxopts::value<std::string>(projector_name))
+		("num_rays", "Number of rays to use in the Siddon projector", cxxopts::value<int>(numRays))
+		("tof_width_ps", "TOF Width in Picoseconds", cxxopts::value<float>(tofWidth_ps))
+		("tof_n_std", "Number of standard deviations to consider for TOF's Gaussian curve", cxxopts::value<int>(tofNumStd))
+		("o,out", "Output image filename", cxxopts::value<std::string>(out_fname))
+		("num_iterations", "Number of MLEM Iterations", cxxopts::value<int>(numIterations))
+		("num_threads", "Number of threads to use", cxxopts::value<int>(numThreads))
+		("num_subsets","Number of OSEM subsets (Default: 1)", cxxopts::value<int>(numSubsets))
+		("hard_threshold", "Hard Threshold", cxxopts::value<float>(hardThreshold))
+		("save_steps", "Enable saving each MLEM iteration image (step)", cxxopts::value<int>(saveSteps))
+		("sens_only", "Only generate the sensitivity image. Do not launch reconstruction", cxxopts::value<bool>(sensOnly))
+		("out_sens", "Filename for the generated sensitivity image (if it needed to be computed). Leave blank to not save it", cxxopts::value<std::string>(out_sensImg_fname))
+		("h,help", "Print help");
 		/* clang-format on */
 
 		// Add plugin options
 		PluginOptionsHelper::fillOptionsFromPlugins(options);
 
-		auto result = options.parse(argc, argv);
+		const auto result = options.parse(argc, argv);
 		if (result.count("help"))
 		{
 			std::cout << options.help() << std::endl;
-			return -1;
+			return 0;
 		}
 
 		std::vector<std::string> requiredParams = {"scanner", "params"};
@@ -306,6 +280,7 @@ int main(int argc, char** argv)
 		out_img->writeToFile(out_fname);
 
 		std::cout << "Done." << std::endl;
+		return 0;
 	}
 	catch (const cxxopts::exceptions::exception& e)
 	{
@@ -317,6 +292,4 @@ int main(int argc, char** argv)
 		Util::printExceptionMessage(e);
 		return -1;
 	}
-
-	return 0;
 }

@@ -8,6 +8,7 @@
 #include "datastruct/projection/Histogram3D.hpp"
 #include "datastruct/projection/SparseHistogram.hpp"
 #include "datastruct/scanner/Scanner.hpp"
+#include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
 #include "utils/ReconstructionUtils.hpp"
 
@@ -17,21 +18,22 @@
 
 int main(int argc, char** argv)
 {
-	std::string scanner_fname;
-	std::string input_fname;
-	std::string input_format;
-	std::string out_fname;
-	bool toSparseHistogram = false;
-	int numThreads = -1;
-
-	Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
-
-	// Parse command line arguments
 	try
 	{
-		cxxopts::Options options(
-		    argv[0], "Convert any input format to a histogram");
+		std::string scanner_fname;
+		std::string input_fname;
+		std::string input_format;
+		std::string out_fname;
+		bool toSparseHistogram = false;
+		int numThreads = -1;
+
+		Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
+
+		// Parse command line arguments
+		cxxopts::Options options(argv[0],
+		                         "Convert any input format to a histogram");
 		options.positional_help("[optional args]").show_positional_help();
+
 		/* clang-format off */
 		options.add_options()
 		("s,scanner", "Scanner parameters file name", cxxopts::value<std::string>(scanner_fname))
@@ -50,7 +52,7 @@ int main(int argc, char** argv)
 		if (result.count("help"))
 		{
 			std::cout << options.help() << std::endl;
-			return -1;
+			return 0;
 		}
 
 		std::vector<std::string> required_params = {"scanner", "input", "out",
@@ -73,57 +75,62 @@ int main(int argc, char** argv)
 		// Parse plugin options
 		pluginOptionsResults =
 		    PluginOptionsHelper::convertPluginResultsToMap(result);
+
+		Globals::set_num_threads(numThreads);
+
+		auto scanner = std::make_unique<Scanner>(scanner_fname);
+
+		std::cout << "Reading input data..." << std::endl;
+
+		std::unique_ptr<ProjectionData> dataInput = IO::openProjectionData(
+		    input_fname, input_format, *scanner, pluginOptionsResults);
+
+		std::cout << "Done reading input data." << std::endl;
+
+		if (toSparseHistogram)
+		{
+			std::cout << "Accumulating into sparse histogram..." << std::endl;
+			auto sparseHisto =
+			    std::make_unique<SparseHistogram>(*scanner, *dataInput);
+			std::cout << "Saving sparse histogram..." << std::endl;
+			sparseHisto->writeToFile(out_fname);
+		}
+		else
+		{
+			std::cout << "Preparing output Histogram3D..." << std::endl;
+			auto histoOut = std::make_unique<Histogram3DOwned>(*scanner);
+			histoOut->allocate();
+			histoOut->clearProjections(0.0f);
+			std::cout << "Done preparing output Histogram3D." << std::endl;
+
+			std::cout << "Accumulating into Histogram3D..." << std::endl;
+			if (IO::isFormatListMode(input_format))
+			{
+				// ListMode input, use atomic to accumulate
+				Util::convertToHistogram3D<true>(*dataInput, *histoOut);
+			}
+			else
+			{
+				// Histogram input, no need to use atomic to accumulate
+				Util::convertToHistogram3D<false>(*dataInput, *histoOut);
+			}
+
+			std::cout << "Histogram3D generated.\nWriting file..." << std::endl;
+			histoOut->writeToFile(out_fname);
+		}
+
+		std::cout << "Done." << std::endl;
+
+		return 0;
 	}
 	catch (const cxxopts::exceptions::exception& e)
 	{
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		return -1;
 	}
-
-	Globals::set_num_threads(numThreads);
-
-	auto scanner = std::make_unique<Scanner>(scanner_fname);
-
-	std::cout << "Reading input data..." << std::endl;
-
-	std::unique_ptr<ProjectionData> dataInput = IO::openProjectionData(
-	    input_fname, input_format, *scanner, pluginOptionsResults);
-
-	std::cout << "Done reading input data." << std::endl;
-
-	if (toSparseHistogram)
+	catch (const std::exception& e)
 	{
-		std::cout << "Accumulating into sparse histogram..." << std::endl;
-		auto sparseHisto =
-		    std::make_unique<SparseHistogram>(*scanner, *dataInput);
-		std::cout << "Saving sparse histogram..." << std::endl;
-		sparseHisto->writeToFile(out_fname);
+		Util::printExceptionMessage(e);
+		return -1;
 	}
-	else
-	{
-		std::cout << "Preparing output Histogram3D..." << std::endl;
-		auto histoOut = std::make_unique<Histogram3DOwned>(*scanner);
-		histoOut->allocate();
-		histoOut->clearProjections(0.0f);
-		std::cout << "Done preparing output Histogram3D." << std::endl;
-
-		std::cout << "Accumulating into Histogram3D..." << std::endl;
-		if (IO::isFormatListMode(input_format))
-		{
-			// ListMode input, use atomic to accumulate
-			Util::convertToHistogram3D<true>(*dataInput, *histoOut);
-		}
-		else
-		{
-			// Histogram input, no need to use atomic to accumulate
-			Util::convertToHistogram3D<false>(*dataInput, *histoOut);
-		}
-
-		std::cout << "Histogram3D generated.\nWriting file..." << std::endl;
-		histoOut->writeToFile(out_fname);
-	}
-
-	std::cout << "Done." << std::endl;
-
-	return 0;
 }

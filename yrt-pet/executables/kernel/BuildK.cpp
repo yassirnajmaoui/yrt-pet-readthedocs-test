@@ -1,24 +1,26 @@
 #include "kernel/Kernel.hpp"
 #include "utils/Array.hpp"
+#include "utils/Assert.hpp"
 
 #include <cxxopts.hpp>
 #include <omp.h>
 
 int main(int argc, char** argv)
 {
-	// Parse command line arguments
-	std::string img_in_fname;
-	std::string out_fname;
-	std::string out_i_fname;
-	std::string out_j_fname;
-	int W = 3;
-	int P = 1;
-	int num_k = 10;
-	float sigma2 = 1;
-	std::string mode = "neighbors";
-	int num_threads = omp_get_max_threads();
 	try
 	{
+		std::string img_in_fname;
+		std::string out_fname;
+		std::string out_i_fname;
+		std::string out_j_fname;
+		int W = 3;
+		int P = 1;
+		int num_k = 10;
+		float sigma2 = 1;
+		std::string mode = "neighbors";
+		int num_threads = omp_get_max_threads();
+
+		// Parse command line arguments
 		cxxopts::Options options(argv[0], "Savant MLEM driver");
 		options.positional_help("[optional args]").show_positional_help();
 
@@ -41,7 +43,7 @@ int main(int argc, char** argv)
 		if (result.count("help"))
 		{
 			std::cout << options.help() << std::endl;
-			return -1;
+			return 0;
 		}
 
 		std::vector<std::string> required_params = {"in", "out"};
@@ -59,63 +61,69 @@ int main(int argc, char** argv)
 			std::cerr << options.help() << std::endl;
 			return -1;
 		}
+
+		// Read input data
+		Array3D<float> x_in;
+		x_in.readFromFile(img_in_fname);
+		size_t shape[3];
+		x_in.getDims(shape);
+		size_t num_pixels = shape[0] * shape[1] * shape[2];
+		size_t num_neighbors = (2 * W + 1) * (2 * W + 1) * (2 * W + 1);
+		size_t num_cols = 0;
+		if (mode.compare("full") || mode.compare("knn"))
+		{
+			num_cols = num_k;
+		}
+		else if (mode.compare("neighbors"))
+		{
+			num_cols = num_neighbors;
+		}
+
+		// Prepare output
+		Array2D<float> k_out;
+		k_out.allocate(num_pixels, num_cols);
+		Array2D<int> k_i_out;
+		k_i_out.allocate(num_pixels, num_cols);
+		Array2D<int> k_j_out;
+		k_j_out.allocate(num_pixels, num_cols);
+
+		// Build K matrix
+		if (mode.compare("full") == 0)
+		{
+			Kernel::build_K_full(x_in.getRawPointer(), k_out.getRawPointer(),
+			                     k_i_out.getRawPointer(),
+			                     k_j_out.getRawPointer(), shape[0], shape[1],
+			                     shape[2], num_k, sigma2, num_threads);
+		}
+		else if (mode.compare("knn") == 0)
+		{
+			Kernel::build_K_knn_neighbors(
+			    x_in.getRawPointer(), k_out.getRawPointer(),
+			    k_i_out.getRawPointer(), k_j_out.getRawPointer(), shape[0],
+			    shape[1], shape[2], W, P, num_k, sigma2, num_threads);
+		}
+		else if (mode.compare("neighbors") == 0)
+		{
+			Kernel::build_K_neighbors(
+			    x_in.getRawPointer(), k_out.getRawPointer(),
+			    k_i_out.getRawPointer(), k_j_out.getRawPointer(), shape[0],
+			    shape[1], shape[2], W, sigma2, num_threads);
+		}
+
+		k_out.writeToFile(out_fname);
+		k_i_out.writeToFile(out_i_fname);
+		k_j_out.writeToFile(out_j_fname);
+
+		return 0;
 	}
 	catch (const cxxopts::exceptions::exception& e)
 	{
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		return -1;
 	}
-
-	// Read input data
-	Array3D<float> x_in;
-	x_in.readFromFile(img_in_fname);
-	size_t shape[3];
-	x_in.getDims(shape);
-	size_t num_pixels = shape[0] * shape[1] * shape[2];
-	size_t num_neighbors = (2 * W + 1) * (2 * W + 1) * (2 * W + 1);
-	size_t num_cols = 0;
-	if (mode.compare("full") || mode.compare("knn"))
+	catch (const std::exception& e)
 	{
-		num_cols = num_k;
+		Util::printExceptionMessage(e);
+		return -1;
 	}
-	else if (mode.compare("neighbors"))
-	{
-		num_cols = num_neighbors;
-	}
-
-	// Prepare output
-	Array2D<float> k_out;
-	k_out.allocate(num_pixels, num_cols);
-	Array2D<int> k_i_out;
-	k_i_out.allocate(num_pixels, num_cols);
-	Array2D<int> k_j_out;
-	k_j_out.allocate(num_pixels, num_cols);
-
-	// Build K matrix
-	if (mode.compare("full") == 0)
-	{
-		Kernel::build_K_full(x_in.getRawPointer(), k_out.getRawPointer(),
-		                       k_i_out.getRawPointer(), k_j_out.getRawPointer(),
-		                       shape[0], shape[1], shape[2], num_k, sigma2,
-		                       num_threads);
-	}
-	else if (mode.compare("knn") == 0)
-	{
-		Kernel::build_K_knn_neighbors(
-		    x_in.getRawPointer(), k_out.getRawPointer(),
-		    k_i_out.getRawPointer(), k_j_out.getRawPointer(), shape[0],
-		    shape[1], shape[2], W, P, num_k, sigma2, num_threads);
-	}
-	else if (mode.compare("neighbors") == 0)
-	{
-		Kernel::build_K_neighbors(x_in.getRawPointer(), k_out.getRawPointer(),
-		                            k_i_out.getRawPointer(),
-		                            k_j_out.getRawPointer(), shape[0], shape[1],
-		                            shape[2], W, sigma2, num_threads);
-	}
-
-	k_out.writeToFile(out_fname);
-	k_i_out.writeToFile(out_i_fname);
-	k_j_out.writeToFile(out_j_fname);
-	return 0;
 }

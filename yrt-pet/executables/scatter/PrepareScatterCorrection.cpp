@@ -17,33 +17,33 @@
 
 int main(int argc, char** argv)
 {
-	std::string scanner_fname;
-	std::string promptsHis_fname;
-	std::string normHis_fname;
-	std::string sensHis_fname;
-	std::string randomsHis_fname;
-	std::string imgParams_fname;
-	std::string acfHis_fname;
-	std::string attImg_fname;
-	std::string attImgParams_fname;
-	std::string crystalMaterial_name = "LYSO";
-	size_t nZ, nPhi, nR;
-	std::string outSensImg_fname;
-	std::string scatterHistoOut_fname;
-	std::string projector_name;
-	std::string sourceImage_fname;
-	std::string scatterHistoIn_fname;
-	int numThreads = -1;
-	int num_OSEM_subsets = 1;
-	int num_MLEM_iterations = 3;
-	bool printProgressFlag = false;
-	int maskWidth = -1;
-	float acfThreshold = 0.9523809f;  // 1/1.05
-	bool saveIntermediary = false;
-
-	// Parse command line arguments
 	try
 	{
+		std::string scanner_fname;
+		std::string promptsHis_fname;
+		std::string normHis_fname;
+		std::string sensHis_fname;
+		std::string randomsHis_fname;
+		std::string imgParams_fname;
+		std::string acfHis_fname;
+		std::string attImg_fname;
+		std::string attImgParams_fname;
+		std::string crystalMaterial_name = "LYSO";
+		size_t nZ, nPhi, nR;
+		std::string outSensImg_fname;
+		std::string scatterHistoOut_fname;
+		std::string projector_name = "S";
+		std::string sourceImage_fname;
+		std::string scatterHistoIn_fname;
+		int numThreads = -1;
+		int num_OSEM_subsets = 1;
+		int num_MLEM_iterations = 3;
+		bool printProgressFlag = false;
+		int maskWidth = -1;
+		float acfThreshold = 0.9523809f;  // 1/1.05
+		bool saveIntermediary = false;
+
+		// Parse command line arguments
 		cxxopts::Options options(argv[0],
 		                         "Single-Scatter-Simulation and Scatter "
 		                         "Correction histogram generation");
@@ -79,8 +79,7 @@ int main(int argc, char** argv)
 			 #if BUILD_CUDA
 			 ", or GPU Distance-Driven (DD_GPU)"
 			 #endif
-			 ". The default projector is Siddon",
-			 cxxopts::value<std::string>(projector_name))
+			 ". The default projector is Siddon", cxxopts::value<std::string>(projector_name))
 		("h,help", "Print help");
 		/* clang-format on */
 
@@ -88,7 +87,7 @@ int main(int argc, char** argv)
 		if (result.count("help"))
 		{
 			std::cout << options.help() << std::endl;
-			return -1;
+			return 0;
 		}
 
 		std::vector<std::string> required_params = {
@@ -108,35 +107,28 @@ int main(int argc, char** argv)
 			std::cerr << options.help() << std::endl;
 			return -1;
 		}
-	}
-	catch (const cxxopts::exceptions::exception& e)
-	{
-		std::cerr << "Error parsing options: " << e.what() << std::endl;
-		return -1;
-	}
 
-	bool isNorm;
-	const std::string* normOrSensHis_fname;
-	if (!normHis_fname.empty())
-	{
-		isNorm = true;
-		normOrSensHis_fname = &normHis_fname;
-	}
-	else if (!sensHis_fname.empty())
-	{
-		isNorm = false;
-		normOrSensHis_fname = &sensHis_fname;
-	}
-	else
-	{
-		std::cerr << "You need to provide either a sensitivity histogram or a "
-		             "normalisation histogram"
-		          << std::endl;
-		return -1;
-	}
+		bool isNorm;
+		const std::string* normOrSensHis_fname;
+		if (!normHis_fname.empty())
+		{
+			isNorm = true;
+			normOrSensHis_fname = &normHis_fname;
+		}
+		else if (!sensHis_fname.empty())
+		{
+			isNorm = false;
+			normOrSensHis_fname = &sensHis_fname;
+		}
+		else
+		{
+			std::cerr
+			    << "You need to provide either a sensitivity histogram or a "
+			       "normalisation histogram"
+			    << std::endl;
+			return -1;
+		}
 
-	try
-	{
 		Globals::set_num_threads(numThreads);
 		auto scanner = std::make_unique<Scanner>(scanner_fname);
 
@@ -305,9 +297,14 @@ int main(int argc, char** argv)
 
 		std::cout << "Saving histogram file..." << std::endl;
 		additiveHis->writeToFile(scatterHistoOut_fname);
-		std::cout << "Done." << std::endl;
 
+		std::cout << "Done." << std::endl;
 		return 0;
+	}
+	catch (const cxxopts::exceptions::exception& e)
+	{
+		std::cerr << "Error parsing options: " << e.what() << std::endl;
+		return -1;
 	}
 	catch (const std::exception& e)
 	{

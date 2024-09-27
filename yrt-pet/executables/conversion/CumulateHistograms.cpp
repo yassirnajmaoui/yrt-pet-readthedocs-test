@@ -18,20 +18,20 @@
 
 int main(int argc, char** argv)
 {
-	std::string scanner_fname;
-	std::vector<std::string> input_fnames;
-	std::string input_format;
-	std::string out_fname;
-	bool toSparseHistogram = false;
-	int numThreads = -1;
-
-	Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
-
-	// Parse command line arguments
 	try
 	{
-		cxxopts::Options options(
-		    argv[0], "Convert any input format to a histogram");
+		std::string scanner_fname;
+		std::vector<std::string> input_fnames;
+		std::string input_format;
+		std::string out_fname;
+		bool toSparseHistogram = false;
+		int numThreads = -1;
+
+		Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
+
+		// Parse command line arguments
+		cxxopts::Options options(argv[0],
+		                         "Convert any input format to a histogram");
 		options.positional_help("[optional args]").show_positional_help();
 		/* clang-format off */
 		options.add_options()
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 		if (result.count("help"))
 		{
 			std::cout << options.help() << std::endl;
-			return -1;
+			return 0;
 		}
 
 		std::vector<std::string> required_params = {"scanner", "input", "out",
@@ -75,86 +75,93 @@ int main(int argc, char** argv)
 		// Parse plugin options
 		pluginOptionsResults =
 		    PluginOptionsHelper::convertPluginResultsToMap(result);
+
+		Globals::set_num_threads(numThreads);
+
+		auto scanner = std::make_unique<Scanner>(scanner_fname);
+
+		std::unique_ptr<Histogram> histoOut;
+		if (toSparseHistogram)
+		{
+			histoOut = std::make_unique<SparseHistogram>(*scanner);
+		}
+		else
+		{
+			auto histo3DOut = std::make_unique<Histogram3DOwned>(*scanner);
+			histo3DOut->allocate();
+			histo3DOut->clearProjections(0.0f);
+			histoOut = std::move(histo3DOut);
+		}
+
+		bool histo3DToHisto3D = input_format == "H";
+
+		for (const auto& input_fname : input_fnames)
+		{
+			std::cout << "Reading input data..." << std::endl;
+
+			std::unique_ptr<ProjectionData> dataInput = IO::openProjectionData(
+			    input_fname, input_format, *scanner, pluginOptionsResults);
+
+			std::cout << "Done reading input data." << std::endl;
+
+			if (toSparseHistogram)
+			{
+				auto* sparseHisto =
+				    reinterpret_cast<SparseHistogram*>(histoOut.get());
+				std::cout << "Accumulating into sparse histogram..."
+				          << std::endl;
+				sparseHisto->allocate(sparseHisto->count() +
+				                      dataInput->count());
+				sparseHisto->accumulate<true>(*dataInput);
+			}
+			else
+			{
+				auto histo3DOut =
+				    reinterpret_cast<Histogram3D*>(histoOut.get());
+				if (histo3DToHisto3D)
+				{
+					std::cout << "Adding Histogram3Ds..." << std::endl;
+					const auto* dataInputHisto3D =
+					    dynamic_cast<const Histogram3D*>(dataInput.get());
+					ASSERT(dataInputHisto3D != nullptr);
+
+					histo3DOut->getData() += dataInputHisto3D->getData();
+				}
+				else
+				{
+					std::cout << "Accumulating Histogram into Histogram3D..."
+					          << std::endl;
+					Util::convertToHistogram3D<false>(*dataInput, *histo3DOut);
+				}
+			}
+		}
+
+		if (toSparseHistogram)
+		{
+			const auto* sparseHisto =
+			    reinterpret_cast<const SparseHistogram*>(histoOut.get());
+			std::cout << "Saving output sparse histogram..." << std::endl;
+			sparseHisto->writeToFile(out_fname);
+		}
+		else
+		{
+			const auto* histo3DOut =
+			    reinterpret_cast<const Histogram3D*>(histoOut.get());
+			std::cout << "Saving output Histogram3D..." << std::endl;
+			histo3DOut->writeToFile(out_fname);
+		}
+
+		std::cout << "Done." << std::endl;
+		return 0;
 	}
 	catch (const cxxopts::exceptions::exception& e)
 	{
 		std::cerr << "Error parsing options: " << e.what() << std::endl;
 		return -1;
 	}
-
-	Globals::set_num_threads(numThreads);
-
-	auto scanner = std::make_unique<Scanner>(scanner_fname);
-
-	std::unique_ptr<Histogram> histoOut;
-	if (toSparseHistogram)
+	catch (const std::exception& e)
 	{
-		histoOut = std::make_unique<SparseHistogram>(*scanner);
+		Util::printExceptionMessage(e);
+		return -1;
 	}
-	else
-	{
-		auto histo3DOut = std::make_unique<Histogram3DOwned>(*scanner);
-		histo3DOut->allocate();
-		histo3DOut->clearProjections(0.0f);
-		histoOut = std::move(histo3DOut);
-	}
-
-	bool histo3DToHisto3D = input_format == "H";
-
-	for (const auto& input_fname : input_fnames)
-	{
-		std::cout << "Reading input data..." << std::endl;
-
-		std::unique_ptr<ProjectionData> dataInput = IO::openProjectionData(
-		    input_fname, input_format, *scanner, pluginOptionsResults);
-
-		std::cout << "Done reading input data." << std::endl;
-
-		if (toSparseHistogram)
-		{
-			auto* sparseHisto =
-			    reinterpret_cast<SparseHistogram*>(histoOut.get());
-			std::cout << "Accumulating into sparse histogram..." << std::endl;
-			sparseHisto->allocate(sparseHisto->count() + dataInput->count());
-			sparseHisto->accumulate<true>(*dataInput);
-		}
-		else
-		{
-			auto histo3DOut = reinterpret_cast<Histogram3D*>(histoOut.get());
-			if (histo3DToHisto3D)
-			{
-				std::cout << "Adding Histogram3Ds..." << std::endl;
-				const auto* dataInputHisto3D =
-				    dynamic_cast<const Histogram3D*>(dataInput.get());
-				ASSERT(dataInputHisto3D != nullptr);
-
-				histo3DOut->getData() += dataInputHisto3D->getData();
-			}
-			else
-			{
-				std::cout << "Accumulating Histogram into Histogram3D..."
-				          << std::endl;
-				Util::convertToHistogram3D<false>(*dataInput, *histo3DOut);
-			}
-		}
-	}
-
-	if (toSparseHistogram)
-	{
-		const auto* sparseHisto =
-		    reinterpret_cast<const SparseHistogram*>(histoOut.get());
-		std::cout << "Saving output sparse histogram..." << std::endl;
-		sparseHisto->writeToFile(out_fname);
-	}
-	else
-	{
-		const auto* histo3DOut =
-		    reinterpret_cast<const Histogram3D*>(histoOut.get());
-		std::cout << "Saving output Histogram3D..." << std::endl;
-		histo3DOut->writeToFile(out_fname);
-	}
-
-	std::cout << "Done." << std::endl;
-
-	return 0;
 }
