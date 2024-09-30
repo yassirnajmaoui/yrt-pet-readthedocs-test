@@ -258,7 +258,7 @@ void ImageWarperTemplate::Reset()
 	m_numberOfFrame = 0;
 	m_motionFrameUsed.clear();
 	m_frameTimeBinStart.clear();
-	m_refImage = nullptr;
+	mp_refImage = nullptr;
 	m_warpMode = "";
 
 	// Set the state parameters to false.
@@ -268,9 +268,9 @@ void ImageWarperTemplate::Reset()
 	m_frameWarpParamDefined.clear();
 }
 
-void ImageWarperTemplate::setRefImage(Image* image)
+void ImageWarperTemplate::setRefImage(const Image* image)
 {
-	m_refImage = image;
+	mp_refImage = image;
 }
 
 
@@ -282,7 +282,7 @@ void ImageWarperTemplate::warpRefImage(Image* image, int frameId) const
 	}
 	else
 	{
-		image->copyFromImage(m_refImage);
+		image->copyFromImage(mp_refImage);
 		if (m_applyWeightToWarp == true)
 		{
 			image->multWithScalar(m_weightOfFrame[frameId]);

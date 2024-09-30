@@ -223,7 +223,7 @@ int main(int argc, char** argv)
 			return 0;
 		}
 
-		osem->registerSensitivityImages(sensImages);
+		osem->setSensitivityImages(sensImages);
 
 		// Projection Data Input file
 		std::unique_ptr<ProjectionData> dataInput;
@@ -250,11 +250,6 @@ int main(int argc, char** argv)
 		// Save steps
 		osem->setSaveSteps(saveSteps, out_fname);
 
-		// Prepare output image
-		auto out_img = std::make_unique<ImageOwned>(osem->imageParams);
-		out_img->allocate();
-		osem->outImage = out_img.get();
-
 		// Image Warper
 		std::unique_ptr<ImageWarperTemplate> warper = nullptr;
 		if (!warpParamFile.empty())
@@ -268,17 +263,14 @@ int main(int argc, char** argv)
 		if (warper == nullptr)
 		{
 			std::cout << "Launching reconstruction..." << std::endl;
-			osem->reconstruct();
+			osem->reconstruct(out_fname);
 		}
 		else
 		{
 			std::cout << "Launching reconstruction with image warper..."
 			          << std::endl;
-			osem->reconstructWithWarperMotion();
+			osem->reconstructWithWarperMotion(out_fname);
 		}
-
-		std::cout << "Saving image..." << std::endl;
-		out_img->writeToFile(out_fname);
 
 		std::cout << "Done." << std::endl;
 		return 0;

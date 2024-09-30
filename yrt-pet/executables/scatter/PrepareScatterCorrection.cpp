@@ -197,7 +197,7 @@ int main(int argc, char** argv)
 			    "intermediary_firstAdditiveCorrection.his");
 		}
 
-		std::unique_ptr<ImageOwned> sourceImg = nullptr;
+		std::shared_ptr<Image> sourceImg = nullptr;
 		if (sourceImage_fname.empty())
 		{
 			// Generate histogram to use for the sensitivity image generation
@@ -231,8 +231,6 @@ int main(int argc, char** argv)
 			}
 
 			std::vector<std::shared_ptr<Image>> sensImages;
-			sourceImg = std::make_unique<ImageOwned>(imageParams);
-			sourceImg->allocate();
 
 			// Generate source Image
 			auto projectorType = IO::getProjector(projector_name);
@@ -241,19 +239,14 @@ int main(int argc, char** argv)
 			osem->num_MLEM_iterations = num_MLEM_iterations;
 			osem->addHis = additiveHis.get();
 			osem->imageParams = imageParams;
-			osem->outImage = sourceImg.get();
 			osem->num_OSEM_subsets = num_OSEM_subsets;
 			osem->projectorType = projectorType;
 			osem->setSensDataInput(sensDataHis.get());
 			osem->setDataInput(promptsHis.get());
 			osem->generateSensitivityImages(sensImages, outSensImg_fname);
-			osem->registerSensitivityImages(sensImages);
-			osem->reconstruct();
-
-			if (saveIntermediary)
-			{
-				sourceImg->writeToFile("intermediary_sourceImage.img");
-			}
+			osem->setSensitivityImages(sensImages);
+			sourceImg = osem->reconstruct(
+			    saveIntermediary ? "intermediary_sourceImage.img" : "");
 
 			// Deallocate Sensitivity data histogram to save memory
 			sensDataHis = nullptr;

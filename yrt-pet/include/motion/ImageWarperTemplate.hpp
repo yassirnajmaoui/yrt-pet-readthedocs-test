@@ -69,7 +69,7 @@ public:
 	 * Def.: Set the pointer to the image at the reference frame.
 	 * @image: The pointer to the image.
 	 */
-	void setRefImage(Image* image);
+	void setRefImage(const Image* image);
 	/*
 	 * Def.: Warp the reference image to the specified frame Id. If the
 	 *specified
@@ -185,7 +185,7 @@ protected:
 	// The starting time of the frames time bin.
 	std::vector<float> m_frameTimeBinStart;
 	// Pointer to the reference frame image.
-	Image* m_refImage;
+	const Image* mp_refImage;
 	// Name of the warp tool current used.
 	std::string m_warpMode;
 	// Verbosity level of this class.

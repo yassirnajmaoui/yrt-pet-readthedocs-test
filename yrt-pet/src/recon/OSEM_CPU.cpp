@@ -103,7 +103,7 @@ ProjectionData* OSEM_CPU::getSensDataInputBuffer()
 
 ImageBase* OSEM_CPU::getMLEMImageBuffer()
 {
-	return outImage;
+	return outImage.get();
 }
 ImageBase* OSEM_CPU::getMLEMImageTmpBuffer()
 {

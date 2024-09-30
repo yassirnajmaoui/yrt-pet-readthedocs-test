@@ -96,7 +96,7 @@ void ImageWarperFunction::warp(Image* image, int frameId) const
 			{
 				voxPos[0] = getVoxelPhysPos(i, 0);
 				applyTransformation(voxPos, movVoxPos, frameId);
-				ptr[i] = m_refImage->interpolateImage(movVoxPos);
+				ptr[i] = mp_refImage->interpolateImage(movVoxPos);
 			}
 		}
 	}

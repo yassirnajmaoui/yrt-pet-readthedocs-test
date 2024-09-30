@@ -161,12 +161,15 @@ void OSEM_GPU::allocateForRecon()
 
 void OSEM_GPU::endRecon()
 {
+	ASSERT(outImage!= nullptr);
+
 	// Transfer MLEM image Device to host
-	mpd_mlemImage->transferToHostMemory(outImage, true);
+	mpd_mlemImage->transferToHostMemory(outImage.get(), true);
 
 	// Clear temporary buffers
 	mpd_mlemImage = nullptr;
 	mpd_mlemImageTmp = nullptr;
+	mpd_sensImageBuffer = nullptr;
 	mpd_dat = nullptr;
 	mpd_datTmp = nullptr;
 }

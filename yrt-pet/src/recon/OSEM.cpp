@@ -57,9 +57,9 @@ void py_setup_osem(pybind11::module& m)
 
 	c.def("validateSensImagesAmount", &OSEM::validateSensImagesAmount);
 
-	c.def("registerSensitivityImages",
+	c.def("setSensitivityImages",
 	      static_cast<void (OSEM::*)(py::list& imageList)>(
-	          &OSEM::registerSensitivityImages));
+	          &OSEM::setSensitivityImages));
 
 	c.def("reconstruct", &OSEM::reconstruct);
 	c.def("reconstructWithWarperMotion", &OSEM::reconstructWithWarperMotion);
@@ -89,8 +89,6 @@ void py_setup_osem(pybind11::module& m)
 	c.def_readwrite("attenuationImage", &OSEM::attenuationImage);
 	c.def_readwrite("addHis", &OSEM::addHis);
 	c.def_readwrite("warper", &OSEM::warper);
-	c.def_readwrite("attenuationImage", &OSEM::attenuationImage);
-	c.def_readwrite("outImage", &OSEM::outImage);
 }
 #endif
 
@@ -106,7 +104,6 @@ OSEM::OSEM(const Scanner& pr_scanner)
       attenuationImageForBackprojection(nullptr),
       addHis(nullptr),
       warper(nullptr),
-      outImage(nullptr),
       flagImagePSF(false),
       imageSpacePsf(nullptr),
       flagProjPSF(false),
@@ -116,6 +113,7 @@ OSEM::OSEM(const Scanner& pr_scanner)
       saveSteps(0),
       usingListModeInput(false),
       needToMakeCopyOfSensImage(false),
+      outImage(nullptr),
       sensDataInput(nullptr),
       dataInput(nullptr),
       copiedSensitivityImage(nullptr)
@@ -248,7 +246,7 @@ bool OSEM::validateSensImagesAmount(int size) const
 	return size == num_OSEM_subsets;
 }
 
-void OSEM::registerSensitivityImages(
+void OSEM::setSensitivityImages(
     const std::vector<std::shared_ptr<Image>>& sensImages)
 {
 	if (!validateSensImagesAmount(static_cast<int>(sensImages.size())))
@@ -266,7 +264,7 @@ void OSEM::registerSensitivityImages(
 }
 
 #if BUILD_PYBIND11
-void OSEM::registerSensitivityImages(py::list& imageList)
+void OSEM::setSensitivityImages(py::list& imageList)
 {
 	const int imageListSize = static_cast<int>(imageList.size());
 	if (!validateSensImagesAmount(imageListSize))
@@ -395,9 +393,8 @@ int OSEM::getNumBatches(int subsetId, bool forRecon) const
 	return 1;
 }
 
-void OSEM::reconstruct()
+std::shared_ptr<Image> OSEM::reconstruct(const std::string& out_fname)
 {
-	ASSERT_MSG(outImage != nullptr, "Output image unspecified");
 	ASSERT_MSG(dataInput != nullptr, "Data input unspecified");
 	ASSERT_MSG(!sensitivityImages.empty(), "Sensitivity image(s) unspecified");
 
@@ -405,6 +402,9 @@ void OSEM::reconstruct()
 	{
 		imageParams = sensitivityImages[0]->getParams();
 	}
+
+	outImage = std::make_shared<ImageOwned>(imageParams);
+	outImage->allocate();
 
 	if (usingListModeInput)
 	{
@@ -416,7 +416,8 @@ void OSEM::reconstruct()
 			// from Python
 			copiedSensitivityImage = std::make_unique<ImageOwned>(imageParams);
 			copiedSensitivityImage->allocate();
-			copiedSensitivityImage->copyFromImage(sensitivityImages.at(0).get());
+			copiedSensitivityImage->copyFromImage(
+			    sensitivityImages.at(0).get());
 			copiedSensitivityImage->multWithScalar(
 			    1.0 / (static_cast<double>(num_OSEM_subsets)));
 		}
@@ -513,9 +514,18 @@ void OSEM::reconstruct()
 	}
 
 	endRecon();
+
+	if (!out_fname.empty())
+	{
+		std::cout << "Saving image..." << std::endl;
+		outImage->writeToFile(out_fname);
+	}
+
+	return outImage;
 }
 
-void OSEM::reconstructWithWarperMotion()
+std::shared_ptr<Image>
+    OSEM::reconstructWithWarperMotion(const std::string& out_fname)
 {
 	ASSERT_MSG(
 	    !IO::requiresGPU(projectorType),
@@ -524,13 +534,15 @@ void OSEM::reconstructWithWarperMotion()
 	ASSERT_MSG(sensitivityImages.size() == 1,
 	           "Exactly one sensitivity image is needed for MLEM "
 	           "reconstruction with image warper");
-	ASSERT_MSG(outImage != nullptr, "Output image unspecified");
 	ASSERT_MSG(dataInput != nullptr, "Data input unspecified");
 
 	if (!imageParams.isValid())
 	{
 		imageParams = sensitivityImages.at(0)->getParams();
 	}
+
+	outImage = std::make_shared<ImageOwned>(imageParams);
+	outImage->allocate();
 
 	allocateForRecon();
 	auto mlem_image_update_factor = std::make_unique<ImageOwned>(imageParams);
@@ -572,7 +584,7 @@ void OSEM::reconstructWithWarperMotion()
 			currEventId++;
 		}
 	}
-	warper->setRefImage(outImage);
+	warper->setRefImage(outImage.get());
 	OperatorWarpRefImage warpImg(0);
 	constexpr double UpdateEMThreshold = 1e-8;
 
@@ -622,7 +634,7 @@ void OSEM::reconstructWithWarperMotion()
 		          << "MLEM iteration " << iter + 1 << "/" << num_MLEM_iterations
 		          << "..." << std::endl;
 		mlem_image_update_factor->setValue(0.0);
-		warper->setRefImage(outImage);
+		warper->setRefImage(outImage.get());
 
 		for (frameId = 0; frameId < numFrames; frameId++)
 		{
@@ -657,6 +669,14 @@ void OSEM::reconstructWithWarperMotion()
 			getMLEMImageBuffer()->writeToFile(out_fname);
 		}
 	}
+
+	if (!out_fname.empty())
+	{
+		std::cout << "Saving image..." << std::endl;
+		outImage->writeToFile(out_fname);
+	}
+
+	return outImage;
 }
 
 void OSEM::summary() const

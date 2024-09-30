@@ -23,7 +23,7 @@ public:
 	static constexpr float DEFAULT_HARD_THRESHOLD = 1.0f;
 	static constexpr float INITIAL_VALUE_MLEM = 0.1f;
 	// ---------- Public methods ----------
-	explicit OSEM(const Scanner& p_scanner);
+	explicit OSEM(const Scanner& pr_scanner);
 	virtual ~OSEM() = default;
 	OSEM(const OSEM&) = delete;
 	OSEM& operator=(const OSEM&) = delete;
@@ -36,15 +36,16 @@ public:
 	bool validateSensImagesAmount(int size) const;
 
 	// In case the sensitivity images were already generated
-	void registerSensitivityImages(
+	void setSensitivityImages(
 	    const std::vector<std::shared_ptr<Image>>& sensImages);
 #if BUILD_PYBIND11
-	void registerSensitivityImages(pybind11::list& imageList);
+	void setSensitivityImages(pybind11::list& imageList);
 #endif
 
 	// OSEM Reconstruction
-	void reconstruct();
-	void reconstructWithWarperMotion();
+	std::shared_ptr<Image> reconstruct(const std::string& out_fname);
+	std::shared_ptr<Image>
+	    reconstructWithWarperMotion(const std::string& out_fname);
 
 	// Prints a summary of the parameters
 	void summary() const;
@@ -71,15 +72,13 @@ public:
 	float hardThreshold;
 	int numRays;  // For Siddon only
 	OperatorProjector::ProjectorType projectorType;
-	ImageParams imageParams;
+	ImageParams imageParams; // TODO: Make this private
 	const Scanner& scanner;
 	const Image* maskImage;
 	const Image* attenuationImage;
 	const Image* attenuationImageForBackprojection;
 	const Histogram* addHis;
 	ImageWarperTemplate* warper;  // For MLEM with Warper only
-	// TODO: Maybe make it so a buffer is automatically created in Initialize
-	Image* outImage;  // Buffer to for recon fill (Note: This is a host image)
 
 protected:
 	// ---------- Internal Getters ----------
@@ -107,6 +106,7 @@ protected:
 	bool usingListModeInput;  // true => ListMode, false => Histogram
 	std::unique_ptr<OperatorProjectorBase> mp_projector;
 	bool needToMakeCopyOfSensImage;
+	std::shared_ptr<ImageOwned> outImage;  // Note: This is a host image
 
 	// ---------- Virtual pure functions ----------
 
