@@ -45,9 +45,9 @@ TEST_CASE("Siddon-simple", "[siddon]")
 	size_t nx = 5;
 	size_t ny = 5;
 	size_t nz = 6;
-	double sx = 1.1;
-	double sy = 1.1;
-	double sz = 1.2;
+	float sx = 1.1;
+	float sy = 1.1;
+	float sz = 1.2;
 	double ox = 0.0;
 	double oy = 0.0;
 	double oz = 0.0;
