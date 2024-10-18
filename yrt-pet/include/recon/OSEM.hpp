@@ -31,20 +31,22 @@ public:
 	// Sensitivity image generation
 	void generateSensitivityImages(const std::string& out_fname);
 	void generateSensitivityImages(
-	    std::vector<std::shared_ptr<Image>>& sensImages,
+	    std::vector<std::unique_ptr<Image>>& sensImages,
 	    const std::string& out_fname);
 	bool validateSensImagesAmount(int size) const;
 
 	// In case the sensitivity images were already generated
+	void setSensitivityImages(const std::vector<Image*>& sensImages);
 	void setSensitivityImages(
-	    const std::vector<std::shared_ptr<Image>>& sensImages);
+	    const std::vector<std::unique_ptr<Image>>& sensImages);
 #if BUILD_PYBIND11
-	void setSensitivityImages(pybind11::list& imageList);
+	void setSensitivityImages(const pybind11::list& pySensImgList);
 #endif
+	void setSensitivityImage(Image* sensImage, int subset = 0);
 
 	// OSEM Reconstruction
-	std::shared_ptr<Image> reconstruct(const std::string& out_fname);
-	std::shared_ptr<Image>
+	std::unique_ptr<ImageOwned> reconstruct(const std::string& out_fname);
+	std::unique_ptr<ImageOwned>
 	    reconstructWithWarperMotion(const std::string& out_fname);
 
 	// Prints a summary of the parameters
@@ -65,6 +67,8 @@ public:
 	void setProjector(const std::string& projectorName);  // Helper
 	bool isListModeEnabled() const;
 	void enableNeedToMakeCopyOfSensImage();
+	ImageParams getImageParams() const;
+	void setImageParams(const ImageParams& params);
 
 	// ---------- Public members ----------
 	int num_MLEM_iterations;
@@ -72,7 +76,6 @@ public:
 	float hardThreshold;
 	int numRays;  // For Siddon only
 	OperatorProjector::ProjectorType projectorType;
-	ImageParams imageParams; // TODO: Make this private
 	const Scanner& scanner;
 	const Image* maskImage;
 	const Image* attenuationImage;
@@ -87,8 +90,6 @@ protected:
 
 	auto& getProjector() { return mp_projector; }
 	const auto& getProjector() const { return mp_projector; }
-
-	const ImageParams& getImageParams() const { return imageParams; }
 
 	const Image* getSensitivityImage(int subsetId) const;
 	Image* getSensitivityImage(int subsetId);
@@ -106,14 +107,15 @@ protected:
 	bool usingListModeInput;  // true => ListMode, false => Histogram
 	std::unique_ptr<OperatorProjectorBase> mp_projector;
 	bool needToMakeCopyOfSensImage;
-	std::shared_ptr<ImageOwned> outImage;  // Note: This is a host image
+	ImageParams imageParams;
+	std::unique_ptr<ImageOwned> outImage;  // Note: This is a host image
 
 	// ---------- Virtual pure functions ----------
 
 	// Sens Image generator driver
 	virtual void setupOperatorsForSensImgGen() = 0;
 	virtual void allocateForSensImgGen() = 0;
-	virtual std::shared_ptr<Image>
+	virtual std::unique_ptr<Image>
 	    getLatestSensitivityImage(bool isLastSubset) = 0;
 	virtual void endSensImgGen() = 0;
 
@@ -142,7 +144,7 @@ private:
 	void generateSensitivityImageForSubset(int subsetId);
 	void generateSensitivityImagesCore(
 	    bool saveOnDisk, const std::string& out_fname, bool saveOnMemory,
-	    std::vector<std::shared_ptr<Image>>& sensImages);
+	    std::vector<std::unique_ptr<Image>>& sensImages);
 	void initializeForRecon();
 
 	std::vector<std::unique_ptr<BinIterator>> m_binIterators;
@@ -150,7 +152,7 @@ private:
 	ProjectionData* sensDataInput;
 	ProjectionData* dataInput;
 
-	std::vector<std::shared_ptr<Image>> sensitivityImages;
+	std::vector<Image*> sensitivityImages;
 	// In the specific case of ListMode reconstructions launched from Python
 	std::unique_ptr<ImageOwned> copiedSensitivityImage;
 };

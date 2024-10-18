@@ -10,27 +10,35 @@ import pyyrtpet as yrt
 
 # %% Test folders
 def get_test_folders():
-    fold_data = os.getenv('GCRECONTESTS_FOLD_DATA')
-    fold_out = os.getenv('GCRECONTESTS_FOLD_OUT')
+    env_data = "YRTPET_TEST_DATA"
+    env_out = "YRTPET_TEST_OUT"
+
+    fold_data_from_env = os.getenv(env_data)
+    fold_out_from_env = os.getenv(env_out)
+    if fold_data_from_env is None or fold_out_from_env is None:
+        raise RuntimeError("Environment variables " + env_data
+                           + " and " + env_out + " need to be set")
+    if not os.path.exists(fold_data_from_env):
+        raise RuntimeError("Path specified by " + env_data + " does not exist.")
+    if not os.path.exists(fold_out_from_env):
+        os.mkdir(fold_out_from_env)
+
     fold_bin = os.path.join(os.path.dirname(__file__), '../executables')
-    return fold_data, fold_out, fold_bin
+    return fold_data_from_env, fold_out_from_env, fold_bin
 
 
 # %% Helper test functions
 # Note: this works only for ListModes
-def _test_reconstruction(img_params, scanner, dataset, sens_img,
+def _test_reconstruction(img_params: yrt.ImageParams, scanner: yrt.Scanner, dataset: yrt.ProjectionData,
+                         sens_img: yrt.Image,
                          out_img_file: str, ref_img_file: str,
                          attenuationImage=None, warper=None,
                          num_MLEM_iterations=30, num_OSEM_subsets=1,
                          hard_threshold=1.0, num_threads=-1,
                          tof_width_ps=None, tof_n_std=None,
                          proj_psf_fname=None, num_rays=1):
-    out_img = yrt.ImageOwned(img_params)
-    out_img.allocate()
-    out_img.setValue(0.0)
-
     osem = yrt.createOSEM(scanner)
-    osem.imageParams = img_params
+    osem.setImageParams(img_params)
     osem.num_MLEM_iterations = num_MLEM_iterations
     osem.num_OSEM_subsets = num_OSEM_subsets
     osem.hardThreshold = hard_threshold
@@ -42,19 +50,19 @@ def _test_reconstruction(img_params, scanner, dataset, sens_img,
     if proj_psf_fname is not None:
         osem.addProjPSF(proj_psf_fname)
 
-    osem.registerSensitivityImages([sens_img])
+    osem.setSensitivityImages([sens_img])
 
     if warper is not None:
         osem.warper = warper
     if attenuationImage is not None:
         osem.attenuationImage = attenuationImage
-    osem.outImage = out_img
 
     # Launch Reconstruction
     if warper is None:
-        osem.reconstruct()
+        out_img = osem.reconstruct()
     else:
-        osem.reconstructWithWarperMotion()
+        out_img = osem.reconstructWithWarperMotion()
+
     out_img.writeToFile(out_img_file)
 
     ref_img = yrt.ImageOwned(img_params, ref_img_file)
@@ -134,8 +142,8 @@ def get_test_summary(x0, x1):
     x0_mean = np.mean(x0)
     x0_median = np.median(x0)
 
-    rmse = np.sqrt(np.mean((x0 - x1) ** 2))
-    nrmse = rmse / np.sqrt(np.mean(x0 ** 2))
+    rmse = np.sqrt(np.mean((x0 - x1)**2))
+    nrmse = rmse / np.sqrt(np.mean(x0**2))
     linf = np.max(np.abs(x0 - x1))
     npix_diff = np.size(np.nonzero(x0 != x1)[0])
     return {'x0_max': x0_max,
@@ -162,6 +170,7 @@ def get_rmse(x0, x1):
 def get_nrmse(x0, x1):
     rmse = get_rmse(x0, x1)
     return rmse / np.sqrt(np.mean(x0**2))
+
 
 # %% Datasets
 
@@ -213,11 +222,11 @@ out_paths = {'test_mlem_simple': 'test_mlem_simple.img',
                                   ['UHR2D-SensImg-5Subsets_subset' + str(i) +
                                    '.img' for i in range(5)]],
              'test_dd_cpu_gpu_similarity':
-             ['test_dd_cpu.img', 'test_dd_gpu.img',
-              'test_dd_cpu_sens.img', 'test_dd_gpu_sens.img'],
+                 ['test_dd_cpu.img', 'test_dd_gpu.img',
+                  'test_dd_cpu_sens.img', 'test_dd_gpu_sens.img'],
              'test_dd_cpu_gpu_similarity_exec':
-             ['test_dd_cpu_exec.img', 'test_dd_gpu_exec.img',
-              'test_dd_cpu_sens_exec.img', 'test_dd_gpu_sens_exec.img'],
+                 ['test_dd_cpu_exec.img', 'test_dd_gpu_exec.img',
+                  'test_dd_cpu_sens_exec.img', 'test_dd_gpu_sens_exec.img'],
              'test_osem_siddon_multi_ray': 'test_osem_siddon_multi_ray.img'}
 
 ref_paths = {'test_mlem_simple': 'test_mlem_simple_ref.img',

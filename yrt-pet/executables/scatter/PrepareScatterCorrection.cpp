@@ -230,7 +230,7 @@ int main(int argc, char** argv)
 				sensDataHis->writeToFile("intermediary_sensData.his");
 			}
 
-			std::vector<std::shared_ptr<Image>> sensImages;
+			std::vector<std::unique_ptr<Image>> sensImages;
 
 			// Generate source Image
 			auto projectorType = IO::getProjector(projector_name);
@@ -238,7 +238,7 @@ int main(int argc, char** argv)
 			    Util::createOSEM(*scanner, IO::requiresGPU(projectorType));
 			osem->num_MLEM_iterations = num_MLEM_iterations;
 			osem->addHis = additiveHis.get();
-			osem->imageParams = imageParams;
+			osem->setImageParams(imageParams);
 			osem->num_OSEM_subsets = num_OSEM_subsets;
 			osem->projectorType = projectorType;
 			osem->setSensDataInput(sensDataHis.get());
