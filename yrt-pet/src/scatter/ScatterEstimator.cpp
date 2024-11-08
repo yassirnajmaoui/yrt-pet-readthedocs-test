@@ -9,6 +9,7 @@
 #include "datastruct/scanner/Scanner.hpp"
 #include "geometry/Constants.hpp"
 #include "scatter/Crystal.hpp"
+#include "utils/Assert.hpp"
 #include "utils/ReconstructionUtils.hpp"
 
 #if BUILD_PYBIND11
@@ -62,6 +63,7 @@ namespace Scatter
 		}
 		m_maskThreshold = maskThreshold;
 		m_saveIntermediary = saveIntermediary;
+		mp_scatterTailsMask = std::make_unique<Histogram3DOwned>(pr_scanner);
 	}
 
 	void ScatterEstimator::computeAdditiveScatterCorrection(size_t numberZ,
@@ -115,41 +117,44 @@ namespace Scatter
 	void ScatterEstimator::generateScatterTailsMask()
 	{
 		std::cout << "Generating scatter tails mask..." << std::endl;
+		mp_scatterTailsMask->allocate();
 		ScatterEstimator::generateScatterTailsMask(
-		    *mp_acfHis, m_scatterTailsMask, m_scatterTailsMaskWidth,
+		    *mp_acfHis, *mp_scatterTailsMask, m_scatterTailsMaskWidth,
 		    m_maskThreshold);
 	}
 
 	float ScatterEstimator::computeTailFittingFactor()
 	{
 		std::cout << "Computing Tail-fit factor..." << std::endl;
-		float scat = 0.0f, prompt = 0.0f;
+		float scatterSum = 0.0f;
+		float promptsSum = 0.0f;
+
 		for (bin_t bin = 0; bin < mp_scatterHisto->count(); bin++)
 		{
-			// Only fit outside the image
-			if (!m_scatterTailsMask[bin])
-				continue;
+			// Only fit inside the mask
+			if (mp_scatterTailsMask->getProjectionValue(bin) > 0.0f)
+			{
+				scatterSum += mp_scatterHisto->getProjectionValue(bin);
 
-			scat += mp_scatterHisto->getProjectionValue(bin);
-			if (m_isNorm)
-			{
-				prompt += (mp_promptsHis->getProjectionValue(bin) -
-				           mp_randomsHis->getProjectionValue(bin)) *
-				          mp_normOrSensHis->getProjectionValue(bin);
-			}
-			else
-			{
-				const float sensitivity =
+				const float promptVal = mp_promptsHis->getProjectionValue(bin);
+				const float randomsVal = mp_randomsHis->getProjectionValue(bin);
+				const float normOrSensVal =
 				    mp_normOrSensHis->getProjectionValue(bin);
-				if (sensitivity > SMALL_FLT)
+
+				if (m_isNorm)
 				{
-					prompt += (mp_promptsHis->getProjectionValue(bin) -
-					           mp_randomsHis->getProjectionValue(bin)) /
-					          sensitivity;
+					promptsSum += (promptVal - randomsVal) * normOrSensVal;
+				}
+				else
+				{
+					if (normOrSensVal > SMALL_FLT)
+					{
+						promptsSum += (promptVal - randomsVal) / normOrSensVal;
+					}
 				}
 			}
 		}
-		const float fac = prompt / scat;
+		const float fac = promptsSum / scatterSum;
 		std::cout << "Tail-fitting factor: " << fac << std::endl;
 		return fac;
 	}
@@ -167,28 +172,25 @@ namespace Scatter
 
 	void ScatterEstimator::saveScatterTailsMask()
 	{
-		const auto tmpHisto = std::make_unique<Histogram3DOwned>(mr_scanner);
-		tmpHisto->allocate();
-		tmpHisto->operationOnEachBinParallel(
-		    [this](bin_t bin) -> float
-		    { return m_scatterTailsMask[bin] ? 1.0 : 0.0; });
-		tmpHisto->writeToFile("intermediary_scatterTailsMask.his");
+		mp_scatterTailsMask->writeToFile("intermediary_scatterTailsMask.his");
 	}
 
 	void ScatterEstimator::generateScatterTailsMask(const Histogram3D& acfHis,
-	                                                std::vector<bool>& mask,
+	                                                Histogram3D& mask,
 	                                                size_t maskWidth,
 	                                                float maskThreshold)
 	{
 		const size_t numBins = acfHis.count();
-		mask.resize(numBins);
-		std::fill(mask.begin(), mask.end(), false);
+		ASSERT(mask.isMemoryValid());
+		mask.clearProjections(0.0f);
 
 		for (bin_t binId = 0; binId < numBins; binId++)
 		{
 			const float acfValue = acfHis.getProjectionValue(binId);
-			mask[binId] = acfValue == 0.0 /* For invalid acf bins */ ||
-			              acfValue > maskThreshold;
+			const bool initValueOn =
+			    acfValue == 0.0 /* For invalid acf bins */ ||
+			    acfValue > maskThreshold;
+			mask.setProjectionValue(binId, initValueOn ? 1.0f : 0.0f);
 		}
 
 		for (size_t zBin = 0; zBin < acfHis.numZBin; zBin++)
@@ -203,7 +205,7 @@ namespace Scatter
 				for (r = 0; r < acfHis.numR; r++)
 				{
 					const bin_t binId = initRowBinId + r;
-					if (mask[binId] == false)
+					if (mask.getProjectionValue(binId) < 1.0f)
 					{
 						if (r > maskWidth)
 						{
@@ -212,7 +214,7 @@ namespace Scatter
 							for (bin_t newBinId = initRowBinId;
 							     newBinId < binId - maskWidth; newBinId++)
 							{
-								mask[newBinId] = false;
+								mask.setProjectionValue(newBinId, 0.0f);
 							}
 						}
 						break;
@@ -225,7 +227,7 @@ namespace Scatter
 					for (bin_t binId = initRowBinId;
 					     binId < initRowBinId + acfHis.numR; binId++)
 					{
-						mask[binId] = false;
+						mask.setProjectionValue(binId, 0.0f);
 					}
 					continue;
 				}
@@ -235,7 +237,7 @@ namespace Scatter
 				for (long reverseR = lastRValue; reverseR >= 0; reverseR--)
 				{
 					const bin_t binId = initRowBinId + reverseR;
-					if (mask[binId] == false)
+					if (mask.getProjectionValue(binId) < 1.0f)
 					{
 						if (reverseR <
 						    static_cast<long>(acfHis.numR - maskWidth))
@@ -248,7 +250,7 @@ namespace Scatter
 							     newR--)
 							{
 								const bin_t newBinId = newR + initRowBinId;
-								mask[newBinId] = false;
+								mask.setProjectionValue(newBinId, 0.0f);
 							}
 						}
 						break;

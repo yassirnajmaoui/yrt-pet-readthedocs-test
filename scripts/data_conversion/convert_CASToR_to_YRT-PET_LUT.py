@@ -5,6 +5,8 @@
 
 import numpy as np
 import tqdm
+import argparse
+import re
 
 # %% Main function
 
@@ -31,15 +33,18 @@ def make_lut_from_LUTExplorer(fname):
 
 # %% Command line interface
 
+# Usage: Use CASToR's executable to generate the log file of all crystal detectors from the geom file:
+#  castor-scannerLUTExplorer -sf <my geom file> -g -o <output log file>
+# Then use this executable on the "<output log file>" generated to create the LUT
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='LUT generation script for YRT-PET')
     parser.add_argument('-i', '--input', dest='input_file', type=str,
                         required=True,
-                        description='Input file (output of ' +
+                        help='Input file (output of ' +
                         'castor-scannerLUTExplorer)')
     parser.add_argument('-o', '--output', dest='output_file', type=str,
-                        required=True, description='Output LUT file')
+                        required=True, help='Output LUT file')
 
     args_p = parser.parse_args()
 

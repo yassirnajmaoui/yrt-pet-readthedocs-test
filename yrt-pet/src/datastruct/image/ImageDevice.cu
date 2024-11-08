@@ -127,6 +127,11 @@ void py_setup_imagedevice(py::module& m)
 	    "img_params"_a);
 	c_owned.def(
 	    py::init(
+	        [](const std::string& filename)
+	        { return std::make_unique<ImageDeviceOwned>(filename, nullptr); }),
+	    "Create ImageDevice using filename", "filename"_a);
+	c_owned.def(
+	    py::init(
 	        [](const ImageParams& imgParams, const std::string& filename) {
 		        return std::make_unique<ImageDeviceOwned>(imgParams, filename,
 		                                                  nullptr);
@@ -163,12 +168,22 @@ void py_setup_imagedevice(py::module& m)
 #endif  // if BUILD_PYBIND11
 
 
+ImageDevice::ImageDevice(const cudaStream_t* stream_ptr)
+    : ImageBase{}, mp_stream(stream_ptr)
+{
+}
+
 ImageDevice::ImageDevice(const ImageParams& imgParams,
                          const cudaStream_t* stream_ptr)
     : ImageBase(imgParams), mp_stream(stream_ptr)
 {
-	m_launchParams = Util::initiateDeviceParameters(imgParams);
-	m_imgSize = imgParams.nx * imgParams.ny * imgParams.nz;
+	setDeviceParams(imgParams);
+}
+
+void ImageDevice::setDeviceParams(const ImageParams& params)
+{
+	m_launchParams = Util::initiateDeviceParameters(params);
+	m_imgSize = params.nx * params.ny * params.nz;
 }
 
 const cudaStream_t* ImageDevice::getStream() const
@@ -181,41 +196,42 @@ size_t ImageDevice::getImageSize() const
 	return m_imgSize;
 }
 
-void ImageDevice::transferToDeviceMemory(const float* hp_img_ptr,
+void ImageDevice::transferToDeviceMemory(const float* ph_img_ptr,
                                          bool p_synchronize)
 {
 	ASSERT_MSG(getDevicePointer() != nullptr, "Device Image not allocated yet");
-	Util::copyHostToDevice(getDevicePointer(), hp_img_ptr, m_imgSize, mp_stream,
+	Util::copyHostToDevice(getDevicePointer(), ph_img_ptr, m_imgSize, mp_stream,
 	                       p_synchronize);
 }
 
-void ImageDevice::transferToDeviceMemory(const Image* hp_img_ptr,
+void ImageDevice::transferToDeviceMemory(const Image* ph_img_ptr,
                                          bool p_synchronize)
 {
-	ASSERT_MSG(getParams().isSameDimensionsAs(hp_img_ptr->getParams()),
+	ASSERT_MSG(getParams().isSameDimensionsAs(ph_img_ptr->getParams()),
 	           "Image dimensions mismatch");
-	const float* hp_ptr = hp_img_ptr->getRawPointer();
+	const float* ph_ptr = ph_img_ptr->getRawPointer();
 
 	std::cout << "Transferring image from Host to Device..." << std::endl;
-	transferToDeviceMemory(hp_ptr, p_synchronize);
+	transferToDeviceMemory(ph_ptr, p_synchronize);
 	std::cout << "Done transferring image from Host to Device." << std::endl;
 }
 
-void ImageDevice::transferToHostMemory(float* hp_img_ptr,
+void ImageDevice::transferToHostMemory(float* ph_img_ptr,
                                        bool p_synchronize) const
 {
-	ASSERT_MSG(getDevicePointer() != nullptr, "Device Image not allocated yet");
-	Util::copyDeviceToHost(hp_img_ptr, getDevicePointer(), m_imgSize, mp_stream,
+	ASSERT_MSG(getDevicePointer() != nullptr, "Device Image not allocated");
+	ASSERT_MSG(ph_img_ptr != nullptr, "Host image not allocated");
+	Util::copyDeviceToHost(ph_img_ptr, getDevicePointer(), m_imgSize, mp_stream,
 	                       p_synchronize);
 }
 
-void ImageDevice::transferToHostMemory(Image* hp_img_ptr,
+void ImageDevice::transferToHostMemory(Image* ph_img_ptr,
                                        bool p_synchronize) const
 {
-	float* hp_ptr = hp_img_ptr->getRawPointer();
+	float* ph_ptr = ph_img_ptr->getRawPointer();
 
 	std::cout << "Transferring image from Device to Host..." << std::endl;
-	transferToHostMemory(hp_ptr, p_synchronize);
+	transferToHostMemory(ph_ptr, p_synchronize);
 	std::cout << "Done transferring image from Device to Host." << std::endl;
 }
 
@@ -269,6 +285,24 @@ void ImageDevice::writeToFile(const std::string& image_fname) const
 	tmpImage->allocate();
 	transferToHostMemory(tmpImage.get(), true);
 	tmpImage->writeToFile(image_fname);
+}
+
+void ImageDevice::copyFromHostImage(const Image* imSrc)
+{
+	ASSERT(imSrc != nullptr);
+	transferToDeviceMemory(imSrc, false);
+}
+
+void ImageDevice::copyFromDeviceImage(const ImageDevice* imSrc,
+                                      bool p_synchronize)
+{
+	ASSERT(imSrc != nullptr);
+	const float* pd_src = imSrc->getDevicePointer();
+	float* pd_dest = getDevicePointer();
+	ASSERT(pd_src != nullptr);
+	ASSERT(pd_dest != nullptr);
+	Util::copyDeviceToDevice(pd_dest, pd_src, m_imgSize, mp_stream,
+	                         p_synchronize);
 }
 
 void ImageDevice::updateEMThreshold(ImageBase* updateImg,
@@ -357,6 +391,21 @@ void ImageDevice::setValue(float initValue)
 	cudaCheckError();
 }
 
+void ImageDevice::copyFromImage(const ImageBase* imSrc)
+{
+	const auto imSrc_host = dynamic_cast<const Image*>(imSrc);
+	if (imSrc_host != nullptr)
+	{
+		// Input image is in host
+		copyFromHostImage(imSrc_host);
+	}
+	else
+	{
+		const auto imSrc_dev = dynamic_cast<const ImageDevice*>(imSrc);
+		copyFromDeviceImage(imSrc_dev);
+	}
+}
+
 
 ImageDeviceOwned::ImageDeviceOwned(const ImageParams& imgParams,
                                    const cudaStream_t* stream_ptr)
@@ -364,12 +413,19 @@ ImageDeviceOwned::ImageDeviceOwned(const ImageParams& imgParams,
 {
 }
 
+ImageDeviceOwned::ImageDeviceOwned(const std::string& filename,
+                                   const cudaStream_t* stream_ptr)
+    : ImageDevice(stream_ptr), mpd_devicePointer(nullptr)
+{
+	readFromFile(filename);
+}
+
 ImageDeviceOwned::ImageDeviceOwned(const ImageParams& imgParams,
                                    const std::string& filename,
                                    const cudaStream_t* stream_ptr)
     : ImageDevice(imgParams, stream_ptr), mpd_devicePointer(nullptr)
 {
-	readFromFile(filename);
+	readFromFile(getParams(), filename);
 }
 
 ImageDeviceOwned::ImageDeviceOwned(const Image* img_ptr,
@@ -402,10 +458,21 @@ void ImageDeviceOwned::allocate(bool synchronize)
 	std::cout << "Done allocating device memory." << std::endl;
 }
 
+void ImageDeviceOwned::readFromFile(const ImageParams& params,
+                                    const std::string& filename)
+{
+	// Create temporary Image
+	const auto img = std::make_unique<ImageOwned>(params, filename);
+	allocate(false);
+	transferToDeviceMemory(img.get(), true);
+}
+
 void ImageDeviceOwned::readFromFile(const std::string& filename)
 {
 	// Create temporary Image
-	const auto img = std::make_unique<ImageOwned>(getParams(), filename);
+	const auto img = std::make_unique<ImageOwned>(filename);
+	setParams(img->getParams());
+	setDeviceParams(getParams());
 	allocate(false);
 	transferToDeviceMemory(img.get(), true);
 }

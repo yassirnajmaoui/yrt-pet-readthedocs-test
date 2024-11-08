@@ -107,8 +107,11 @@ ImageBase* OSEM_CPU::getMLEMImageBuffer()
 {
 	return outImage.get();
 }
-ImageBase* OSEM_CPU::getMLEMImageTmpBuffer()
+
+ImageBase* OSEM_CPU::getMLEMImageTmpBuffer(TemporaryImageSpaceBufferType type)
 {
+	(void)type;  // IN CPU, use the same buffer for PSF as for EM ratio since we
+	             // only have one batch
 	return mp_mlemImageTmp.get();
 }
 
@@ -188,17 +191,15 @@ void OSEM_CPU::allocateForRecon()
 	{
 		std::cout << "Summing sensitivity images to generate mask image..."
 		          << std::endl;
-		auto sensitivityImageSum =
-		    std::make_unique<ImageOwned>(getImageParams());
-		sensitivityImageSum->allocate();
 		for (int i = 0; i < num_OSEM_subsets; ++i)
 		{
 			getSensitivityImage(i)->addFirstImageToSecond(
-			    sensitivityImageSum.get());
+			    mp_mlemImageTmp.get());
 		}
-		applyMask(sensitivityImageSum.get());
-		std::cout << "Done summing" << std::endl;
+		std::cout << "Done summing." << std::endl;
+		applyMask(mp_mlemImageTmp.get());
 	}
+	mp_mlemImageTmp->setValue(0.0f);
 	std::cout << "Threshold applied" << std::endl;
 }
 
@@ -223,3 +224,13 @@ void OSEM_CPU::loadSubset(int subsetId, bool forRecon)
 }
 
 void OSEM_CPU::completeMLEMIteration() {}
+
+void OSEM_CPU::prepareEMAccumulation()
+{
+	if (flagImagePSF)
+	{
+		// This is because in CPU, we use the same buffer to backproject the EM
+		// as to store the PSF'd MLEM image
+		mp_mlemImageTmp->setValue(0.0);
+	}
+}
