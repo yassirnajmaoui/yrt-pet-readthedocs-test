@@ -10,6 +10,7 @@
 #include "motion/ImageWarperMatrix.hpp"
 #include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
+#include "utils/ProgressDisplay.hpp"
 #include "utils/ReconstructionUtils.hpp"
 
 #include <cxxopts.hpp>
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
 		std::string input_format;
 		std::vector<std::string> sensImg_fnames;
 		std::string attImg_fname;
+		std::string invivoAttImg_fname;
 		std::string imageSpacePsf_fname;
 		std::string projSpacePsf_fname;
 		std::string addHis_fname;
@@ -51,39 +53,105 @@ int main(int argc, char** argv)
 		cxxopts::Options options(argv[0], "Reconstruction executable");
 		options.positional_help("[optional args]").show_positional_help();
 
-		/* clang-format off */
-		options.add_options()
-		("s,scanner", "Scanner parameters file name", cxxopts::value<std::string>(scanner_fname))
-		("p,params", "Image parameters file", cxxopts::value<std::string>(imgParams_fname))
-		("i,input", "Input file", cxxopts::value<std::string>(input_fname))
-		("f,format", "Input file format. Possible values: " + IO::possibleFormats(), cxxopts::value<std::string>(input_format))
-		("sens", "Sensitivity image files (separated by a comma)", cxxopts::value<std::vector<std::string>>(sensImg_fnames))
-		("att", "Attenuation image filename", cxxopts::value<std::string>(attImg_fname))
-		("psf", "Image-space PSF kernel file", cxxopts::value<std::string>(imageSpacePsf_fname))
-		("proj_psf", "Projection-space PSF kernel file", cxxopts::value<std::string>(projSpacePsf_fname))
-		("add_his", "Histogram with additive corrections (scatter & randoms)", cxxopts::value<std::string>(addHis_fname))
-		("add_his_format", "Format of the histogram with additive corrections. Default value: H", cxxopts::value<std::string>(addHis_format))
-		("sensdata", "Sensitivity data input file", cxxopts::value<std::string>(sensData_fname))
-		("sensdata_format", "Sensitivity data input file format. Possible values: " + IO::possibleFormats(), cxxopts::value<std::string>(sensData_format))
-		("w,warper", "Path to the warp parameters file (Specify this to use the MLEM with image warper algorithm)", cxxopts::value<std::string>(warpParamFile))
-		("projector", "Projector to use, choices: Siddon (S), Distance-Driven (D)"
-		 #if BUILD_CUDA
-		 ", or GPU Distance-Driven (DD_GPU)"
-		 #endif
-		 ". The default projector is Siddon", cxxopts::value<std::string>(projector_name))
-		("num_rays", "Number of rays to use in the Siddon projector", cxxopts::value<int>(numRays))
-		("tof_width_ps", "TOF Width in Picoseconds", cxxopts::value<float>(tofWidth_ps))
-		("tof_n_std", "Number of standard deviations to consider for TOF's Gaussian curve", cxxopts::value<int>(tofNumStd))
-		("o,out", "Output image filename", cxxopts::value<std::string>(out_fname))
-		("num_iterations", "Number of MLEM Iterations", cxxopts::value<int>(numIterations))
-		("num_threads", "Number of threads to use", cxxopts::value<int>(numThreads))
-		("num_subsets","Number of OSEM subsets (Default: 1)", cxxopts::value<int>(numSubsets))
-		("hard_threshold", "Hard Threshold", cxxopts::value<float>(hardThreshold))
-		("save_steps", "Enable saving each MLEM iteration image (step)", cxxopts::value<int>(saveSteps))
-		("sens_only", "Only generate the sensitivity image(s). Do not launch reconstruction", cxxopts::value<bool>(sensOnly))
-		("out_sens", "Filename for the generated sensitivity image (if it needed to be computed). Leave blank to not save it", cxxopts::value<std::string>(out_sensImg_fname))
-		("h,help", "Print help");
-		/* clang-format on */
+		auto coreGroup = options.add_options("0. Core");
+		coreGroup("s,scanner", "Scanner parameters file name",
+		          cxxopts::value<std::string>(scanner_fname));
+		coreGroup("p,params",
+		          "Image parameters file."
+		          "Note: If sensitivity image(s) are provided,"
+		          "the image parameters will be determined from them.",
+		          cxxopts::value<std::string>(imgParams_fname));
+		coreGroup("sens_only",
+		          "Only generate the sensitivity image(s)."
+		          "Do not launch reconstruction",
+		          cxxopts::value<bool>(sensOnly));
+		coreGroup("num_threads", "Number of threads to use",
+		          cxxopts::value<int>(numThreads));
+		coreGroup("o,out", "Output image filename",
+		          cxxopts::value<std::string>(out_fname));
+		coreGroup("out_sens",
+		          "Filename for the generated sensitivity image (if it needed "
+		          "to be computed)."
+		          "Leave blank to not save it",
+		          cxxopts::value<std::string>(out_sensImg_fname));
+
+		auto sensGroup = options.add_options("1. Sensitivity");
+		sensGroup("sens",
+		          "Sensitivity image files (separated by a comma). Note: When "
+		          "the input is a List-mode, one sensitivity image is required."
+		          "When the input is a histogram, one sensitivity image *per "
+		          "subset* is required (Ordered by subset id)",
+		          cxxopts::value<std::vector<std::string>>(sensImg_fnames));
+		sensGroup("sensdata", "Sensitivity data input file",
+		          cxxopts::value<std::string>(sensData_fname));
+		sensGroup("sensdata_format",
+		          "Sensitivity data input file format. Possible values: " +
+		              IO::possibleFormats(),
+		          cxxopts::value<std::string>(sensData_format));
+		sensGroup("att",
+		          "Attenuation image filename (In case of motion correction, "
+		          "Hardware attenuation image filename)",
+		          cxxopts::value<std::string>(attImg_fname));
+
+		auto inputGroup = options.add_options("2. Input");
+		inputGroup("i,input", "Input file",
+		           cxxopts::value<std::string>(input_fname));
+		inputGroup("f,format",
+		           "Input file format. Possible values: " +
+		               IO::possibleFormats(),
+		           cxxopts::value<std::string>(input_format));
+
+		auto reconGroup = options.add_options("3. Reconstruction");
+		reconGroup("num_iterations", "Number of MLEM Iterations",
+		           cxxopts::value<int>(numIterations));
+		reconGroup("num_subsets", "Number of OSEM subsets (Default: 1)",
+		           cxxopts::value<int>(numSubsets));
+		reconGroup("add_his", "Additive corrections histogram",
+		           cxxopts::value<std::string>(addHis_fname));
+		reconGroup(
+		    "add_his_format",
+		    "Format of the additive corrections histogram. Default value: H",
+		    cxxopts::value<std::string>(addHis_format));
+		reconGroup("psf", "Image-space PSF kernel file",
+		           cxxopts::value<std::string>(imageSpacePsf_fname));
+		reconGroup("hard_threshold", "Hard Threshold",
+		           cxxopts::value<float>(hardThreshold));
+		reconGroup("save_steps",
+		           "Increment into which to save MLEM iteration images",
+		           cxxopts::value<int>(saveSteps));
+		reconGroup("att_invivo",
+		           "In case of motion correction only, in-vivo attenuation "
+		           "image filename",
+		           cxxopts::value<std::string>(invivoAttImg_fname));
+
+		auto projectorGroup = options.add_options("4. Projector");
+		projectorGroup(
+		    "projector",
+		    "Projector to use, choices: Siddon (S), Distance-Driven (D)"
+#if BUILD_CUDA
+		    ", or GPU Distance-Driven (DD_GPU)"
+#endif
+		    ". The default projector is Siddon",
+		    cxxopts::value<std::string>(projector_name));
+		projectorGroup("num_rays",
+		               "Number of rays to use (for Siddon projector only)",
+		               cxxopts::value<int>(numRays));
+		projectorGroup("proj_psf", "Projection-space PSF kernel file",
+		               cxxopts::value<std::string>(projSpacePsf_fname));
+		projectorGroup("tof_width_ps", "TOF Width in Picoseconds",
+		               cxxopts::value<float>(tofWidth_ps));
+		projectorGroup("tof_n_std",
+		               "Number of standard deviations to consider for TOF's "
+		               "Gaussian curve",
+		               cxxopts::value<int>(tofNumStd));
+
+		auto otherGroup = options.add_options("Other");
+		otherGroup("w,warper",
+		           "Path to the warp parameters file (Specify this to use the "
+		           "MLEM with image warper algorithm)",
+		           cxxopts::value<std::string>(warpParamFile));
+
+		options.add_options()("h,help", "Print help");
 
 		// Add plugin options
 		PluginOptionsHelper::fillOptionsFromPlugins(options);
@@ -149,10 +217,10 @@ int main(int argc, char** argv)
 		osem->setListModeEnabled(useListMode);
 
 		// Attenuation image
-		std::unique_ptr<ImageOwned> att_img = nullptr;
+		std::unique_ptr<ImageOwned> attImg = nullptr;
 		if (!attImg_fname.empty())
 		{
-			att_img = std::make_unique<ImageOwned>(attImg_fname);
+			attImg = std::make_unique<ImageOwned>(attImg_fname);
 		}
 
 		// Image-space PSF
@@ -170,6 +238,7 @@ int main(int argc, char** argv)
 
 		// Sensitivity image(s)
 		std::vector<std::unique_ptr<Image>> sensImages;
+		bool sensImageAlreadyMoved = false;
 		if (sensImg_fnames.empty())
 		{
 			ASSERT_MSG(!imgParams_fname.empty(),
@@ -185,7 +254,7 @@ int main(int argc, char** argv)
 				                           *scanner, pluginOptionsResults);
 			}
 
-			osem->attenuationImageForBackprojection = att_img.get();
+			osem->attenuationImageForBackprojection = attImg.get();
 			osem->setSensDataInput(sensData.get());
 
 			osem->generateSensitivityImages(sensImages, out_sensImg_fname);
@@ -202,6 +271,7 @@ int main(int argc, char** argv)
 				sensImages.push_back(
 				    std::make_unique<ImageOwned>(sensImg_fname));
 			}
+			sensImageAlreadyMoved = true;
 			std::cout << "Done reading sensitivity images." << std::endl;
 		}
 		else
@@ -213,17 +283,16 @@ int main(int argc, char** argv)
 			throw std::invalid_argument(
 			    "The number of sensitivity images given "
 			    "doesn't match the number of "
-			    "subsets specified. Note: For ListMode format, only one "
+			    "subsets specified. Note: For ListMode formats, exactly one "
 			    "sensitivity image is required.");
 		}
 
-		if (sensOnly)
+		// No need to read data input if in sensOnly mode
+		if (sensOnly && input_fname.empty())
 		{
 			std::cout << "Done." << std::endl;
 			return 0;
 		}
-
-		osem->setSensitivityImages(sensImages);
 
 		// Projection Data Input file
 		std::cout << "Reading input data..." << std::endl;
@@ -232,6 +301,59 @@ int main(int argc, char** argv)
 		                                   pluginOptionsResults);
 		std::cout << "Done reading input data." << std::endl;
 		osem->setDataInput(dataInput.get());
+
+		std::unique_ptr<ImageOwned> movedSensImage = nullptr;
+		if (dataInput->hasMotion() && !sensImageAlreadyMoved)
+		{
+			ASSERT_MSG_WARNING(
+			    !invivoAttImg_fname.empty() || sensOnly,
+			    "The data input provided has motion information, but no "
+			    "in-vivo attenuation was provided.");
+			ASSERT(sensImages.size() == 1);
+			const Image* unmovedSensImage = sensImages[0].get();
+			ASSERT(unmovedSensImage != nullptr);
+
+			movedSensImage =
+			    std::make_unique<ImageOwned>(unmovedSensImage->getParams());
+			movedSensImage->allocate();
+
+			std::cout << "Moving sensitivity image..." << std::endl;
+			int64_t numFrames = dataInput->getNumFrames();
+			Util::ProgressDisplay progress{numFrames};
+			const auto scanDuration =
+			    static_cast<float>(dataInput->getScanDuration());
+			for (frame_t frame = 0; frame < numFrames; frame++)
+			{
+				progress.progress(frame);
+				transform_t transform = dataInput->getTransformOfFrame(frame);
+				const float weight =
+				    dataInput->getDurationOfFrame(frame) / scanDuration;
+				unmovedSensImage->transformImage(transform, *movedSensImage,
+				                                 weight);
+			}
+
+			if (!out_sensImg_fname.empty())
+			{
+				// Overwrite sensitivity image
+				std::cout << "Saving sensitivity image..." << std::endl;
+				movedSensImage->writeToFile(out_sensImg_fname);
+			}
+
+			// Since this part is only for list-mode data, there is only one
+			// sensitivity image
+			osem->setSensitivityImage(movedSensImage.get());
+		}
+		else
+		{
+			osem->setSensitivityImages(sensImages);
+		}
+
+		if (sensOnly)
+		{
+			std::cout << "Done." << std::endl;
+			return 0;
+		}
+
 		if (tofWidth_ps > 0.f)
 		{
 			osem->addTOF(tofWidth_ps, tofNumStd);
@@ -250,6 +372,16 @@ int main(int argc, char** argv)
 			           "Histogram.");
 		}
 		std::cout << "Done reading additive histogram." << std::endl;
+
+		std::unique_ptr<ImageOwned> invivoAttImg = nullptr;
+		if (!invivoAttImg_fname.empty())
+		{
+			ASSERT_MSG_WARNING(dataInput->hasMotion(),
+			                   "An in-vivo attenuation image was provided but "
+			                   "the data input has no motion");
+			invivoAttImg = std::make_unique<ImageOwned>(invivoAttImg_fname);
+		}
+		osem->attenuationImageForForwardProjection = invivoAttImg.get();
 
 		// Save steps
 		osem->setSaveSteps(saveSteps, out_fname);
