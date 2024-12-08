@@ -11,7 +11,6 @@ include(ExternalProject)
 
 # Program requirements
 find_package(OpenMP REQUIRED)
-find_package(SimpleITK REQUIRED)
 
 # User options
 option(BUILD_PYBIND11 "Build python bindings using pybind11" ON)
@@ -47,8 +46,8 @@ endif (USE_CUDA)
 
 # Common variables
 set(YRTPET_COMPILE_FEATURES cxx_std_17)
-set(YRTPET_LINK_LIBRARIES OpenMP::OpenMP_CXX ${SimpleITK_LIBRARIES})
-set(YRTPET_INCLUDE_DIRECTORIES ${SimpleITK_INCLUDE_DIRS})
+set(YRTPET_LINK_LIBRARIES OpenMP::OpenMP_CXX)
+set(YRTPET_INCLUDE_DIRECTORIES)
 set(YRTPET_LIB_NAME yrtpet)
 
 # Default build type
