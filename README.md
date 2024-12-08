@@ -96,7 +96,7 @@ or follow the YRT-PET raw data format.
 ### YRT-PET raw data format
 
 The YRT-PET format is defined as follows:
-
+    
     MAGIC NUMBER (int32): 732174000 in decimal, used to detect YRT-PET file type
     Number of dimensions D (int32)
     Dimension 0 (int64)
@@ -155,6 +155,7 @@ The detectors order must follow the following rules:
   y, z components of the normal orientation vector, all stored in `float32` format (4 bytes).
   The total file size is \(N_d \times 6 \times 4\) bytes where \(N_d\) is the total
   number of detectors. Note that all the values are in mm.
+
   ```
   Detector 0 position x (float32)
   Detector 0 position y (float32)
@@ -164,6 +165,8 @@ The detectors order must follow the following rules:
   Detector 0 orientation z (float32)
   Detector 1 position x (float32)
   ...
+  ```
+
   The file extension used is `.lut`.
 
 ### Image (`Image`)
@@ -174,7 +177,7 @@ Images are stored and read in NIFTI format.
 
 The listmode file is a record of all the events to be considered for the reconstruction. It is similar to the Histogram
 as it has all the same fields, except for the Value (which is considered to be 1.0 in all listmode events)
-
+    
     Timestamp for Event 0 (s) (float32)
     Detector1 of the Event 0 (int)
     Detector2 of the Event 0 (int)
@@ -196,7 +199,7 @@ coordinates of the volume. The configuration is in `json` format.
 An example is provided here for reference. Note that the values are all in mm.
 
 ```JSON
-    {
+{
   "VERSION": 1.0,
   "nx": 250,
   "ny": 250,
@@ -222,38 +225,7 @@ To start working on the code,
 - add tests,
 - submit pull requests to merge the modified code to the `main` branch.
 
-## Conventions
-
-### Git
-
-- The main branch is the stable branch of the project, it is designed to
-  remain "clean" (i.e. tested and documented).
-- Work on the project should be performed on *branches*. A branch is created
-  for each feature, bug, etc. and progress is committed on that branch.
-- Once the work is ready to *merge* (i.e. the code is complete, tested and
-  documented) it can be submitted for review: the process is called *merge
-  request*. Follow Github's instructions to submit a pull request.
-- The request is then reviewed by one of the project's maintainers. After
-  discussions, it should eventually be merged to the main branch by the
-  maintainer.
-- The branch on which the work was performed can then be deleted (the history is
-  preserved). The branch commits will be squashed before the merge (this can
-  be done in Github's web interface).
-- If the main branch has changed between the beginning of the work and the
-  pull request submission, the branch should be *rebased* to the main branch
-  (in practice, tests should be run after a rebase to avoid potential
-  regressions).
-    - In some cases, unexpected rebase are reported (for instance if the history
-      is A&#x2013;B&#x2013;C and B is merged to A, a later rebase of C to A may cause
-      conflicts that should not exist). In such cases, two fixes are possible:
-        - Launching an interactive rebase (`git rebase -i <main branch>`) and dropping the commits that would be
-          duplicated.
-    - After a rebase, `git push` by default will not allow an update that is not `fast-forward`
-      with the corresponding remote branch, causing an error when trying to push.
-      `git push --force-with-lease` can be used to force a push while checking that the remote branch has not changed.
-      Note that this will lose history
-
-### Coding conventions
+## Coding style conventions
 
 This section will contain guidelines for writing code, once agreed upon by the
 members of the team. As a starting point `clang-format` is used with a
