@@ -155,7 +155,7 @@ The detectors order must follow the following rules:
   y, z components of the normal orientation vector, all stored in `float32` format (4 bytes).
   The total file size is \(N_d \times 6 \times 4\) bytes where \(N_d\) is the total
   number of detectors. Note that all the values are in mm.
-
+  ```
   Detector 0 position x (float32)
   Detector 0 position y (float32)
   Detector 0 position z (float32)
