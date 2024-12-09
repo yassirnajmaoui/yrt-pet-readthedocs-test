@@ -15,6 +15,7 @@ Current features include:
 - Image-space PSF
 - Additive corrections (Scatter & Randoms)
 - Normalization correction (Detector sensitivity)
+- Attenuation correction
 - Scatter estimation (Limited support, without ToF)
 
 Setup instructions and general information can be found in the `doc` folder.
