@@ -6,7 +6,7 @@
 #include "datastruct/projection/ListModeLUTDOI.hpp"
 
 #include "datastruct/scanner/Scanner.hpp"
-#include "utils/Globals.hpp"
+#include "utils/Assert.hpp"
 
 #include <cmath>
 #include <cstring>
@@ -116,9 +116,10 @@ void ListModeLUTDOIOwned::readFromFile(const std::string& listMode_fname)
 	std::ifstream fin(listMode_fname, std::ios::in | std::ios::binary);
 	if (!fin.good())
 	{
-		throw std::runtime_error("Error reading input file " + listMode_fname +
-		                         "ListModeLUTDOIOwned::readFromFile.");
+		throw std::runtime_error("Error reading input file " + listMode_fname);
 	}
+
+	const det_id_t numDets = mr_scanner.getNumDets();
 
 	// first check that file has the right size:
 	fin.seekg(0, std::ios::end);
@@ -151,21 +152,35 @@ void ListModeLUTDOIOwned::readFromFile(const std::string& listMode_fname)
 		size_t readSize = numEventsBatchCurr * sizeOfAnEvent;
 		fin.read((char*)buff.get(), readSize);
 
-		int num_threads = Globals::get_num_threads();
-#pragma omp parallel for num_threads(num_threads)
+#pragma omp parallel for default(none),                                     \
+    shared(mp_timestamps, mp_detectorId1, mp_detectorId2, mp_doi1, mp_doi2, \
+               buff, mp_tof_ps),                                            \
+    firstprivate(numEventsBatchCurr, sizeOfAnEvent, eventStart, numDets)
 		for (size_t i = 0; i < numEventsBatchCurr; i++)
 		{
-			(*mp_timestamps)[eventStart + i] =
-			    *(reinterpret_cast<float*>(&(buff[sizeOfAnEvent * i])));
-			(*mp_detectorId1)[eventStart + i] =
+			const size_t eventPos = eventStart + i;
+
+			const det_id_t d1 =
 			    *(reinterpret_cast<det_id_t*>(&(buff[sizeOfAnEvent * i + 4])));
-			(*mp_doi1)[eventStart + i] = buff[sizeOfAnEvent * i + 8];
-			(*mp_detectorId2)[eventStart + i] =
+			const det_id_t d2 =
 			    *(reinterpret_cast<det_id_t*>(&(buff[sizeOfAnEvent * i + 9])));
-			(*mp_doi2)[eventStart + i] = buff[sizeOfAnEvent * i + 13];
+
+			if (CHECK_LIKELY(d1 >= numDets || d2 >= numDets))
+			{
+				throw std::invalid_argument(
+				    "Detectors invalid in list-mode event " +
+				    std::to_string(eventPos));
+			}
+
+			(*mp_timestamps)[eventPos] =
+			    *(reinterpret_cast<timestamp_t*>(&(buff[sizeOfAnEvent * i])));
+			(*mp_detectorId1)[eventPos] = d1;
+			(*mp_doi1)[eventPos] = buff[sizeOfAnEvent * i + 8];
+			(*mp_detectorId2)[eventPos] = d2;
+			(*mp_doi2)[eventPos] = buff[sizeOfAnEvent * i + 13];
 			if (m_flagTOF)
 			{
-				(*mp_tof_ps)[eventStart + i] = *(
+				(*mp_tof_ps)[eventPos] = *(
 				    reinterpret_cast<float*>(&(buff[sizeOfAnEvent * i + 14])));
 			}
 		}
@@ -225,22 +240,18 @@ void ListModeLUTDOI::writeToFile(const std::string& listMode_fname) const
 		size_t writeSize = numEventsBatchCurr * sizeOfAnEvent;
 		for (size_t i = 0; i < numEventsBatchCurr; i++)
 		{
-			memcpy(&buff[sizeOfAnEvent * i],
-			       reinterpret_cast<char*>(&(*mp_timestamps)[eventStart + i]),
-			       sizeof(float));
+			memcpy(&buff[sizeOfAnEvent * i], &(*mp_timestamps)[eventStart + i],
+			       sizeof(timestamp_t));
 			memcpy(&buff[sizeOfAnEvent * i + 4],
-			       reinterpret_cast<char*>(&(*mp_detectorId1)[eventStart + i]),
-			       sizeof(det_id_t));
+			       &(*mp_detectorId1)[eventStart + i], sizeof(det_id_t));
 			buff[sizeOfAnEvent * i + 8] = (*mp_doi1)[eventStart + i];
 			memcpy(&buff[sizeOfAnEvent * i + 9],
-			       reinterpret_cast<char*>(&(*mp_detectorId2)[eventStart + i]),
-			       sizeof(det_id_t));
+			       &(*mp_detectorId2)[eventStart + i], sizeof(det_id_t));
 			buff[sizeOfAnEvent * i + 13] = (*mp_doi2)[eventStart + i];
 			if (m_flagTOF)
 			{
 				memcpy(&buff[sizeOfAnEvent * i + 14],
-				       reinterpret_cast<char*>(&(*mp_tof_ps)[eventStart + i]),
-				       sizeof(float));
+				       &(*mp_tof_ps)[eventStart + i], sizeof(float));
 			}
 		}
 		file.write((char*)buff.get(), writeSize);
