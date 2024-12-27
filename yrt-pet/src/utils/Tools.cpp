@@ -132,12 +132,42 @@ namespace Util
 	std::string addBeforeExtension(const std::string& fname,
 	                               const std::string& addition)
 	{
-		std::string fname_inserted(fname);
-		size_t pos_where_insert = fname.find_last_of('.');
-		if (pos_where_insert == std::string::npos || pos_where_insert == 0)
-			pos_where_insert = fname_inserted.size();
-		fname_inserted = fname_inserted.insert(pos_where_insert, addition);
-		return fname_inserted;
+		int fnameSize = fname.size();
+		int pos = fnameSize - 1;
+		char lastTwoChars[2] = {0, 0};
+		int extensionPosition = -1;
+
+		// Insert before extension, except when the extension is .gz, then wait
+		// for the next extension
+		while (pos >= 0)
+		{
+			const char currentChar = fname[pos];
+			if (currentChar == '.')
+			{
+				if (!(lastTwoChars[0] == 'g' && lastTwoChars[1] == 'z'))
+				{
+					extensionPosition = pos;
+					break;
+				}
+			}
+			lastTwoChars[1] = lastTwoChars[0];
+			lastTwoChars[0] = currentChar;
+			pos--;
+		}
+		std::string fnameInserted(fname);
+
+		const size_t posWhereInsert =
+		    extensionPosition >= 0 ? extensionPosition : fnameSize;
+
+		fnameInserted = fnameInserted.insert(posWhereInsert, addition);
+		return fnameInserted;
+	}
+
+	bool endsWith(const std::string& str, const std::string& suffix)
+	{
+		return str.size() >= suffix.size() &&
+		       str.compare(str.size() - suffix.size(), suffix.size(), suffix) ==
+		           0;
 	}
 
 	template <typename T>
@@ -371,14 +401,18 @@ namespace Util
 	template void fillBox(Array3DBase<double>& arr, size_t z1, size_t z2,
 	                      size_t y1, size_t y2, size_t x1, size_t x2);
 
-	int maxNumberOfDigits(int n)
+	int numberOfDigits(int n)
 	{
+		if (n == 0)
+		{
+			return 1;
+		}
 		return static_cast<int>(std::ceil(std::log10(n + 1)));
 	}
 
-	std::string padZeros(int number, int num_digits)
+	std::string padZeros(int number, int numDigits)
 	{
-		const int numberOfZerosToPad = num_digits - maxNumberOfDigits(number);
+		const int numberOfZerosToPad = numDigits - numberOfDigits(number);
 		if (numberOfZerosToPad < 0)
 		{
 			throw std::invalid_argument("The number given in padZeros "

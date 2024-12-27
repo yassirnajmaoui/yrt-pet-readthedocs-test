@@ -43,6 +43,7 @@ namespace Util
 
 	std::string addBeforeExtension(const std::string& fname,
 	                               const std::string& addition);
+	bool endsWith(const std::string& str, const std::string& suffix);
 
 	/**
 	 * Fills a given box by trilinear interpolation. It fills from the values at
@@ -78,8 +79,8 @@ namespace Util
 		return s;
 	}
 
-	int maxNumberOfDigits(int n);
-	std::string padZeros(int number, int num_digits);
+	int numberOfDigits(int n);
+	std::string padZeros(int number, int numDigits);
 
 	template <typename T>
 	T getAttenuationCoefficientFactor(T proj, T unitFactor = 0.1)
