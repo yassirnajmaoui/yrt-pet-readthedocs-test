@@ -10,9 +10,12 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <ctime>
 #include <iomanip>
+#include <iostream>
+#include <regex>
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>
@@ -179,6 +182,14 @@ namespace Util
 		std::string newString = s;
 		std::transform(s.begin(), s.end(), newString.begin(), ::toupper);
 		return newString;
+	}
+
+	std::vector<std::string> split(const std::string str,
+	                               const std::string regex_str)
+	{
+		std::regex regexz(regex_str);
+		return {std::sregex_token_iterator(str.begin(), str.end(), regexz, -1),
+		        std::sregex_token_iterator()};
 	}
 
 	bool compiledWithCuda()

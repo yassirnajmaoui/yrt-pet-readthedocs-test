@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <vector>
 #include <string>
 
 namespace Util
@@ -18,6 +19,10 @@ namespace Util
 	std::string toLower(const std::string& s);
 	std::string toUpper(const std::string& s);
 	std::string getDatetime();
+
+
+	std::vector<std::string> split(const std::string str,
+	                               const std::string regex_str);
 
 	// ----------------- Bit manipulation -----------------
 
