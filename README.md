@@ -9,10 +9,11 @@ Current features include:
 - GPU acceleration with NVIDIA CUDA
 - Python bindings with pybind11
 - Event-by-event Motion Correction
-- Siddon and Distance-Driven projectors
+- Siddon, Multi-Ray Siddon and Distance-Driven projectors
   - Time-of-Flight Support
   - Projection-space PSF support for the Distance-Driven projector
 - Image-space PSF
+- Image-space Motion Correction
 - Additive corrections (Scatter & Randoms)
 - Normalization correction (Detector sensitivity)
 - Attenuation correction
