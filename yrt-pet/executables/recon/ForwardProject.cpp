@@ -21,7 +21,6 @@ int main(int argc, char** argv)
 	{
 		std::string scanner_fname;
 		std::string inputImage_fname;
-		std::string attImg_fname;
 		std::string imageSpacePsf_fname;
 		std::string projSpacePsf_fname;
 		std::string outHis_fname;
@@ -31,19 +30,16 @@ int main(int argc, char** argv)
 		int subsetId = 0;
 		int numRays = 1;
 		bool convertToAcf = false;
-		float tofWidth_ps = 0.0;
-		int tofNumStd = 0;
 
 		// Parse command line arguments
 		cxxopts::Options options(argv[0],
-		                         "Forward projection driver. Forward "
+		                         "Forward "
 		                         "project an image into a Histogram3D");
 		options.positional_help("[optional args]").show_positional_help();
 		/* clang-format off */
 		options.add_options()
-		("s,scanner", "Scanner parameters file name", cxxopts::value<std::string>(scanner_fname))
+		("s,scanner", "Scanner parameters file", cxxopts::value<std::string>(scanner_fname))
 		("i,input", "Input image file", cxxopts::value<std::string>(inputImage_fname))
-		("att", "Attenuation image filename", cxxopts::value<std::string>(attImg_fname))
 		("psf", "Image-space PSF kernel file", cxxopts::value<std::string>(imageSpacePsf_fname))
 		("proj_psf", "Projection-space PSF kernel file", cxxopts::value<std::string>(projSpacePsf_fname))
 		("projector", "Projector to use, choices: Siddon (S), Distance-Driven (D)"
@@ -51,9 +47,7 @@ int main(int argc, char** argv)
 		", or GPU Distance-Driven (DD_GPU)"
 		#endif
 		". The default projector is Siddon", cxxopts::value<std::string>(projector_name))
-		("acf", "Generate ACF histogram", cxxopts::value<bool>(convertToAcf))
-		("tof_width_ps", "TOF Width in Picoseconds", cxxopts::value<float>(tofWidth_ps))
-		("tof_n_std", "Number of standard deviations to consider for TOF's Gaussian curve", cxxopts::value<int>(tofNumStd))
+		("to_acf", "Generate ACF histogram", cxxopts::value<bool>(convertToAcf))
 		("num_rays", "Number of rays to use in the Siddon projector", cxxopts::value<int>(numRays))
 		("o,out", "Output histogram filename", cxxopts::value<std::string>(outHis_fname))
 		("num_threads", "Number of threads to use", cxxopts::value<int>(numThreads))
@@ -91,14 +85,6 @@ int main(int argc, char** argv)
 		// Input file
 		auto inputImage = std::make_unique<ImageOwned>(inputImage_fname);
 
-		// Attenuation image
-		std::unique_ptr<ImageParams> attImgParams = nullptr;
-		std::unique_ptr<ImageOwned> attImg = nullptr;
-		if (!attImg_fname.empty())
-		{
-			attImg = std::make_unique<ImageOwned>(attImg_fname);
-		}
-
 		// Image-space PSF
 		if (!imageSpacePsf_fname.empty())
 		{
@@ -106,33 +92,26 @@ int main(int argc, char** argv)
 			    std::make_unique<OperatorPsf>(imageSpacePsf_fname);
 			std::cout << "Applying Image-space PSF..." << std::endl;
 			imageSpacePsf->applyA(inputImage.get(), inputImage.get());
-			std::cout << "Done applying Image-space PSF" << std::endl;
 		}
 
 		// Create histo here
 		auto his = std::make_unique<Histogram3DOwned>(*scanner);
 		his->allocate();
 
-
-		// Start forward projection
+		// Setup forward projection
 		auto binIter = his->getBinIter(numSubsets, subsetId);
-		OperatorProjectorParams projParams(binIter.get(), *scanner, tofWidth_ps,
-		                                   tofNumStd, projSpacePsf_fname,
-		                                   numRays);
+		OperatorProjectorParams projParams(binIter.get(), *scanner, 0, 0,
+		                                   projSpacePsf_fname, numRays);
 
 		auto projectorType = IO::getProjector(projector_name);
 
-		Util::forwProject(*inputImage, *his, projParams, projectorType,
-		                  attImg.get(), nullptr);
+		Util::forwProject(*inputImage, *his, projParams, projectorType);
 
 		if (convertToAcf)
 		{
-			his->operationOnEachBinParallel(
-			    [&his](bin_t bin) -> float
-			    {
-				    return Util::getAttenuationCoefficientFactor(
-				        his->getProjectionValue(bin));
-			    });
+			std::cout << "Computing attenuation coefficient factors..."
+			          << std::endl;
+			Util::convertProjectionValuesToACF(*his);
 		}
 
 		std::cout << "Writing histogram to file..." << std::endl;

@@ -34,15 +34,20 @@ set(SOURCES
         motion/ImageWarperMatrix.cpp
         motion/ImageWarperTemplate.cpp
         motion/ImageWarperFunction.cpp
+        operators/Operator.cpp
+        operators/OperatorProjectorBase.cpp
         operators/OperatorProjector.cpp
         operators/OperatorProjectorSiddon.cpp
         operators/OperatorProjectorDD.cpp
         operators/OperatorPsf.cpp
         operators/ProjectionPsfManager.cpp
         operators/TimeOfFlight.cpp
+        recon/Corrector.cpp
+        recon/Corrector_CPU.cpp
+        recon/OSEMUpdater_CPU.cpp
         recon/OSEM.cpp
         recon/OSEM_CPU.cpp
-        recon/Variable.cpp
+        operators/Variable.cpp
         scatter/ScatterEstimator.cpp
         scatter/SingleScatterSimulator.cpp
         scatter/Crystal.cpp
@@ -66,11 +71,14 @@ if (USE_CUDA)
             datastruct/projection/LORsDevice.cu
             datastruct/projection/ProjectionDataDevice.cu
             datastruct/projection/ProjectionSpaceKernels.cu
-            operators/OperatorDevice.cu
+            operators/DeviceSynchronized.cu
+            operators/OperatorProjectorDevice.cu
             operators/OperatorPsfDevice.cu
             operators/ProjectionPsfManagerDevice.cu
             operators/OperatorProjectorDD_GPUKernels.cu
             operators/OperatorProjectorDD_GPU.cu
+            recon/Corrector_GPU.cu
+            recon/OSEMUpdater_GPU.cu
             recon/OSEM_GPU.cu
             utils/PageLockedBuffer.cu
             utils/GPUStream.cu

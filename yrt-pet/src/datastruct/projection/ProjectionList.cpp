@@ -156,6 +156,21 @@ Line3D ProjectionList::getArbitraryLOR(bin_t id) const
 	return mp_reference->getArbitraryLOR(id);
 }
 
+const ProjectionData* ProjectionList::getReference() const
+{
+	return mp_reference;
+}
+
+float* ProjectionList::getRawPointer() const
+{
+	return mp_projs->getRawPointer();
+}
+
+bool ProjectionList::isMemoryValid() const
+{
+	return mp_projs != nullptr && getRawPointer() != nullptr;
+}
+
 Array1DBase<float>* ProjectionList::getProjectionsArrayRef() const
 {
 	return (mp_projs.get());
@@ -171,7 +186,7 @@ histo_bin_t ProjectionList::getHistogramBin(bin_t id) const
 	return mp_reference->getHistogramBin(id);
 }
 
-ProjectionListOwned::ProjectionListOwned(ProjectionData* r)
+ProjectionListOwned::ProjectionListOwned(const ProjectionData* r)
     : ProjectionList(r)
 {
 	mp_projs = std::make_unique<Array1D<float>>();
@@ -179,15 +194,11 @@ ProjectionListOwned::ProjectionListOwned(ProjectionData* r)
 
 void ProjectionListOwned::allocate()
 {
-	size_t num_events = mp_reference->count();
-	std::cout << "Allocating projection list memory"
-	          << " for " << num_events << " events" << std::endl;
-	static_cast<Array1D<float>*>(mp_projs.get())->allocate(num_events);
-	std::cout << "Memory successfully allocated: " << std::flush
-	          << mp_projs->getSize(0) << std::endl;
+	const size_t numBins = mp_reference->count();
+	static_cast<Array1D<float>*>(mp_projs.get())->allocate(numBins);
 }
 
-ProjectionListAlias::ProjectionListAlias(ProjectionData* p)
+ProjectionListAlias::ProjectionListAlias(const ProjectionData* p)
     : ProjectionList(p)
 {
 	mp_projs = std::make_unique<Array1DAlias<float>>();
@@ -204,7 +215,7 @@ void ProjectionListAlias::bind(Array1DBase<float>* projs_in)
 }
 
 std::unique_ptr<BinIterator> ProjectionList::getBinIter(int numSubsets,
-                                                            int idxSubset) const
+                                                        int idxSubset) const
 {
 	return mp_reference->getBinIter(numSubsets, idxSubset);
 }

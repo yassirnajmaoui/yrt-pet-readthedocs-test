@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "recon/Variable.hpp"
+#include "operators/Variable.hpp"
 
 #include "nlohmann/json_fwd.hpp"
 #include <string>
@@ -30,6 +30,8 @@ public:
 
 	// Automatically populated fields
 	float fovRadius;
+
+	static constexpr float PositioningPrecision = 1e-4f;
 
 	ImageParams();
 	ImageParams(int nxi, int nyi, int nzi, float length_xi, float length_yi,
@@ -70,6 +72,7 @@ public:
 	float getRadius() const;
 	const ImageParams& getParams() const;
 	void setParams(const ImageParams& newParams);
+	size_t unravel(int iz, int iy, int ix) const;
 
 	virtual void setValue(float initValue) = 0;
 	virtual void copyFromImage(const ImageBase* imSrc) = 0;

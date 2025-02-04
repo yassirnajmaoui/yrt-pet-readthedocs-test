@@ -8,6 +8,7 @@
 #include "datastruct/projection/ProjectionList.hpp"
 #include "operators/OperatorProjectorDD.hpp"
 #include "operators/OperatorProjectorSiddon.hpp"
+#include "recon/Corrector_CPU.hpp"
 #include "utils/Assert.hpp"
 
 #include <utility>
@@ -19,11 +20,32 @@ OSEM_CPU::OSEM_CPU(const Scanner& pr_scanner)
       mp_datTmp{nullptr},
       m_current_OSEM_subset{-1}
 {
+	mp_corrector = std::make_unique<Corrector_CPU>(pr_scanner);
+
 	std::cout << "Creating an instance of OSEM CPU" << std::endl;
 }
 
 OSEM_CPU::~OSEM_CPU() = default;
 
+const Image* OSEM_CPU::getOutputImage() const
+{
+	return outImage.get();
+}
+
+const Corrector& OSEM_CPU::getCorrector() const
+{
+	return *mp_corrector;
+}
+
+Corrector& OSEM_CPU::getCorrector()
+{
+	return *mp_corrector;
+}
+
+const Corrector_CPU& OSEM_CPU::getCorrector_CPU() const
+{
+	return *mp_corrector;
+}
 
 void OSEM_CPU::allocateForSensImgGen()
 {
@@ -42,7 +64,8 @@ void OSEM_CPU::setupOperatorsForSensImgGen()
 	{
 		// Create and add Bin Iterator
 		getBinIterators().push_back(
-		    getSensDataInput()->getBinIter(num_OSEM_subsets, subsetId));
+		    mp_corrector->getSensImgGenBuffer()->getBinIter(num_OSEM_subsets,
+		                                                    subsetId));
 	}
 
 	// Create ProjectorParams object
@@ -59,11 +82,7 @@ void OSEM_CPU::setupOperatorsForSensImgGen()
 		mp_projector = std::make_unique<OperatorProjectorDD>(projParams);
 	}
 
-	if (attenuationImageForBackprojection != nullptr)
-	{
-		mp_projector->setAttImageForBackprojection(
-		    attenuationImageForBackprojection);
-	}
+	mp_updater = std::make_unique<OSEMUpdater_CPU>(this);
 }
 
 std::unique_ptr<Image> OSEM_CPU::getLatestSensitivityImage(bool isLastSubset)
@@ -78,6 +97,12 @@ std::unique_ptr<Image> OSEM_CPU::getLatestSensitivityImage(bool isLastSubset)
 	}
 
 	return img;
+}
+
+void OSEM_CPU::computeSensitivityImage(ImageBase& destImage)
+{
+	auto& destImageHost = dynamic_cast<Image&>(destImage);
+	mp_updater->computeSensitivityImage(destImageHost);
 }
 
 void OSEM_CPU::endSensImgGen()
@@ -96,11 +121,11 @@ ImageBase* OSEM_CPU::getSensImageBuffer()
 	return getSensitivityImage(usingListModeInput ? 0 : m_current_OSEM_subset);
 }
 
-ProjectionData* OSEM_CPU::getSensDataInputBuffer()
+const ProjectionData* OSEM_CPU::getSensitivityBuffer() const
 {
 	// Since in the CPU version, the projection data is unchanged from the
 	// original and stays in the Host.
-	return getSensDataInput();
+	return getSensitivityHistogram();
 }
 
 ImageBase* OSEM_CPU::getMLEMImageBuffer()
@@ -110,12 +135,18 @@ ImageBase* OSEM_CPU::getMLEMImageBuffer()
 
 ImageBase* OSEM_CPU::getMLEMImageTmpBuffer(TemporaryImageSpaceBufferType type)
 {
-	(void)type;  // IN CPU, use the same buffer for PSF as for EM ratio since we
-	             // only have one batch
-	return mp_mlemImageTmp.get();
+	if (type == TemporaryImageSpaceBufferType::EM_RATIO)
+	{
+		return mp_mlemImageTmp.get();
+	}
+	if (type == TemporaryImageSpaceBufferType::PSF)
+	{
+		return mp_mlemImageTmpPsf.get();
+	}
+	throw std::runtime_error("Unknown Temporary image type");
 }
 
-ProjectionData* OSEM_CPU::getMLEMDataBuffer()
+const ProjectionData* OSEM_CPU::getMLEMDataBuffer()
 {
 	return getDataInput();
 }
@@ -123,6 +154,19 @@ ProjectionData* OSEM_CPU::getMLEMDataBuffer()
 ProjectionData* OSEM_CPU::getMLEMDataTmpBuffer()
 {
 	return mp_datTmp.get();
+}
+
+const OperatorProjector* OSEM_CPU::getProjector() const
+{
+	const auto* hostProjector =
+	    dynamic_cast<const OperatorProjector*>(mp_projector.get());
+	ASSERT(hostProjector != nullptr);
+	return hostProjector;
+}
+
+OperatorPsf* OSEM_CPU::getOperatorPsf() const
+{
+	return imageSpacePsf.get();
 }
 
 void OSEM_CPU::setupOperatorsForRecon()
@@ -151,21 +195,14 @@ void OSEM_CPU::setupOperatorsForRecon()
 		mp_projector = std::make_unique<OperatorProjectorDD>(projParams);
 	}
 
-	if (attenuationImageForForwardProjection != nullptr)
-	{
-		mp_projector->setAttImageForForwardProjection(
-		    attenuationImageForForwardProjection);
-	}
-	if (addHis != nullptr)
-	{
-		mp_projector->setAddHisto(addHis);
-	}
+	mp_updater = std::make_unique<OSEMUpdater_CPU>(this);
 }
 
 void OSEM_CPU::allocateForRecon()
 {
 	// Allocate for projection-space buffers
-	mp_datTmp = std::make_unique<ProjectionListOwned>(getDataInput());
+	const ProjectionData* dataInput = getDataInput();
+	mp_datTmp = std::make_unique<ProjectionListOwned>(dataInput);
 	reinterpret_cast<ProjectionListOwned*>(mp_datTmp.get())->allocate();
 
 	// Allocate for image-space buffers
@@ -173,12 +210,22 @@ void OSEM_CPU::allocateForRecon()
 	reinterpret_cast<ImageOwned*>(mp_mlemImageTmp.get())->allocate();
 
 	// Initialize output image
-	getMLEMImageBuffer()->setValue(INITIAL_VALUE_MLEM);
+	if (initialEstimate != nullptr)
+	{
+		getMLEMImageBuffer()->copyFromImage(initialEstimate);
+	}
+	else
+	{
+		getMLEMImageBuffer()->setValue(INITIAL_VALUE_MLEM);
+	}
 
 	// Apply mask image
-	std::cout << "Applying threshold" << std::endl;
+	std::cout << "Applying threshold..." << std::endl;
 	auto applyMask = [this](const Image* maskImage) -> void
-	{ getMLEMImageBuffer()->applyThreshold(maskImage, 0.0, 0.0, 0.0, 0.0, 1); };
+	{
+		getMLEMImageBuffer()->applyThreshold(maskImage, 0.0f, 0.0f, 0.0f, 1.0f,
+		                                     0.0f);
+	};
 	if (maskImage != nullptr)
 	{
 		applyMask(maskImage);
@@ -197,11 +244,18 @@ void OSEM_CPU::allocateForRecon()
 			getSensitivityImage(i)->addFirstImageToSecond(
 			    mp_mlemImageTmp.get());
 		}
-		std::cout << "Done summing." << std::endl;
 		applyMask(mp_mlemImageTmp.get());
 	}
 	mp_mlemImageTmp->setValue(0.0f);
-	std::cout << "Threshold applied" << std::endl;
+
+	if (mp_corrector->hasAdditiveCorrection())
+	{
+		mp_corrector->precomputeAdditiveCorrectionFactors(*dataInput);
+	}
+	if (mp_corrector->hasInVivoAttenuation())
+	{
+		mp_corrector->precomputeInVivoAttenuationFactors(*dataInput);
+	}
 }
 
 void OSEM_CPU::endRecon()
@@ -224,14 +278,12 @@ void OSEM_CPU::loadSubset(int subsetId, bool forRecon)
 	m_current_OSEM_subset = subsetId;
 }
 
-void OSEM_CPU::completeMLEMIteration() {}
-
-void OSEM_CPU::prepareEMAccumulation()
+void OSEM_CPU::computeEMUpdateImage(const ImageBase& inputImage,
+                                    ImageBase& destImage)
 {
-	if (flagImagePSF)
-	{
-		// This is because in CPU, we use the same buffer to backproject the EM
-		// as to store the PSF'd MLEM image
-		mp_mlemImageTmp->setValue(0.0);
-	}
+	auto& inputImageHost = dynamic_cast<const Image&>(inputImage);
+	auto& destImageHost = dynamic_cast<Image&>(destImage);
+	mp_updater->computeEMUpdateImage(inputImageHost, destImageHost);
 }
+
+void OSEM_CPU::completeMLEMIteration() {}

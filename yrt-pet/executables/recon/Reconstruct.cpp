@@ -5,9 +5,7 @@
 
 #include "../PluginOptionsHelper.hpp"
 #include "datastruct/IO.hpp"
-#include "datastruct/projection/UniformHistogram.hpp"
 #include "datastruct/scanner/Scanner.hpp"
-#include "motion/ImageWarperMatrix.hpp"
 #include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
 #include "utils/ProgressDisplay.hpp"
@@ -26,16 +24,25 @@ int main(int argc, char** argv)
 		std::string input_fname;
 		std::string input_format;
 		std::vector<std::string> sensImg_fnames;
+		std::string initialEstimate_fname;
 		std::string attImg_fname;
+		std::string acf_fname;
+		std::string acf_format;
 		std::string invivoAttImg_fname;
+		std::string invivoAcf_fname;
+		std::string invivoAcf_format;
+		std::string hardwareAttImg_fname;
+		std::string hardwareAcf_fname;
+		std::string hardwareAcf_format;
 		std::string imageSpacePsf_fname;
 		std::string projSpacePsf_fname;
-		std::string addHis_fname;
-		std::string addHis_format = "H";
+		std::string randoms_fname;
+		std::string randoms_format;
+		std::string scatter_fname;
+		std::string scatter_format;
 		std::string projector_name = "S";
-		std::string sensData_fname;
-		std::string sensData_format;
-		std::string warpParamFile;  // For Warper
+		std::string sensitivityData_fname;
+		std::string sensitivityData_format;
 		std::string out_fname;
 		std::string out_sensImg_fname;
 		int numIterations = 10;
@@ -44,10 +51,13 @@ int main(int argc, char** argv)
 		int numRays = 1;
 		float hardThreshold = 1.0f;
 		float tofWidth_ps = 0.0f;
+		float globalScalingFactor = 1.0f;
 		int tofNumStd = 0;
 		int saveIterStep = 0;
 		std::string saveIterRanges;
 		bool sensOnly = false;
+		bool mustMoveSens = false;
+		bool invertSensitivity = false;
 
 		Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
 
@@ -56,7 +66,7 @@ int main(int argc, char** argv)
 		options.positional_help("[optional args]").show_positional_help();
 
 		auto coreGroup = options.add_options("0. Core");
-		coreGroup("s,scanner", "Scanner parameters file name",
+		coreGroup("s,scanner", "Scanner parameters file",
 		          cxxopts::value<std::string>(scanner_fname));
 		coreGroup("p,params",
 		          "Image parameters file."
@@ -84,16 +94,23 @@ int main(int argc, char** argv)
 		          "When the input is a histogram, one sensitivity image *per "
 		          "subset* is required (Ordered by subset id)",
 		          cxxopts::value<std::vector<std::string>>(sensImg_fnames));
-		sensGroup("sensdata", "Sensitivity data input file",
-		          cxxopts::value<std::string>(sensData_fname));
-		sensGroup("sensdata_format",
-		          "Sensitivity data input file format. Possible values: " +
-		              IO::possibleFormats(),
-		          cxxopts::value<std::string>(sensData_format));
-		sensGroup("att",
-		          "Attenuation image filename (In case of motion correction, "
-		          "Hardware attenuation image filename)",
-		          cxxopts::value<std::string>(attImg_fname));
+		sensGroup("sensitivity", "Sensitivity histogram file",
+		          cxxopts::value<std::string>(sensitivityData_fname));
+		sensGroup(
+		    "sensitivity_format",
+		    "Sensitivity histogram format. Possible values: " +
+		        IO::possibleFormats(Plugin::InputFormatsChoice::ONLYHISTOGRAMS),
+		    cxxopts::value<std::string>(sensitivityData_format));
+		sensGroup("invert_sensitivity",
+		          "Invert the sensitivity histogram values (sensitivity -> "
+		          "1/sensitivity)",
+		          cxxopts::value<bool>(invertSensitivity));
+		sensGroup("global_scale",
+		          "Global scaling factor to apply on the sensitivity",
+		          cxxopts::value<float>(globalScalingFactor));
+		sensGroup("move_sens",
+		          "Move the provided sensitivity image based on motion",
+		          cxxopts::value<bool>(mustMoveSens));
 
 		auto inputGroup = options.add_options("2. Input");
 		inputGroup("i,input", "Input file",
@@ -108,12 +125,22 @@ int main(int argc, char** argv)
 		           cxxopts::value<int>(numIterations));
 		reconGroup("num_subsets", "Number of OSEM subsets (Default: 1)",
 		           cxxopts::value<int>(numSubsets));
-		reconGroup("add_his", "Additive corrections histogram",
-		           cxxopts::value<std::string>(addHis_fname));
+		reconGroup("initial_estimate", "Initial image estimate for the MLEM",
+		           cxxopts::value<std::string>(initialEstimate_fname));
+		reconGroup("randoms", "Randoms estimate histogram filename",
+		           cxxopts::value<std::string>(randoms_fname));
 		reconGroup(
-		    "add_his_format",
-		    "Format of the additive corrections histogram. Default value: H",
-		    cxxopts::value<std::string>(addHis_format));
+		    "randoms_format",
+		    "Randoms estimate histogram format. Possible values: " +
+		        IO::possibleFormats(Plugin::InputFormatsChoice::ONLYHISTOGRAMS),
+		    cxxopts::value<std::string>(randoms_format));
+		reconGroup("scatter", "Scatter estimate histogram filename",
+		           cxxopts::value<std::string>(scatter_fname));
+		reconGroup(
+		    "scatter_format",
+		    "Scatter estimate histogram format. Possible values: " +
+		        IO::possibleFormats(Plugin::InputFormatsChoice::ONLYHISTOGRAMS),
+		    cxxopts::value<std::string>(scatter_format));
 		reconGroup("psf", "Image-space PSF kernel file",
 		           cxxopts::value<std::string>(imageSpacePsf_fname));
 		reconGroup("hard_threshold", "Hard Threshold",
@@ -124,10 +151,48 @@ int main(int argc, char** argv)
 		reconGroup("save_iter_ranges",
 		           "List of iteration ranges to save MLEM iteration images",
 		           cxxopts::value<std::string>(saveIterRanges));
-		reconGroup("att_invivo",
-		           "In case of motion correction only, in-vivo attenuation "
-		           "image filename",
-		           cxxopts::value<std::string>(invivoAttImg_fname));
+
+		auto attenuationGroup =
+		    options.add_options("3.1 Attenuation correction");
+		attenuationGroup("att", "Total attenuation image filename",
+		                 cxxopts::value<std::string>(attImg_fname));
+		attenuationGroup(
+		    "acf", "Total attenuation correction factors histogram filename",
+		    cxxopts::value<std::string>(acf_fname));
+		attenuationGroup(
+		    "acf_format",
+		    "Total attenuation correction factors histogram format. Possible "
+		    "values: " +
+		        IO::possibleFormats(Plugin::InputFormatsChoice::ONLYHISTOGRAMS),
+		    cxxopts::value<std::string>(acf_format));
+		attenuationGroup("att_invivo",
+		                 "(Motion correction) In-vivo attenuation "
+		                 "image filename",
+		                 cxxopts::value<std::string>(invivoAttImg_fname));
+		attenuationGroup("acf_invivo",
+		                 "(Motion correction) In-vivo attenuation "
+		                 "correction factors histogram filename",
+		                 cxxopts::value<std::string>(invivoAcf_fname));
+		attenuationGroup(
+		    "acf_invivo_format",
+		    "(Motion correction) In-vivo attenuation correction factors "
+		    "histogram format. Possible values: " +
+		        IO::possibleFormats(Plugin::InputFormatsChoice::ONLYHISTOGRAMS),
+		    cxxopts::value<std::string>(invivoAcf_fname));
+		attenuationGroup(
+		    "att_hardware",
+		    "(Motion correction) Hardware attenuation image filename",
+		    cxxopts::value<std::string>(hardwareAttImg_fname));
+		attenuationGroup(
+		    "acf_hardware",
+		    "(Motion correction) Hardware attenuation correction factors",
+		    cxxopts::value<std::string>(hardwareAcf_fname));
+		attenuationGroup(
+		    "acf_hardware_format",
+		    "(Motion correction) Hardware attenuation correction factors "
+		    "histogram format. Possible values: " +
+		        IO::possibleFormats(Plugin::InputFormatsChoice::ONLYHISTOGRAMS),
+		    cxxopts::value<std::string>(hardwareAcf_format));
 
 		auto projectorGroup = options.add_options("4. Projector");
 		projectorGroup(
@@ -149,12 +214,6 @@ int main(int argc, char** argv)
 		               "Number of standard deviations to consider for TOF's "
 		               "Gaussian curve",
 		               cxxopts::value<int>(tofNumStd));
-
-		auto otherGroup = options.add_options("Other");
-		otherGroup("w,warper",
-		           "Path to the warp parameters file (Specify this to use the "
-		           "MLEM with image warper algorithm)",
-		           cxxopts::value<std::string>(warpParamFile));
 
 		options.add_options()("h,help", "Print help");
 
@@ -196,13 +255,14 @@ int main(int argc, char** argv)
 		pluginOptionsResults =
 		    PluginOptionsHelper::convertPluginResultsToMap(result);
 
-		if (sensOnly)
+		if (sensOnly && !mustMoveSens)
 		{
 			ASSERT_MSG(
 			    sensImg_fnames.empty(),
 			    "Logic error: Sensitivity image generation was requested while "
 			    "pre-existing sensitivity images were provided");
 		}
+
 
 		auto scanner = std::make_unique<Scanner>(scanner_fname);
 		auto projectorType = IO::getProjector(projector_name);
@@ -221,11 +281,57 @@ int main(int argc, char** argv)
 		    !input_format.empty() && IO::isFormatListMode(input_format);
 		osem->setListModeEnabled(useListMode);
 
-		// Attenuation image
+		// Total attenuation image
 		std::unique_ptr<ImageOwned> attImg = nullptr;
-		if (!attImg_fname.empty())
+		std::unique_ptr<ProjectionData> acfHisProjData = nullptr;
+		if (!acf_fname.empty())
+		{
+			std::cout << "Reading ACF histogram..." << std::endl;
+			ASSERT_MSG(!acf_format.empty(),
+			           "Unspecified format for ACF histogram");
+			ASSERT_MSG(!IO::isFormatListMode(acf_format),
+			           "ACF has to be in a histogram format");
+
+			acfHisProjData = IO::openProjectionData(
+			    acf_fname, acf_format, *scanner, pluginOptionsResults);
+
+			const auto* acfHis =
+			    dynamic_cast<const Histogram*>(acfHisProjData.get());
+			ASSERT(acfHis != nullptr);
+
+			osem->setACFHistogram(acfHis);
+		}
+		else if (!attImg_fname.empty())
 		{
 			attImg = std::make_unique<ImageOwned>(attImg_fname);
+			osem->setAttenuationImage(attImg.get());
+		}
+
+		// Hardware attenuation image
+		std::unique_ptr<ImageOwned> hardwareAttImg = nullptr;
+		std::unique_ptr<ProjectionData> hardwareAcfHisProjData = nullptr;
+		if (!hardwareAcf_fname.empty())
+		{
+			std::cout << "Reading hardware ACF histogram..." << std::endl;
+			ASSERT_MSG(!hardwareAcf_format.empty(),
+			           "No format specified for hardware ACF histogram");
+			ASSERT_MSG(!IO::isFormatListMode(hardwareAcf_format),
+			           "Hardware ACF has to be in a histogram format");
+
+			hardwareAcfHisProjData =
+			    IO::openProjectionData(hardwareAcf_fname, hardwareAcf_format,
+			                           *scanner, pluginOptionsResults);
+
+			const auto* hardwareAcfHis =
+			    dynamic_cast<const Histogram*>(hardwareAcfHisProjData.get());
+			ASSERT(hardwareAcfHis != nullptr);
+
+			osem->setACFHistogram(hardwareAcfHis);
+		}
+		else if (!hardwareAttImg_fname.empty())
+		{
+			hardwareAttImg = std::make_unique<ImageOwned>(hardwareAttImg_fname);
+			osem->setHardwareAttenuationImage(hardwareAttImg.get());
 		}
 
 		// Image-space PSF
@@ -242,6 +348,28 @@ int main(int argc, char** argv)
 		}
 
 		// Sensitivity image(s)
+		std::unique_ptr<ProjectionData> sensitivityProjData = nullptr;
+		if (!sensitivityData_fname.empty())
+		{
+			std::cout << "Reading sensitivity histogram..." << std::endl;
+			ASSERT_MSG(!sensitivityData_format.empty(),
+			           "No format specified for sensitivity histogram");
+			ASSERT_MSG(!IO::isFormatListMode(sensitivityData_format),
+			           "Sensitivity data has to be in a histogram format");
+
+			sensitivityProjData = IO::openProjectionData(
+			    sensitivityData_fname, sensitivityData_format, *scanner,
+			    pluginOptionsResults);
+
+			const auto* sensitivityHis =
+			    dynamic_cast<const Histogram*>(sensitivityProjData.get());
+			ASSERT(sensitivityHis != nullptr);
+
+			osem->setSensitivityHistogram(sensitivityHis);
+			osem->setInvertSensitivity(invertSensitivity);
+		}
+		osem->setGlobalScalingFactor(globalScalingFactor);
+
 		std::vector<std::unique_ptr<Image>> sensImages;
 		bool sensImageAlreadyMoved = false;
 		if (sensImg_fnames.empty())
@@ -251,24 +379,10 @@ int main(int argc, char** argv)
 			ImageParams imgParams{imgParams_fname};
 			osem->setImageParams(imgParams);
 
-			std::unique_ptr<ProjectionData> sensData = nullptr;
-			if (!sensData_fname.empty())
-			{
-				sensData =
-				    IO::openProjectionData(sensData_fname, sensData_format,
-				                           *scanner, pluginOptionsResults);
-			}
-
-			osem->attenuationImageForBackprojection = attImg.get();
-			osem->setSensDataInput(sensData.get());
-
 			osem->generateSensitivityImages(sensImages, out_sensImg_fname);
-
-			// Do not use this attenuation image for the reconstruction
-			osem->attenuationImageForBackprojection = nullptr;
 		}
-		else if (osem->validateSensImagesAmount(
-		             static_cast<int>(sensImg_fnames.size())))
+		else if (osem->getExpectedSensImagesAmount() ==
+		         static_cast<int>(sensImg_fnames.size()))
 		{
 			std::cout << "Reading sensitivity images..." << std::endl;
 			for (auto& sensImg_fname : sensImg_fnames)
@@ -276,15 +390,14 @@ int main(int argc, char** argv)
 				sensImages.push_back(
 				    std::make_unique<ImageOwned>(sensImg_fname));
 			}
-			sensImageAlreadyMoved = true;
-			std::cout << "Done reading sensitivity images." << std::endl;
+			sensImageAlreadyMoved = !mustMoveSens;
 		}
 		else
 		{
 			std::cerr << "The number of sensitivity images given is "
 			          << sensImg_fnames.size() << std::endl;
 			std::cerr << "The expected number of sensitivity images is "
-			          << (useListMode ? 1 : numSubsets) << std::endl;
+			          << osem->getExpectedSensImagesAmount() << std::endl;
 			throw std::invalid_argument(
 			    "The number of sensitivity images given "
 			    "doesn't match the number of "
@@ -302,9 +415,9 @@ int main(int argc, char** argv)
 		// Projection Data Input file
 		std::cout << "Reading input data..." << std::endl;
 		std::unique_ptr<ProjectionData> dataInput;
+		ASSERT_MSG(!input_format.empty(), "No format specified for Data input");
 		dataInput = IO::openProjectionData(input_fname, input_format, *scanner,
 		                                   pluginOptionsResults);
-		std::cout << "Done reading input data." << std::endl;
 		osem->setDataInput(dataInput.get());
 
 		std::unique_ptr<ImageOwned> movedSensImage = nullptr;
@@ -364,19 +477,43 @@ int main(int argc, char** argv)
 			osem->addTOF(tofWidth_ps, tofNumStd);
 		}
 
-		// Additive histogram
-		std::cout << "Reading additive histogram..." << std::endl;
-		std::unique_ptr<ProjectionData> addHis;
-		if (!addHis_fname.empty())
+		// Additive histograms
+		std::unique_ptr<ProjectionData> randomsProjData = nullptr;
+		if (!randoms_fname.empty())
 		{
-			addHis = IO::openProjectionData(addHis_fname, addHis_format,
-			                                *scanner, pluginOptionsResults);
-			osem->addHis = dynamic_cast<const Histogram*>(addHis.get());
-			ASSERT_MSG(osem->addHis != nullptr,
-			           "The additive histogram provided does not inherit from "
+			std::cout << "Reading randoms histogram..." << std::endl;
+			ASSERT_MSG(!randoms_format.empty(),
+			           "No format specified for randoms histogram");
+			ASSERT_MSG(!IO::isFormatListMode(randoms_format),
+			           "Randoms must be specified in histogram format");
+
+			randomsProjData = IO::openProjectionData(
+			    randoms_fname, randoms_format, *scanner, pluginOptionsResults);
+			const auto* randomsHis =
+			    dynamic_cast<const Histogram*>(randomsProjData.get());
+			ASSERT_MSG(randomsHis != nullptr,
+			           "The randoms histogram provided does not inherit from "
 			           "Histogram.");
+			osem->setRandomsHistogram(randomsHis);
 		}
-		std::cout << "Done reading additive histogram." << std::endl;
+		std::unique_ptr<ProjectionData> scatterProjData = nullptr;
+		if (!scatter_fname.empty())
+		{
+			std::cout << "Reading scatter histogram..." << std::endl;
+			ASSERT_MSG(!scatter_format.empty(),
+			           "No format specified for scatter histogram");
+			ASSERT_MSG(!IO::isFormatListMode(scatter_format),
+			           "Scatter must be specified in histogram format");
+
+			scatterProjData = IO::openProjectionData(
+			    scatter_fname, scatter_format, *scanner, pluginOptionsResults);
+			const auto* scatterHis =
+			    dynamic_cast<const Histogram*>(scatterProjData.get());
+			ASSERT_MSG(scatterHis != nullptr,
+			           "The scatter histogram provided does not inherit from "
+			           "Histogram.");
+			osem->setScatterHistogram(scatterHis);
+		}
 
 		std::unique_ptr<ImageOwned> invivoAttImg = nullptr;
 		if (!invivoAttImg_fname.empty())
@@ -385,8 +522,28 @@ int main(int argc, char** argv)
 			                   "An in-vivo attenuation image was provided but "
 			                   "the data input has no motion");
 			invivoAttImg = std::make_unique<ImageOwned>(invivoAttImg_fname);
+			osem->setInVivoAttenuationImage(invivoAttImg.get());
 		}
-		osem->attenuationImageForForwardProjection = invivoAttImg.get();
+		std::unique_ptr<ProjectionData> inVivoAcfProjData = nullptr;
+		if (!invivoAcf_fname.empty())
+		{
+			std::cout << "Reading in-vivo ACF histogram..." << std::endl;
+			ASSERT_MSG(!invivoAcf_format.empty(),
+			           "No format specified for ACF histogram");
+			ASSERT_MSG(!IO::isFormatListMode(invivoAcf_format),
+			           "In-vivo ACF must be specified in histogram format");
+
+			inVivoAcfProjData =
+			    IO::openProjectionData(invivoAcf_fname, invivoAcf_format,
+			                           *scanner, pluginOptionsResults);
+			const auto* inVivoAcfHis =
+			    dynamic_cast<const Histogram*>(inVivoAcfProjData.get());
+			ASSERT_MSG(
+			    inVivoAcfHis != nullptr,
+			    "The in-vivo ACF histogram provided does not inherit from "
+			    "Histogram.");
+			osem->setInVivoACFHistogram(inVivoAcfHis);
+		}
 
 		// Save steps
 		ASSERT_MSG(saveIterStep >= 0, "save_iter_step must be positive.");
@@ -414,27 +571,17 @@ int main(int argc, char** argv)
 			osem->setSaveIterRanges(ranges, out_fname);
 		}
 
-		// Image Warper
-		std::unique_ptr<ImageWarperTemplate> warper = nullptr;
-		if (!warpParamFile.empty())
+		// Initial image estimate
+		std::unique_ptr<ImageOwned> initialEstimate = nullptr;
+		if (!initialEstimate_fname.empty())
 		{
-			warper = std::make_unique<ImageWarperMatrix>();
-			warper->setImageHyperParam(osem->getImageParams());
-			warper->setFramesParamFromFile(warpParamFile);
-			osem->warper = warper.get();
+			initialEstimate =
+			    std::make_unique<ImageOwned>(initialEstimate_fname);
+			osem->initialEstimate = initialEstimate.get();
 		}
 
-		if (warper == nullptr)
-		{
-			std::cout << "Launching reconstruction..." << std::endl;
-			osem->reconstruct(out_fname);
-		}
-		else
-		{
-			std::cout << "Launching reconstruction with image warper..."
-			          << std::endl;
-			osem->reconstructWithWarperMotion(out_fname);
-		}
+		std::cout << "Launching reconstruction..." << std::endl;
+		osem->reconstruct(out_fname);
 
 		std::cout << "Done." << std::endl;
 		return 0;

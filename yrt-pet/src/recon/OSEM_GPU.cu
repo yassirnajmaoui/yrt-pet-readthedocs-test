@@ -22,6 +22,8 @@ OSEM_GPU::OSEM_GPU(const Scanner& pr_scanner)
       mpd_datTmp(nullptr),
       m_current_OSEM_subset(-1)
 {
+	mp_corrector = std::make_unique<Corrector_GPU>(pr_scanner);
+
 	std::cout << "Creating an instance of OSEM GPU" << std::endl;
 
 	// Since the only available projector in GPU right now is DD_GPU:
@@ -29,6 +31,26 @@ OSEM_GPU::OSEM_GPU(const Scanner& pr_scanner)
 }
 
 OSEM_GPU::~OSEM_GPU() = default;
+
+const Corrector& OSEM_GPU::getCorrector() const
+{
+	return *mp_corrector;
+}
+
+Corrector& OSEM_GPU::getCorrector()
+{
+	return *mp_corrector;
+}
+
+const Corrector_GPU& OSEM_GPU::getCorrector_GPU() const
+{
+	return *mp_corrector;
+}
+
+Corrector_GPU& OSEM_GPU::getCorrector_GPU()
+{
+	return *mp_corrector;
+}
 
 void OSEM_GPU::setupOperatorsForSensImgGen()
 {
@@ -42,10 +64,10 @@ void OSEM_GPU::setupOperatorsForSensImgGen()
 	{
 		// Create and add Bin Iterator
 		getBinIterators().push_back(
-		    getSensDataInput()->getBinIter(num_OSEM_subsets, subsetId));
-
-		// Create ProjectorParams object
+		    mp_corrector->getSensImgGenBuffer()->getBinIter(num_OSEM_subsets,
+		                                                    subsetId));
 	}
+	// Create ProjectorParams object
 	OperatorProjectorParams projParams(
 	    nullptr /* Will be set later at each subset loading */, scanner, 0.f, 0,
 	    flagProjPSF ? projSpacePsf_fname : "", numRays);
@@ -53,11 +75,7 @@ void OSEM_GPU::setupOperatorsForSensImgGen()
 	mp_projector = std::make_unique<OperatorProjectorDD_GPU>(
 	    projParams, getMainStream(), getAuxStream());
 
-	if (attenuationImageForBackprojection != nullptr)
-	{
-		mp_projector->setAttImageForBackprojection(
-		    attenuationImageForBackprojection);
-	}
+	mp_updater = std::make_unique<OSEMUpdater_GPU>(this);
 }
 
 void OSEM_GPU::allocateForSensImgGen()
@@ -69,8 +87,11 @@ void OSEM_GPU::allocateForSensImgGen()
 
 	// Allocate for projection space
 	auto tempSensDataInput = std::make_unique<ProjectionDataDeviceOwned>(
-	    scanner, getSensDataInput(), num_OSEM_subsets);
+	    scanner, mp_corrector->getSensImgGenBuffer(), num_OSEM_subsets);
 	mpd_tempSensDataInput = std::move(tempSensDataInput);
+
+	// Make sure the corrector buffer is properly defined
+	mp_corrector->initializeTemporaryDeviceBuffer(mpd_tempSensDataInput.get());
 }
 
 std::unique_ptr<Image> OSEM_GPU::getLatestSensitivityImage(bool isLastSubset)
@@ -81,6 +102,12 @@ std::unique_ptr<Image> OSEM_GPU::getLatestSensitivityImage(bool isLastSubset)
 	img->allocate();
 	mpd_sensImageBuffer->transferToHostMemory(img.get(), true);
 	return img;
+}
+
+void OSEM_GPU::computeSensitivityImage(ImageBase& destImage)
+{
+	auto& destImageDevice = dynamic_cast<ImageDevice&>(destImage);
+	mp_updater->computeSensitivityImage(destImageDevice);
 }
 
 void OSEM_GPU::endSensImgGen()
@@ -112,15 +139,8 @@ void OSEM_GPU::setupOperatorsForRecon()
 
 	mp_projector = std::make_unique<OperatorProjectorDD_GPU>(
 	    projParams, getMainStream(), getAuxStream());
-	if (attenuationImageForForwardProjection != nullptr)
-	{
-		mp_projector->setAttImageForForwardProjection(
-		    attenuationImageForForwardProjection);
-	}
-	if (addHis != nullptr)
-	{
-		mp_projector->setAddHisto(addHis);
-	}
+
+	mp_updater = std::make_unique<OSEMUpdater_GPU>(this);
 }
 
 void OSEM_GPU::allocateForRecon()
@@ -139,8 +159,15 @@ void OSEM_GPU::allocateForRecon()
 	mpd_mlemImageTmpPsf->allocate(false);
 	mpd_sensImageBuffer->allocate(false);
 
-	// Initialize the MLEM image values to non zero
-	mpd_mlemImage->setValue(INITIAL_VALUE_MLEM);
+	// Initialize the MLEM image values to non-zero
+	if (initialEstimate != nullptr)
+	{
+		mpd_mlemImage->copyFromImage(initialEstimate);
+	}
+	else
+	{
+		mpd_mlemImage->setValue(INITIAL_VALUE_MLEM);
+	}
 
 	// Apply mask image (Use temporary buffer to avoid allocating a new one
 	// unnecessarily)
@@ -163,10 +190,9 @@ void OSEM_GPU::allocateForRecon()
 			mpd_sensImageBuffer->addFirstImageToSecond(
 			    mpd_mlemImageTmpEMRatio.get());
 		}
-		std::cout << "Done summing." << std::endl;
 	}
-	mpd_mlemImage->applyThreshold(mpd_mlemImageTmpEMRatio.get(), 0.0, 0.0, 0.0,
-	                              0.0, 1.0f);
+	mpd_mlemImage->applyThreshold(mpd_mlemImageTmpEMRatio.get(), 0.0f, 0.0f,
+	                              0.0f, 1.0f, 0.0f);
 	mpd_mlemImageTmpEMRatio->setValue(0.0f);
 
 	// Initialize device's sensitivity image with the host's
@@ -183,12 +209,25 @@ void OSEM_GPU::allocateForRecon()
 	for (const auto& subsetBinIter : getBinIterators())
 		binIteratorPtrList.push_back(subsetBinIter.get());
 
+	const ProjectionData* dataInput = getDataInput();
 	auto dat = std::make_unique<ProjectionDataDeviceOwned>(
-	    scanner, getDataInput(), binIteratorPtrList, 0.4f);
+	    scanner, dataInput, binIteratorPtrList, 0.4f);
 	auto datTmp = std::make_unique<ProjectionDataDeviceOwned>(dat.get());
 
 	mpd_dat = std::move(dat);
 	mpd_datTmp = std::move(datTmp);
+
+	// Make sure the corrector buffer is properly defined
+	mp_corrector->initializeTemporaryDeviceBuffer(mpd_dat.get());
+
+	if (mp_corrector->hasAdditiveCorrection())
+	{
+		mp_corrector->precomputeAdditiveCorrectionFactors(*dataInput);
+	}
+	if (mp_corrector->hasInVivoAttenuation())
+	{
+		mp_corrector->precomputeInVivoAttenuationFactors(*dataInput);
+	}
 }
 
 void OSEM_GPU::endRecon()
@@ -212,7 +251,13 @@ ImageBase* OSEM_GPU::getSensImageBuffer()
 	return mpd_sensImageBuffer.get();
 }
 
-ProjectionData* OSEM_GPU::getSensDataInputBuffer()
+const ProjectionDataDeviceOwned*
+    OSEM_GPU::getSensitivityDataDeviceBuffer() const
+{
+	return mpd_tempSensDataInput.get();
+}
+
+ProjectionDataDeviceOwned* OSEM_GPU::getSensitivityDataDeviceBuffer()
 {
 	return mpd_tempSensDataInput.get();
 }
@@ -228,14 +273,14 @@ ImageBase* OSEM_GPU::getMLEMImageTmpBuffer(TemporaryImageSpaceBufferType type)
 	{
 		return mpd_mlemImageTmpEMRatio.get();
 	}
-	else if (type == TemporaryImageSpaceBufferType::PSF)
+	if (type == TemporaryImageSpaceBufferType::PSF)
 	{
 		return mpd_mlemImageTmpPsf.get();
 	}
 	throw std::runtime_error("Unknown Temporary image type");
 }
 
-ProjectionData* OSEM_GPU::getMLEMDataBuffer()
+const ProjectionData* OSEM_GPU::getMLEMDataBuffer()
 {
 	return mpd_dat.get();
 }
@@ -245,6 +290,14 @@ ProjectionData* OSEM_GPU::getMLEMDataTmpBuffer()
 	return mpd_datTmp.get();
 }
 
+OperatorProjectorDevice* OSEM_GPU::getProjector()
+{
+	auto* deviceProjector =
+	    dynamic_cast<OperatorProjectorDevice*>(mp_projector.get());
+	ASSERT(deviceProjector != nullptr);
+	return deviceProjector;
+}
+
 int OSEM_GPU::getNumBatches(int subsetId, bool forRecon) const
 {
 	if (forRecon)
@@ -252,6 +305,31 @@ int OSEM_GPU::getNumBatches(int subsetId, bool forRecon) const
 		return mpd_dat->getNumBatches(subsetId);
 	}
 	return mpd_tempSensDataInput->getNumBatches(subsetId);
+}
+
+int OSEM_GPU::getCurrentOSEMSubset() const
+{
+	return m_current_OSEM_subset;
+}
+
+ProjectionDataDeviceOwned* OSEM_GPU::getMLEMDataTmpDeviceBuffer()
+{
+	return mpd_datTmp.get();
+}
+
+const ProjectionDataDeviceOwned* OSEM_GPU::getMLEMDataTmpDeviceBuffer() const
+{
+	return mpd_datTmp.get();
+}
+
+ProjectionDataDeviceOwned* OSEM_GPU::getMLEMDataDeviceBuffer()
+{
+	return mpd_dat.get();
+}
+
+const ProjectionDataDeviceOwned* OSEM_GPU::getMLEMDataDeviceBuffer() const
+{
+	return mpd_dat.get();
 }
 
 void OSEM_GPU::loadBatch(int batchId, bool forRecon)
@@ -300,6 +378,14 @@ void OSEM_GPU::addImagePSF(const std::string& p_imageSpacePsf_fname)
 }
 
 void OSEM_GPU::completeMLEMIteration() {}
+
+void OSEM_GPU::computeEMUpdateImage(const ImageBase& inputImage,
+                                    ImageBase& destImage)
+{
+	auto& inputImageHost = dynamic_cast<const ImageDevice&>(inputImage);
+	auto& destImageHost = dynamic_cast<ImageDevice&>(destImage);
+	mp_updater->computeEMUpdateImage(inputImageHost, destImageHost);
+}
 
 const cudaStream_t* OSEM_GPU::getAuxStream() const
 {

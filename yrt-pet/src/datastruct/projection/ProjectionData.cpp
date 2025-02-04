@@ -82,10 +82,8 @@ void ProjectionData::operationOnEachBin(const std::function<float(bin_t)>& func)
 void ProjectionData::operationOnEachBinParallel(
     const std::function<float(bin_t)>& func)
 {
-	int num_threads = Globals::get_num_threads();
 	bin_t i;
-#pragma omp parallel for num_threads(num_threads) default(none) private(i), \
-    firstprivate(func)
+#pragma omp parallel for default(none) private(i), firstprivate(func)
 	for (i = 0u; i < count(); i++)
 	{
 		setProjectionValue(i, func(i));
@@ -158,24 +156,35 @@ ProjectionProperties ProjectionData::getProjectionProperties(bin_t bin) const
 {
 	auto [d1, d2] = getDetectorPair(bin);
 
-	Line3D lor;
-	if (hasArbitraryLORs())
-	{
-		lor = getArbitraryLOR(bin);
-	}
-	else
-	{
-		const Vector3D p1 = mr_scanner.getDetectorPos(d1);
-		const Vector3D p2 = mr_scanner.getDetectorPos(d2);
-		lor = Line3D{p1, p2};
-	}
+	const Line3D lor = getLOR(bin);
 
 	float tofValue = 0.0f;
 	if (hasTOF())
 	{
 		tofValue = getTOFValue(bin);
 	}
-	const float randomsEstimate = getRandomsEstimate(bin);
+
+	const Vector3D det1Orient = mr_scanner.getDetectorOrient(d1);
+	const Vector3D det2Orient = mr_scanner.getDetectorOrient(d2);
+	return ProjectionProperties{lor, tofValue, det1Orient, det2Orient};
+}
+
+Line3D ProjectionData::getLOR(bin_t bin) const
+{
+	Line3D lor;
+
+	if (hasArbitraryLORs())
+	{
+		lor = getArbitraryLOR(bin);
+	}
+	else
+	{
+		auto [d1, d2] = getDetectorPair(bin);
+		const Vector3D p1 = mr_scanner.getDetectorPos(d1);
+		const Vector3D p2 = mr_scanner.getDetectorPos(d2);
+		lor = Line3D{p1, p2};
+	}
+
 	if (hasMotion())
 	{
 		const frame_t frame = getFrame(bin);
@@ -194,10 +203,7 @@ ProjectionProperties ProjectionData::getProjectionProperties(bin_t bin) const
 
 		lor.update(point1Prim, point2Prim);
 	}
-	const Vector3D det1Orient = mr_scanner.getDetectorOrient(d1);
-	const Vector3D det2Orient = mr_scanner.getDetectorOrient(d2);
-	return ProjectionProperties{lor, tofValue, randomsEstimate, det1Orient,
-	                            det2Orient};
+	return lor;
 }
 
 timestamp_t ProjectionData::getTimestamp(bin_t id) const

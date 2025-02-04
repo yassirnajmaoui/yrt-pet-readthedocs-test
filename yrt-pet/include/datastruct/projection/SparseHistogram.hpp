@@ -17,13 +17,13 @@ public:
 	explicit SparseHistogram(const Scanner& pr_scanner);
 	SparseHistogram(const Scanner& pr_scanner, const std::string& filename);
 	SparseHistogram(const Scanner& pr_scanner,
-	                  const ProjectionData& pr_projData,
-	                  const BinIterator* pp_binIter = nullptr);
+	                const ProjectionData& pr_projData,
+	                const BinIterator* pp_binIter = nullptr);
 
 	void allocate(size_t numBins);
 
 	// Insertion
-	template <bool IgnoreZeros = false>
+	template <bool IgnoreZeros = true>
 	void accumulate(const ProjectionData& projData,
 	                const BinIterator* binIter = nullptr);
 	void accumulate(det_pair_t detPair, float projValue);
@@ -37,7 +37,7 @@ public:
 	det_id_t getDetector2(bin_t id) const override;
 	det_pair_t getDetectorPair(bin_t id) const override;
 	std::unique_ptr<BinIterator> getBinIter(int numSubsets,
-	                                          int idxSubset) const override;
+	                                        int idxSubset) const override;
 	float getProjectionValue(bin_t id) const override;
 	void setProjectionValue(bin_t id, float val) override;
 	float getProjectionValueFromHistogramBin(
@@ -60,11 +60,10 @@ private:
 	// Comparator for std::unordered_map
 	struct det_pair_hash
 	{
-		std::size_t operator()(const det_pair_t& pair) const
+		size_t operator()(const det_pair_t& pair) const
 		{
-			// Combine hashes of d1 and d2
-			return std::hash<uint32_t>{}(pair.d1) ^
-			       (std::hash<uint32_t>{}(pair.d2));
+			return (static_cast<size_t>(pair.d1) << 32) |
+			       static_cast<size_t>(pair.d2);
 		}
 	};
 	struct det_pair_equal

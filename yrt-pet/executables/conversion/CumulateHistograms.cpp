@@ -30,12 +30,16 @@ int main(int argc, char** argv)
 		Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
 
 		// Parse command line arguments
-		cxxopts::Options options(argv[0],
-		                         "Convert any input format to a histogram");
+		cxxopts::Options options(
+		    argv[0],
+		    "Take several histograms (of any format, including plugin formats) "
+		    "and accumulate them into a total histogram (either fully 3D "
+		    "dense histogram or sparse histogram)");
 		options.positional_help("[optional args]").show_positional_help();
+
 		/* clang-format off */
 		options.add_options()
-		("s,scanner", "Scanner parameters file name", cxxopts::value<std::string>(scanner_fname))
+		("s,scanner", "Scanner parameters file", cxxopts::value<std::string>(scanner_fname))
 		("i,input", "Input histogram files (separated by commas)", cxxopts::value<std::vector<std::string>>(input_fnames))
 		("f,format", "Input files format. Possible values: " + IO::possibleFormats(Plugin::InputFormatsChoice::ONLYHISTOGRAMS), cxxopts::value<std::string>(input_format))
 		("o,out", "Output histogram filename", cxxopts::value<std::string>(out_fname))
@@ -101,8 +105,6 @@ int main(int argc, char** argv)
 
 			std::unique_ptr<ProjectionData> dataInput = IO::openProjectionData(
 			    input_fname, input_format, *scanner, pluginOptionsResults);
-
-			std::cout << "Done reading input data." << std::endl;
 
 			if (toSparseHistogram)
 			{

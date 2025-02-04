@@ -24,13 +24,14 @@ int main(int argc, char** argv)
 		int numThreads = -1;
 
 		// Parse command line arguments
-		cxxopts::Options options(argv[0],
-		                         "Histogram3D to ListMode conversion driver");
+		cxxopts::Options options(
+		    argv[0],
+		    "Convert a fully 3D dense histogram into list-mode (ListModeLUT)");
 		options.positional_help("[optional args]").show_positional_help();
 
 		/* clang-format off */
 		options.add_options()
-		("s,scanner", "Scanner parameters file name", cxxopts::value<std::string>(scanner_fname))
+		("s,scanner", "Scanner parameters file", cxxopts::value<std::string>(scanner_fname))
 		("i,input", "Input histogram file", cxxopts::value<std::string>(input_fname))
 		("o,out", "Output list-mode filename", cxxopts::value<std::string>(out_fname))
 		("n,num", "Number of list-mode events", cxxopts::value<size_t>(numEvents))
@@ -64,10 +65,12 @@ int main(int argc, char** argv)
 		Globals::set_num_threads(numThreads);
 
 		const auto scanner = std::make_unique<Scanner>(scanner_fname);
-		const auto histo = std::make_unique<Histogram3DOwned>(*scanner, input_fname);
-
+		const auto histo =
+		    std::make_unique<Histogram3DOwned>(*scanner, input_fname);
 		const auto lm = std::make_unique<ListModeLUTOwned>(*scanner);
+
 		Util::histogram3DToListModeLUT(histo.get(), lm.get(), numEvents);
+
 		lm->writeToFile(out_fname);
 
 		std::cout << "Done." << std::endl;

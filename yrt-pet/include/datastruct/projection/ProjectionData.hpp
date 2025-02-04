@@ -7,7 +7,7 @@
 
 #include "datastruct/scanner/Scanner.hpp"
 #include "datastruct/projection/BinIterator.hpp"
-#include "recon/Variable.hpp"
+#include "operators/Variable.hpp"
 #include "utils/Types.hpp"
 #include "geometry/Line3D.hpp"
 
@@ -18,7 +18,6 @@ struct ProjectionProperties
 {
 	Line3D lor;
 	float tofValue;
-	float randomsEstimate;
 	Vector3D det1Orient;
 	Vector3D det2Orient;
 };
@@ -44,7 +43,6 @@ public:
 	virtual timestamp_t getTimestamp(bin_t id) const;
 	virtual frame_t getFrame(bin_t id) const;
 	virtual bool isUniform() const;
-	// TODO: Add usage for this in the reconstruction
 	virtual float getRandomsEstimate(bin_t id) const;
 	// Time-of-flight
 	virtual bool hasTOF() const;
@@ -61,6 +59,7 @@ public:
 
 	// Helper functions
 	virtual ProjectionProperties getProjectionProperties(bin_t bin) const;
+	Line3D getLOR(bin_t bin) const;
 	virtual void clearProjections(float value);
 	virtual void divideMeasurements(const ProjectionData* measurements,
 	                                const BinIterator* binIter);

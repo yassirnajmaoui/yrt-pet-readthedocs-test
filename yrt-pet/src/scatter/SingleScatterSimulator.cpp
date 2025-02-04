@@ -12,10 +12,12 @@
 #include "operators/OperatorProjectorSiddon.hpp"
 #include "utils/Assert.hpp"
 #include "utils/Globals.hpp"
+#include "utils/ProgressDisplayMultiThread.hpp"
 #include "utils/ReconstructionUtils.hpp"
 #include "utils/Tools.hpp"
 
 #include "omp.h"
+
 
 #if BUILD_PYBIND11
 #include <pybind11/pybind11.h>
@@ -72,7 +74,8 @@ namespace Scatter
 		m_cyl2 = Cylinder{c, m_axialFOV, m_scannerRadius + m_crystalDepth};
 		// YP 3 points located in the last ring of the scanner
 		Vector3D p1{1.0f, 0.0f, -m_axialFOV / 2.0f},
-		    p2{0.0f, 1.0f, -m_axialFOV / 2.0f}, p3{0.0f, 0.0f, -m_axialFOV / 2.0f};
+		    p2{0.0f, 1.0f, -m_axialFOV / 2.0f},
+		    p3{0.0f, 0.0f, -m_axialFOV / 2.0f};
 		// YP defines a plane according to these 3 points
 		m_endPlate1 = Plane{p1, p2, p3};
 
@@ -103,12 +106,9 @@ namespace Scatter
 		m_ySamples.reserve(nzsamp * nysamp * nxsamp);
 		m_zSamples.reserve(nzsamp * nysamp * nxsamp);
 		// YP spacing between scatter points
-		const float dxsamp =
-		    mu_params.length_x / (static_cast<float>(nxsamp));
-		const float dysamp =
-		    mu_params.length_y / (static_cast<float>(nysamp));
-		const float dzsamp =
-		    mu_params.length_z / (static_cast<float>(nzsamp));
+		const float dxsamp = mu_params.length_x / (static_cast<float>(nxsamp));
+		const float dysamp = mu_params.length_y / (static_cast<float>(nysamp));
+		const float dzsamp = mu_params.length_z / (static_cast<float>(nzsamp));
 		Vector3D p;
 		m_xSamples.clear();
 		m_ySamples.clear();
@@ -176,6 +176,8 @@ namespace Scatter
 		ASSERT_MSG(
 		    &scatterHisto.getScanner() == &mr_scanner,
 		    "The histogram's scanner is not the same as the SSS's scanner");
+		ASSERT_MSG(scatterHisto.isMemoryValid(),
+		           "Destination histogram is unallocated or unbound");
 
 		constexpr size_t min_z = 0;
 		constexpr size_t min_phi = 0;
@@ -217,36 +219,20 @@ namespace Scatter
 		}
 
 		// Only used for printing purposes
-		const size_t progress_max = num_i_z * num_i_phi * num_i_r;
-		size_t last_progress_print = 0;
+		const int64_t progressMax = num_i_z * num_i_phi * num_i_r;
+		const int numThreads = Globals::get_num_threads();
+		Util::ProgressDisplayMultiThread progressBar{numThreads, progressMax,
+		                                             5};
 
-		int num_threads = Globals::get_num_threads();
-#pragma omp parallel for schedule(static, 1) collapse(3) \
-    num_threads(num_threads)
+#pragma omp parallel for schedule(static, 1) collapse(3) shared(progressBar)
 		for (size_t z_i = 0; z_i < num_i_z; z_i++)
 		{
 			for (size_t phi_i = 0; phi_i < num_i_phi; phi_i++)
 			{
 				for (size_t r_i = 0; r_i < num_i_r; r_i++)
 				{
-					const int thread_num = omp_get_thread_num();
-					if (thread_num == 0)
-					{
-						constexpr size_t percentageInterval = 5;
-						// Print progress
-						size_t progress =
-						    (z_i * num_i_phi * num_i_r + phi_i * num_i_r + r_i);
-						progress = progress * 100 / progress_max;
-						if (progress - last_progress_print >=
-						    percentageInterval)
-						{
-							last_progress_print = progress;
-							std::cout
-							    << "Progress: " +
-							           std::to_string(last_progress_print) + "%"
-							    << std::endl;
-						}
-					}
+					const int threadNum = omp_get_thread_num();
+					progressBar.progress(threadNum, 1);
 
 					const size_t z = m_zBinSamples[z_i];
 					const size_t phi = m_phiSamples[phi_i];
@@ -258,19 +244,15 @@ namespace Scatter
 
 					const auto [d1, d2] =
 					    scatterHisto.getDetectorPair(scatterHistoBinId);
-					const Vector3D p1 =
-					    mr_scanner.getDetectorPos(d1);
-					const Vector3D p2 =
-					    mr_scanner.getDetectorPos(d2);
-					const Vector3D n1 =
-					    mr_scanner.getDetectorOrient(d1);
-					const Vector3D n2 =
-					    mr_scanner.getDetectorOrient(d2);
+					const Vector3D p1 = mr_scanner.getDetectorPos(d1);
+					const Vector3D p2 = mr_scanner.getDetectorPos(d2);
+					const Vector3D n1 = mr_scanner.getDetectorOrient(d1);
+					const Vector3D n2 = mr_scanner.getDetectorOrient(d2);
 
 					const Line3D lor{p1, p2};
 
-					const float scatterResult = static_cast<float>(
-					    computeSingleScatterInLOR(lor, n1, n2));
+					const float scatterResult =
+					    computeSingleScatterInLOR(lor, n1, n2);
 					if (scatterResult <= 0.0)
 						continue;  // Ignore irrelevant lines?
 					scatterHisto.setProjectionValue(scatterHistoBinId,
@@ -331,7 +313,6 @@ namespace Scatter
 				scatterHistoData[z_bin_i] *= 0.5;  // average
 			}
 		}
-		std::cout << "Done Filling oblique bins." << std::endl;
 	}
 
 	// YP LOR in which to compute the scatter contribution

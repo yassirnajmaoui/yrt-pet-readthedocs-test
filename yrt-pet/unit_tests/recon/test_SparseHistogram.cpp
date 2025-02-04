@@ -46,8 +46,7 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 		histo->allocate();
 		histo->clearProjections(1.0f);
 
-		auto sparseHisto =
-		    std::make_unique<SparseHistogram>(*scanner, *histo);
+		auto sparseHisto = std::make_unique<SparseHistogram>(*scanner, *histo);
 		// Because Histogram3D also only has "unique" LORs
 		REQUIRE(sparseHisto->count() == histo->count());
 
@@ -68,11 +67,12 @@ TEST_CASE("sparsehisto", "[sparsehisto]")
 		for (bin_t bin = 0; bin < binIter->size(); bin++)
 		{
 			bin_t binId = binIter->get(bin);
-			histo->setProjectionValue(binId, static_cast<float>(rand() % 100));
+			histo->setProjectionValue(binId,
+			                          static_cast<float>(1 + rand() % 100));
 		}
 
-		auto sparseHisto = std::make_unique<SparseHistogram>(*scanner, *histo,
-		                                                       binIter.get());
+		auto sparseHisto =
+		    std::make_unique<SparseHistogram>(*scanner, *histo, binIter.get());
 		// Because Histogram3D also only has "unique" LORs
 		REQUIRE(sparseHisto->count() == binIter->size());
 

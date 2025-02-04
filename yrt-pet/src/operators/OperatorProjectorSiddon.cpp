@@ -26,7 +26,7 @@ void py_setup_operatorprojectorsiddon(py::module& m)
 	c.def_property("num_rays", &OperatorProjectorSiddon::getNumRays,
 	               &OperatorProjectorSiddon::setNumRays);
 	c.def(
-	    "forward_projection",
+	    "forwardProjection",
 	    [](const OperatorProjectorSiddon& self, const Image* in_image,
 	       const Line3D& lor, const Vector3D& n1, const Vector3D& n2,
 	       const TimeOfFlightHelper* tofHelper, float tofValue) -> float {
@@ -36,7 +36,7 @@ void py_setup_operatorprojectorsiddon(py::module& m)
 	    py::arg("in_image"), py::arg("lor"), py::arg("n1"), py::arg("n2"),
 	    py::arg("tofHelper") = nullptr, py::arg("tofValue") = 0.0f);
 	c.def(
-	    "back_projection",
+	    "backProjection",
 	    [](const OperatorProjectorSiddon& self, Image* in_image,
 	       const Line3D& lor, const Vector3D& n1, const Vector3D& n2,
 	       float proj_value, const TimeOfFlightHelper* tofHelper,
@@ -49,7 +49,7 @@ void py_setup_operatorprojectorsiddon(py::module& m)
 	    py::arg("proj_value"), py::arg("tofHelper") = nullptr,
 	    py::arg("tofValue") = 0.0f);
 	c.def_static(
-	    "single_back_projection",
+	    "singleBackProjection",
 	    [](Image* in_image, const Line3D& lor, float proj_value,
 	       const TimeOfFlightHelper* tofHelper, float tofValue) -> void
 	    {
@@ -59,7 +59,7 @@ void py_setup_operatorprojectorsiddon(py::module& m)
 	    py::arg("in_image"), py::arg("lor"), py::arg("proj_value"),
 	    py::arg("tofHelper") = nullptr, py::arg("tofValue") = 0.0f);
 	c.def_static(
-	    "single_forward_projection",
+	    "singleForwardProjection",
 	    [](const Image* in_image, const Line3D& lor,
 	       const TimeOfFlightHelper* tofHelper, float tofValue) -> float
 	    {
@@ -125,21 +125,15 @@ float OperatorProjectorSiddon::forwardProjection(
 
 	float imProj = 0.;
 
-	// Avoid multi-ray siddon on attenuation image
-	const int numRaysToCast = (img == attImageForForwardProjection ||
-	                           img == attImageForBackprojection) ?
-	                              1 :
-	                              m_numRays;
-
 	int currThread = 0;
-	if (numRaysToCast > 1)
+	if (m_numRays > 1)
 	{
 		currThread = omp_get_thread_num();
 		ASSERT(mp_lineGen != nullptr);
 		mp_lineGen->at(currThread).setupGenerator(lor, n1, n2);
 	}
 
-	for (int i_line = 0; i_line < numRaysToCast; i_line++)
+	for (int i_line = 0; i_line < m_numRays; i_line++)
 	{
 		unsigned int seed = 13;
 		Line3D randLine = (i_line == 0) ?
@@ -163,9 +157,9 @@ float OperatorProjectorSiddon::forwardProjection(
 		imProj += currentProjValue;
 	}
 
-	if (numRaysToCast > 1)
+	if (m_numRays > 1)
 	{
-		imProj = imProj / static_cast<float>(numRaysToCast);
+		imProj = imProj / static_cast<float>(m_numRays);
 	}
 
 	return imProj;

@@ -17,7 +17,7 @@ class ListMode;
 namespace Util
 {
 	void histogram3DToListModeLUT(const Histogram3D* histo,
-	                              ListModeLUTOwned* listMode,
+	                              ListModeLUTOwned* lmOut,
 	                              size_t numEvents = 0);
 
 	template <bool RequiresAtomic>
@@ -25,6 +25,9 @@ namespace Util
 
 	Line3D getNativeLOR(const Scanner& scanner, const ProjectionData& dat,
 	                    bin_t binId);
+
+	void convertProjectionValuesToACF(ProjectionData& dat,
+	                                  float unitFactor = 0.1f);
 
 	std::unique_ptr<OSEM> createOSEM(const Scanner& scanner,
 	                                 bool useGPU = false);
@@ -37,41 +40,29 @@ namespace Util
 	void forwProject(const Scanner& scanner, const Image& img,
 	                 ProjectionData& projData,
 	                 OperatorProjector::ProjectorType projectorType =
-	                     OperatorProjector::SIDDON,
-	                 const Image* attImage = nullptr,
-	                 const Histogram* additiveHistogram = nullptr);
+	                     OperatorProjector::SIDDON);
 	void forwProject(const Scanner& scanner, const Image& img,
 	                 ProjectionData& projData, const BinIterator& binIterator,
 	                 OperatorProjector::ProjectorType projectorType =
-	                     OperatorProjector::SIDDON,
-	                 const Image* attImage = nullptr,
-	                 const Histogram* additiveHistogram = nullptr);
+	                     OperatorProjector::SIDDON);
 	void forwProject(const Image& img, ProjectionData& projData,
 	                 const OperatorProjectorParams& projParams,
 	                 OperatorProjector::ProjectorType projectorType =
-	                     OperatorProjector::SIDDON,
-	                 const Image* attImage = nullptr,
-	                 const Histogram* additiveHistogram = nullptr);
+	                     OperatorProjector::SIDDON);
 
 	// Back projection
 	void backProject(const Scanner& scanner, Image& img,
 	                 const ProjectionData& projData,
 	                 OperatorProjector::ProjectorType projectorType =
-	                     OperatorProjector::SIDDON,
-	                 const Image* attImage = nullptr,
-	                 const Histogram* additiveHistogram = nullptr);
+	                     OperatorProjector::SIDDON);
 	void backProject(const Scanner& scanner, Image& img,
 	                 const ProjectionData& projData,
 	                 const BinIterator& binIterator,
 	                 OperatorProjector::ProjectorType projectorType =
-	                     OperatorProjector::SIDDON,
-	                 const Image* attImage = nullptr,
-	                 const Histogram* additiveHistogram = nullptr);
+	                     OperatorProjector::SIDDON);
 	void backProject(Image& img, const ProjectionData& projData,
 	                 const OperatorProjectorParams& projParams,
 	                 OperatorProjector::ProjectorType projectorType =
-	                     OperatorProjector::SIDDON,
-	                 const Image* attImage = nullptr,
-	                 const Histogram* additiveHistogram = nullptr);
+	                     OperatorProjector::SIDDON);
 
 }  // namespace Util

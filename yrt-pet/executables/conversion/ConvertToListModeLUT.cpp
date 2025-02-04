@@ -29,13 +29,14 @@ int main(int argc, char** argv)
 		Plugin::OptionsResult pluginOptionsResults;  // For plugins' options
 
 		// Parse command line arguments
-		cxxopts::Options options(argv[0],
-		                         "Convert any input format to a histogram");
+		cxxopts::Options options(
+		    argv[0], "Convert a list-mode input (of any format, including "
+		             "plugin formats) to a ListModeLUT format");
 		options.positional_help("[optional args]").show_positional_help();
 
 		/* clang-format off */
 		options.add_options()
-		("s,scanner", "Scanner parameters file name", cxxopts::value<std::string>(scanner_fname))
+		("s,scanner", "Scanner parameters file", cxxopts::value<std::string>(scanner_fname))
 		("i,input", "Input file", cxxopts::value<std::string>(input_fname))
 		("f,format", "Input file format. Possible values: " +
 			IO::possibleFormats(Plugin::InputFormatsChoice::ONLYLISTMODES),
