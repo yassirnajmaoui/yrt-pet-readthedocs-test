@@ -111,6 +111,7 @@ void OperatorProjectorDD_GPU::applyA(const Variable* in, Variable* out)
 		ASSERT_MSG(hostDat_out != nullptr,
 		           "The Projection Data provded is not a ProjectionDataDevice "
 		           "nor a ProjectionData (host)");
+		ASSERT_MSG(binIter != nullptr, "BinIterator undefined");
 
 		std::vector<const BinIterator*> binIterators;
 		binIterators.push_back(binIter);  // We project only one subset
@@ -185,6 +186,7 @@ void OperatorProjectorDD_GPU::applyAH(const Variable* in, Variable* out)
 		ASSERT_MSG(hostDat_in != nullptr,
 		           "The Projection Data provded is not a ProjectionDataDevice "
 		           "nor a ProjectionData (host)");
+		ASSERT_MSG(binIter != nullptr, "BinIterator undefined");
 
 		std::vector<const BinIterator*> binIterators;
 		binIterators.push_back(binIter);  // We project only one subset
@@ -214,7 +216,8 @@ void OperatorProjectorDD_GPU::applyAH(const Variable* in, Variable* out)
 		const ImageParams& imgParams = img_out->getParams();
 		for (size_t batchId = 0; batchId < numBatches; batchId++)
 		{
-			std::cout << "Loading batch " << batchId + 1 << "..." << std::endl;
+			std::cout << "Loading batch " << batchId + 1 << "/" << numBatches
+			          << "..." << std::endl;
 			dat_in->loadEventLORs(0, batchId, imgParams, getAuxStream());
 			deviceDat_in->allocateForProjValues(getAuxStream());
 			deviceDat_in->loadProjValuesFromReference(getAuxStream());
