@@ -42,6 +42,7 @@ protected:
 	    const cudaStream_t* pp_mainStream = nullptr,
 	    const cudaStream_t* pp_auxStream = nullptr);
 
+	// These must run on the main stream
 	virtual void applyAOnLoadedBatch(ImageDevice& img,
 	                                 ProjectionDataDevice& dat,
 	                                 bool synchronize) = 0;

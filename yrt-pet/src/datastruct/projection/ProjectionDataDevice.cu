@@ -245,7 +245,7 @@ void ProjectionDataDevice::loadProjValuesFromHostInternal(
 	}
 	else
 	{
-		const size_t batchSize = getLoadedBatchSize();
+		const size_t batchSize = getPrecomputedBatchSize();
 		ASSERT_MSG(batchSize > 0,
 		           "The Batch size is 0. You didn't load the LORs "
 		           "before loading the projection values");
@@ -253,10 +253,10 @@ void ProjectionDataDevice::loadProjValuesFromHostInternal(
 		m_tempBuffer.reAllocateIfNeeded(batchSize);
 		float* projValuesBuffer = m_tempBuffer.getPointer();
 
-		auto* binIter = mp_binIteratorList.at(getLoadedSubsetId());
+		auto* binIter = mp_binIteratorList.at(getPrecomputedSubsetId());
 		const size_t firstBatchSize =
-		    getBatchSetup(getLoadedSubsetId()).getBatchSize(0);
-		const size_t offset = getLoadedBatchId() * firstBatchSize;
+		    getBatchSetup(getPrecomputedSubsetId()).getBatchSize(0);
+		const size_t offset = getPrecomputedBatchId() * firstBatchSize;
 
 		size_t binIdx;
 		bin_t binId;
@@ -406,6 +406,8 @@ void ProjectionDataDevice::clearProjectionsDevice(float value,
 	const size_t batchSize = getLoadedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
 
+	ASSERT(getProjValuesDevicePointer() != nullptr);
+
 	if (launchConfig.stream != nullptr)
 	{
 		clearProjections_kernel<<<launchParams.gridSize, launchParams.blockSize,
@@ -431,6 +433,8 @@ void ProjectionDataDevice::clearProjectionsDevice(float value,
 
 void ProjectionDataDevice::clearProjectionsDevice(GPULaunchConfig launchConfig)
 {
+	ASSERT(getProjValuesDevicePointer() != nullptr);
+
 	if (launchConfig.stream != nullptr)
 	{
 		cudaMemsetAsync(getProjValuesDevicePointer(), 0,
@@ -468,6 +472,9 @@ void ProjectionDataDevice::divideMeasurementsDevice(
 	const size_t batchSize = getLoadedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
 
+	ASSERT(getProjValuesDevicePointer() != nullptr);
+	ASSERT(measurements_device->getProjValuesDevicePointer() != nullptr);
+
 	if (launchConfig.stream != nullptr)
 	{
 		divideMeasurements_kernel<<<launchParams.gridSize,
@@ -498,6 +505,8 @@ void ProjectionDataDevice::invertProjValuesDevice(GPULaunchConfig launchConfig)
 {
 	const size_t batchSize = getLoadedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
+
+	ASSERT(getProjValuesDevicePointer() != nullptr);
 
 	if (launchConfig.stream != nullptr)
 	{
@@ -530,6 +539,9 @@ void ProjectionDataDevice::addProjValues(const ProjectionDataDevice* projValues,
 	const size_t batchSize = getLoadedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
 
+	ASSERT(projValues->getProjValuesDevicePointer() != nullptr);
+	ASSERT(getProjValuesDevicePointer() != nullptr);
+
 	if (launchConfig.stream != nullptr)
 	{
 		addProjValues_kernel<<<launchParams.gridSize, launchParams.blockSize, 0,
@@ -558,6 +570,8 @@ void ProjectionDataDevice::convertToACFsDevice(GPULaunchConfig launchConfig)
 {
 	const size_t batchSize = getLoadedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
+
+	ASSERT(getProjValuesDevicePointer() != nullptr);
 
 	if (launchConfig.stream != nullptr)
 	{
@@ -588,6 +602,8 @@ void ProjectionDataDevice::multiplyProjValues(
 {
 	const size_t batchSize = getLoadedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
+
+	ASSERT(getProjValuesDevicePointer() != nullptr);
 
 	if (launchConfig.stream != nullptr)
 	{
@@ -620,6 +636,8 @@ void ProjectionDataDevice::multiplyProjValues(float scalar,
 {
 	const size_t batchSize = getLoadedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
+
+	ASSERT(getProjValuesDevicePointer() != nullptr);
 
 	if (launchConfig.stream != nullptr)
 	{

@@ -151,16 +151,21 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out,
 		// Iterate over all the batches of the current subset
 		const size_t numBatches = dat_out->getBatchSetup(0).getNumBatches();
 
-		std::cout << "Loading first batch..." << std::endl;
+		std::cout << "Loading batch 1/" << numBatches << "..." << std::endl;
 		dat_out->precomputeBatchLORs(0, 0);
-		deviceDat_out->allocateForProjValues({getAuxStream(), false});
-		dat_out->loadPrecomputedLORsToDevice({getAuxStream(), false});
+		deviceDat_out->allocateForProjValues({getMainStream(), false});
+		dat_out->loadPrecomputedLORsToDevice({getMainStream(), false});
 
 		for (size_t batchId = 1; batchId < numBatches; batchId++)
 		{
-			std::cout << "Forward projecting batch " << batchId + 1 << "/" << numBatches
-			          << "..." << std::endl;
-			dat_out->clearProjectionsDevice({getAuxStream(), false});
+			if (batchId != 1)
+			{
+				dat_out->loadPrecomputedLORsToDevice({getMainStream(), false});
+			}
+
+			std::cout << "Forward projecting batch " << batchId + 1 << "/"
+			          << numBatches << "..." << std::endl;
+			dat_out->clearProjectionsDevice({getMainStream(), false});
 			applyAOnLoadedBatch(*img_in, *dat_out, false);
 
 			if (batchId < numBatches - 1)
@@ -168,8 +173,7 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out,
 				std::cout << "Loading batch " << batchId + 2 << "/"
 				          << numBatches << "..." << std::endl;
 				// If a future batch is due
-				dat_out->prepareBatchLORs(0, batchId + 1,
-				                          {getAuxStream(), false});
+				dat_out->precomputeBatchLORs(0, batchId + 1);
 			}
 			std::cout << "Transferring batch to Host..." << std::endl;
 			dat_out->transferProjValuesToHost(hostDat_out, getAuxStream());
