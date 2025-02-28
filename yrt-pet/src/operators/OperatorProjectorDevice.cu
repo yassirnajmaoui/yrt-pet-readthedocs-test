@@ -154,29 +154,26 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out,
 		std::cout << "Loading batch 1/" << numBatches << "..." << std::endl;
 		dat_out->precomputeBatchLORs(0, 0);
 		deviceDat_out->allocateForProjValues({getMainStream(), false});
-		dat_out->loadPrecomputedLORsToDevice({getMainStream(), false});
 
-		for (size_t batchId = 1; batchId < numBatches; batchId++)
+		for (size_t batchId = 0; batchId < numBatches; batchId++)
 		{
-			if (batchId != 1)
-			{
-				dat_out->loadPrecomputedLORsToDevice({getMainStream(), false});
-			}
+			dat_out->loadPrecomputedLORsToDevice({getMainStream(), false});
 
 			std::cout << "Forward projecting batch " << batchId + 1 << "/"
 			          << numBatches << "..." << std::endl;
 			dat_out->clearProjectionsDevice({getMainStream(), false});
 			applyAOnLoadedBatch(*img_in, *dat_out, false);
 
+			// If a future batch is due
 			if (batchId < numBatches - 1)
 			{
 				std::cout << "Loading batch " << batchId + 2 << "/"
 				          << numBatches << "..." << std::endl;
-				// If a future batch is due
 				dat_out->precomputeBatchLORs(0, batchId + 1);
 			}
 			std::cout << "Transferring batch to Host..." << std::endl;
-			dat_out->transferProjValuesToHost(hostDat_out, getAuxStream());
+			// This will force a synchronization
+			dat_out->transferProjValuesToHost(hostDat_out, getMainStream());
 		}
 	}
 }
@@ -248,15 +245,17 @@ void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out,
 		// Iterate over all the batches of the current subset
 		const size_t numBatches = dat_in->getBatchSetup(0).getNumBatches();
 		const ImageParams& imgParams = img_out->getParams();
+
 		for (size_t batchId = 0; batchId < numBatches; batchId++)
 		{
 			std::cout << "Loading batch " << batchId + 1 << "/" << numBatches
 			          << "..." << std::endl;
-			dat_in->prepareBatchLORs(0, batchId, getAuxStream());
-			deviceDat_in->allocateForProjValues(getAuxStream());
-			deviceDat_in->loadProjValuesFromReference(getAuxStream());
+			dat_in->precomputeBatchLORs(0, 0);
+			deviceDat_in->allocateForProjValues({getMainStream(), false});
+			deviceDat_in->loadProjValuesFromReference({getMainStream(), false});
+			deviceDat_in->loadPrecomputedLORsToDevice({getMainStream(), false});
 			std::cout << "Backprojecting batch..." << std::endl;
-			applyAHOnLoadedBatch(*dat_in, *img_out);
+			applyAHOnLoadedBatch(*dat_in, *img_out, false);
 		}
 	}
 

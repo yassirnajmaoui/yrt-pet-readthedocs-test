@@ -240,8 +240,7 @@ void ProjectionDataDevice::loadProjValuesFromHostInternal(
 	{
 		// No need to "getProjectionValue" everywhere, just fill the buffer with
 		// the same value
-		clearProjectionsDevice(getReference()->getProjectionValue(0),
-		                       launchConfig);
+		clearProjectionsDevice(src->getProjectionValue(0), launchConfig);
 	}
 	else
 	{
