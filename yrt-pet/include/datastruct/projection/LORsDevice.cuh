@@ -19,18 +19,30 @@ class ImageParams;
 class LORsDevice
 {
 public:
-	explicit LORsDevice(std::shared_ptr<ScannerDevice> pp_scannerDevice);
-	explicit LORsDevice(const Scanner& pr_scanner);
+	LORsDevice();
 
 	// Load the events' detector ids from a specific subset&batch id
-	void loadEventLORs(const BinIterator& binIter,
-	                   const GPUBatchSetup& batchSetup, size_t subsetId,
-	                   size_t batchId, const ProjectionData& reference,
-	                   const cudaStream_t* stream = nullptr);
+	// method kept for legacy reasons
+	void precomputeAndLoadBatchLORs(const BinIterator& binIter,
+	                                const GPUBatchSetup& batchSetup,
+	                                size_t subsetId, size_t batchId,
+	                                const ProjectionData& reference,
+	                                const cudaStream_t* stream = nullptr);
+
+	void precomputeBatchLORs(const BinIterator& binIter,
+	                         const GPUBatchSetup& batchSetup, size_t subsetId,
+	                         size_t batchId, const ProjectionData& reference);
+	void loadPrecomputedLORsToDevice(GPULaunchConfig launchConfig);
 
 	std::shared_ptr<ScannerDevice> getScannerDevice() const;
 	const Scanner& getScanner() const;
 
+	// Gets the size of the last precomputed batch
+	size_t getPrecomputedBatchSize() const;
+	// Gets the index of the last precomputed batch
+	size_t getPrecomputedBatchId() const;
+	// Get the index of the last precomputed subset
+	size_t getPrecomputedSubsetId() const;
 	// Gets the size of the last-loaded batch
 	size_t getLoadedBatchSize() const;
 	// Gets the index of the last-loaded batch
@@ -57,24 +69,23 @@ public:
 
 private:
 	void initializeDeviceArrays();
-	void allocateForLORs(bool hasTOF, const cudaStream_t* stream = nullptr);
-
-	// Note: This is currently unused. Could only be useful in the future if
-	//  YRT-PET has several ways to load LORs and treat them in the kernels. It
-	//  wouldn't allow for the possibility to keep the "getArbitraryLOR(...)"
-	//  function, but would be useful for lots of other cases.
-	std::shared_ptr<ScannerDevice> mp_scannerDevice;
+	void allocateForPrecomputedLORsIfNeeded(GPULaunchConfig launchConfig);
 
 	std::unique_ptr<DeviceArray<float4>> mp_lorDet1Pos;
 	std::unique_ptr<DeviceArray<float4>> mp_lorDet2Pos;
 	std::unique_ptr<DeviceArray<float4>> mp_lorDet1Orient;
 	std::unique_ptr<DeviceArray<float4>> mp_lorDet2Orient;
+	std::unique_ptr<DeviceArray<float>> mp_lorTOFValue;
 	PageLockedBuffer<float4> m_tempLorDet1Pos;
 	PageLockedBuffer<float4> m_tempLorDet2Pos;
 	PageLockedBuffer<float4> m_tempLorDet1Orient;
 	PageLockedBuffer<float4> m_tempLorDet2Orient;
-	std::unique_ptr<DeviceArray<float>> mp_lorTOFValue;
-	bool m_areLORsGathered;
+	PageLockedBuffer<float> m_tempLorTOFValue;
+	bool m_hasTOF;
+	size_t m_precomputedBatchSize;
+	size_t m_precomputedBatchId;
+	size_t m_precomputedSubsetId;
+	bool m_areLORsPrecomputed;
 	size_t m_loadedBatchSize;
 	size_t m_loadedBatchId;
 	size_t m_loadedSubsetId;

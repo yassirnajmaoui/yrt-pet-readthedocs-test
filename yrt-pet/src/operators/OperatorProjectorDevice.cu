@@ -62,10 +62,10 @@ void py_setup_operatorprojectordevice(py::module& m)
 #endif
 
 OperatorProjectorDevice::OperatorProjectorDevice(
-    const OperatorProjectorParams& pr_projParams, bool p_synchronized,
+    const OperatorProjectorParams& pr_projParams,
     const cudaStream_t* pp_mainStream, const cudaStream_t* pp_auxStream)
     : OperatorProjectorBase{pr_projParams},
-      DeviceSynchronized{p_synchronized, pp_mainStream, pp_auxStream}
+      DeviceSynchronized{pp_mainStream, pp_auxStream}
 {
 	if (pr_projParams.tofWidth_ps > 0.f)
 	{
@@ -80,6 +80,17 @@ OperatorProjectorDevice::OperatorProjectorDevice(
 }
 
 void OperatorProjectorDevice::applyA(const Variable* in, Variable* out)
+{
+	applyA(in, out, true);
+}
+
+void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out)
+{
+	applyAH(in, out, true);
+}
+
+void OperatorProjectorDevice::applyA(const Variable* in, Variable* out,
+                                     bool synchronize)
 {
 	auto* img_in_const = dynamic_cast<const ImageDevice*>(in);
 	auto* dat_out = dynamic_cast<ProjectionDataDevice*>(out);
@@ -96,7 +107,7 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out)
 
 		deviceImg_out = std::make_unique<ImageDeviceOwned>(
 		    hostImg_in->getParams(), getAuxStream());
-		deviceImg_out->allocate(true);
+		deviceImg_out->allocate(false, false);
 		deviceImg_out->transferToDeviceMemory(hostImg_in, true);
 
 		// Use owned ImageDevice
@@ -133,29 +144,41 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out)
 	if (!isProjDataDeviceOwned)
 	{
 		std::cout << "Forward projecting current batch..." << std::endl;
-		applyAOnLoadedBatch(*img_in, *dat_out);
+		applyAOnLoadedBatch(*img_in, *dat_out, synchronize);
 	}
 	else
 	{
 		// Iterate over all the batches of the current subset
 		const size_t numBatches = dat_out->getBatchSetup(0).getNumBatches();
 
-		for (size_t batchId = 0; batchId < numBatches; batchId++)
+		std::cout << "Loading first batch..." << std::endl;
+		dat_out->precomputeBatchLORs(0, 0);
+		deviceDat_out->allocateForProjValues({getAuxStream(), false});
+		dat_out->loadPrecomputedLORsToDevice({getAuxStream(), false});
+
+		for (size_t batchId = 1; batchId < numBatches; batchId++)
 		{
-			std::cout << "Loading batch " << batchId + 1 << "/" << numBatches
+			std::cout << "Forward projecting batch " << batchId + 1 << "/" << numBatches
 			          << "..." << std::endl;
-			dat_out->loadEventLORs(0, batchId, getAuxStream());
-			deviceDat_out->allocateForProjValues(getAuxStream());
-			dat_out->clearProjectionsDevice(getMainStream());
-			std::cout << "Forward projecting batch..." << std::endl;
-			applyAOnLoadedBatch(*img_in, *dat_out);
+			dat_out->clearProjectionsDevice({getAuxStream(), false});
+			applyAOnLoadedBatch(*img_in, *dat_out, false);
+
+			if (batchId < numBatches - 1)
+			{
+				std::cout << "Loading batch " << batchId + 2 << "/"
+				          << numBatches << "..." << std::endl;
+				// If a future batch is due
+				dat_out->prepareBatchLORs(0, batchId + 1,
+				                          {getAuxStream(), false});
+			}
 			std::cout << "Transferring batch to Host..." << std::endl;
 			dat_out->transferProjValuesToHost(hostDat_out, getAuxStream());
 		}
 	}
 }
 
-void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out)
+void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out,
+                                      bool synchronize)
 {
 	auto* dat_in_const = dynamic_cast<const ProjectionDataDevice*>(in);
 	auto* img_out = dynamic_cast<ImageDevice*>(out);
@@ -174,8 +197,8 @@ void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out)
 
 		deviceImg_out = std::make_unique<ImageDeviceOwned>(
 		    hostImg_out->getParams(), getAuxStream());
-		deviceImg_out->allocate(false);
-		deviceImg_out->transferToDeviceMemory(hostImg_out, false);
+		deviceImg_out->allocate(false, false);
+		deviceImg_out->transferToDeviceMemory(hostImg_out, true);
 
 		// Use owned ImageDevice
 		img_out = deviceImg_out.get();
@@ -214,7 +237,7 @@ void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out)
 	if (!isProjDataDeviceOwned)
 	{
 		std::cout << "Backprojecting current batch..." << std::endl;
-		applyAHOnLoadedBatch(*dat_in, *img_out);
+		applyAHOnLoadedBatch(*dat_in, *img_out, synchronize);
 	}
 	else
 	{
@@ -225,7 +248,7 @@ void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out)
 		{
 			std::cout << "Loading batch " << batchId + 1 << "/" << numBatches
 			          << "..." << std::endl;
-			dat_in->loadEventLORs(0, batchId, getAuxStream());
+			dat_in->prepareBatchLORs(0, batchId, getAuxStream());
 			deviceDat_in->allocateForProjValues(getAuxStream());
 			deviceDat_in->loadProjValuesFromReference(getAuxStream());
 			std::cout << "Backprojecting batch..." << std::endl;
@@ -248,11 +271,6 @@ unsigned int OperatorProjectorDevice::getGridSize() const
 unsigned int OperatorProjectorDevice::getBlockSize() const
 {
 	return m_launchParams.blockSize;
-}
-
-bool OperatorProjectorDevice::isSynchronized() const
-{
-	return m_synchronized;
 }
 
 void OperatorProjectorDevice::setBatchSize(size_t newBatchSize)

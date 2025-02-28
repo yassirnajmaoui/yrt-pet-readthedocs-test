@@ -72,7 +72,7 @@ public:
 	ImageDeviceOwned(const ImageParams& imgParams, const std::string& filename,
 	                 const cudaStream_t* stream_ptr = nullptr);
 	~ImageDeviceOwned() override;
-	void allocate(bool synchronize = true);
+	void allocate(bool synchronize = true, bool initializeToZero = true);
 	void readFromFile(const ImageParams& params, const std::string& filename);
 	void readFromFile(const std::string& filename);
 	float* getDevicePointer() override;

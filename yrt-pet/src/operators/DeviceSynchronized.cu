@@ -112,11 +112,9 @@ CUImageParams DeviceSynchronized::getCUImageParams(const ImageParams& imgParams)
 	return params;
 }
 
-DeviceSynchronized::DeviceSynchronized(bool p_synchronized,
-                               const cudaStream_t* pp_mainStream,
-                               const cudaStream_t* pp_auxStream)
+DeviceSynchronized::DeviceSynchronized(const cudaStream_t* pp_mainStream,
+                                       const cudaStream_t* pp_auxStream)
 {
-	m_synchronized = p_synchronized;
 	mp_mainStream = pp_mainStream;
 	mp_auxStream = pp_auxStream;
 }

@@ -132,7 +132,8 @@ void py_setup_imagedevice(py::module& m)
 	    "Create ImageDevice using filename", "filename"_a);
 	c_owned.def(
 	    py::init(
-	        [](const ImageParams& imgParams, const std::string& filename) {
+	        [](const ImageParams& imgParams, const std::string& filename)
+	        {
 		        return std::make_unique<ImageDeviceOwned>(imgParams, filename,
 		                                                  nullptr);
 	        }),
@@ -205,8 +206,8 @@ void ImageDevice::transferToDeviceMemory(const float* ph_img_ptr,
                                          bool p_synchronize)
 {
 	ASSERT_MSG(getDevicePointer() != nullptr, "Device Image not allocated yet");
-	Util::copyHostToDevice(getDevicePointer(), ph_img_ptr, m_imgSize, mp_stream,
-	                       p_synchronize);
+	Util::copyHostToDevice(getDevicePointer(), ph_img_ptr, m_imgSize,
+	                       {mp_stream, p_synchronize});
 }
 
 void ImageDevice::transferToDeviceMemory(const Image* ph_img_ptr,
@@ -225,8 +226,8 @@ void ImageDevice::transferToHostMemory(float* ph_img_ptr,
 {
 	ASSERT_MSG(getDevicePointer() != nullptr, "Device Image not allocated");
 	ASSERT_MSG(ph_img_ptr != nullptr, "Host image not allocated");
-	Util::copyDeviceToHost(ph_img_ptr, getDevicePointer(), m_imgSize, mp_stream,
-	                       p_synchronize);
+	Util::copyDeviceToHost(ph_img_ptr, getDevicePointer(), m_imgSize,
+	                       {mp_stream, p_synchronize});
 }
 
 void ImageDevice::transferToHostMemory(Image* ph_img_ptr,
@@ -304,8 +305,8 @@ void ImageDevice::copyFromDeviceImage(const ImageDevice* imSrc,
 	float* pd_dest = getDevicePointer();
 	ASSERT(pd_src != nullptr);
 	ASSERT(pd_dest != nullptr);
-	Util::copyDeviceToDevice(pd_dest, pd_src, m_imgSize, mp_stream,
-	                         p_synchronize);
+	Util::copyDeviceToDevice(pd_dest, pd_src, m_imgSize,
+	                         {mp_stream, p_synchronize});
 }
 
 void ImageDevice::updateEMThreshold(ImageBase* updateImg,
@@ -444,19 +445,23 @@ ImageDeviceOwned::~ImageDeviceOwned()
 	if (mpd_devicePointer != nullptr)
 	{
 		std::cout << "Freeing image device buffer..." << std::endl;
-		Util::deallocateDevice(mpd_devicePointer);
+		Util::deallocateDevice(mpd_devicePointer, {nullptr, true});
 	}
 }
 
-void ImageDeviceOwned::allocate(bool synchronize)
+void ImageDeviceOwned::allocate(bool synchronize, bool initializeToZero)
 {
 	const auto& params = getParams();
 	std::cout << "Allocating device memory for an image of dimensions "
 	          << "[" << params.nz << ", " << params.ny << ", " << params.nx
 	          << "]..." << std::endl;
 
-	Util::allocateDevice(&mpd_devicePointer, m_imgSize, mp_stream, false);
-	Util::memsetDevice(mpd_devicePointer, 0, m_imgSize, mp_stream, synchronize);
+	Util::allocateDevice(&mpd_devicePointer, m_imgSize, {mp_stream, false});
+	if (initializeToZero)
+	{
+		Util::memsetDevice(mpd_devicePointer, 0, m_imgSize,
+		                   {mp_stream, synchronize});
+	}
 }
 
 void ImageDeviceOwned::readFromFile(const ImageParams& params,

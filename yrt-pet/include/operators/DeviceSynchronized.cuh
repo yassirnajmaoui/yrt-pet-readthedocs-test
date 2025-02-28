@@ -23,6 +23,8 @@ namespace Util
 	GPULaunchParams initiateDeviceParameters(size_t batchSize);
 }  // namespace Util
 
+// This class is there to represent operators that will always use the same
+//  stream(s)
 class DeviceSynchronized
 {
 public:
@@ -33,12 +35,9 @@ public:
 	static CUImageParams getCUImageParams(const ImageParams& imgParams);
 
 protected:
-	explicit DeviceSynchronized(bool p_synchronized = true,
-							const cudaStream_t* pp_mainStream = nullptr,
-							const cudaStream_t* pp_auxStream = nullptr);
+	explicit DeviceSynchronized(const cudaStream_t* pp_mainStream = nullptr,
+	                            const cudaStream_t* pp_auxStream = nullptr);
 
-	bool m_synchronized;
 	const cudaStream_t* mp_mainStream;
 	const cudaStream_t* mp_auxStream;
 };
-

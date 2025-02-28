@@ -7,6 +7,7 @@
 
 #include "Assert.hpp"
 
+#include <driver_types.h>
 #include <vector_types.h>
 
 class GPUBatchSetup
@@ -46,6 +47,15 @@ private:
 	size_t batchSize;
 	size_t lastBatchSize;
 	size_t numBatches;
+};
+
+// Structure encoding how a kernel should be called
+struct GPULaunchConfig
+{
+	// Which stream to run
+	const cudaStream_t* stream = nullptr;
+	// Whether to synchronize after the operation or not
+	bool synchronize = true;
 };
 
 struct GPULaunchParams
