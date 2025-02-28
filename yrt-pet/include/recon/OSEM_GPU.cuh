@@ -63,7 +63,6 @@ public:
 	ProjectionDataDeviceOwned* getMLEMDataTmpDeviceBuffer();
 
 	// Common methods
-	void loadBatch(int batchId, bool forRecon) override;
 	void loadSubset(int subsetId, bool forRecon) override;
 	void addImagePSF(const std::string& p_imagePsf_fname) override;
 
