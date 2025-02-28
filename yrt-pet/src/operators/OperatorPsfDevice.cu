@@ -148,7 +148,8 @@ void OperatorPsfDevice::apply(const Variable* in, Variable* out,
 		ASSERT_MSG(outputImageDevice_ptr, "Output is not an image");
 	}
 
-	convolveDevice<Transpose>(*inputImageDevice_ptr, *outputImageDevice_ptr);
+	convolveDevice<Transpose>(*inputImageDevice_ptr, *outputImageDevice_ptr,
+	                          false);
 
 	// Transfer to host
 	if (img_out != nullptr)
