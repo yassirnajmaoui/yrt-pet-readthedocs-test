@@ -101,7 +101,6 @@ void LORsDevice::precomputeBatchLORs(const BinIterator& binIter,
 void LORsDevice::loadPrecomputedLORsToDevice(GPULaunchConfig launchConfig)
 {
 	const cudaStream_t* stream = launchConfig.stream;
-	ASSERT(stream != nullptr);
 
 	if (m_loadedSubsetId != m_precomputedSubsetId ||
 	    m_loadedBatchId != m_precomputedBatchId)
@@ -126,7 +125,14 @@ void LORsDevice::loadPrecomputedLORsToDevice(GPULaunchConfig launchConfig)
 		// In case the LOR loading is done for other reasons than projections
 		if (launchConfig.synchronize == true)
 		{
-			cudaStreamSynchronize(*stream);
+			if (stream != nullptr)
+			{
+				cudaStreamSynchronize(*stream);
+			}
+			else
+			{
+				cudaDeviceSynchronize();
+			}
 		}
 
 		m_loadedBatchSize = m_precomputedBatchSize;
@@ -179,10 +185,17 @@ void LORsDevice::allocateForPrecomputedLORsIfNeeded(
 		                                         {launchConfig.stream, false});
 	}
 
-	if (hasAllocated && launchConfig.stream != nullptr &&
+	if (hasAllocated &&
 	    launchConfig.synchronize)
 	{
-		cudaStreamSynchronize(*launchConfig.stream);
+		if ( launchConfig.stream != nullptr)
+		{
+			cudaStreamSynchronize(*launchConfig.stream);
+		}
+		else
+		{
+			cudaDeviceSynchronize();
+		}
 	}
 }
 
