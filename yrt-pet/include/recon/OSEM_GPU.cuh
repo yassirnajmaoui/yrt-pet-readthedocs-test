@@ -85,6 +85,5 @@ private:
 	int m_current_OSEM_subset;
 
 	GPUStream m_mainStream;
-	// TODO: Add parallel batch loading
-	// GPUStream m_auxStream;
+	GPUStream m_auxStream;
 };

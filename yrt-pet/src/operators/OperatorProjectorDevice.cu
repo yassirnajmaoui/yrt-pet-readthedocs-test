@@ -253,11 +253,8 @@ void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out,
 			deviceDat_in->allocateForProjValues({getMainStream(), false});
 			deviceDat_in->loadProjValuesFromReference({getMainStream(), false});
 			deviceDat_in->loadPrecomputedLORsToDevice({getMainStream(), false});
-			if (getMainStream() != nullptr)
-			{
-				cudaStreamSynchronize(*getMainStream());
-			}
-			std::cout << "Backprojecting batch..." << std::endl;
+			std::cout << "Backprojecting batch " << batchId + 1 << "/"
+			          << numBatches << "..." << std::endl;
 			applyAHOnLoadedBatch(*dat_in, *img_out, false);
 		}
 	}

@@ -387,9 +387,7 @@ void OSEM_GPU::computeEMUpdateImage(const ImageBase& inputImage,
 
 const cudaStream_t* OSEM_GPU::getAuxStream() const
 {
-	// TODO: Add parallel loading
-	// return &m_auxStream.getStream();
-	return &m_mainStream.getStream();
+	return &m_auxStream.getStream();
 }
 
 const cudaStream_t* OSEM_GPU::getMainStream() const

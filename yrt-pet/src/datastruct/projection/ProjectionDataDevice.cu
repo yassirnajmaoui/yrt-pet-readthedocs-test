@@ -410,7 +410,7 @@ void ProjectionDataDevice::clearProjectionsDevice(float value,
 		clearProjectionsDevice(launchConfig);
 		return;
 	}
-	const size_t batchSize = getLoadedBatchSize();
+	const size_t batchSize = getPrecomputedBatchSize();
 	const auto launchParams = Util::initiateDeviceParameters(batchSize);
 
 	ASSERT(getProjValuesDevicePointer() != nullptr);
