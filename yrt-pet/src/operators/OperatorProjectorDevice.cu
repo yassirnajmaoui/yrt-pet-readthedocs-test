@@ -143,7 +143,6 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out,
 
 	if (!isProjDataDeviceOwned)
 	{
-		std::cout << "Forward projecting current batch..." << std::endl;
 		applyAOnLoadedBatch(*img_in, *dat_out, synchronize);
 	}
 	else
@@ -237,7 +236,6 @@ void OperatorProjectorDevice::applyAH(const Variable* in, Variable* out,
 
 	if (!isProjDataDeviceOwned)
 	{
-		std::cout << "Backprojecting current batch..." << std::endl;
 		applyAHOnLoadedBatch(*dat_in, *img_out, synchronize);
 	}
 	else

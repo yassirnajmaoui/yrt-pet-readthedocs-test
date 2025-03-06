@@ -31,8 +31,8 @@ void OSEMUpdater_GPU::computeSensitivityImage(ImageDevice& destImage) const
 
 	for (int batch = 0; batch < numBatchesInCurrentSubset; batch++)
 	{
-		std::cout << "Loading batch " << batch + 1 << numBatchesInCurrentSubset
-		          << "..." << std::endl;
+		std::cout << "Loading batch " << batch + 1 << "/"
+		          << numBatchesInCurrentSubset << "..." << std::endl;
 
 		sensDataBuffer->precomputeBatchLORs(currentSubset, batch);
 
@@ -107,7 +107,6 @@ void OSEMUpdater_GPU::computeEMUpdateImage(const ImageDevice& inputImage,
 {
 	OperatorProjectorDevice* projector = mp_osem->getProjector();
 	const int currentSubset = mp_osem->getCurrentOSEMSubset();
-	const ImageParams& imageParams = mp_osem->getImageParams();
 	Corrector_GPU& corrector = mp_osem->getCorrector_GPU();
 
 	const cudaStream_t* mainStream = mp_osem->getMainStream();
@@ -127,9 +126,6 @@ void OSEMUpdater_GPU::computeEMUpdateImage(const ImageDevice& inputImage,
 
 	const int numBatchesInCurrentSubset =
 	    measurementsDevice->getNumBatches(currentSubset);
-
-	// TODO: Use parallel CUDA streams here (They are currently all
-	//  synchronized)
 
 	for (int batch = 0; batch < numBatchesInCurrentSubset; batch++)
 	{
@@ -162,6 +158,11 @@ void OSEMUpdater_GPU::computeEMUpdateImage(const ImageDevice& inputImage,
 
 		tmpBufferDevice->divideMeasurementsDevice(measurementsDevice,
 		                                          {mainStream, false});
+
+		if (mainStream != nullptr)
+		{
+			cudaStreamSynchronize(*mainStream);
+		}
 
 		projector->applyAH(tmpBufferDevice, &destImage, false);
 	}
