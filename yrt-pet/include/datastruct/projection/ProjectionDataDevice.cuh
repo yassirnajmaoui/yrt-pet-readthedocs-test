@@ -49,9 +49,9 @@ public:
 
 	// Load the events' detector ids from a specific subset&batch id and prepare
 	// the projection values buffer
-	void prepareBatchLORs(size_t subsetId, size_t batchId,
+	void prepareBatchLORs(int subsetId, int batchId,
 	                      GPULaunchConfig launchConfig);
-	void precomputeBatchLORs(size_t subsetId, size_t batchId);
+	void precomputeBatchLORs(int subsetId, int batchId);
 	void loadPrecomputedLORsToDevice(GPULaunchConfig launchConfig);
 
 	void loadProjValuesFromReference(GPULaunchConfig launchConfig);

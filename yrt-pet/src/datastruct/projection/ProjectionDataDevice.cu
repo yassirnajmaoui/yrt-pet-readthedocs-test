@@ -123,7 +123,7 @@ ProjectionDataDevice::ProjectionDataDevice(
     : ProjectionList(pp_reference),
       mp_binIteratorList(std::move(pp_binIteratorList)),
       mp_LORs(std::move(pp_LORs)),
-      mr_scanner(mp_LORs->getScanner())
+      mr_scanner(pp_reference->getScanner())
 {
 	createBatchSetups(shareOfMemoryToUse);
 }
@@ -134,7 +134,7 @@ ProjectionDataDevice::ProjectionDataDevice(std::shared_ptr<LORsDevice> pp_LORs,
                                            float shareOfMemoryToUse)
     : ProjectionList(pp_reference),
       mp_LORs(std::move(pp_LORs)),
-      mr_scanner(mp_LORs->getScanner())
+      mr_scanner(pp_reference->getScanner())
 {
 	createBinIterators(num_OSEM_subsets);
 	createBatchSetups(shareOfMemoryToUse);
@@ -189,19 +189,27 @@ void ProjectionDataDevice::createBatchSetups(float shareOfMemoryToUse)
 	}
 }
 
-void ProjectionDataDevice::prepareBatchLORs(size_t subsetId, size_t batchId,
+void ProjectionDataDevice::prepareBatchLORs(int subsetId, int batchId,
                                             GPULaunchConfig launchConfig)
 {
 	precomputeBatchLORs(subsetId, batchId);
 
+	// Necessary bottleneck
 	// Must wait until previous operation using the device buffers is
 	// finished before loading another batch
-	cudaStreamSynchronize(*launchConfig.stream);  // Necessary bottleneck
+	if (launchConfig.stream != nullptr)
+	{
+		cudaStreamSynchronize(*launchConfig.stream);
+	}
+	else
+	{
+		cudaDeviceSynchronize();
+	}
 
 	loadPrecomputedLORsToDevice(launchConfig);
 }
 
-void ProjectionDataDevice::precomputeBatchLORs(size_t subsetId, size_t batchId)
+void ProjectionDataDevice::precomputeBatchLORs(int subsetId, int batchId)
 {
 	mp_LORs->precomputeBatchLORs(*mp_binIteratorList.at(subsetId),
 	                             m_batchSetups.at(subsetId), subsetId, batchId,

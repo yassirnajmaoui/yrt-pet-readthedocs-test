@@ -16,27 +16,19 @@
 LORsDevice::LORsDevice()
     : m_hasTOF(false),
       m_precomputedBatchSize(0ull),
-      m_precomputedBatchId(0ull),
-      m_precomputedSubsetId(0ull),
+      m_precomputedBatchId(-1),
+      m_precomputedSubsetId(-1),
       m_areLORsPrecomputed(false),
       m_loadedBatchSize(0ull),
-      m_loadedBatchId(0ull),
-      m_loadedSubsetId(0ull)
+      m_loadedBatchId(-1),
+      m_loadedSubsetId(-1)
 {
 	initializeDeviceArrays();
 }
 
-void LORsDevice::precomputeAndLoadBatchLORs(const BinIterator& binIter,
-                                            const GPUBatchSetup& batchSetup,
-                                            size_t subsetId, size_t batchId,
-                                            const ProjectionData& reference,
-                                            const cudaStream_t* stream)
-{
-}
-
 void LORsDevice::precomputeBatchLORs(const BinIterator& binIter,
                                      const GPUBatchSetup& batchSetup,
-                                     size_t subsetId, size_t batchId,
+                                     int subsetId, int batchId,
                                      const ProjectionData& reference)
 {
 	if (m_precomputedSubsetId != subsetId || m_precomputedBatchId != batchId ||
@@ -148,12 +140,12 @@ size_t LORsDevice::getPrecomputedBatchSize() const
 	return m_precomputedBatchSize;
 }
 
-size_t LORsDevice::getPrecomputedBatchId() const
+int LORsDevice::getPrecomputedBatchId() const
 {
 	return m_precomputedBatchId;
 }
 
-size_t LORsDevice::getPrecomputedSubsetId() const
+int LORsDevice::getPrecomputedSubsetId() const
 {
 	return m_precomputedSubsetId;
 }
@@ -254,12 +246,12 @@ size_t LORsDevice::getLoadedBatchSize() const
 	return m_loadedBatchSize;
 }
 
-size_t LORsDevice::getLoadedBatchId() const
+int LORsDevice::getLoadedBatchId() const
 {
 	return m_loadedBatchId;
 }
 
-size_t LORsDevice::getLoadedSubsetId() const
+int LORsDevice::getLoadedSubsetId() const
 {
 	return m_loadedSubsetId;
 }

@@ -21,34 +21,23 @@ class LORsDevice
 public:
 	LORsDevice();
 
-	// Load the events' detector ids from a specific subset&batch id
-	// method kept for legacy reasons
-	void precomputeAndLoadBatchLORs(const BinIterator& binIter,
-	                                const GPUBatchSetup& batchSetup,
-	                                size_t subsetId, size_t batchId,
-	                                const ProjectionData& reference,
-	                                const cudaStream_t* stream = nullptr);
-
 	void precomputeBatchLORs(const BinIterator& binIter,
-	                         const GPUBatchSetup& batchSetup, size_t subsetId,
-	                         size_t batchId, const ProjectionData& reference);
+	                         const GPUBatchSetup& batchSetup, int subsetId,
+	                         int batchId, const ProjectionData& reference);
 	void loadPrecomputedLORsToDevice(GPULaunchConfig launchConfig);
-
-	std::shared_ptr<ScannerDevice> getScannerDevice() const;
-	const Scanner& getScanner() const;
 
 	// Gets the size of the last precomputed batch
 	size_t getPrecomputedBatchSize() const;
 	// Gets the index of the last precomputed batch
-	size_t getPrecomputedBatchId() const;
+	int getPrecomputedBatchId() const;
 	// Get the index of the last precomputed subset
-	size_t getPrecomputedSubsetId() const;
+	int getPrecomputedSubsetId() const;
 	// Gets the size of the last-loaded batch
 	size_t getLoadedBatchSize() const;
 	// Gets the index of the last-loaded batch
-	size_t getLoadedBatchId() const;
+	int getLoadedBatchId() const;
 	// Gets the index of the last-loaded subset
-	size_t getLoadedSubsetId() const;
+	int getLoadedSubsetId() const;
 
 	const float4* getLorDet1PosDevicePointer() const;
 	const float4* getLorDet1OrientDevicePointer() const;
@@ -83,10 +72,10 @@ private:
 	PageLockedBuffer<float> m_tempLorTOFValue;
 	bool m_hasTOF;
 	size_t m_precomputedBatchSize;
-	size_t m_precomputedBatchId;
-	size_t m_precomputedSubsetId;
+	int m_precomputedBatchId;
+	int m_precomputedSubsetId;
 	bool m_areLORsPrecomputed;
 	size_t m_loadedBatchSize;
-	size_t m_loadedBatchId;
-	size_t m_loadedSubsetId;
+	int m_loadedBatchId;
+	int m_loadedSubsetId;
 };

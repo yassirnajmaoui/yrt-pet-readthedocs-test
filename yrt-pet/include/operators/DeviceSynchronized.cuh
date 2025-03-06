@@ -8,6 +8,7 @@
 #include "datastruct/image/ImageBase.hpp"
 #include "datastruct/scanner/Scanner.hpp"
 #include "recon/CUParameters.hpp"
+#include "utils/GPUStream.cuh"
 #include "utils/GPUTypes.cuh"
 
 #include <cuda_runtime_api.h>
@@ -40,4 +41,8 @@ protected:
 
 	const cudaStream_t* mp_mainStream;
 	const cudaStream_t* mp_auxStream;
+
+	// In case the streams were not specified
+	std::unique_ptr<GPUStream> mp_mainStreamPtr;
+	std::unique_ptr<GPUStream> mp_auxStreamPtr;
 };

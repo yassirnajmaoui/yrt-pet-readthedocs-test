@@ -33,20 +33,21 @@ public:
 			lastBatchSize = batchSize;
 		}
 	}
-	[[nodiscard]] size_t getBatchSize(size_t batchId) const
+	[[nodiscard]] size_t getBatchSize(int batchId) const
 	{
+		ASSERT(batchId < numBatches);
 		if (batchId == numBatches - 1)
 		{
 			return lastBatchSize;
 		}
 		return batchSize;
 	}
-	[[nodiscard]] size_t getNumBatches() const { return numBatches; }
+	[[nodiscard]] int getNumBatches() const { return numBatches; }
 
 private:
 	size_t batchSize;
 	size_t lastBatchSize;
-	size_t numBatches;
+	int numBatches;
 };
 
 // Structure encoding how a kernel should be called
