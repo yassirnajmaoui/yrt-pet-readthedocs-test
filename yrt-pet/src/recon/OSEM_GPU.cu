@@ -167,14 +167,19 @@ void OSEM_GPU::allocateForRecon()
 	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
 	mpd_mlemImageTmpEMRatio =
 	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
-	mpd_mlemImageTmpPsf =
-	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
 	mpd_sensImageBuffer =
 	    std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
+
 	mpd_mlemImage->allocate(false);
 	mpd_mlemImageTmpEMRatio->allocate(false);
-	mpd_mlemImageTmpPsf->allocate(false);
 	mpd_sensImageBuffer->allocate(false);
+
+	if (flagImagePSF)
+	{
+		mpd_mlemImageTmpPsf =
+			std::make_unique<ImageDeviceOwned>(getImageParams(), getAuxStream());
+		mpd_mlemImageTmpPsf->allocate(false);
+	}
 
 	// Initialize the MLEM image values to non-zero
 	if (initialEstimate != nullptr)
@@ -202,7 +207,7 @@ void OSEM_GPU::allocateForRecon()
 	{
 		std::cout << "Summing sensitivity images to generate mask image..."
 		          << std::endl;
-		// TODO NOW: Maybe this will need to be debugged (needs care)
+
 		for (int i = 0; i < num_OSEM_subsets; ++i)
 		{
 			mpd_sensImageBuffer->copyFromHostImage(getSensitivityImage(i),
@@ -295,6 +300,7 @@ ImageBase* OSEM_GPU::getMLEMImageTmpBuffer(TemporaryImageSpaceBufferType type)
 	}
 	if (type == TemporaryImageSpaceBufferType::PSF)
 	{
+		ASSERT(flagImagePSF);
 		return mpd_mlemImageTmpPsf.get();
 	}
 	throw std::runtime_error("Unknown Temporary image type");
