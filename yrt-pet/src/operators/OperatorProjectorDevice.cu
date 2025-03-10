@@ -156,7 +156,7 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out,
 
 		for (size_t batchId = 0; batchId < numBatches; batchId++)
 		{
-			dat_out->loadPrecomputedLORsToDevice({getMainStream(), false});
+			dat_out->loadPrecomputedLORsToDevice({getMainStream(), true});
 
 			std::cout << "Forward projecting batch " << batchId + 1 << "/"
 			          << numBatches << "..." << std::endl;
@@ -171,7 +171,7 @@ void OperatorProjectorDevice::applyA(const Variable* in, Variable* out,
 				dat_out->precomputeBatchLORs(0, batchId + 1);
 			}
 			std::cout << "Transferring batch to Host..." << std::endl;
-			// This will force a synchronization
+			// This will force a necessary synchronization
 			dat_out->transferProjValuesToHost(hostDat_out, getMainStream());
 		}
 	}
