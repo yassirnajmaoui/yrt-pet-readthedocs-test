@@ -100,6 +100,11 @@ void OSEMUpdater_GPU::computeSensitivityImage(ImageDevice& destImage) const
 		// Backproject values
 		projector->applyAH(sensDataBuffer, &destImage, false);
 	}
+
+	if (mainStream != nullptr)
+	{
+		cudaStreamSynchronize(*mainStream);
+	}
 }
 
 void OSEMUpdater_GPU::computeEMUpdateImage(const ImageDevice& inputImage,
@@ -165,5 +170,10 @@ void OSEMUpdater_GPU::computeEMUpdateImage(const ImageDevice& inputImage,
 		}
 
 		projector->applyAH(tmpBufferDevice, &destImage, false);
+	}
+
+	if (mainStream != nullptr)
+	{
+		cudaStreamSynchronize(*mainStream);
 	}
 }
